@@ -1,0 +1,6 @@
+.venv/
+out/_seg/
+out/_*.png
+*.mp3
+.DS_Store
+__pycache__/
