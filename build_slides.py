@@ -7,7 +7,7 @@ import subprocess, tempfile, pathlib, sys
 ROOT = pathlib.Path(__file__).resolve().parent
 OUT = ROOT / "slides"; OUT.mkdir(exist_ok=True)
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-HANDLE = "腾铂森科技 · AI 服务商"
+HANDLE = "@ 自动化笔记"   # ← 改成你的小红书 ID(C 端账号,正文/页脚都不放公司名)
 
 CSS = """
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -66,20 +66,20 @@ ARR = '<div class="arrow">↓</div>'
 
 SLIDES = {}
 
-# 01 Cover
+# 01 Cover —— C 端「个人成长/搞钱」口吻:情绪钩子 > 信息密度
 SLIDES[1] = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{CSS}</style></head>
 <body><div class="slide">
-  <div class="eyebrow"><span class="dot"></span>自动化获客系统 · 实战案例</div>
+  <div class="eyebrow"><span class="dot"></span>用 AI 放大自己 · 实战</div>
   <div style="margin-top:30px;">
-    <h1>我用 <span class="g">1 天</span><br>搭了一套<br><span class="g">全自动</span>获客系统</h1>
-    <p class="sub" style="margin-top:50px;">给一个海外女性向生活方式 DTC 品牌<br>从 0 到上线 · 搭好就自动跑</p>
+    <h1>把一周的活<br><span class="g">干成一天</span><br>之后让它<br><span class="g">自己跑</span></h1>
+    <p class="sub" style="margin-top:50px;">我花一天搭了套自动获客系统<br>搭完它 24 小时替我干活 · 几乎零成本</p>
   </div>
   <div class="grow"></div>
   <div class="chips">
-    <span class="chip">品牌落地页</span><span class="chip">邮箱捕获</span>
-    <span class="chip">自动养熟邮件</span><span class="chip">内容流水线</span><span class="chip">数据闭环</span>
+    <span class="chip">一天搭完</span><span class="chip">自己会跑</span>
+    <span class="chip">月成本≈0</span><span class="chip">AI 只做辅助</span>
   </div>
-  <div class="foot"><div class="who">{HANDLE}</div><div class="tag">月成本 ≈ ¥0</div></div>
+  <div class="foot"><div class="who">{HANDLE}</div><div class="tag">先做一次,之后自动</div></div>
 </div></body></html>"""
 
 # 02 架构总览
@@ -197,21 +197,20 @@ inner10 = f"""<h2>现在 · 进度</h2>
 <div class="grow"></div>"""
 SLIDES[10] = shell(10, TOTAL, "当前进度", inner10)
 
-# 11 CTA
+# 11 CTA —— C 端:不导流私域,只做反问 + 评论 + 收藏(避开限流)
 SLIDES[11] = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{CSS}</style></head>
 <body><div class="slide">
-  <div class="eyebrow"><span class="dot"></span>找我做自动化<span class="idx">&nbsp;&nbsp;11/11</span></div>
+  <div class="eyebrow"><span class="dot"></span>留给你一个问题<span class="idx">&nbsp;&nbsp;11/11</span></div>
   <div style="margin-top:20px;">
-    <h1>你也想要<br>这种<span class="g">搭好<br>就自动跑</span><br>的系统?</h1>
+    <h1>你最想<br><span class="g">「自动化」掉</span><br>哪件事?</h1>
   </div>
-  <p class="sub" style="margin-top:46px;">落地页 / 邮箱漏斗 / 自动邮件 /<br>内容流水线 / 数据看板 —— 端到端帮你搭。</p>
+  <p class="sub" style="margin-top:46px;">先找出你天天在重复的那件事,<br>想办法让它「跑一次,之后就自动」。<br>一开始麻烦,搭完是真的香。</p>
   <div class="grow"></div>
   <div style="background:linear-gradient(180deg,#1b1e25,#12151b);border:1.5px solid rgba(224,176,94,.4);border-radius:24px;padding:46px 40px;text-align:center;">
-    <div style="font-size:46px;font-weight:800;color:#e8be72;margin-bottom:14px;">👉 私信 / 评论「自动化」</div>
-    <div style="font-size:38px;color:#fff;font-weight:700;">腾铂森科技 · AI 服务商</div>
-    <div style="font-size:30px;color:#9aa0a8;margin-top:10px;">帮你把重复的活,变成自动跑的系统</div>
+    <div style="font-size:44px;font-weight:800;color:#e8be72;margin-bottom:14px;">💬 评论区聊聊你的想法</div>
+    <div style="font-size:36px;color:#fff;font-weight:700;">👀 觉得有用就收藏,别弄丢</div>
   </div>
-  <div class="foot"><div class="who">腾铂森科技 · AI 服务商</div><div class="tag">AI · 自动化 · 增长</div></div>
+  <div class="foot"><div class="who">{HANDLE}</div><div class="tag">AI 是放大器,不是替身</div></div>
 </div></body></html>"""
 
 

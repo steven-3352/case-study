@@ -4,3 +4,7 @@ out/_*.png
 *.mp3
 .DS_Store
 __pycache__/
+
+# 图片/视频成品不入库(体积大,可由 build_*.py 重新生成)
+*.png
+*.mp4
