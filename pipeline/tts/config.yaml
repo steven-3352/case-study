@@ -1,0 +1,23 @@
+# Edge TTS 配置 · 默认口播方案
+# 2026-06-16 起放弃自研声音克隆，见 docs/DECISIONS.md Q7
+
+voice: zh-CN-YunjianNeural
+
+# 每次合成从离散值随机取一，避免全账号同一组参数
+jitter: true
+rate_options: ["+12%", "+14%", "+15%", "+16%", "+18%"]   # 中心 +15%
+pitch_options: ["-3Hz", "-2Hz", "-1Hz"]                 # 中心 -2Hz
+volume_options: ["-4%", "-3%", "-2%", "-1%"]           # 中心 -2%
+
+# jitter: false 时的固定值
+rate: "+15%"
+pitch: "-2Hz"
+volume: "-2%"
+
+output:
+  format: mp3
+  sample_rate: 24000
+  save_params: true          # 同目录写 speech.tts.yaml 记录本次参数
+
+script_extract:
+  markers: ["**口播：**", "**口播（续）：**"]

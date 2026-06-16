@@ -1,0 +1,5 @@
+content_id,platform,format,series,title,publish_date,exposure_48h,completion_rate_48h,likes_48h,saves_48h,comments_48h,exposure_7d,likes_7d,saves_7d,comments_7d,verdict,notes
+DRY-001,抖音,video,S1,小老板每天回30个咨询我做了个预筛表,,,,,,,,,,,pending,空跑不计入
+P001-001,小红书,video,S1,,,,,,,,,,,,pending,
+P001-002,小红书,carousel,S1,,,,,,,,,,,,pending,
+P001-003,抖音,video,S1,,,,,,,,,,,,pending,

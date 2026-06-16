@@ -2,8 +2,14 @@
 out/_seg/
 out/_*.png
 *.mp3
+*.aiff
 .DS_Store
 __pycache__/
+pipeline/**/.voice_chunks/
+
+# 配音合成产物（可 regen）
+pipeline/**/speech*.mp3
+pipeline/**/*.tts.yaml
 
 # 图片/视频成品不入库(体积大,可由 build_*.py 重新生成)
 *.png

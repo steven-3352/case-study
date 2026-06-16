@@ -1,0 +1,31 @@
+# B-roll 素材登记 · Project-001
+items:
+  - id: BR001
+    name: 落地页录屏
+    type: screen_record
+    source: assets/shots/landing.png
+    use: [落地页, 表单上方]
+  - id: BR002
+    name: 邮箱表单提交
+    type: screen_record
+    source: assets/shots/success.png
+    use: [留资瞬间]
+  - id: BR003
+    name: 欢迎邮件
+    type: screen_record
+    desc: 收件箱欢迎信截图/录屏
+    use: [邮件自动]
+  - id: BR004
+    name: 后台数据打码
+    type: screen_record
+    tier: B
+    use: [第五天复盘]
+  - id: BR006
+    name: AI内容 vs 人工排版对比
+    type: screenshot
+    use: [改法段落]
+  - id: BR007
+    name: 真实 pin/内容截图
+    type: screenshot
+    source: assets/shots/shot_pins.png
+    use: [内容像人]

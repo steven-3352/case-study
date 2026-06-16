@@ -1,0 +1,122 @@
+# 选题队列 · 你唯一需要持续输入的文件
+# status: backlog | approved | in_production | published | killed
+
+direction:
+  current: "Project-001 多形态打磨 → 发布测效果 → 总结 → 再做下一个自己的项目"
+  month_focus: ""
+  last_updated: "2026-06-16"
+
+# ── Project-001 · 现有自动化获客案例（首期，多形态） ──
+project_001:
+  id: P001
+  name: "海外品牌自动化获客系统"
+  type: own_project          # 自己做的项目，非付费客户
+  assets:                    # 已有素材
+    - build_shots.py
+    - slides/
+    - out/case_study_narrated.mp4
+    - legacy/发布/图文_A_故事踩坑/
+    - legacy/发布/图文_B_干货拆解/
+    - legacy/发布/视频_C成长/
+  variants:
+    - id: P001-A
+      topic_id: T001
+      angle: 故事踩坑
+      format: carousel
+      platforms: [小红书]
+      source: publish/P001/xhs/carousel_story.md
+      status: approved
+      note: "首条建议形态"
+
+    - id: P001-B
+      topic_id: T002
+      angle: 干货拆解
+      format: carousel
+      platforms: [小红书]
+      source: publish/P001/xhs/carousel_howto.md
+      status: backlog
+
+    - id: P001-C
+      topic_id: T003
+      angle: 成长视频
+      format: video
+      platforms: [抖音, 小红书]
+      source: publish/P001/xhs/video_script.md
+      status: backlog
+      note: "全屏演示 + Edge TTS + 字幕，无人物出镜"
+
+    - id: P001-D
+      topic_id: T004
+      angle: 视频号复盘
+      format: video
+      platforms: [视频号]
+      source: publish/P001/channels/script.md
+      status: backlog
+
+topics:
+  - id: T001
+    project: P001
+    variant: P001-A
+    series: S1
+    title: "花一天搭了套自动跑的系统，第 5 天我傻眼了"
+    angle: 故事踩坑
+    format: [carousel, video]
+    platforms: [小红书, 抖音]
+    priority: P0
+    status: approved
+    note: "Project-001 首形态，打磨 pipeline"
+
+  - id: T002
+    project: P001
+    variant: P001-B
+    series: S3
+    title: "0 后端 + 月成本几乎为 0，怎么搭一套自己会跑的获客系统"
+    angle: 干货拆解
+    format: [carousel]
+    platforms: [小红书]
+    priority: P1
+    status: backlog
+
+  - id: T003
+    project: P001
+    variant: P001-C
+    series: S1
+    title: "我用 AI 把一周的活干成一天，现在它自己在帮我赚钱"
+    angle: 成长视频
+    format: [video]
+    platforms: [抖音, 小红书]
+    priority: P1
+    status: backlog
+
+  - id: T004
+    project: P001
+    variant: P001-D
+    series: S5
+    title: "一个自动化获客项目，我踩过的坑和改法"
+    angle: 项目复盘
+    format: [video]
+    platforms: [视频号]
+    priority: P2
+    status: backlog
+
+  # ── 未来项目（需先做出系统再拍，暂 backlog） ──
+  - id: T005
+    project: null
+    series: S1
+    title: "小老板每天回 30 个咨询，我做了个预筛表"
+    angle: 小老板烦恼改造
+    format: [video, carousel]
+    platforms: [抖音, 小红书]
+    priority: P3
+    status: backlog
+    note: "需先做 demo 再拍"
+
+  - id: T006
+    project: null
+    series: S1
+    title: "报价单改到崩溃，我做了个自动报价草稿"
+    angle: 小老板烦恼改造
+    format: [video]
+    platforms: [抖音, 小红书]
+    priority: P3
+    status: backlog

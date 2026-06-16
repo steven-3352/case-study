@@ -1,0 +1,109 @@
+# 个人 IP 配置 · AI 小系统获客
+# 所有脚本生成、发布文案、评论回复风格，以此为准
+
+identity:
+  name: "干净利落脆"                    # 填你的账号名/昵称
+  handle: "27715142649/ 81711444076"  # @小红书/抖音 ID
+  tagline: "做了20年互联网，自己创业中"
+  age_tone: 中年
+  industry_years: 20
+  role: "用 AI 给小老板做真实项目改造的人，擅长把重复流程做成能跑的小系统"
+
+platforms:
+  primary: [小红书, 抖音]
+  secondary: [视频号]
+  # 起号期频率（Phase 1 生效）
+  cadence:
+    小红书: 2/week
+    抖音: 2/week
+    视频号: 1/week
+
+voice:
+  tone: [具体, 克制, 不喊口号, 偶尔自嘲]
+  perspective: 第一人称
+  openings:
+    - "我先说这个小老板最烦的点。"
+    - "这条不是教程，是我拿真实项目改出来的。"
+    - "我先说结论。"
+  catchphrases:
+    - "又改了一版"
+    - "这个流程本来就该自动"
+    - "系统能跑，但得先解决真问题"
+    - "别先讲技术，先看老板每天烦什么"
+  closings:
+    - "你们现在最烦的重复活是什么？"
+    - "有同样场景的评论区说说。"
+    - "觉得能用就收藏，后面我继续拿真实项目改。"
+
+avatar:
+  status: paused               # 2026-06-16 暂停数字人，Phase 0–1 不做
+  type: digital_human          # 恢复时再启用
+  based_on: self
+  scenes:
+    - id: study
+      desc: "书房/桌面，休闲衬衫，像在做真实项目"
+    - id: desk
+      desc: "显示器+咖啡杯，晚上加班感"
+  rules:
+    - 禁止演播室/科技感背景
+    - 禁止西装打领带企业宣传风
+    - 同一形象至少连续20条不换脸
+
+# 视频构图（2026-06-16 更新：暂停数字人，不出真人画面）
+video_layout:
+  mode: demo_only              # 全屏演示 + 口播 + 字幕；无真人/数字人出镜
+  main_layer:
+    content: [录屏, 后台数据, 系统页面, 真实截图, 对比图]
+    full_screen: true
+  presenter:
+    enabled: false             # 禁止真人自拍、数字人小窗、任何人物出镜
+  audio: edge_tts              # pipeline/tts/gen_speech.py
+  subtitles: required          # 字幕承载口播，剪映叠在主画面上
+  forbidden:
+    - 真人/数字人任何形态出镜（含右下角小窗）
+    - 主画面纯架构 PPT / 黑金幻灯片
+    - 无字幕纯 BGM
+
+content_ratio:
+  demo_broll_min: 1.0          # 画面 100% 项目演示素材
+  person_on_screen: 0          # 人物出镜占比 = 0
+
+banned_words:
+  # 标题和前三秒禁用（正文深度内容可用，但需口语化）
+  title:
+    - 全链路
+    - 0后端
+    - 赋能
+    - 闭环
+    - 降本增效
+    - 数字化转型
+    - AI服务商
+  body_soft_limit:
+    - 埋点
+    - 漏斗
+    - 免费层
+    - 杠杆
+    - 矩阵
+
+tags:
+  preferred:
+    - 小老板烦恼
+    - 项目改造
+    - 流程自动化
+    - 真实项目
+    - 独立开发
+  avoid:
+    - AI
+    - 搞钱
+    - 自由职业
+    - 数字游民
+
+cta:
+  style: 有立场的问题
+  examples:
+    - "这种流程你们现在是不是还在手工做？"
+    - "你们最烦的重复活是哪一个？"
+  forbidden:
+    - "私信我"
+    - "评论区扣1"
+    - "你最想自动化哪件事"

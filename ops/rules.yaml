@@ -1,0 +1,68 @@
+# 反馈参考规则（非硬性 KPI · 辩论结论 Q6）
+# 尽力做好内容，记录数据，凭趋势调整；有私信 = 最强正向信号
+
+metrics:
+  collect_at: [48h, 7d]
+  fields: [content_id, platform, format, title, exposure, completion_rate, likes, saves, comments, verdict, notes]
+
+# 以下阈值仅供复盘参考，不是过关门槛
+thresholds:
+  exposure:
+    low: 200
+    ok: 500
+    good: 2000
+  completion_rate:
+    low: 0.25
+    ok: 0.40
+  saves_vs_likes:
+    good_signal: saves > likes
+
+# 标签改为参考，不强制 win/lose 决策
+signals:
+  strong_positive:
+    - "收到主动私信"
+    - "评论含「我也想要/我们也有这问题」"
+    - "收藏 > 赞"
+  neutral: "有曝光但互动一般"
+  weak: "曝光极低且完播差"
+
+rules:
+  - id: R01
+    when: "连续3条 exposure < 200"
+    suggest: 换封面：数字人大头 → 真实项目截图+冲突大字
+    owner: human
+
+  - id: R02
+    when: "连续3条 exposure < 200"
+    suggest: 标题去术语，检查前三秒钩子
+    owner: human
+
+  - id: R03
+    when: "completion_rate < 25%"
+    suggest: 砍到45s，加强前3s字幕
+    owner: pipeline
+
+  - id: R04
+    when: "saves > likes"
+    suggest: 下批同项目可加干货拆解形态（如 P001-B）
+    owner: human
+
+  - id: R05
+    when: "comments >= 3 且偏场景讨论"
+    suggest: 下批同项目可加故事踩坑形态（如 P001-A）
+    owner: human
+
+  - id: R06
+    when: "收到私信"
+    suggest: 截图存 assets/leads/，notes 记录，考虑做 S5 复盘内容
+    owner: human
+
+weekly_report_template: |
+  ## 本周复盘 ({week}) · 尽力记录，不设硬性 KPI
+  - 发布: {count} 条（Project: {project_id}）
+  - 形态: {formats}
+  - 数据趋势: 曝光/完播/藏/评（填具体数或「一般」）
+  - 最强信号: {best_signal}（私信？评论？收藏？）
+  - 主观感受: 哪条最像「自己的项目」不像 AI 号？
+  - 下批建议: {direction}
+  - 待你确认: {pending_topics}
