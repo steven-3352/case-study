@@ -2,6 +2,49 @@
 
 > Phase 0 全人工 · Phase 1 半自动 · 按顺序执行，不跳步
 
+## 通用产线（新）：输入任意项目 → 三平台短视频
+
+一条命令，从 GitHub 仓库（demo 可选）自动产出抖音/小红书/视频号的
+30–60s 竖屏配音字幕 mp4 + 标题/正文/标签/封面：
+
+```bash
+.venv/bin/pip install -r pipeline/requirements.txt      # 首次
+# 有 demo（界面项目）：截真实页面
+python3 pipeline/produce.py --id P002 \
+    --github https://github.com/owner/repo \
+    --demo   https://demo.example.com \
+    --note   "一句话定位（可选）"
+# 无 demo / 非界面项目：author 自己整理 evidence 素材（终端/代码/对话/数据/笔记）
+python3 pipeline/produce.py --id P003 --github https://github.com/owner/lib
+```
+
+author 先把项目想透再写：痛点（谁的什么痛点）、解决了什么、前3秒钩子、各平台互动钩子，
+都落进 `content.yaml` 的 `topic` / `interaction` 字段。
+
+阶段（各步独立可跑，产物存在则跳过，`--force` 全量重跑）：
+
+| 步骤 | 脚本 | 产出 |
+|------|------|------|
+| ① 抓原料 | `ingest.py` | `projects/{id}/context.md` |
+| ② 写脚本文案 | `author.py`（调 Claude API） | `research.md` `plan.md` `content.yaml` |
+| ③ 真实截图 | `shoot.py`（有 demo 才截；无则全回落） | `projects/{id}/shots/*.png` |
+| ④ 渲染 | `render.py`（Ken Burns + xfade + 字幕叠层 + 封面） | `publish/{id}/{平台}/video.mp4` `cover.png` |
+| ⑤ 发布文案 | `write_publish.py` | `publish/{id}/{平台}/publish.md` |
+
+约束与现有一致：9:16、demo_only 不出镜、去 AI 味（自然 TTS + persona 口语 + 真实截图优先）。
+配音 provider 可插拔，见 `pipeline/tts/config.yaml`（edge 保底 / volcengine / minimax）。
+凭证走 `ANTHROPIC_API_KEY` 或 `ant auth login`。渲染内核统一在 `render_core.py`。
+
+素材来源：
+- 有 demo → `source=shot` 截真实页面，缺失时回落卡片。
+- 无 demo / 非界面 → `source=evidence`，author 给出 `evidence_kind`（terminal/code/chat/metric/note）
+  + `detail`，render 画成像真实截图的体裁卡（macOS 窗口外壳），不是甩一行字。
+
+---
+
+## P001 单案例流水线（既有）
+
+
 ## 流程图
 
 ```

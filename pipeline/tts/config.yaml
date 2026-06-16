@@ -1,6 +1,12 @@
 # Edge TTS 配置 · 默认口播方案
 # 2026-06-16 起放弃自研声音克隆，见 docs/DECISIONS.md Q7
 
+# 口播 provider：edge（免费保底）| volcengine（火山/豆包）| minimax（海螺）
+# 自然 TTS 需对应环境变量，未配置则自动回落 edge 并告警：
+#   volcengine: VOLC_TTS_APPID + VOLC_TTS_TOKEN
+#   minimax:    MINIMAX_GROUP_ID + MINIMAX_API_KEY
+provider: edge
+
 voice: zh-CN-YunjianNeural
 
 # 每次合成从离散值随机取一，避免全账号同一组参数
@@ -21,3 +27,15 @@ output:
 
 script_extract:
   markers: ["**口播：**", "**口播（续）：**"]
+
+# 自然 TTS provider 参数（key 走环境变量，不写这里）
+volcengine:
+  cluster: volcano_tts
+  voice_type: zh_male_M392_conversation_wvae_bigtts   # 自然对话男声，可换
+  encoding: mp3
+  speed_ratio: 1.0
+minimax:
+  model: speech-2.5-hd-preview
+  voice_id: male-qn-qingse
+  speed: 1.0
+  api_base: https://api.minimax.chat/v1/t2a_v2

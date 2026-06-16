@@ -3,6 +3,7 @@ out/_seg/
 out/_*.png
 *.mp3
 *.aiff
+*.wav
 .DS_Store
 __pycache__/
 pipeline/**/.voice_chunks/
@@ -14,3 +15,7 @@ pipeline/**/*.tts.yaml
 # 图片/视频成品不入库(体积大,可由 build_*.py 重新生成)
 *.png
 *.mp4
+
+# 通用产线工作区：克隆的外部仓库、渲染中间文件不入库
+projects/*/repo/
+**/_tmp/

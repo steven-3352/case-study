@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import random
 import re
@@ -98,6 +99,93 @@ def synthesize(text: str, voice: str, rate: str, pitch: str, volume: str, out: p
         capture_output=True,
         text=True,
     )
+
+
+def _synth_volcengine(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
+    """火山/豆包 大模型 TTS。需 VOLC_TTS_APPID + VOLC_TTS_TOKEN。返回是否成功。"""
+    import base64
+    import json
+    import urllib.request
+
+    appid, token = os.getenv("VOLC_TTS_APPID"), os.getenv("VOLC_TTS_TOKEN")
+    if not (appid and token):
+        return False
+    v = cfg.get("volcengine", {})
+    body = {
+        "app": {"appid": appid, "token": token, "cluster": v.get("cluster", "volcano_tts")},
+        "user": {"uid": "case-study"},
+        "audio": {"voice_type": v.get("voice_type", "zh_male_M392_conversation_wvae_bigtts"),
+                  "encoding": v.get("encoding", "mp3"), "speed_ratio": v.get("speed_ratio", 1.0)},
+        "request": {"reqid": f"req-{random.randint(10**9, 10**10)}", "text": text, "operation": "query"},
+    }
+    req = urllib.request.Request(
+        "https://openspeech.bytedance.com/api/v1/tts",
+        data=json.dumps(body).encode(),
+        headers={"Authorization": f"Bearer;{token}", "Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = json.loads(r.read())
+    audio = data.get("data")
+    if not audio:
+        raise RuntimeError(f"火山 TTS 无音频返回：{data.get('message') or data}")
+    out_mp3.write_bytes(base64.b64decode(audio))
+    return True
+
+
+def _synth_minimax(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
+    """MiniMax 海螺 T2A v2。需 MINIMAX_GROUP_ID + MINIMAX_API_KEY。返回是否成功。"""
+    import json
+    import urllib.request
+
+    gid, key = os.getenv("MINIMAX_GROUP_ID"), os.getenv("MINIMAX_API_KEY")
+    if not (gid and key):
+        return False
+    m = cfg.get("minimax", {})
+    base = m.get("api_base", "https://api.minimax.chat/v1/t2a_v2")
+    body = {
+        "model": m.get("model", "speech-2.5-hd-preview"),
+        "text": text,
+        "stream": False,
+        "voice_setting": {"voice_id": m.get("voice_id", "male-qn-qingse"), "speed": m.get("speed", 1.0)},
+        "audio_setting": {"format": "mp3", "sample_rate": 32000},
+    }
+    req = urllib.request.Request(
+        f"{base}?GroupId={gid}",
+        data=json.dumps(body).encode(),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = json.loads(r.read())
+    hex_audio = (data.get("data") or {}).get("audio")
+    if not hex_audio:
+        raise RuntimeError(f"MiniMax 无音频返回：{data.get('base_resp') or data}")
+    out_mp3.write_bytes(bytes.fromhex(hex_audio))
+    return True
+
+
+def synthesize_text(text: str, out_mp3: pathlib.Path, config_path: pathlib.Path = CFG_PATH) -> str:
+    """供 render.py 调用：按 config.provider 合成口播 mp3，自然 TTS 不可用则回落 edge。
+
+    返回实际使用的 provider 名。
+    """
+    text = re.sub(r"\s+", "", text)
+    out_mp3.parent.mkdir(parents=True, exist_ok=True)
+    cfg = load_config(config_path.resolve())
+    provider = cfg.get("provider", "edge")
+    try:
+        if provider == "volcengine" and _synth_volcengine(text, cfg, out_mp3):
+            return "volcengine"
+        if provider == "minimax" and _synth_minimax(text, cfg, out_mp3):
+            return "minimax"
+        if provider not in ("edge", "volcengine", "minimax"):
+            print(f"  ⚠ 未知 provider {provider}，回落 edge")
+        elif provider != "edge":
+            print(f"  ⚠ {provider} 凭证缺失，回落 edge")
+    except Exception as e:  # noqa: BLE001 — 自然 TTS 失败回落 edge
+        print(f"  ⚠ {provider} 合成失败回落 edge：{e}")
+    rate, pitch, volume = pick_tts_params(cfg, jitter=cfg.get("jitter", False))
+    synthesize(text, cfg["voice"], rate, pitch, volume, out_mp3)
+    return "edge"
 
 
 def to_wav(mp3: pathlib.Path, wav: pathlib.Path, sample_rate: int) -> None:

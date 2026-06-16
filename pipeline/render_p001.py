@@ -13,41 +13,30 @@
 from __future__ import annotations
 
 import argparse
-import base64
-import json
 import pathlib
 import subprocess
 import sys
-import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from pipeline.screen_dims import CANVAS_H, CANVAS_W, VIDEO_H, VIDEO_W
+from pipeline.render_core import (
+    VIDEO_FRAME_CSS,  # noqa: F401  保留导出以兼容
+    chrome_shot,
+    concat_segments as _concat_segments,
+    dur,
+    img_src,
+    render_video_segment,
+    tts_edge,
+)
 
 PUB = ROOT / "publish" / "P001"
 SL = ROOT / "slides"
 SHOTS = ROOT / "assets" / "shots"
 EVID = ROOT / "assets" / "broll" / "generated"
 TMP = PUB / "_tmp"
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-FONT_SRC = "/System/Library/Fonts/STHeiti Medium.ttc"
-EDGE = str(ROOT / ".venv" / "bin" / "edge-tts")
-VOICE = "zh-CN-YunjianNeural"
-RATE, PITCH, VOL = "+15%", "-2Hz", "-2%"
-PAD, FADE = 0.35, 0.25
 CW, CH = CANVAS_W, CANVAS_H  # 图文 9:16
 VW, VH = VIDEO_W, VIDEO_H  # 视频 9:16（与图文同尺寸）
-
-VIDEO_FRAME_CSS = f"""
-*{{margin:0;padding:0;box-sizing:border-box;}}
-html,body{{width:{VW}px;height:{VH}px;overflow:hidden;background:#0b0d10;}}
-body{{position:relative;}}
-.bg{{width:100%;height:100%;object-fit:fill;display:block;}}
-.sub{{position:absolute;left:0;right:0;bottom:0;padding:28px 36px 56px;text-align:center;
-  background:linear-gradient(180deg,rgba(11,13,16,0) 0%,rgba(11,13,16,.88) 45%,rgba(11,13,16,.95) 100%);
-  font-family:"Hiragino Sans GB","STHeiti",sans-serif;font-size:40px;font-weight:700;line-height:1.35;
-  color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9);}}
-"""
 
 CAROUSEL_CSS = f"""
 *{{margin:0;padding:0;box-sizing:border-box;}}
@@ -76,71 +65,6 @@ BROLL = {
 }
 
 
-def b64(p: pathlib.Path) -> str:
-    return base64.b64encode(p.read_bytes()).decode()
-
-
-def img_src(p: pathlib.Path) -> str:
-    return f"data:image/png;base64,{b64(p)}"
-
-
-def dur(path: pathlib.Path) -> float:
-    out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", str(path)],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    return float(json.loads(out)["format"]["duration"])
-
-
-def composite_video_frame(img: pathlib.Path, subtitle: str, out: pathlib.Path) -> None:
-    html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{VIDEO_FRAME_CSS}</style></head>
-<body><img class="bg" src="{img_src(img)}"><div class="sub">{subtitle}</div></body></html>"""
-    chrome_shot(html, out, VW, VH)
-
-
-def render_video_segment(img: pathlib.Path, aud: pathlib.Path, subtitle: str, seg: pathlib.Path, frame: pathlib.Path) -> float:
-    composite_video_frame(img, subtitle, frame)
-    d = dur(aud) + PAD
-    vf = f"scale={VW}:{VH},fps=30,format=yuv420p,fade=t=in:st=0:d={FADE},fade=t=out:st={d - FADE:.2f}:d={FADE}"
-    af = f"apad,afade=t=out:st={d - 0.35:.2f}:d=0.3"
-    subprocess.run(
-        [
-            "ffmpeg", "-y", "-loop", "1", "-i", str(frame), "-i", str(aud),
-            "-filter_complex", f"[0:v]{vf}[v];[1:a]{af}[a]",
-            "-map", "[v]", "-map", "[a]", "-t", f"{d:.2f}",
-            "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-            "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-pix_fmt", "yuv420p", str(seg),
-        ],
-        capture_output=True,
-        check=True,
-    )
-    return d
-
-
-def chrome_shot(html: str, out: pathlib.Path, w: int, h: int) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
-        f.write(html)
-        path = f.name
-    subprocess.run(
-        [
-            CHROME,
-            "--headless=new",
-            "--disable-gpu",
-            "--hide-scrollbars",
-            f"--screenshot={out}",
-            f"--window-size={w},{h}",
-            "--force-device-scale-factor=1",
-            f"file://{path}",
-        ],
-        capture_output=True,
-        timeout=120,
-        check=True,
-    )
-
-
 def render_text_card(title: str, sub: str = "", tag: str = "真实项目 · P001") -> str:
     sub_html = f'<div class="sub">{sub}</div>' if sub else ""
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{CAROUSEL_CSS}</style></head>
@@ -167,25 +91,11 @@ def render_dual_card(title: str, left: pathlib.Path, right: pathlib.Path) -> str
 
 
 def tts(text: str, out: pathlib.Path) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [EDGE, "--voice", VOICE, "--rate", RATE, "--pitch", PITCH, "--volume", VOL, "--text", text, "--write-media", str(out)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    tts_edge(text, out)
 
 
 def concat_segments(segs: list[pathlib.Path], out: pathlib.Path) -> None:
-    lst = TMP / f"list_{out.stem}.txt"
-    lst.write_text("".join(f"file '{s}'\n" for s in segs), encoding="utf-8")
-    subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lst),
-         "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-         "-c:a", "aac", "-b:a", "160k", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)],
-        capture_output=True,
-        check=True,
-    )
+    _concat_segments(segs, out, TMP)
 
 
 VIDEO_SPECS: dict[str, list[tuple[pathlib.Path, str, str]]] = {

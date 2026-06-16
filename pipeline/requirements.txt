@@ -1,0 +1,6 @@
+# 内容产线依赖
+# 安装：.venv/bin/pip install -r pipeline/requirements.txt
+anthropic>=0.109
+pydantic>=2.10
+PyYAML>=6.0
+# 配音（保底）：edge-tts，见 pipeline/tts/requirements.txt
