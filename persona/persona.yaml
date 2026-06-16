@@ -52,6 +52,8 @@ avatar:
 # 视频构图（2026-06-16 更新：暂停数字人，不出真人画面）
 video_layout:
   mode: demo_only              # 全屏演示 + 口播 + 字幕；无真人/数字人出镜
+  aspect_ratio: "9:16"         # 硬约束：图文+视频统一 1080×1920
+  resolution: [1080, 1920]
   main_layer:
     content: [录屏, 后台数据, 系统页面, 真实截图, 对比图]
     full_screen: true

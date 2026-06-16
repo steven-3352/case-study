@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""路线 1 · 仿真证据素材。画布 1206×1608（3:4 一屏满铺）.
+"""路线 1 · 仿真证据素材。画布 1080×1920（9:16 满铺）.
 
   python3 pipeline/gen_evidence.py
 """
@@ -131,6 +131,15 @@ def gen_memo01() -> pathlib.Path:
         ("用户画像草稿", "5月30日", "25-40 · 海外华人"),
         ("落地页配色", "5月29日", "黑金 · 别用紫渐变"),
         ("自动化节点图", "5月28日", "提交→欢迎→序列"),
+        ("A/B 测试记录", "5月27日", "headline 两版…"),
+        ("客服话术草稿", "5月26日", "退订怎么回…"),
+        ("竞品 Pin 收藏", "5月25日", "save 了 12 条…"),
+        ("域名续费提醒", "5月24日", "下月到期…"),
+        ("邮件退订分析", "5月23日", "0 退订，样本小"),
+        ("内容日历 v3", "5月22日", "排期到 6 月底"),
+        ("落地页热图", "5月21日", "表单区到达率低"),
+        ("Pin 文案备选", "5月20日", "wealth / pixiu…"),
+        ("周报 W20", "5月19日", "曝光 312 · 留资 1"),
     ]
     rows = "".join(note_row(t, m, p) for t, m, p in items)
     html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{BASE}
@@ -201,14 +210,14 @@ def gen_br004_annotated(cover_title: str, tag: str) -> pathlib.Path:
 .card h3{{font-size:11px;color:#8e8e93;margin-bottom:6px;letter-spacing:.05em;}}
 .n{{font-size:34px;font-weight:700;}} .up{{color:#34c759;font-size:14px;font-weight:600;}}
 .dn{{color:#ff3b30;font-size:14px;font-weight:600;}}
-.chart{{height:220px;display:flex;align-items:flex-end;gap:5px;margin-top:8px;position:relative;}}
+.chart{{height:260px;display:flex;align-items:flex-end;gap:5px;margin-top:8px;position:relative;}}
 .bar{{flex:1;background:#007aff;border-radius:3px 3px 0 0;}}
 .r2{{display:flex;gap:8px;margin:0 14px;flex-shrink:0;}} .r2 .card{{flex:1;margin:0;}}
 .mk{{position:absolute;inset:-4px;border:3px solid #ff3b30;border-radius:50%;}}
 .lb{{position:absolute;background:#ff3b30;color:#fff;font-size:13px;font-weight:700;padding:3px 8px;border-radius:5px;}}
 .row{{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f2f7;font-size:14px;}}
 .row:last-child{{border:none;}}
-.fill{{margin:0 14px;background:#fff;border-radius:12px;padding:16px 14px;flex-shrink:0;}}
+.fill{{flex:1;margin:0 14px;background:#fff;border-radius:12px;padding:16px 14px;min-height:0;}}
 .fill h3{{font-size:11px;color:#8e8e93;margin-bottom:8px;}}
 .fill .row{{padding:13px 0;}}
 </style></head><body><div class="shell">
@@ -270,12 +279,12 @@ def gen_br004_day5_tagged() -> pathlib.Path:
 .card{{margin:0 14px;background:#fff;border-radius:12px;padding:14px;flex-shrink:0;}}
 .card h3{{font-size:11px;color:#8e8e93;margin-bottom:6px;}}
 .n{{font-size:34px;font-weight:700;}} .up{{color:#34c759;}} .dn{{color:#ff3b30;}}
-.chart{{height:160px;display:flex;align-items:flex-end;gap:5px;margin-top:6px;}}
+.chart{{height:200px;display:flex;align-items:flex-end;gap:5px;margin-top:6px;}}
 .bar{{flex:1;background:#007aff;border-radius:3px 3px 0 0;}}
 .r2{{display:flex;gap:8px;margin:0 14px;flex-shrink:0;}} .r2 .card{{flex:1;margin:0;}}
 .row{{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f2f2f7;font-size:14px;}}
 .row:last-child{{border:none;}}
-.fill{{margin:0 14px;background:#fff;border-radius:12px;padding:16px 14px;flex-shrink:0;}}
+.fill{{flex:1;margin:0 14px;background:#fff;border-radius:12px;padding:16px 14px;min-height:0;}}
 .fill h3{{font-size:11px;color:#8e8e93;margin-bottom:8px;}}
 .fill .row{{padding:13px 0;}}
 </style></head><body><div class="shell">
@@ -361,6 +370,11 @@ def gen_stack_submit_mail() -> pathlib.Path:
         ("Substack", "New post", "Newsletter draft reminder…", "周三", "S", "#ff6719"),
         ("Zoom", "Meeting recap", "Recording is available…", "周三", "Z", "#2d8cff"),
         ("Amazon", "Delivery update", "Package out for delivery…", "周二", "@", "#ff9900"),
+        ("Slack", "New mention", "You were mentioned in…", "周一", "S", "#4a154b"),
+        ("Figma", "Comment", "Left a comment on Pin…", "周一", "F", "#a259ff"),
+        ("Twitter", "Weekly digest", "3 posts performed…", "周日", "X", "#1da1f2"),
+        ("PayPal", "Payment received", "You received a payment…", "周六", "P", "#003087"),
+        ("Dropbox", "Shared folder", "Project assets updated…", "周五", "D", "#0061ff"),
     ]
     for args in fillers:
         rows += mail_row(*args)
@@ -379,27 +393,27 @@ def gen_stack_submit_mail() -> pathlib.Path:
     return shot(html, "STACK_submit_welcome.png")
 
 
-def _slop_png() -> pathlib.Path:
-    html = """<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-*{margin:0} html,body{width:1206px;height:700px}
-.p{width:1206px;height:700px;background:linear-gradient(160deg,#7b2ff7,#f107a3 50%,#ffd700);
+def _slop_png(h: int) -> pathlib.Path:
+    html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{{margin:0}} html,body{{width:{W}px;height:{h}px}}
+.p{{width:{W}px;height:{h}px;background:linear-gradient(160deg,#7b2ff7,#f107a3 50%,#ffd700);
  display:flex;flex-direction:column;align-items:center;justify-content:center;
- font-family:Impact,sans-serif;color:#fff;text-align:center}
-h1{font-size:48px;text-shadow:2px 2px 0 #000;line-height:1.1}
-p{font-size:24px;color:#ff0;margin-top:12px}
+ font-family:Impact,sans-serif;color:#fff;text-align:center}}
+h1{{font-size:48px;text-shadow:2px 2px 0 #000;line-height:1.1}}
+p{{font-size:24px;color:#ff0;margin-top:12px}}
 </style></head><body><div class="p"><h1>WEALTH<br>MANIFEST<br>NOW!!!</h1><p>10 SECRET HABITS ✨</p></div></body></html>"""
     out = OUT / "_ai_slop_raw.png"
     with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
         f.write(html)
         p = f.name
     subprocess.run([CHROME, "--headless=new", "--disable-gpu", f"--screenshot={out}",
-                    "--window-size=1206,700", "--force-device-scale-factor=1", f"file://{p}"],
+                    f"--window-size={W},{h}", "--force-device-scale-factor=1", f"file://{p}"],
                    capture_output=True, check=True)
     return out
 
 
 def gen_br006_compare() -> pathlib.Path:
-    slop, good = _slop_png(), PINS / "pin01_wealth_corner.png"
+    slop, good = _slop_png(700), PINS / "pin01_wealth_corner.png"
     mid = body_h()
     half = (mid - 44 - 36) // 2  # hd ~36 + foot 44
     html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{BASE}

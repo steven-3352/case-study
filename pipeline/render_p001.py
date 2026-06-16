@@ -22,7 +22,7 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from pipeline.screen_dims import IPHONE_H, IPHONE_VIDEO_H, IPHONE_W
+from pipeline.screen_dims import CANVAS_H, CANVAS_W, VIDEO_H, VIDEO_W
 
 PUB = ROOT / "publish" / "P001"
 SL = ROOT / "slides"
@@ -35,17 +35,18 @@ EDGE = str(ROOT / ".venv" / "bin" / "edge-tts")
 VOICE = "zh-CN-YunjianNeural"
 RATE, PITCH, VOL = "+15%", "-2Hz", "-2%"
 PAD, FADE = 0.35, 0.25
-CW, CH = IPHONE_W, IPHONE_H  # 图文 3:4
-VW, VH = IPHONE_W, IPHONE_VIDEO_H  # 视频全屏
+CW, CH = CANVAS_W, CANVAS_H  # 图文 9:16
+VW, VH = VIDEO_W, VIDEO_H  # 视频 9:16（与图文同尺寸）
 
 VIDEO_FRAME_CSS = f"""
 *{{margin:0;padding:0;box-sizing:border-box;}}
-html,body{{width:{VW}px;height:{VH}px;overflow:hidden;}}
-body{{position:relative;background:#0b0d10;}}
-.bg{{width:{VW}px;height:{VH}px;object-fit:cover;display:block;}}
-.sub{{position:absolute;left:48px;right:48px;bottom:300px;text-align:center;
-  font-family:"Hiragino Sans GB","STHeiti",sans-serif;font-size:48px;font-weight:700;
-  color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.85),0 0 4px #000;}}
+html,body{{width:{VW}px;height:{VH}px;overflow:hidden;background:#0b0d10;}}
+body{{position:relative;}}
+.bg{{width:100%;height:100%;object-fit:fill;display:block;}}
+.sub{{position:absolute;left:0;right:0;bottom:0;padding:28px 36px 56px;text-align:center;
+  background:linear-gradient(180deg,rgba(11,13,16,0) 0%,rgba(11,13,16,.88) 45%,rgba(11,13,16,.95) 100%);
+  font-family:"Hiragino Sans GB","STHeiti",sans-serif;font-size:40px;font-weight:700;line-height:1.35;
+  color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9);}}
 """
 
 CAROUSEL_CSS = f"""
