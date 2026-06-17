@@ -15,6 +15,9 @@ import re
 import subprocess
 import sys
 
+import pipeline.env_loader  # noqa: F401 — 加载 .env
+from pipeline.env_loader import api_base
+
 try:
     import yaml
 except ImportError:
@@ -111,6 +114,7 @@ def _synth_volcengine(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
     if not (appid and token):
         return False
     v = cfg.get("volcengine", {})
+    base = api_base("VOLC_TTS_BASE_URL", cfg=v.get("api_base"), default="https://openspeech.bytedance.com")
     body = {
         "app": {"appid": appid, "token": token, "cluster": v.get("cluster", "volcano_tts")},
         "user": {"uid": "case-study"},
@@ -119,7 +123,7 @@ def _synth_volcengine(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
         "request": {"reqid": f"req-{random.randint(10**9, 10**10)}", "text": text, "operation": "query"},
     }
     req = urllib.request.Request(
-        "https://openspeech.bytedance.com/api/v1/tts",
+        f"{base}/api/v1/tts",
         data=json.dumps(body).encode(),
         headers={"Authorization": f"Bearer;{token}", "Content-Type": "application/json"},
     )
@@ -133,28 +137,40 @@ def _synth_volcengine(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
 
 
 def _synth_minimax(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
-    """MiniMax 海螺 T2A v2。需 MINIMAX_GROUP_ID + MINIMAX_API_KEY。返回是否成功。"""
+    """MiniMax TTS。async → t2a_async_v2 + speech-2.8-turbo。"""
+    from pipeline.tts.minimax_client import synth_async
+
+    m = cfg.get("minimax", {})
+    if m.get("mode", "async") == "async":
+        return synth_async(text, cfg, out_mp3)
+
+    # 旧版同步 t2a_v2 保底
     import json
     import urllib.request
 
     gid, key = os.getenv("MINIMAX_GROUP_ID"), os.getenv("MINIMAX_API_KEY")
-    if not (gid and key):
+    if not key:
         return False
-    m = cfg.get("minimax", {})
-    base = m.get("api_base", "https://api.minimax.chat/v1/t2a_v2")
+    host = api_base("MINIMAX_BASE_URL", cfg=m.get("api_host"), default="https://api.minimaxi.com")
+    url = f"{host}/v1/t2a_v2"
+    if gid:
+        url += f"?GroupId={gid}"
     body = {
-        "model": m.get("model", "speech-2.5-hd-preview"),
+        "model": m.get("model", "speech-2.8-turbo"),
         "text": text,
         "stream": False,
-        "voice_setting": {"voice_id": m.get("voice_id", "male-qn-qingse"), "speed": m.get("speed", 1.0)},
-        "audio_setting": {"format": "mp3", "sample_rate": 32000},
+        "language_boost": m.get("language_boost", "Chinese"),
+        "voice_setting": {
+            "voice_id": m.get("voice_id", "male-qn-badao"),
+            "speed": m.get("speed", 1.0),
+        },
+        "audio_setting": {"format": "mp3", "sample_rate": m.get("sample_rate", 32000)},
     }
     req = urllib.request.Request(
-        f"{base}?GroupId={gid}",
-        data=json.dumps(body).encode(),
+        url, data=json.dumps(body).encode(),
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=60) as r:
         data = json.loads(r.read())
     hex_audio = (data.get("data") or {}).get("audio")
     if not hex_audio:

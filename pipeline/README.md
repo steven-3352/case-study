@@ -32,7 +32,8 @@ author 先把项目想透再写：痛点（谁的什么痛点）、解决了什�
 | ⑤ 发布文案 | `write_publish.py` | `publish/{id}/{平台}/publish.md` |
 
 约束与现有一致：9:16、demo_only 不出镜、去 AI 味（自然 TTS + persona 口语 + 真实截图优先）。
-配音 provider 可插拔，见 `pipeline/tts/config.yaml`（edge 保底 / volcengine / minimax）。
+配音 provider 可插拔，见 `pipeline/tts/config.yaml`（edge 保底 / volcengine / minimax）。  
+**API 凭证**：仓库根目录 `.env`（模板见 `.env.example`），`pipeline/env_loader.py` 在脚本启动时自动加载。
 凭证走 `ANTHROPIC_API_KEY` 或 `ant auth login`。渲染内核统一在 `render_core.py`。
 
 素材来源：

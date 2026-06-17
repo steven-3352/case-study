@@ -19,6 +19,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+import pipeline.env_loader  # noqa: F401 — 加载 .env
 from pipeline.screen_dims import CANVAS_H, CANVAS_W, VIDEO_H, VIDEO_W
 from pipeline.render_core import (
     VIDEO_FRAME_CSS,  # noqa: F401  保留导出以兼容
@@ -27,8 +28,8 @@ from pipeline.render_core import (
     dur,
     img_src,
     render_video_segment,
-    tts_edge,
 )
+from pipeline.tts.gen_speech import CFG_PATH, synthesize_text
 
 PUB = ROOT / "publish" / "P001"
 SL = ROOT / "slides"
@@ -91,7 +92,8 @@ def render_dual_card(title: str, left: pathlib.Path, right: pathlib.Path) -> str
 
 
 def tts(text: str, out: pathlib.Path) -> None:
-    tts_edge(text, out)
+    prov = synthesize_text(text, out, CFG_PATH)
+    print(f"      TTS ({prov}): {out.name}")
 
 
 def concat_segments(segs: list[pathlib.Path], out: pathlib.Path) -> None:

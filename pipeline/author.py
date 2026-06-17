@@ -5,7 +5,7 @@
   A 调研补充：web_search 服务端工具，结合「AI 创业」背景补数据/案例 → research.md
   B 结构化产出：messages.parse + Pydantic，注入 persona/约束 → content.yaml
 
-凭证走 ANTHROPIC_API_KEY 或 `ant auth login`，不硬编码。
+凭证：仓库根目录 `.env` 中的 ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL（中转），或 `ant auth login`。
 
 用法:
   python3 pipeline/author.py --id P002
@@ -16,6 +16,9 @@ import argparse
 import pathlib
 import sys
 from typing import Literal
+
+import pipeline.env_loader  # noqa: F401 — 加载 .env
+import os
 
 import yaml
 from pydantic import BaseModel, Field
@@ -271,7 +274,9 @@ def main() -> None:
     has_demo = (not args.no_demo) and detect_has_demo(context)
     print(f"  素材模式：{'有 demo → 真实截图优先' if has_demo else '无 demo → 自整理 evidence 素材'}")
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(
+        **({"base_url": os.environ["ANTHROPIC_BASE_URL"].rstrip("/")} if os.getenv("ANTHROPIC_BASE_URL") else {})
+    )
 
     research_notes = ""
     if not args.skip_research:

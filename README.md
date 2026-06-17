@@ -27,6 +27,22 @@
 | [docs/TODO.md](docs/TODO.md) | 每日任务 |
 | [docs/TECH_STACK.md](docs/TECH_STACK.md) | 技术栈 |
 
+## 环境配置
+
+API 密钥统一放在仓库根目录 **`.env`**（不入库）：
+
+```bash
+cp .env.example .env
+# 三方中转：每个服务填 KEY + BASE_URL（见 .env.example 注释）
+```
+
+| 服务 | KEY | BASE_URL（中转根地址） |
+|------|-----|------------------------|
+| MiniMax TTS | `MINIMAX_API_KEY` | `MINIMAX_BASE_URL` |
+| Claude | `ANTHROPIC_API_KEY` | `ANTHROPIC_BASE_URL` |
+| 火山 TTS | `VOLC_TTS_APPID` + `VOLC_TTS_TOKEN` | `VOLC_TTS_BASE_URL` |
+| OpenAI 图像 | `OPENAI_API_KEY` | `OPENAI_BASE_URL` |
+
 ## 旧版说明（案例素材包）
 
 本 repo 最初是半匿名自动化案例素材包，现升级为内容增长引擎。

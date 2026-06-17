@@ -21,6 +21,33 @@ python3 pipeline/tts/gen_speech.py \
 
 同目录会写 `speech.tts.yaml` 记录本次实际参数。固定参数时加 `--no-jitter`。
 
+## MiniMax · speech-2.8-turbo（自然 TTS）
+
+```bash
+cp .env.example .env   # 填入 MINIMAX_API_KEY + MINIMAX_BASE_URL（三方中转根地址）
+
+# 批量试听 6 个候选音色 → pipeline/tts/_previews/*.mp3
+python3 pipeline/tts/preview_minimax_voices.py
+
+# 启用 minimax：编辑 config.yaml → provider: minimax
+python3 pipeline/tts/gen_speech.py --text "第五天一看数据，我傻眼了。" -o /tmp/test.mp3
+```
+
+接口：`{MINIMAX_BASE_URL}/v1/t2a_async_v2`，模型 `speech-2.8-turbo`。  
+`.env` 里 `MINIMAX_BASE_URL` 优先于 `config.yaml` 的 `api_host`；未填则走官方 `api.minimaxi.com`。凭证缺失时自动回落 Edge TTS。
+
+**P001 口播候选（按自然度优先）：**
+
+| voice_id | 名称 | 特点 |
+|----------|------|------|
+| `Chinese (Mandarin)_Radio_Host` | 电台男主播 | 叙事感强，默认首选 |
+| `Chinese (Mandarin)_Gentleman` | 温润男声 | 中年、克制 |
+| `Chinese (Mandarin)_Reliable_Executive` | 沉稳高管 | 匹配「20年互联网」 |
+| `Chinese (Mandarin)_Sincere_Adult` | 真诚青年 | 偏口语 |
+| `Chinese (Mandarin)_Southern_Young_Man` | 南方小哥 | 更生活化 |
+
+慎选：`male-qn-qingse`（太嫩）、`Male_Announcer`（播音腔）、`male-qn-badao`（戏剧化）。
+
 ## 换音色 / 微调
 
 编辑 `config.yaml`：

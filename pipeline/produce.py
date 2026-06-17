@@ -10,7 +10,7 @@
       --demo   https://demo.example.com \
       --note   "一句话定位（可选）"
 
-需要 ANTHROPIC_API_KEY 或 `ant auth login`；自然 TTS 见 pipeline/tts/config.yaml。
+需要仓库根目录 `.env` 中的 ANTHROPIC_API_KEY（或 `ant auth login`）；自然 TTS 见 pipeline/tts/config.yaml。
 """
 from __future__ import annotations
 
@@ -18,6 +18,8 @@ import argparse
 import pathlib
 import subprocess
 import sys
+
+import pipeline.env_loader  # noqa: F401 — 加载 .env
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PY = sys.executable

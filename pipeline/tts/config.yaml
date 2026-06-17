@@ -2,10 +2,11 @@
 # 2026-06-16 起放弃自研声音克隆，见 docs/DECISIONS.md Q7
 
 # 口播 provider：edge（免费保底）| volcengine（火山/豆包）| minimax（海螺）
-# 自然 TTS 需对应环境变量，未配置则自动回落 edge 并告警：
-#   volcengine: VOLC_TTS_APPID + VOLC_TTS_TOKEN
-#   minimax:    MINIMAX_GROUP_ID + MINIMAX_API_KEY
-provider: edge
+# 凭证写在仓库根目录 .env（见 .env.example），脚本启动时自动加载：
+#   volcengine: VOLC_TTS_APPID + VOLC_TTS_TOKEN + VOLC_TTS_BASE_URL（中转，可选）
+#   minimax:    MINIMAX_API_KEY + MINIMAX_BASE_URL（中转）+ MINIMAX_GROUP_ID（可选）
+#   author:     ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL（中转，可选）
+provider: minimax
 
 voice: zh-CN-YunjianNeural
 
@@ -34,8 +35,32 @@ volcengine:
   voice_type: zh_male_M392_conversation_wvae_bigtts   # 自然对话男声，可换
   encoding: mp3
   speed_ratio: 1.0
+  # api_base 仅作未设置 VOLC_TTS_BASE_URL 时的兜底
+  api_base: https://openspeech.bytedance.com
 minimax:
-  model: speech-2.5-hd-preview
-  voice_id: male-qn-qingse
+  model: speech-2.8-turbo
+  mode: sync                     # 云雾中转 async 轮询易超时，短口播用 sync /v1/t2a_v2
+  # api_host 仅作未设置 MINIMAX_BASE_URL 时的兜底；中转请写 .env
+  api_host: https://api.minimaxi.com
+  voice_id: male-qn-badao
   speed: 1.0
-  api_base: https://api.minimax.chat/v1/t2a_v2
+  vol: 1.0
+  pitch: 0
+  language_boost: Chinese
+  format: mp3
+  sample_rate: 32000
+  channel: 1
+  # 试听：python3 pipeline/tts/preview_minimax_voices.py
+  voice_candidates:
+    - id: Chinese (Mandarin)_Radio_Host
+      label: 电台男主播
+    - id: Chinese (Mandarin)_Gentleman
+      label: 温润男声
+    - id: Chinese (Mandarin)_Sincere_Adult
+      label: 真诚青年
+    - id: Chinese (Mandarin)_Southern_Young_Man
+      label: 南方小哥
+    - id: Chinese (Mandarin)_Reliable_Executive
+      label: 沉稳高管
+    - id: male-qn-badao
+      label: 霸道青年（当前选用）

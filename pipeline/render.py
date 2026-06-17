@@ -23,6 +23,7 @@ import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+import pipeline.env_loader  # noqa: F401 — 加载 .env
 from pipeline.render_core import CHROME, VH, VW, dur
 from pipeline.tts.gen_speech import synthesize_text
 

@@ -18,6 +18,7 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+import pipeline.env_loader  # noqa: F401 — 加载 .env
 from pipeline.screen_dims import VIDEO_H, VIDEO_W
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
