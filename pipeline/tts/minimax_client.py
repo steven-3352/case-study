@@ -47,7 +47,10 @@ def _minimax_host(cfg: dict) -> str:
     return api_base("MINIMAX_BASE_URL", cfg=m.get("api_host"), default="https://api.minimaxi.com")
 
 
-def create_async_task(text: str, cfg: dict, *, key: str, group_id: str | None) -> tuple[str, int | None]:
+def create_async_task(
+    text: str, cfg: dict, *, key: str, group_id: str | None,
+    emotion: str | None = None, speed: float | None = None,
+) -> tuple[str, int | None]:
     m = cfg.get("minimax", cfg)
     host = _minimax_host(cfg)
     url = _with_group(f"{host}/v1/t2a_async_v2", group_id)
@@ -58,7 +61,7 @@ def create_async_task(text: str, cfg: dict, *, key: str, group_id: str | None) -
         "language_boost": m.get("language_boost", "Chinese"),
         "voice_setting": {
             "voice_id": vs.get("voice_id") or m.get("voice_id", "male-qn-badao"),
-            "speed": vs.get("speed", m.get("speed", 1.0)),
+            "speed": speed if speed is not None else vs.get("speed", m.get("speed", 1.0)),
             "vol": vs.get("vol", m.get("vol", 1.0)),
             "pitch": vs.get("pitch", m.get("pitch", 0)),
         },
@@ -69,7 +72,7 @@ def create_async_task(text: str, cfg: dict, *, key: str, group_id: str | None) -
             "channel": m.get("channel", 1),
         },
     }
-    emo = vs.get("emotion") or m.get("emotion")
+    emo = emotion or vs.get("emotion") or m.get("emotion")
     if emo:
         body["voice_setting"]["emotion"] = emo
     data = _request("POST", url, key, body=body)
@@ -114,13 +117,17 @@ def download_file(file_id: int, cfg: dict, *, key: str, group_id: str | None) ->
         raise RuntimeError(f"MiniMax 下载 HTTP {e.code}: {err}") from e
 
 
-def synth_async(text: str, cfg: dict, out_mp3) -> bool:
+def synth_async(
+    text: str, cfg: dict, out_mp3, *, emotion: str | None = None, speed: float | None = None
+) -> bool:
     """异步 T2A v2 合成。凭证缺失返回 False。"""
     key = os.getenv("MINIMAX_API_KEY")
     group_id = os.getenv("MINIMAX_GROUP_ID") or cfg.get("minimax", {}).get("group_id")
     if not key:
         return False
-    task_id, _ = create_async_task(text, cfg, key=key, group_id=group_id)
+    task_id, _ = create_async_task(
+        text, cfg, key=key, group_id=group_id, emotion=emotion, speed=speed
+    )
     file_id = poll_async_task(task_id, cfg, key=key, group_id=group_id)
     audio = download_file(file_id, cfg, key=key, group_id=group_id)
     out_mp3.parent.mkdir(parents=True, exist_ok=True)

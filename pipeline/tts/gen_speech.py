@@ -136,15 +136,20 @@ def _synth_volcengine(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
     return True
 
 
-def _synth_minimax(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
-    """MiniMax TTS。async → t2a_async_v2 + speech-2.8-turbo。"""
-    from pipeline.tts.minimax_client import synth_async
+def _synth_minimax(
+    text: str, cfg: dict, out_mp3: pathlib.Path, *, emotion: str | None = None, speed: float | None = None
+) -> bool:
+    """MiniMax TTS。async → t2a_async_v2 + speech-2.8-turbo。
 
+    emotion/speed 为本段覆盖值（render 按内容弧线逐段传入）；缺省读 config。
+    """
     m = cfg.get("minimax", {})
     if m.get("mode", "async") == "async":
-        return synth_async(text, cfg, out_mp3)
+        from pipeline.tts.minimax_client import synth_async
 
-    # 旧版同步 t2a_v2 保底
+        return synth_async(text, cfg, out_mp3, emotion=emotion, speed=speed)
+
+    # 同步 t2a_v2：低延迟、适合短口播（云雾中转 async 轮询易超时）
     import json
     import urllib.request
 
@@ -155,34 +160,64 @@ def _synth_minimax(text: str, cfg: dict, out_mp3: pathlib.Path) -> bool:
     url = f"{host}/v1/t2a_v2"
     if gid:
         url += f"?GroupId={gid}"
+    voice_setting = {
+        "voice_id": m.get("voice_id", "male-qn-badao"),
+        "speed": speed if speed is not None else m.get("speed", 1.0),
+        "vol": m.get("vol", 1.0),
+        "pitch": m.get("pitch", 0),
+    }
+    emo = emotion or m.get("emotion")
+    if emo:
+        voice_setting["emotion"] = emo
     body = {
         "model": m.get("model", "speech-2.8-turbo"),
         "text": text,
         "stream": False,
         "language_boost": m.get("language_boost", "Chinese"),
-        "voice_setting": {
-            "voice_id": m.get("voice_id", "male-qn-badao"),
-            "speed": m.get("speed", 1.0),
-        },
+        "voice_setting": voice_setting,
         "audio_setting": {"format": "mp3", "sample_rate": m.get("sample_rate", 32000)},
     }
-    req = urllib.request.Request(
-        url, data=json.dumps(body).encode(),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        data = json.loads(r.read())
+
+    def _post(payload: dict) -> dict:
+        req = urllib.request.Request(
+            url, data=json.dumps(payload).encode(),
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read())
+
+    try:
+        data = _post(body)
+    except Exception:  # noqa: BLE001 — emotion 字段中转可能不支持，去掉重试一次
+        if "emotion" in voice_setting:
+            voice_setting.pop("emotion")
+            data = _post(body)
+        else:
+            raise
     hex_audio = (data.get("data") or {}).get("audio")
     if not hex_audio:
-        raise RuntimeError(f"MiniMax 无音频返回：{data.get('base_resp') or data}")
+        # base_resp 报错也可能因 emotion，去掉重试一次
+        if "emotion" in voice_setting:
+            voice_setting.pop("emotion")
+            data = _post(body)
+            hex_audio = (data.get("data") or {}).get("audio")
+        if not hex_audio:
+            raise RuntimeError(f"MiniMax 无音频返回：{data.get('base_resp') or data}")
     out_mp3.write_bytes(bytes.fromhex(hex_audio))
     return True
 
 
-def synthesize_text(text: str, out_mp3: pathlib.Path, config_path: pathlib.Path = CFG_PATH) -> str:
+def synthesize_text(
+    text: str,
+    out_mp3: pathlib.Path,
+    config_path: pathlib.Path = CFG_PATH,
+    *,
+    emotion: str | None = None,
+    speed: float | None = None,
+) -> str:
     """供 render.py 调用：按 config.provider 合成口播 mp3，自然 TTS 不可用则回落 edge。
 
-    返回实际使用的 provider 名。
+    emotion/speed 为本段覆盖（render 按内容弧线逐段传入）。返回实际使用的 provider 名。
     """
     text = re.sub(r"\s+", "", text)
     out_mp3.parent.mkdir(parents=True, exist_ok=True)
@@ -191,7 +226,7 @@ def synthesize_text(text: str, out_mp3: pathlib.Path, config_path: pathlib.Path 
     try:
         if provider == "volcengine" and _synth_volcengine(text, cfg, out_mp3):
             return "volcengine"
-        if provider == "minimax" and _synth_minimax(text, cfg, out_mp3):
+        if provider == "minimax" and _synth_minimax(text, cfg, out_mp3, emotion=emotion, speed=speed):
             return "minimax"
         if provider not in ("edge", "volcengine", "minimax"):
             print(f"  ⚠ 未知 provider {provider}，回落 edge")

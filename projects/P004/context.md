@@ -1,7 +1,19 @@
 # 项目原料投喂包 · P004
 
 ## 作者一句话定位
-Pinterest 类图片瀑布流项目
+Tonbird —— 海外小众风水(feng shui)品牌，一个人搭起的**全自动获客系统**（面向海外英文用户）。
+
+## 核心卖点（内容主线，必须围绕，不要跑偏到「怎么出图」）
+这个项目的价值不是「AI 怎么画图」，而是**一个人用 AI 搭起一整套面向海外的全自动获客漏斗 / 邮件营销系统**：
+1. Pinterest 竖版招财风水图引流（图只是漏斗入口，最多占一段）
+2. 落地页 fengshui.tonbirds.com 让访客留 first name + email（lead magnet 是免费 PDF《The Wealth Phoenix Guide》7 个风水秘诀）
+3. 表单一提交，Netlify 函数自动发欢迎邮件 + 附 PDF（经 Resend），即时
+4. drip 定时函数自动跑养熟邮件序列：Day 0/2/4/6/8/10 共 6 封，深化 7 秘诀、建立信任、软导流到未来付费「个人财富蓝图」报告；用 Netlify Blobs 记状态，幂等不重发、漏跑会补
+5. 合规：soft claims（traditionally / many believe），每封带免责 + 退订
+6. **一个人、全程自动、不用真人盯，做的是海外生意**
+
+内容要让潜在客户看到的是：原来一个人靠 AI 能把「引流→留资→自动发资料→邮件养熟→转化」这条线全自动跑起来，而且做的是海外市场。出图技巧只是其中一个环节的证据，绝不是主线。
+
 
 ## 来源
 - GitHub: git@github.com:steven-3352/Pinterest.git

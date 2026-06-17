@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import html
 import pathlib
+import random
 import re
 import subprocess
 import sys
@@ -28,9 +29,15 @@ from pipeline.render_core import CHROME, VH, VW, dur
 from pipeline.tts.gen_speech import synthesize_text
 
 FONT_STACK = '"Hiragino Sans GB","STHeiti","PingFang SC",sans-serif'
-PAD = 0.35          # 每段尾部留白
-XFADE = 0.35        # 转场时长
+PAD = 0.15          # 每段尾部留白（节奏更紧）
+XFADE = 0.22        # 转场时长（更利落）
 XF_KINDS = ["fade", "slideleft", "slideup", "fade", "smoothleft"]
+
+# 背景音乐：项目根目录单曲，随机截取一段（--bgm 可覆盖）
+BGM_DEFAULT = ROOT / "我曾经的丫头.mp3"
+BGM_PATH = BGM_DEFAULT          # main() 按 --bgm 覆盖
+# 情绪弧线兜底（content 段未标 emotion 时按位置取）：钩子兴奋→踩坑无奈→方案笃定→收尾真诚
+EMOTION_ARC = ["happy", "sad", "happy", "neutral"]
 
 
 # ── Chrome 截图（支持透明） ──
@@ -143,26 +150,96 @@ def evidence_card(kind: str, detail: str, sub: str, out: pathlib.Path) -> None:
         fallback_card("\n".join(lines)[:120], out, tag="项目笔记")
 
 
-# ── 封面：真实截图 + 手写感大字 ──
-def cover_png(hook: str, bg_img: pathlib.Path | None, out: pathlib.Path) -> None:
-    h = html.escape(hook)
+# ── 封面底图选择：品牌美图模糊打底 > shot > 渐变 ──
+def pick_cover_bg(pid: str, cv: dict, status: dict, shots_dir: pathlib.Path) -> pathlib.Path | None:
+    proj = ROOT / "projects" / pid
+    # 1) content 显式指定 cover.bg（repo 相对路径或 glob）
+    explicit = (cv.get("bg") or "").strip()
+    if explicit:
+        cands = sorted((ROOT.glob(explicit) if any(c in explicit for c in "*?[") else [ROOT / explicit]))
+        cands = [p for p in cands if p.exists()]
+        if cands:
+            return _pick_by_hook(cands, cv)
+    # 2) cover.shot_ref 对应的真实截图
+    cref = (cv.get("shot_ref") or "").strip()
+    if cref and status.get(cref) == "ok":
+        p = shots_dir / f"{cref}.png"
+        if p.exists():
+            return p
+    # 3) 项目自带品牌图：coverbg/ 或 仓库产出 pins/final（启发式）
+    pools: list[pathlib.Path] = sorted((proj / "coverbg").glob("*.png")) if (proj / "coverbg").exists() else []
+    if not pools:
+        pools = sorted(proj.glob("repo/**/pins/final/*.png"))
+    if pools:
+        return _pick_by_hook(pools, cv)
+    # 4) 无图 → 设计版深色暖金渐变（在 cover_png 内处理）
+    return None
+
+
+def _pick_by_hook(cands: list[pathlib.Path], cv: dict) -> pathlib.Path:
+    """按 hook 文案做确定性选择，使 douyin/channels 自动错开同一张图。"""
+    seed = (cv.get("hook", "") + cv.get("kicker", "")) or "x"
+    return cands[sum(ord(c) for c in seed) % len(cands)]
+
+
+# ── 封面：品牌美图模糊打底 + kicker + 大钩子（关键词高亮）+ 副钩子 ──
+def cover_png(cv: dict, title: str, bg_img: pathlib.Path | None, out: pathlib.Path) -> None:
+    hook = (cv.get("hook") or title or "").strip()
+    kicker = (cv.get("kicker") or "真实项目 · AI 小系统").strip()
+    sub = (cv.get("sub") or "").strip()
+    mark = (cv.get("mark") or "").strip()       # 要高亮的关键词（可选）
+
+    # 钩子多行 + 关键词高亮
+    lines = [ln for ln in re.split(r"[\n｜]", hook) if ln.strip()] or [hook]
+    def _fmt(line: str) -> str:
+        e = html.escape(line)
+        if mark and mark in line:
+            e = e.replace(html.escape(mark), f"<span class=mark>{html.escape(mark)}</span>")
+        return e
+    hook_html = "<br>".join(_fmt(ln) for ln in lines)
+    # 末行无显式 mark 时，整条末行加底纹高亮，制造视觉落点
+    if not mark and len(lines) >= 1:
+        parts = hook_html.rsplit("<br>", 1)
+        last = f"<span class=mark>{parts[-1]}</span>"
+        hook_html = (parts[0] + "<br>" + last) if len(parts) == 2 else last
+
     if bg_img and bg_img.exists():
         import base64
         b64 = base64.b64encode(bg_img.read_bytes()).decode()
-        bg = f"background:url(data:image/png;base64,{b64}) center/cover;"
+        bg_layer = (f".bg{{position:absolute;inset:-40px;"
+                    f"background:url(data:image/png;base64,{b64}) center/cover;"
+                    f"filter:blur(22px) brightness(.5) saturate(1.1);}}")
     else:
-        bg = "background:#15110c;"
+        bg_layer = (".bg{position:absolute;inset:0;"
+                    "background:radial-gradient(120% 90% at 50% 8%,#3a2c12 0%,#1c150b 48%,#0c0a06 100%);}")
+
+    sub_html = f"<div class=sub>{html.escape(sub)}</div>" if sub else ""
     css = f"""*{{margin:0;padding:0;box-sizing:border-box}}
 html,body{{width:{VW}px;height:{VH}px;font-family:{FONT_STACK}}}
-.c{{width:100%;height:100%;{bg}position:relative}}
-.scrim{{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 40%,rgba(0,0,0,.7))}}
-.hk{{position:absolute;left:60px;right:60px;top:150px;font-size:96px;font-weight:900;line-height:1.18;
-  color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.85)}}
+.c{{width:100%;height:100%;position:relative;overflow:hidden;background:#0c0a06}}
+{bg_layer}
+.scrim{{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(8,8,6,.78) 0%,rgba(8,8,6,.30) 34%,rgba(8,8,6,.55) 70%,rgba(8,8,6,.9) 100%)}}
+.wrap{{position:absolute;inset:0;padding:130px 70px 150px;display:flex;flex-direction:column}}
+.kicker{{align-self:flex-start;font-size:34px;font-weight:700;letter-spacing:.12em;color:#ffd98a;
+  border:2px solid rgba(255,217,138,.55);border-radius:999px;padding:14px 30px;margin-bottom:48px;
+  background:rgba(0,0,0,.25);text-shadow:0 2px 8px rgba(0,0,0,.6)}}
+.hk{{font-size:108px;font-weight:900;line-height:1.16;color:#fff;letter-spacing:.01em;
+  text-shadow:0 4px 22px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.9)}}
 .mark{{box-decoration-break:clone;-webkit-box-decoration-break:clone;
-  background:linear-gradient(transparent 62%,#ffd23f 62% 94%,transparent 94%);padding:0 6px}}"""
-    _chrome(f"<!DOCTYPE html><html><head><meta charset=utf-8><style>{css}</style></head>"
-            f"<body><div class=c><div class=scrim></div>"
-            f"<div class=hk><span class=mark>{h}</span></div></div></body></html>", out)
+  background:linear-gradient(transparent 58%,#ffcf2e 58% 96%,transparent 96%);
+  color:#1a1206;padding:0 10px;border-radius:4px}}
+.sub{{margin-top:auto;font-size:46px;font-weight:700;line-height:1.4;color:#ffe7b0;
+  text-shadow:0 3px 14px rgba(0,0,0,.9)}}
+.sub::before{{content:'';display:block;width:90px;height:6px;border-radius:3px;
+  background:#ffcf2e;margin-bottom:26px}}"""
+    _chrome(
+        f"<!DOCTYPE html><html><head><meta charset=utf-8><style>{css}</style></head>"
+        f"<body><div class=c><div class=bg></div><div class=scrim></div>"
+        f"<div class=wrap><div class=kicker>{html.escape(kicker)}</div>"
+        f"<div class=hk>{hook_html}</div>{sub_html}</div></div></body></html>",
+        out,
+    )
 
 
 # ── 素材解析：每个 segment → 一张底图 ──
@@ -245,6 +322,59 @@ def xfade_concat(clips: list[pathlib.Path], durs: list[float], out: pathlib.Path
     )
 
 
+# ── 情绪弧线：段未显式标 emotion 时，按位置给一条起伏曲线 ──
+def emotion_for(seg: dict, idx: int, total: int) -> str:
+    explicit = (seg.get("emotion") or "").strip()
+    if explicit:
+        return explicit
+    if total <= 1:
+        return "happy"
+    if idx == 0:
+        return "happy"               # 首段兴奋钩子
+    if idx == total - 1:
+        return "neutral"             # 末段真诚收尾
+    return EMOTION_ARC[idx % len(EMOTION_ARC)]
+
+
+# ── BGM：随机截取一段，sidechain 闪避（说话压低/间隙浮起）后与口播混合 ──
+def mix_bgm(video: pathlib.Path, bgm: pathlib.Path, out: pathlib.Path, *, gain: float = 0.55) -> bool:
+    """把 bgm 随机一段叠到 video 的口播下。失败/缺失返回 False，不阻断主流程。"""
+    if not bgm.exists():
+        print(f"    ⚠ BGM 不存在，跳过：{bgm}")
+        return False
+    try:
+        vdur, bdur = dur(video), dur(bgm)
+    except Exception as e:  # noqa: BLE001
+        print(f"    ⚠ BGM 探测时长失败，跳过：{e}")
+        return False
+    start = round(random.uniform(0, max(0.0, bdur - vdur - 0.5)), 2) if bdur > vdur + 1 else 0.0
+    fo = max(0.5, vdur - 1.6)
+    # [1] BGM：截取→压低增益→进出淡化；用口播 [0:a] 作 sidechain 触发闪避；再与口播混合
+    fc = (
+        f"[1:a]atrim={start}:{start + vdur},asetpts=PTS-STARTPTS,"
+        f"volume={gain},afade=t=in:st=0:d=0.8,afade=t=out:st={fo:.2f}:d=1.2[bg];"
+        f"[bg][0:a]sidechaincompress=threshold=0.03:ratio=8:attack=12:release=320:makeup=1[bgd];"
+        f"[0:a][bgd]amix=inputs=2:normalize=0:duration=first:dropout_transition=0[a]"
+    )
+    tmp_out = out.with_name(out.stem + "_bgm.mp4")
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", str(video), "-i", str(bgm),
+             "-filter_complex", fc, "-map", "0:v", "-map", "[a]",
+             "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-ar", "44100",
+             "-movflags", "+faststart", str(tmp_out)],
+            capture_output=True, check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        msg = e.stderr.decode()[-300:] if e.stderr else str(e)
+        print(f"    ⚠ BGM 混音失败，保留无 BGM 版：{msg}")
+        tmp_out.unlink(missing_ok=True)
+        return False
+    tmp_out.replace(out)
+    print(f"    ♪ BGM 叠加：{bgm.name} @ {start:.1f}s（gain {gain} · 闪避）")
+    return True
+
+
 def render_platform(pid: str, plat: str, spec: dict, shots_dir: pathlib.Path,
                     status: dict, shots_meta: dict) -> None:
     out_dir = ROOT / "publish" / pid / plat
@@ -256,26 +386,28 @@ def render_platform(pid: str, plat: str, spec: dict, shots_dir: pathlib.Path,
         return
 
     clips, durs = [], []
+    n = len(segs)
     for i, seg in enumerate(segs):
         img = resolve_image(seg, shots_dir, status, tmp, i)
         sub = tmp / f"sub_{i:02d}.png"
         subtitle_png(seg.get("sub", ""), sub)
         aud = tmp / f"a_{i:02d}.mp3"
-        prov = synthesize_text(seg.get("vo", ""), aud)
+        emo = emotion_for(seg, i, n)
+        prov = synthesize_text(seg.get("vo", ""), aud, emotion=emo)
         clip = tmp / f"seg_{i:02d}.mp4"
         d = render_segment(img, sub, aud, clip, i)
         clips.append(clip); durs.append(d)
-        print(f"    seg{i}: {d:.1f}s · {seg.get('source')} · tts={prov}")
+        print(f"    seg{i}: {d:.1f}s · {seg.get('source')} · tts={prov} · 情绪={emo}")
 
     video = out_dir / "video.mp4"
     xfade_concat(clips, durs, video)
+    mix_bgm(video, BGM_PATH, video)          # 叠 BGM（失败/缺失则保留无 BGM 版）
     total = dur(video)
 
-    # 封面
+    # 封面：品牌美图模糊打底 + kicker + 大钩子 + 副钩子
     cv = spec.get("cover", {}) or {}
-    cref = cv.get("shot_ref", "")
-    bg = shots_dir / f"{cref}.png" if status.get(cref) == "ok" else None
-    cover_png(cv.get("hook", spec.get("title", "")), bg, out_dir / "cover.png")
+    bg = pick_cover_bg(pid, cv, status, shots_dir)
+    cover_png(cv, spec.get("title", ""), bg, out_dir / "cover.png")
     print(f"  [{plat}] ✓ video.mp4 {total:.1f}s + cover.png")
 
 
@@ -283,7 +415,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="content.yaml → 三平台视频")
     ap.add_argument("--id", required=True)
     ap.add_argument("--platform", nargs="*", choices=["douyin", "xhs", "channels"])
+    ap.add_argument("--bgm", type=pathlib.Path, default=BGM_DEFAULT, help="背景音乐 mp3（随机截取）")
     args = ap.parse_args()
+
+    global BGM_PATH
+    BGM_PATH = args.bgm
 
     proj = ROOT / "projects" / args.id
     content = yaml.safe_load((proj / "content.yaml").read_text(encoding="utf-8"))

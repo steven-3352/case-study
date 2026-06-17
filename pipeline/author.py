@@ -65,6 +65,16 @@ SYSTEM = """你是一名中文短视频内容操盘手，为一个「用 AI 给�
 【口播与字幕】
 - vo 是要被 TTS 念的整句口播；sub 是叠画面的短字幕（≤14字，提炼 vo 的钩子词）。
 - 三平台口播/文案要差异化，不复用同一套话术。
+- 每段标 emotion，让整条有情绪起伏（不是平铺）：第 1 段钩子用 happy 或 surprised；
+  讲痛点/踩坑用 sad（强烈吐槽可 angry）；讲方案/见效用 happy；最后收尾/抛问题用 neutral。
+
+【封面 · 决定点击率，必须当成钩子来写】
+- hook：≤16字，前置最强冲突/反差/数字，制造好奇缺口，让人忍不住点进来。可用换行分 2 行，
+  把最狠的词放第 2 行。反例（太平）：「AI 只让它干一半的活」。正例：「一天几十张引流图\n全是AI画的」。
+- mark：从 hook 里挑 1 个最该被记住的关键词高亮（必须是 hook 子串）；想不到就留空。
+- kicker：≤8字顶部小标签，点明这是真实项目/什么系统，如「真实项目 · 出图系统」。
+- sub：≤16字底部副钩子，再补一刀好奇心或结果，如「但没人看出来是AI」。
+- shot_ref/bg 一般留空：封面底图由 render 自动取项目品牌成品图模糊打底。
 
 【三平台口味差异】
 - douyin：标题≤30字冲突前置；节奏快；30–45s；标签窄。
@@ -90,11 +100,22 @@ class Segment(BaseModel):
     detail: str = Field(description="evidence/web 的可渲染内容（多行）；shot 段留空字符串")
     vo: str = Field(description="该段完整口播（被 TTS 念）")
     sub: str = Field(description="叠画面的短字幕，≤14字")
+    emotion: Literal[
+        "happy", "sad", "angry", "fearful", "disgusted", "surprised", "neutral"
+    ] = Field(
+        default="neutral",
+        description="该段口播情绪，让整条有起伏：钩子段 happy/surprised，踩坑段 sad/angry，"
+        "方案段 happy，收尾段 neutral。",
+    )
 
 
 class Cover(BaseModel):
-    hook: str = Field(description="封面大字钩子，≤16字")
-    shot_ref: str = Field(description="封面用哪张 shot；无 shot 时留空")
+    hook: str = Field(description="封面大字钩子，≤16字；可用换行分 2 行，要有好奇缺口/反差/数字，不平铺")
+    kicker: str = Field(description="封面顶部小标签，≤8字，如『真实项目 · 出图系统』")
+    sub: str = Field(description="封面底部副钩子，≤16字，补一刀好奇心，如『但没人看出来是AI』")
+    mark: str = Field(default="", description="hook 里要高亮的关键词（≤6字，须是 hook 的子串）；没有就留空")
+    shot_ref: str = Field(default="", description="封面用哪张 shot；无 shot 时留空，render 自动选品牌图")
+    bg: str = Field(default="", description="封面底图 repo 相对路径/glob；留空则 render 自动选品牌成品图")
 
 
 class Platform(BaseModel):
@@ -179,9 +200,10 @@ def draft(client: "anthropic.Anthropic", context: str, research_notes: str, has_
         "- 核心选题：pain（谁的什么痛点）/ solves（解决了什么，用结果说）/ hook（前3秒钩子）/ angle（切入角度）\n"
         + material
         + "- 三个平台各自的：标题、发布正文、3-6 个标签、目标时长秒、interaction（评论区互动钩子）、"
-        "封面(大字钩子+用哪张shot/无shot留空)、"
-        "分镜 segments（每段：source、ref、evidence_kind、detail、整句口播 vo、短字幕 sub）。\n"
-        "口播要把每段都写满、写成能直接念的话；三平台文案要差异化。"
+        "封面（hook 大字钩子≤16字可换行 + mark 高亮关键词 + kicker 顶部小标签 + sub 底部副钩子；"
+        "shot_ref/bg 留空由 render 自动取品牌图）、"
+        "分镜 segments（每段：source、ref、evidence_kind、detail、整句口播 vo、短字幕 sub、emotion 情绪）。\n"
+        "口播要把每段都写满、写成能直接念的话；每段标 emotion 让整条有情绪起伏；三平台文案要差异化。"
     )
     resp = client.messages.create(
         model=MODEL,
@@ -202,7 +224,9 @@ def structure(client: "anthropic.Anthropic", plan_md: str) -> Content:
         "【关键】方案里每个平台的『分镜 segments』通常是一个 markdown 表格，"
         "表格的每一行（# 1,2,3…）就是一个 segment 对象，必须逐行转录、一行都不能漏。"
         "把行内的 source / evidence_kind / detail / vo（口播）/ sub（字幕）分别填进对应字段；"
-        "detail 里的 <br> 换成真实换行。\n"
+        "detail 里的 <br> 换成真实换行。每段 emotion 按方案里标注填（happy/sad/angry/fearful/"
+        "disgusted/surprised/neutral 之一），没标就按位置推断（钩子段 happy、痛点段 sad、收尾 neutral）。\n"
+        "每个平台 cover 必须填 hook/kicker/sub（mark/shot_ref/bg 可留空字符串）。\n"
         "三个平台 douyin/xhs/channels 都必须有非空 segments 和 title/body/tags。\n"
         "source 只能是 shot/evidence/web；source=shot 时 evidence_kind 填 none、detail 留空字符串；"
         "source=evidence/web 时 evidence_kind 选 terminal/code/chat/metric/note 之一并把 detail 填满。"

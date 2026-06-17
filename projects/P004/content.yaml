@@ -1,194 +1,218 @@
 topic:
   id: P004
-  pain: 想靠 Pinterest / 小红书做图文引流的小老板、独立做产品的人：要日更几十张竖版图，请不起设计师，自己抠图又慢；试过让 AI 直接出图，结果满屏错字、字体糊、排版乱，发出去一眼假、没人点。产能和质量两头卡。
-  solves: 把出图这件重复活拆成能跑的小系统：AI 只画没字的背景（便宜、几十秒一张），文字用真字体在无头 Chrome 里排版、两倍渲染保证清晰，出来不像 AI。图做好自动挂落地页，访客留邮箱后自动发
-    PDF 指南和后续邮件，整条线一个人守得住。卡点从「做不做得出来」变成「选题准不准」。
-  hook: 「一个人一天上几十张引流图，没请设计师——但没人看出来是 AI 做的。」反常识点：我没让 AI 干全部，只让它干一半。
-  angle: 不是教 AI 生图，是讲「AI 做内容工厂的正确分工」：让 AI 干它擅长的（画背景），别让它干它最差的（写字），剩下交给真字体和自动化。
+  pain: 想做海外（英文）生意、手上只有自己一个人的小老板/独立创业者。最折磨的不是引不来人，而是「留资之后」那一步：图也发了、人也引来了，访客留完邮箱就没下文——跟进全靠手动发邮件，一忙两三天就忘，留资名单躺在表格里吃灰，辛辛苦苦弄来的线索白白凉掉。
+  solves: 把「引流→留资→自动发资料→连发6封养熟邮件→软导流付费」整条线做成一个能自己跑的小系统。访客提交邮箱那一秒，自动发英文欢迎信＋免费PDF；之后10天内 Day 0/2/4/6/8/10
+    自动发6封养熟邮件，用状态记录保证不重发、漏跑能补。一个人不用盯，做的还是老外的英文市场。结果：跟进环节人工盯守时间≈0，线索不再因为「忘了发」而流失。
+  hook: 客户留完邮箱那一秒，后面10天的6封跟进信，我一封都没碰过。
+  angle: 不讲「AI 怎么画图」——出图只是漏斗入口的一段证据。主线是一个人怎么把海外获客里最容易拖、最容易掉链子的「跟进环节」整个交给系统，证明单人也能跑通海外生意的获客闭路。
 shots: []
 douyin:
-  title: 一个人一天发几十张图，居然没人看出是AI做的
-  body: 一个人，一天上几十张引流图，没请设计师。秘密是我没让 AI 出成品——它写字十张八张废。我只让它画背景，文字我自己排。这种重复活你们还在手工做吗？
+  title: 一个人做老外生意，跟进邮件我一封没发过
+  body: 留邮箱的那一刻，后面十天六封跟进信全是系统自己发。我做的不是出图，是把「跟进客户」这件最容易拖的事变成自动跑的小系统，做的还是老外的钱。
   tags:
   - 小老板烦恼
   - 流程自动化
   - 项目改造
-  - 独立开发
   - 真实项目
-  duration_s: 36
-  interaction: 你们用 AI 做图，是真省了事，还是改图改到比自己画还累？
+  duration_s: 40
+  interaction: 你们留了客户联系方式之后，是不是也放那儿吃灰了？
   cover:
-    hook: AI 只让它干一半的活
+    hook: '10天6封跟进信
+
+      我一封没碰过'
+    kicker: 真实项目·自动跟进
+    sub: 做的还是老外的钱
+    mark: 一封没碰过
     shot_ref: ''
+    bg: ''
   segments:
   - source: evidence
-    ref: e1
-    evidence_kind: metric
-    detail: '改造前：一张图外包设计 80 元 / 等 1 天 / 一天最多上 2-3 张
-
-      改造后：一张图约几毛钱 / 30 秒 / 一天能上几十张，风格还统一'
-    vo: 一个人一天上几十张引流图，没请设计师，也没自己熬夜抠图。
-    sub: 一天几十张 没设计师
-  - source: evidence
-    ref: e2
-    evidence_kind: code
-    detail: '# 千万别让 AI 直接出带字的图
-
-      payload = {"model": model, "prompt": prompt, "size":"1024x1536"}
-
-      # 实测：AI 写字十张八张错字、排版乱、一眼假'
-    vo: 我没让它出成品。让 AI 直接写字，十张有八张错字、排版乱，发出去一眼就假。
-    sub: AI 写字＝一眼假
-  - source: evidence
-    ref: e3
-    evidence_kind: code
-    detail: '.title{ font-family:"Didot",Georgia,serif; font-size:96px; }
-
-      # AI 只画没字的背景，文字用真字体排
-
-      # 无头 Chrome 渲 2 倍，保证清晰不糊'
-    vo: 我只让它画没字的背景，文字我用真字体排，渲两倍清晰度，出来没人看得出是 AI。
-    sub: AI 画背景 真字体排版
-  - source: evidence
-    ref: e4
+    ref: dy-01
     evidence_kind: note
-    detail: '这条线其实就三段：
+    detail: '- 项目：Tonbird —— 做老外的风水引流生意
 
-      1 AI 画背景 2 真字体排版 3 留资自动发邮件
+      - 访客落地页留邮箱 → 后面 10 天自动发 6 封跟进信
 
-      整条流程一个人守得住'
-    vo: 图做好自动挂落地页，留了邮箱还能自动发资料，整条线一个人就能跑。这种重复活，你们现在还在手工做吗？
-    sub: 一个人跑一条线
+      - 全程我一封没手动发过'
+    vo: 客户在落地页留完邮箱那一秒，后面十天要发的六封跟进信，我一封都没碰过。
+    sub: 6封信我一封没碰
+    emotion: surprised
+  - source: evidence
+    ref: dy-02
+    evidence_kind: note
+    detail: '- 以前：引流来的人，留完邮箱就凉了
+
+      - 跟进全靠手动，一忙两三天就忘
+
+      - 名单躺在表格里吃灰'
+    vo: 以前最坑的就是这步，人辛辛苦苦引来，留了邮箱我发两天就忘，名单全躺着吃灰。
+    sub: 留了邮箱就吃灰
+    emotion: sad
+  - source: evidence
+    ref: dy-03
+    evidence_kind: code
+    detail: "```js\n// drip.mjs — 定时函数自己跑养熟序列\nconst SCHEDULE = [0, 2, 4, 6, 8, 10]; // Day 0/2/4/6/8/10\
+      \ 共6封\nfor (const lead of leads) {\n  const day = daysSince(lead.joinedAt);\n  if (SCHEDULE.includes(day)\
+      \ && !sent(lead, day)) {\n    await sendEmail(lead, templateFor(day));\n    await markSent(lead,\
+      \ day);        // Netlify Blobs 记状态\n  }\n}\n```"
+    vo: 现在这个定时函数自己跑，第零、二、四、六、八、十天各发一封，发过的记下来，绝不重发。
+    sub: 定时自己发 不重发
+    emotion: happy
+  - source: evidence
+    ref: dy-04
+    evidence_kind: metric
+    detail: '- 改造前：手动跟进，3天弃疗，线索流失大半
+
+      - 改造后：留资即发欢迎信+PDF，10天6封全自动
+
+      - 我盯守时间 = 0'
+    vo: 一个人，做老外的英文市场，跟进环节我盯的时间是零。你们留了客户联系方式之后，是不是也放那儿吃灰了？
+    sub: 你是不是也放着吃灰
+    emotion: neutral
 xhs:
-  title: 用AI做图省钱，第一批图全废了——后来我改对了一个地方
-  body: 本来想用 AI 做图省设计费，结果第一批全废——错字、字体糊、排版乱，发 Pinterest 没人点。后来才想明白：AI 最不擅长的就是写字。我把它的活砍了一半，只让它画背景，文字自己用真字体排，无头
-    Chrome 渲两倍。图做好自动进落地页，访客留邮箱就自动发 PDF 指南和后续邮件，不用我守着。卡点一下从「做不做得出来」变成「选题准不准」。觉得能用就收藏，后面我继续拿真实项目改。
+  title: 一个人做海外生意，我把「跟进客户」这步整个交给了系统
+  body: 复盘一个我自己做的海外项目。一个人做老外的风水引流生意，最值钱的不是会出图，是把「留资之后」做成系统。以前引流来的人留了邮箱，我总想着抽空再发，结果一忙就忘，人家早把你凉了。现在访客一提交就秒发欢迎信＋免费PDF，后面十天还会自动发五封慢慢养熟、软导流到付费报告，每封带免责和退订，合规也兜住了。说到底我做的不是出图技巧，是把最容易拖的那件事变成能自己跑的小系统。
   tags:
   - 小老板烦恼
-  - 项目改造
   - 流程自动化
   - 真实项目
+  - 项目改造
   - 独立开发
-  duration_s: 52
-  interaction: 你们让 AI 做图，是不是也踩过满屏错字、排版丑这个坑？最后是放弃了还是改对了？
+  duration_s: 55
+  interaction: 你们手上的客户名单，现在是手动跟还是干脆不跟？
   cover:
-    hook: AI 最不擅长的，就是写字
+    hook: '留资名单别吃灰
+
+      10天自动跟6封'
+    kicker: 真实项目·邮件养熟
+    sub: 一个人做老外的钱
+    mark: 自动跟6封
     shot_ref: ''
+    bg: ''
   segments:
   - source: evidence
-    ref: e1
+    ref: xhs-01
+    evidence_kind: note
+    detail: '- 复盘一个我自己做的海外项目
+
+      - 一个人，做老外的风水引流生意
+
+      - 最值钱的不是出图，是跟进全自动'
+    vo: 这条不是教程，是我拿真实项目复盘的，一个人做老外生意，最值钱的一步是把跟进做成全自动。
+    sub: 最值钱的是自动跟进
+    emotion: happy
+  - source: evidence
+    ref: xhs-02
     evidence_kind: chat
-    detail: '客户：我想做 Pinterest 引流，但请不起设计
+    detail: '- 我：以前引流来的人，留了邮箱我就想着抽空发资料
 
-      我：可以让 AI 做图，但有个大坑
+      - 我：结果一忙起来，三天就忘了
 
-      客户：什么坑'
-    vo: 这条不是教程，是我拿真实项目改出来的。本来想用 AI 做图省钱，结果第一批全废了。
-    sub: 第一批图全废
+      - 我：等想起来，人家早把你忘了'
+    vo: 踩过的坑我先说，以前留了邮箱我总想着抽空再发，结果一忙三天就忘，等想起来人早凉了。
+    sub: 一忙就忘 人就凉了
+    emotion: sad
   - source: evidence
-    ref: e2
+    ref: xhs-03
+    evidence_kind: code
+    detail: "```js\n// submission-created.js —— 表单一提交，Netlify 自动触发\nexports.handler = async (event) =>\
+      \ {\n  const { first_name, email } = parse(event);\n  await resend.send({\n    to: email,\n    subject:\
+      \ \"Your phoenix is rising \U0001F525\",\n    html: welcomeHtml(first_name),   // 欢迎信 + PDF 下载链接\n\
+      \  });\n};\n```"
+    vo: 现在访客一提交，这个函数立刻触发，秒发一封英文欢迎信，把免费PDF的下载链接附进去，全程不用我点一下。
+    sub: 提交即发 秒回PDF
+    emotion: happy
+  - source: evidence
+    ref: xhs-04
     evidence_kind: metric
-    detail: '第一批 AI 直接出图的问题：
+    detail: '- Day0 欢迎信 + PDF（即时）
 
-      错字率 高 / 字体发糊 / 排版乱
+      - Day2/4/6/8/10 各一封：深化7个秘诀、建信任、软导流付费报告
 
-      发出去点击≈0'
-    vo: AI 直接生成带字的图，错字、字体糊、排版乱，发出去基本没人点。
-    sub: 错字 糊 排版乱
+      - Netlify Blobs 记状态：不重发、漏跑会补'
+    vo: 更省心的是后面的养熟序列，十天里第二、四、六、八、十天各发一封，慢慢建立信任，再软导流到后面的付费报告。
+    sub: 10天6封 慢慢养熟
+    emotion: happy
   - source: evidence
-    ref: e3
-    evidence_kind: code
-    detail: '# 想明白了：AI 最差的就是写字
-
-      payload = {"size":"1024x1536"}  # 只要背景，不要字
-
-      .title{ font-family:"Didot",serif; font-size:96px; }
-
-      # 真字体 + 无头 Chrome 渲 2 倍'
-    vo: 后来想明白，AI 最不擅长的就是写字。我让它只画背景，文字我自己用真字体排，渲两倍，立马就不像 AI 了。
-    sub: AI 只画背景
-  - source: evidence
-    ref: e4
-    evidence_kind: code
-    detail: '// 表单提交后自动触发
-
-      const GUIDE_URL = ".../wealth-phoenix-guide.pdf";
-
-      // 发欢迎邮件 + 后续培育序列，全程不用人盯'
-    vo: 图做好自动挂落地页，访客留了邮箱，系统就自动发指南 PDF 和后面几封邮件，我不用守着。
-    sub: 留资自动发邮件
-  - source: evidence
-    ref: e5
+    ref: xhs-05
     evidence_kind: note
-    detail: '复盘：卡点变了
+    detail: '- 一个人、全程自动、做的是海外英文市场
 
-      以前：做不做得出来
+      - 我做的不是出图技巧，是把跟进变成系统
 
-      现在：选题准不准、文案打不打动人'
-    vo: 这么一改，卡点从「做不做得出来」变成「选题准不准」。你们用 AI 做图，是不是也踩过满屏错字这个坑？
-    sub: 卡点从做不出→选不准
+      - 合规：每封带免责 + 退订'
+    vo: 说到底我做的不是出图技巧，是把跟进这件最容易拖的事变成系统。你们手上的客户名单，现在是手动跟还是干脆不跟？
+    sub: 名单你是跟还是不跟
+    emotion: neutral
 channels:
-  title: 分享一个我自己在跑的小出图系统，AI 只干一半的活
-  body: 分享一个我自己在跑的小系统。要日更竖版引流图，请设计师太贵，自己排又慢，于是我把出图拆成三段：AI 画没字的背景、真字体在无头 Chrome 里排版渲两倍、图做好自动挂落地页留资发邮件。关键是没让
-    AI 包圆——它写字那块最容易翻车。这套思路也适合做别的小批量内容。分享给也在做类似小系统的朋友。
+  title: 一个人怎么把海外获客的跟进，做成能自己跑的小系统
+  body: 分享一个我自己搭的小系统。一个人做老外的生意，从引流到跟进整条线都是自动跑的：访客在落地页留下名字和邮箱，系统立刻发欢迎信＋免费指南；接下来十天定时函数自己跑，分六封慢慢养熟，发过的会记下来不会重发，漏了下次补上。搭好之后我基本不用管，做的还是海外英文市场。很多人不是引不来人，是卡在留资之后没人跟。分享给也在做类似小系统的朋友。
   tags:
-  - 小老板烦恼
-  - 流程自动化
   - 真实项目
-  - 项目改造
+  - 流程自动化
+  - 小老板烦恼
   - 独立开发
-  duration_s: 56
-  interaction: 如果是你做内容工厂，你会让 AI 干到哪一步、从哪一步开始自己接手？
+  - 项目改造
+  duration_s: 57
+  interaction: 一个人到底能不能做老外的生意？做过的聊聊。
   cover:
-    hook: AI 干一半，剩下交给真字体
+    hook: '一个人做老外生意
+
+      跟进全靠系统跑'
+    kicker: 真实项目·海外获客
+    sub: 10天6封我没碰过
+    mark: 全靠系统跑
     shot_ref: ''
+    bg: ''
   segments:
   - source: evidence
-    ref: e1
+    ref: ch-01
     evidence_kind: note
-    detail: '起因：要日更竖版引流图
+    detail: '- 分享一个我自己搭的海外小系统
 
-      请设计师：贵 / 慢
+      - 一个人做老外的风水引流生意
 
-      自己排：累 / 不统一
-
-      → 想做成能自动跑的小系统'
-    vo: 我先说这个小老板最烦的点：要天天发竖版引流图，请设计师太贵，自己排又慢还不统一。
-    sub: 天天出图 太磨人
+      - 引流→留资→发资料→养熟，全自动'
+    vo: 今天分享一个我自己搭的小系统，一个人做老外的生意，从引流到跟进，整条线都是自己跑的。
+    sub: 整条线自动跑
+    emotion: happy
   - source: evidence
-    ref: e2
-    evidence_kind: terminal
-    detail: '$ python3 scripts/gen_image.py "wealth corner, warm gold, no text" --size 1024x1536
+    ref: ch-02
+    evidence_kind: note
+    detail: '- 很多人不是引不来人，是卡在「留资之后」
 
-      -> POST .../images/generations  model=gpt-image
+      - 客户留了联系方式，后面没人跟
 
-      saved: pins/generated/bg01.png  (1.8s)'
-    vo: 我把它拆成三段。第一段，让 AI 画一张没有文字的竖版背景，一两秒就好。
-    sub: AI 画背景 1.8 秒
+      - 手动发邮件，发两封就断了'
+    vo: 其实很多人不是引不来人，是卡在留资之后那一步，客户留了联系方式，后面没人跟，手动发两封就断了。
+    sub: 都卡在留资之后
+    emotion: sad
   - source: evidence
-    ref: e3
-    evidence_kind: terminal
-    detail: "$ python3 scripts/compose_pin.py --bg bg01.png \\\n  --kicker \"FENG SHUI · 01\" --title\
-      \ \"Awaken Your\nWealth Corner\"\nrendered 1000x1500 @2x -> pins/final/pin01.png"
-    vo: 第二段，文字用真字体在无头 Chrome 里排，渲两倍清晰度，这步是关键——AI 写字最容易翻车，我没让它碰。
-    sub: 真字体 排版渲 2 倍
-  - source: evidence
-    ref: e4
+    ref: ch-03
     evidence_kind: code
-    detail: '// 第三段：留资后自动化
-
-      const GUIDE_URL = ".../wealth-phoenix-guide.pdf";
-
-      // submission-created → 发指南；drip → 后续培育序列'
-    vo: 第三段，图发出去带回的访客留了邮箱，系统自动发指南和后续邮件，全程不用人盯。
-    sub: 留资到培育全自动
+    detail: "```js\nconst FROM = \"Tonbird <hello@tonbirds.com>\";\nconst GUIDE_URL = \".../wealth-phoenix-guide.pdf\"\
+      ;\n// 表单提交 → Netlify 自动触发 → Resend 发信\nawait resend.send({\n  to: email,\n  subject: \"Your phoenix\
+      \ is rising\",\n  html: welcomeHtml(name),   // 欢迎信内嵌 PDF 下载\n});\n```"
+    vo: 访客在落地页留下名字和邮箱，系统立刻发一封欢迎信，把免费指南的PDF直接送过去，这一步是即时的。
+    sub: 留资即发 即时送达
+    emotion: happy
   - source: evidence
-    ref: e5
-    evidence_kind: note
-    detail: '一句话：别让 AI 包圆
+    ref: ch-04
+    evidence_kind: code
+    detail: "```js\n// drip.mjs —— 定时跑，10天6封\nconst SCHEDULE = [0, 2, 4, 6, 8, 10];\nif (SCHEDULE.includes(day)\
+      \ && !sent(lead, day)) {\n  await sendEmail(lead, templateFor(day));\n  await markSent(lead, day);\
+      \   // 记状态：不重发、漏跑补\n}\n```"
+    vo: 接下来十天定时函数自己跑，分六封慢慢养熟，发过的会记下来不会重发，万一漏了下次补上。
+    sub: 六封养熟 漏了会补
+    emotion: happy
+  - source: evidence
+    ref: ch-05
+    evidence_kind: metric
+    detail: '- 写好邮件序列 + 部署一次，之后基本不动
 
-      它擅长画图，不擅长写字和判断
+      - 做的是海外英文市场，每封带免责 + 退订
 
-      分清这条线，单人也能跑内容工厂'
-    vo: 这套思路的核心是别让 AI 包圆，分清它擅长和不擅长的，单人也能跑。分享给也在做类似小系统的朋友。
-    sub: 别让 AI 包圆
+      - 跟进环节我盯守时间趋近 0'
+    vo: 搭好之后我基本不用管，做的还是海外英文市场。一个人到底能不能做老外的生意？做过的朋友评论区聊聊，也分享给在做类似小系统的人。
+    sub: 一个人能做老外生意吗
+    emotion: neutral

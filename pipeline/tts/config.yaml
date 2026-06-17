@@ -43,9 +43,12 @@ minimax:
   # api_host 仅作未设置 MINIMAX_BASE_URL 时的兜底；中转请写 .env
   api_host: https://api.minimaxi.com
   voice_id: male-qn-badao
-  speed: 1.0
+  speed: 1.08              # 节奏更紧（>1 更快）；render 可按段覆盖
   vol: 1.0
   pitch: 0
+  # 情绪：render 按段弧线传入 emotion，逐段抑扬；合法值见下
+  # happy/sad/angry/fearful/disgusted/surprised/neutral
+  emotion_arc: [happy, sad, happy, neutral]   # 钩子兴奋→踩坑无奈→方案笃定→收尾真诚
   language_boost: Chinese
   format: mp3
   sample_rate: 32000
