@@ -14,3 +14,6 @@ pipeline/**/*.tts.yaml
 # 图片/视频成品不入库(体积大,可由 build_*.py 重新生成)
 *.png
 *.mp4
+
+# 发布产物目录(内容产出物,不入库)
+publish/
