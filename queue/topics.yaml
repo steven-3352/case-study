@@ -120,3 +120,16 @@ topics:
     platforms: [抖音, 小红书]
     priority: P3
     status: backlog
+
+  # ── Project-003 · 多 Agent 协作元叙事 ──
+  - id: T007
+    project: P003
+    series: S2
+    title: "我说了一句话，9 个 AI 抢着帮我干"
+    angle: 多 Agent 协作元叙事
+    format: [carousel]
+    platforms: [小红书]
+    priority: P1
+    status: in_production
+    note: "制作过程本身=素材；CLAUDE.md 多工种流程首次实跑；6 张图，封面 P002 报纸风+内页 P001 真实截图/备忘录风"
+    source: publish/P003/xhs/script.md
