@@ -17,3 +17,8 @@ pipeline/**/*.tts.yaml
 
 # 发布产物目录(内容产出物,不入库)
 publish/
+
+# 环境变量（含 API key，禁止提交）
+.env
+.env.*
+!.env.example
