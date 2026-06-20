@@ -1,2 +1,5 @@
 edge-tts>=6.1.0
 pyyaml>=6.0
+# MiniMax provider (gen_speech_minimax.py)
+requests>=2.31
+python-dotenv>=1.0

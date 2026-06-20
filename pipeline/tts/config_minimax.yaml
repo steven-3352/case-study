@@ -1,0 +1,45 @@
+# MiniMax T2A async v2 · 通过 yunwu.ai 代理
+# 接口文档: https://platform.minimaxi.com/docs/api-reference/speech-t2a-async-create
+# 模型 / 音色 / Key 走 .env (TTS_MODEL / TTS_VOICE / TTS_API_KEY / TTS_BASE_URL),
+# 本文件只配 voice_setting / audio_setting / 轮询参数 / 提取规则。
+
+# 每次合成从离散值随机取一,避免全账号同一组参数
+jitter: true
+
+voice_setting:
+  # 中心 1.0,±0.05;MiniMax 允许 0.5–2.0
+  speed: 1.0
+  speed_options: [0.95, 0.97, 1.00, 1.03, 1.05]
+  # 整数,-12 到 12,中心 0
+  pitch: 0
+  pitch_options: [-1, 0, 0, 0, 1]
+  # 0.1–10,中心 1.0
+  vol: 1.0
+  vol_options: [0.95, 1.00, 1.05]
+  # neutral/happy/sad/angry/fearful/disgusted/surprised
+  emotion: neutral
+  # 中英混合时启用
+  english_normalization: false
+
+audio_setting:
+  format: mp3            # mp3 / pcm / flac / wav
+  sample_rate: 32000     # 8000 / 16000 / 22050 / 24000 / 32000 / 44100
+  bitrate: 128000        # mp3 比特率
+  channel: 1
+
+poll:
+  interval_seconds: 3    # 轮询间隔
+  timeout_seconds: 300   # 最大等待
+
+http:
+  request_timeout: 30
+  retries: 3
+  backoff_seconds: 3     # 每次重试前 backoff_seconds * attempt
+
+output:
+  format: mp3            # 同时支持 wav,需要时由 ffmpeg 转码
+  sample_rate: 24000     # wav 转码时的采样率
+  save_params: true      # 同目录写 speech.tts.yaml 记录本次参数
+
+script_extract:
+  markers: ["**口播：**", "**口播（续）：**"]
