@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>08 CTA</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .stage {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 480px;
+      text-align: center;
+    }
+    .cta-main {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 120px;
+      color: var(--gray-1);
+      letter-spacing: 2px;
+      line-height: 1.25;
+      padding: 0 60px;
+      opacity: 0;
+      word-break: keep-all;
+    }
+    .cta-main .accent {
+      color: var(--orange);
+    }
+    .cta-sub {
+      margin-top: 60px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 60px;
+      color: var(--green);
+      opacity: 0;
+      letter-spacing: 6px;
+    }
+    .arrow-down {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 500px;
+      text-align: center;
+      font-size: 200px;
+      color: var(--green);
+      opacity: 0;
+      filter: drop-shadow(0 0 30px rgba(80, 250, 123, 0.4));
+    }
+    .badge-channel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 320px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 32px;
+      color: var(--gray-3);
+      letter-spacing: 6px;
+      opacity: 0;
+    }
+    .badge-channel .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      vertical-align: middle;
+      margin-right: 10px;
+      box-shadow: 0 0 12px var(--red);
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="badge-channel" id="channel">
+      <span class="dot"></span>LIVE · /comments
+    </div>
+
+    <div class="stage">
+      <div class="cta-main" id="main">
+        你最烦哪个<br><span class="accent">重复活</span>?
+      </div>
+      <div class="cta-sub" id="sub">评论区聊聊</div>
+    </div>
+
+    <div class="arrow-down" id="arrow">↓</div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.cta_main) {
+      const m = document.getElementById("main");
+      // 高亮词由 data.accent_word 指定(默认"重复活")
+      const accent = data.accent_word || "重复活";
+      const re = new RegExp(accent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      if (re.test(data.cta_main)) {
+        m.innerHTML = data.cta_main.replace(re,
+          `<br><span class="accent">${accent}</span>`);
+      } else {
+        m.textContent = data.cta_main;
+      }
+    }
+    if (data.cta_sub) document.getElementById("sub").textContent = data.cta_sub;
+
+    const tl = gsap.timeline();
+
+    // 0 - 0.4s · channel badge 闪入
+    tl.to("#channel", { opacity: 1, duration: 0.3 }, 0);
+
+    // 0.3 - 1.0s · 主问题从下方推入
+    tl.fromTo("#main",
+      { opacity: 0, y: 80 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.4)" }, 0.3);
+
+    // 1.2s · 副 CTA
+    tl.fromTo("#sub",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.4 }, 1.2);
+
+    // 1.8s · 箭头跳入并循环弹跳
+    tl.fromTo("#arrow",
+      { opacity: 0, y: -40 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 1.8);
+    tl.to("#arrow", { y: 30, duration: 0.6, ease: "sine.inOut", repeat: -1, yoyo: true }, 2.4);
+
+    // 锁尾(7s 总长)
+    tl.to({}, { duration: 3.0 }, 4.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -1,12 +1,17 @@
 # 生产流水线
 
 > Phase 0 全人工 · Phase 1 半自动 · 按顺序执行，不跳步
+>
+> 本目录是引擎的**渲染与组装层**（BLUEPRINT Layer 3）。上游为 `queue/topics.yaml` 选题 + `CLAUDE.md` 多 Agent 工种编排（采料、脚本、分镜、合规、文案）；下游为 `publish/` 发布包。
 
 ## 流程图
 
 ```
 queue/topics.yaml (approved)
         │
+        ▼
+⓪ 多 Agent 编排 ── CLAUDE.md 工种清单（编导/记者/编剧/导演/合规/运营…）
+        │            产出：调研笔记、脚本三版、分镜、发布文案草稿、合规清单
         ▼
 ① 脚本 ── templates/script_*.md
         │
@@ -29,7 +34,7 @@ queue/topics.yaml (approved)
 ⑦ 发布文案 ── templates/publish_三平台.md
         │
         ▼
-⑧ CHECKLIST 验收
+⑧ CHECKLIST 验收（含 insights + 节拍表 + audio_plan）
         │
         ▼
 ⑨ 发布（Phase 1+）→ ops/metrics.csv
@@ -39,6 +44,7 @@ queue/topics.yaml (approved)
 
 | 步骤 | Phase 0 | Phase 1 | Phase 2+ |
 |------|---------|---------|----------|
+| ⓪ 多 Agent 编排 | 人工串行扮演各工种 | Agent 并行辅助 | 半自动编排 |
 | ① 脚本 | 人工 | AI 草稿+人工改 | gen_script.py |
 | ② 声音 | Edge TTS（gen_speech.py） | 同左或 SaaS 原生音 | 同左 |
 | ③ 数字人 | **暂停** | — | — |

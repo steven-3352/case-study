@@ -1,0 +1,8 @@
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/01_hook.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/02_pain.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/03_switch.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/04_ingredients.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/05_price.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/06_chew.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/07_disclaimer.mp4'
+file '/Users/wmzuo/Documents/project/case-study/pipeline/p005_belt_video/out/scenes/08_cta.mp4'

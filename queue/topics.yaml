@@ -133,3 +133,23 @@ topics:
     status: in_production
     note: "制作过程本身=素材；CLAUDE.md 多工种流程首次实跑；6 张图，封面 P002 报纸风+内页 P001 真实截图/备忘录风"
     source: publish/P003/xhs/script.md
+
+  # ── Project-004 · 项目介绍片 K1 · 实体店老板版 ──
+  - id: T008
+    project: P004
+    series: S1
+    title: "又是这个，问八百遍 — 一群小系统替你回客户"
+    angle: 项目介绍 · 实体店老板痛点切入
+    format: [video]
+    platforms: [抖音, 小红书, 视频号]
+    priority: P0
+    status: ready_to_publish
+    note: "case-study 项目首条 9:16 介绍视频；vA 反差炸裂版；38s；双 punch 钩子；多 Agent 自主推进首次定稿"
+    source: pipeline/p004_video/out/final/p004_K1.mp4
+    assets:
+      - script: pipeline/p004_video/script_k1_v2.md
+      - subtitle: pipeline/p004_video/sub_k1.srt
+      - vo: pipeline/p004_video/out/audio/vo_k1_v2.mp3
+      - chaos: assets/broll/k1_chaos.mp4
+      - cover: publish/P004/cover_xhs.png
+      - publish: publish/P004/publish_三平台.md

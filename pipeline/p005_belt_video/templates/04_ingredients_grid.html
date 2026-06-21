@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>04 Ingredients · 成分公开</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .head-area {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 350px;
+    }
+    .h-title {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 168px;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--ink-black);
+      opacity: 0;
+      transform: rotate(-1deg);
+      display: inline-block;
+    }
+    .h-title::after {
+      content: "";
+      display: block;
+      width: 70%;
+      height: 14px;
+      background: var(--ink-red);
+      margin-top: 16px;
+      transform: rotate(-1.5deg);
+    }
+
+    /* 成分网格 · 5 张便签卡, 2+2+1 排版 */
+    .grid {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 720px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px 30px;
+    }
+    .card {
+      background: var(--paper);
+      border: 3px solid var(--ink-black);
+      padding: 36px 32px;
+      box-shadow: 6px 8px 0 rgba(0,0,0,0.18);
+      position: relative;
+      opacity: 0;
+    }
+    .card.full {
+      grid-column: 1 / -1;
+    }
+    .card .idx {
+      position: absolute;
+      top: -16px;
+      left: -16px;
+      width: 64px;
+      height: 64px;
+      background: var(--ink-red);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      box-shadow: 3px 4px 0 rgba(0,0,0,0.2);
+    }
+    .card .name-cn {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 64px;
+      color: var(--ink-black);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .card .name-latin {
+      font-family: var(--mono);
+      font-size: 22px;
+      color: var(--ink-gray);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 12px;
+    }
+    .card .tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 14px;
+      background: var(--ink-yellow);
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink-black);
+    }
+    /* 故意每张卡角度不同 */
+    .card:nth-child(1) { transform: rotate(-1.5deg); }
+    .card:nth-child(2) { transform: rotate(1.2deg); }
+    .card:nth-child(3) { transform: rotate(0.8deg); }
+    .card:nth-child(4) { transform: rotate(-1.8deg); }
+    .card:nth-child(5) { transform: rotate(-0.9deg); }
+
+    /* 底部免责 */
+    .disclaim {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 450px;
+      text-align: center;
+      font-family: var(--hand);
+      font-size: 38px;
+      color: var(--ink-gray);
+      opacity: 0;
+      transform: rotate(-0.7deg);
+    }
+    .disclaim::before { content: "* "; color: var(--ink-red); }
+
+    .crease-top { top: 280px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-top"></div>
+
+    <div class="head-area">
+      <span class="h-title" id="title">成分公开</span>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="disclaim" id="disclaim">含量见包装实物 · 不作功效宣称</div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.title) document.getElementById("title").textContent = data.title;
+    if (data.disclaimer) document.getElementById("disclaim").textContent = "* " + data.disclaimer;
+
+    const grid = document.getElementById("grid");
+    const ingredients = data.ingredients || [];
+    ingredients.forEach((ing, i) => {
+      const isLast = i === ingredients.length - 1 && ingredients.length % 2 === 1;
+      const card = document.createElement("div");
+      card.className = "card" + (isLast ? " full" : "");
+      card.innerHTML = `
+        <div class="idx">${String(i+1).padStart(2,'0')}</div>
+        <div class="name-cn">${ing.name}</div>
+        <div class="name-latin">${ing.latin || ''}</div>
+        ${ing.note ? `<div class="tag">${ing.note}</div>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.6 · 标题
+    tl.fromTo("#title",
+      { opacity: 0, x: -40, rotate: -3 },
+      { opacity: 1, x: 0, rotate: -1, duration: 0.55, ease: "power3.out" }, 0);
+
+    // 0.8s 起 · 5 张卡 stagger 弹入
+    const cards = document.querySelectorAll(".card");
+    cards.forEach((card, i) => {
+      const r = parseFloat(card.style.transform || '0') || 0;
+      const baseRot = [
+        -1.5, 1.2, 0.8, -1.8, -0.9
+      ][i] || 0;
+      tl.fromTo(card,
+        { opacity: 0, y: 60, scale: 0.85, rotate: baseRot + 8 },
+        { opacity: 1, y: 0, scale: 1, rotate: baseRot, duration: 0.4, ease: "back.out(1.4)" },
+        0.8 + i * 0.35);
+    });
+
+    // 5.0s 免责
+    tl.fromTo("#disclaim",
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.4 }, 5.0);
+
+    // 锁尾
+    tl.to({}, { duration: 1.0 }, 5.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

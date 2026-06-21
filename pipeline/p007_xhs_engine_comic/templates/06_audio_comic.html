@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>06 Audio · 引擎漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    .title {
+      position: absolute; left: 60px; right: 60px; top: 360px; text-align: center;
+      font-family: var(--hand-bold); font-size: 96px; color: var(--ink); opacity: 0;
+    }
+    .switch-row {
+      position: absolute; left: 100px; right: 100px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 36px 40px; background: var(--paper-2); border: 8px solid var(--ink);
+      border-radius: 24px; box-shadow: 8px 10px 0 var(--ink);
+      font-family: var(--hand-bold); font-size: 64px; opacity: 0;
+    }
+    .s1 { top: 580px; transform: rotate(-1deg); }
+    .s2 { top: 820px; transform: rotate(1deg); }
+    .s3 { top: 1060px; transform: rotate(-0.5deg); }
+    .toggle {
+      width: 120px; height: 64px; border-radius: 32px; background: var(--green);
+      border: 6px solid var(--ink); position: relative;
+    }
+    .toggle::after {
+      content: ""; position: absolute; right: 8px; top: 6px;
+      width: 44px; height: 44px; border-radius: 50%; background: var(--paper);
+      border: 4px solid var(--ink);
+    }
+    .old-note {
+      position: absolute; left: 80px; right: 80px; bottom: 320px;
+      font-family: var(--hand-bold); font-size: 48px; color: var(--red);
+      text-align: center; opacity: 0; text-decoration: line-through;
+    }
+    .new-note {
+      position: absolute; left: 80px; right: 80px; bottom: 200px;
+      font-family: var(--hand-bold); font-size: 44px; text-align: center; opacity: 0;
+    }
+    .new-note span {
+      background: var(--green); color: var(--paper); padding: 12px 28px;
+      border: 5px solid var(--ink); display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="title" id="title">音画三件套 · 硬门槛</div>
+    <div class="switch-row s1" id="r1"><span>配音 VO</span><div class="toggle"></div></div>
+    <div class="switch-row s2" id="r2"><span>BGM</span><div class="toggle"></div></div>
+    <div class="switch-row s3" id="r3"><span>字幕</span><div class="toggle"></div></div>
+    <div class="old-note" id="oldNote">旧版：裸 mp4 也能发</div>
+    <div class="new-note" id="newNote"><span>新版：*_with_bgm.mp4 才外发</span></div>
+  </div>
+  <script>
+    const tl = gsap.timeline();
+    tl.fromTo("#title", { opacity: 0, y: -25 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
+    ["#r1", "#r2", "#r3"].forEach((sel, i) => {
+      tl.fromTo(sel, { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.4, ease: "back.out(1.3)" }, 0.35 + i * 0.35);
+    });
+    tl.fromTo("#oldNote", { opacity: 0 }, { opacity: 0.85, duration: 0.35 }, 1.5);
+    tl.fromTo("#newNote", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.4)" }, 1.85);
+    tl.to({}, { duration: 0.4 }, 2.3);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# 声音方案 · audio_plan.yaml
+# 工种: 声音设计师 · 视频形态必跑
+#
+# content_id: ___
+# topic_id: ___
+
+voice:
+  engine: minimax          # minimax | edge
+  model: speech-2.8-turbo  # minimax 时填写
+  voice_id:                # 如 male-qn-jingying-jingpin
+  speed: 0.95
+  pitch: 0
+  emotion: neutral
+  script_path:             # 口播逐字稿路径
+
+bgm:
+  mood: tension            # tension | release | upbeat | calm | neutral
+  source:                  # 相对 PROJECT_ROOT 的路径
+  volume: 0.10             # 对齐 storyboard music_volume
+  fade_in_s: 1.5
+  fade_out_s: 2.0
+  loop: true
+  notes:                   # 选曲理由、与情绪曲线关系
+
+subtitles:
+  srt_path:                # 如 pipeline/p004_video/sub_k1.srt
+  burn: true               # build 叠 PNG 序列
+  style: 主画面叠字，前 3s 大字钩子
+  hook_first_3s: true
+
+outputs:
+  video_raw:               # 无 BGM 工程件
+  video_publish:           # 默认外发：含 BGM + 字幕
+  vo_mp3:
+
+qc:
+  - VO 清晰可辨，BGM 不盖人声（人工听 30s）
+  - 前 3s 钩子字幕可见
+  - 外发使用 video_publish，非 video_raw

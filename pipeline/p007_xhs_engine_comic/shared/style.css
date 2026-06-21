@@ -1,0 +1,189 @@
+/* P006 公共样式 · 手绘漫画风 · 1080×1920 9:16
+ *
+ * 设计原则:
+ *   - 粗黑钢笔线 (6-8px,linecap/join=round)
+ *   - 米白纸底 + 高对比色块 (黄/红/蓝/肤色)
+ *   - 漫画分镜框 (粗边 · 故意倾斜)
+ *   - 拟声词 + 对话气泡 (手札体 · 偏轴)
+ *   - 反精致 · 反对齐 · 反 AI
+ */
+
+:root {
+  /* 漫画纸色 + 高饱和色块 */
+  --paper:      #fdfbf5;
+  --paper-2:    #fff3d4;       /* 高亮黄底 */
+  --ink:        #1a1a1a;       /* 钢笔黑 */
+  --skin:       #fde6c9;       /* 肤色 */
+  --hair:       #2b1810;       /* 发色 */
+  --red:        #e63946;       /* 印刷红 */
+  --yellow:     #ffd23f;       /* 拟声黄 */
+  --blue:       #4361ee;       /* 印刷蓝 */
+  --green:      #2a9d3a;       /* 对勾绿 */
+  --pink:       #ff8fab;
+  --orange:     #ff7f3f;
+
+  /* 字体 mix */
+  --hand:        "Hannotate SC", "Hanzipen SC", "Comic Sans MS", cursive;
+  --hand-bold:   "Hanzipen SC", "Hannotate SC", "Marker Felt", cursive;
+  --sans:        "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --kai:         "Kaiti SC", "STKaiti", serif;
+
+  /* 钢笔粗细 */
+  --pen-fine: 4px;
+  --pen-mid:  6px;
+  --pen-thk:  8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--hand);
+  font-size: 36px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 米白纸底 + 方格纸纹理(SVG data URI) */
+.canvas {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><path d='M 80 0 L 0 0 0 80' fill='none' stroke='%23e8e0c8' stroke-width='1.5'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* 漫画分镜框 (粗黑边 · 圆角微小) */
+.panel {
+  position: absolute;
+  background: var(--paper);
+  border: 8px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 8px 10px 0 var(--ink);
+  overflow: hidden;
+}
+.panel.yellow { background: var(--paper-2); }
+.panel.red    { background: var(--red); color: var(--paper); }
+.panel.blue   { background: var(--blue); color: var(--paper); }
+.panel.skin   { background: var(--skin); }
+
+/* 对话气泡 */
+.bubble {
+  position: absolute;
+  background: var(--paper);
+  border: var(--pen-mid) solid var(--ink);
+  border-radius: 40px;
+  padding: 24px 40px;
+  font-family: var(--hand);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  box-shadow: 4px 6px 0 var(--ink);
+  white-space: nowrap;
+}
+.bubble.thought {
+  border-style: dashed;
+  border-radius: 60px;
+}
+.bubble .tail {
+  position: absolute;
+  bottom: -32px;
+  left: 80px;
+  width: 60px;
+  height: 40px;
+  background: var(--paper);
+  border-left: var(--pen-mid) solid var(--ink);
+  border-bottom: var(--pen-mid) solid var(--ink);
+  clip-path: polygon(0 0, 100% 100%, 60% 100%, 0 40%);
+  transform: rotate(-10deg);
+}
+
+/* 拟声词大字 · 手札体 · 强偏轴 */
+.sfx {
+  position: absolute;
+  font-family: var(--hand-bold);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: 2px;
+  text-shadow:
+    -4px 0 0 var(--ink), 4px 0 0 var(--ink),
+    0 -4px 0 var(--ink), 0 4px 0 var(--ink),
+    -4px -4px 0 var(--ink), 4px -4px 0 var(--ink),
+    -4px 4px 0 var(--ink), 4px 4px 0 var(--ink),
+    8px 12px 0 rgba(0,0,0,0.2);
+}
+.sfx.red    { color: var(--red); }
+.sfx.yellow { color: var(--yellow); }
+.sfx.blue   { color: var(--blue); }
+.sfx.pink   { color: var(--pink); }
+.sfx.huge   { font-size: 360px; }
+.sfx.big    { font-size: 240px; }
+.sfx.mid    { font-size: 160px; }
+.sfx.sm     { font-size: 100px; }
+
+/* 漫画大标题 (粗黑钢笔) */
+.title-comic {
+  font-family: var(--hand-bold);
+  font-weight: 900;
+  line-height: 1.0;
+  color: var(--ink);
+  letter-spacing: 1px;
+}
+
+/* 偏轴 */
+.tilt-l  { transform: rotate(-3deg); }
+.tilt-r  { transform: rotate(2.5deg); }
+.tilt-l2 { transform: rotate(-1.5deg); }
+.tilt-r2 { transform: rotate(1.2deg); }
+.tilt-l3 { transform: rotate(-5deg); }
+.tilt-r3 { transform: rotate(4deg); }
+
+/* 强调色块 (拟物贴纸) */
+.tag {
+  display: inline-block;
+  padding: 8px 24px;
+  font-family: var(--hand-bold);
+  font-weight: 900;
+  letter-spacing: 2px;
+  border: var(--pen-mid) solid var(--ink);
+  box-shadow: 3px 5px 0 var(--ink);
+}
+.tag.yellow { background: var(--yellow); color: var(--ink); }
+.tag.red    { background: var(--red); color: var(--paper); }
+.tag.blue   { background: var(--blue); color: var(--paper); }
+.tag.green  { background: var(--green); color: var(--paper); }
+
+/* 漫画"嘭"特效闪 */
+.bang {
+  position: absolute;
+  font-family: var(--hand-bold);
+  font-size: 320px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow:
+    -6px 0 0 var(--ink), 6px 0 0 var(--ink),
+    0 -6px 0 var(--ink), 0 6px 0 var(--ink),
+    -6px -6px 0 var(--ink), 6px -6px 0 var(--ink),
+    -6px 6px 0 var(--ink), 6px 6px 0 var(--ink);
+  line-height: 1;
+}
+
+/* 速度线 (漫画动作感) */
+.speed-line {
+  position: absolute;
+  height: 6px;
+  background: var(--ink);
+  transform-origin: left center;
+}

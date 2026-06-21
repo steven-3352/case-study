@@ -1,0 +1,101 @@
+# P005 · 男士复合维生素咀嚼片 · v0 分镜
+#
+# 视觉路线: 杂志拼贴风 (反 P004 黑底霓虹的 AI 味)
+# 关键约束:
+#   1. 商品视为普通食品 (蓝帽子未确认) — 全程零功效声称
+#   2. v0 不出镜 — 全屏纸面 + 商品图 + 文字
+#   3. 偏轴/字体 mix/纸纹 — 写在 shared/style.css 里,模板继承
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: p005_belt_v0.mp4
+  voice_volume: 1.0
+  music_volume: 0.07   # 带货比演示型更安静,口播为王
+
+scenes:
+  - id: "01_hook"
+    template: "01_hook_throw.html"
+    duration: 4.0
+    start_at: 0.0
+    data:
+      headline_top: "我把家里那瓶"
+      headline_mid: "维生素胶囊"
+      headline_bot: "扔了"
+      sticky_note: "放了半年 · 还剩 78 粒"
+
+  - id: "02_pain"
+    template: "02_pain_pill.html"
+    duration: 4.5
+    start_at: 4.0
+    data:
+      lead: "不是吃不下"
+      kicker: "是不愿吃"
+      hand_note: "大男人吞胶囊总有种 病人感"
+
+  - id: "03_switch"
+    template: "03_switch_to_chew.html"
+    duration: 5.0
+    start_at: 8.5
+    data:
+      transition_text: "后来我换成了能嚼的"
+      product_image: "../assets/product.png"
+      caption_under: "60 片 · 不到 60 块"
+
+  - id: "04_ingredients"
+    template: "04_ingredients_grid.html"
+    duration: 6.5
+    start_at: 13.5
+    data:
+      title: "成分公开"
+      ingredients:
+        - { name: "烟酰胺",     latin: "Nicotinamide", note: "VB3" }
+        - { name: "维生素 C",   latin: "Ascorbic Acid", note: "" }
+        - { name: "维生素 E",   latin: "Tocopherol",    note: "" }
+        - { name: "复合 VB",    latin: "B-Complex",     note: "" }
+        - { name: "葡萄籽提取", latin: "Grape Seed",    note: "OPC" }
+      disclaimer: "成分名公开 · 含量见包装"
+
+  - id: "05_price"
+    template: "05_price_split.html"
+    duration: 6.0
+    start_at: 20.0
+    data:
+      total_yuan: "39"
+      total_cents: "99"
+      tablets: "60"
+      per_day_yuan: "0.67"
+      compare_text: "一杯瑞幸的 1/15"
+
+  - id: "06_chew"
+    template: "06_chew_anim.html"
+    duration: 6.5
+    start_at: 26.0
+    data:
+      lead: "为什么换成嚼的"
+      reason_1: "好下口"
+      reason_2: "不卡喉"
+      reason_3: "顺手"
+      kicker: "嚼一下比吞一颗 自然"
+
+  - id: "07_disclaimer"
+    template: "07_disclaimer.html"
+    duration: 3.5
+    start_at: 32.5
+    data:
+      title: "本视频不构成"
+      title_strong: "健康建议"
+      list_items:
+        - "孕产期 · 请咨询医生"
+        - "长期服药 · 请咨询医生"
+        - "成分对照见包装实物"
+
+  - id: "08_cta"
+    template: "08_cta_soft.html"
+    duration: 4.0
+    start_at: 36.0
+    data:
+      cta_main: "你怎么补维生素？"
+      cta_sub: "评论区 · 聊聊"
+      bottom_note: "小黄车 · 自己看"

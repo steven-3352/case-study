@@ -1,21 +1,44 @@
 # 待发布成品
 
-> Phase 1 起使用。每条一个目录，从 pipeline/ 复制验收通过的成品。
+> 引擎最终输出层：每条选题经多 Agent 编排 + `pipeline/` 生产后，验收通过的成品落在此目录，可直接发布。
 
 ## 规范
 
 ```
 publish/{content_id}/
-├── douyin.mp4
+├── insights/                    # 洞察包四件套（必跑）
+│   ├── topic_brief.md
+│   ├── core_message.md
+│   ├── domain_notes.md
+│   └── fact_check.md
+├── retention_beat_sheet.md      # 视频/强互动图文（必跑）
+├── audio_plan.yaml              # 视频必跑
+├── douyin.mp4                   # 含 BGM + 字幕（外发版）
 ├── xhs_video.mp4
-├── channels.mp4      # 可选
+├── channels.mp4                 # 可选
 ├── carousel/
-├── publish.md        # 三平台文案
-└── status.yaml       # draft | ready | published
+├── publish_三平台.md
+├── CHECKLIST_verdict.md         # 验收记录
+└── status.yaml                  # draft | ready | published
 ```
+
+模板来源：`templates/insights/`、`templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`
+
+标杆示例：`publish/P004/`（K1 洞察包 + 节拍表 + 音画方案）
 
 ## 状态流
 
 ```
-pipeline 验收通过 → 复制到 publish/ → status=ready → 人工发布 → status=published → 填 metrics.csv
+洞察包 + 节拍表 + 音画方案
+  → pipeline 出片
+  → CHECKLIST 验收
+  → 复制到 publish/ → status=ready
+  → 人工发布 → status=published → 填 metrics.csv
 ```
+
+## 外发文件约定
+
+| 文件 | 用途 |
+|------|------|
+| `*_with_bgm.mp4` | **默认外发**（配音 + BGM + 字幕） |
+| `p004_K1.mp4` 等裸片 | 工程中间件，不直接发布 |

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>02 Pain · 不是吃不下 是不愿吃</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .stage {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 540px;
+    }
+    .row {
+      display: flex;
+      align-items: baseline;
+      gap: 30px;
+      margin-bottom: 60px;
+      opacity: 0;
+    }
+    .row .lead {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 168px;
+      letter-spacing: -3px;
+      line-height: 1;
+      color: var(--ink-black);
+    }
+    .row.r1 { transform: rotate(-1.2deg); }
+    .row.r2 {
+      transform: rotate(1.4deg);
+      margin-left: 120px;
+    }
+    .row.r2 .lead {
+      color: var(--paper);
+      background: var(--ink-red);
+      padding: 14px 32px 24px;
+      box-shadow: 8px 12px 0 rgba(0,0,0,0.18);
+    }
+
+    /* "X" 划掉吃不下 */
+    .strike-x {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      font-family: var(--hand);
+      font-size: 380px;
+      color: var(--ink-red);
+      opacity: 0;
+      transform: translateX(-50%) rotate(-12deg);
+      pointer-events: none;
+    }
+
+    /* 手写笔注 */
+    .hand-note {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      bottom: 560px;
+      font-family: var(--hand);
+      font-weight: 500;
+      font-size: 64px;
+      line-height: 1.4;
+      color: var(--ink-blue);
+      transform: rotate(-2deg);
+      opacity: 0;
+    }
+    .hand-note::before {
+      content: "「";
+      color: var(--ink-red);
+      font-family: var(--serif);
+      font-size: 80px;
+      vertical-align: -10px;
+    }
+    .hand-note::after {
+      content: "」";
+      color: var(--ink-red);
+      font-family: var(--serif);
+      font-size: 80px;
+      vertical-align: -10px;
+    }
+    .hand-note .pi {
+      display: inline-block;
+      background: var(--ink-yellow);
+      padding: 4px 16px;
+      border-radius: 4px;
+      margin: 0 6px;
+      transform: rotate(1deg);
+    }
+
+    /* 装饰 · 胶囊瓶旁边的 ? */
+    .deco-q {
+      position: absolute;
+      top: 360px;
+      right: 100px;
+      font-family: var(--serif);
+      font-size: 200px;
+      color: var(--ink-blue);
+      opacity: 0;
+      transform: rotate(8deg);
+      line-height: 1;
+    }
+
+    .crease-top { top: 420px; }
+    .crease-mid { top: 1050px; }
+    .crease-bot { bottom: 460px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-top"></div>
+    <div class="crease crease-mid"></div>
+    <div class="crease crease-bot"></div>
+
+    <div class="deco-q" id="deco">？</div>
+
+    <div class="stage">
+      <div class="row r1" id="row1">
+        <span class="lead" id="lead1">不是吃不下</span>
+      </div>
+      <div class="row r2" id="row2">
+        <span class="lead" id="lead2">是不愿吃</span>
+      </div>
+    </div>
+
+    <div class="strike-x" id="strikeX">✗</div>
+
+    <div class="hand-note" id="hand">
+      大男人吞胶囊<br>
+      总有种 <span class="pi">病人感</span>
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.lead) document.getElementById("lead1").textContent = data.lead;
+    if (data.kicker) document.getElementById("lead2").textContent = data.kicker;
+    if (data.hand_note) {
+      const note = data.hand_note.replace(/(病人感|苦|怕)/, '<span class="pi">$1</span>');
+      document.getElementById("hand").innerHTML = note.replace("·", "<br>");
+    }
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.5 · 装饰问号入
+    tl.fromTo("#deco",
+      { opacity: 0, scale: 0.3, rotate: 30 },
+      { opacity: 0.5, scale: 1, rotate: 8, duration: 0.5, ease: "back.out(2)" }, 0);
+
+    // 0.3 - 1.0 · row1 "不是吃不下"
+    tl.fromTo("#row1",
+      { opacity: 0, x: -80, rotate: -3 },
+      { opacity: 1, x: 0, rotate: -1.2, duration: 0.55, ease: "power3.out" }, 0.3);
+
+    // 1.0s X 划掉
+    tl.fromTo("#strikeX",
+      { opacity: 0, scale: 2.2, rotate: -30 },
+      { opacity: 0.75, scale: 1, rotate: -12, duration: 0.4, ease: "back.out(1.8)" }, 1.0);
+
+    // 1.4s row2 "是不愿吃"
+    tl.fromTo("#row2",
+      { opacity: 0, y: 60, rotate: 4 },
+      { opacity: 1, y: 0, rotate: 1.4, duration: 0.55, ease: "back.out(1.4)" }, 1.4);
+
+    // 2.4s 手写笔注
+    tl.fromTo("#hand",
+      { opacity: 0, y: 30, rotate: 0 },
+      { opacity: 1, y: 0, rotate: -2, duration: 0.55, ease: "power2.out" }, 2.4);
+
+    // 锁尾
+    tl.to({}, { duration: 1.0 }, 3.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

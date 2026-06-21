@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-image-prompts-skill": {
+      "source": "YouMind-OpenLab/ai-image-prompts-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "3517a008593beae4c6dae1a9d92bfa62e5665d6fe1fda5b7abeb3d8d6e12ddac"
+    }
+  }
+}

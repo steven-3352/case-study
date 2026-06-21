@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>01 Hook · 扔胶囊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    /* 报头 */
+    .masthead {
+      position: absolute;
+      top: 200px;
+      left: 60px;
+      right: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--mono);
+      font-size: 24px;
+      letter-spacing: 5px;
+      color: var(--ink-gray);
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--ink-black);
+      padding-bottom: 16px;
+      opacity: 0;
+    }
+    .masthead .right { color: var(--ink-red); }
+
+    /* 三行衬线大标题 — 居左,故意不齐 */
+    .stage {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      top: 480px;
+    }
+    .line {
+      font-family: var(--serif);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -3px;
+      color: var(--ink-black);
+      opacity: 0;
+    }
+    .line-1 {
+      font-size: 130px;
+      margin-left: 0;
+    }
+    .line-2 {
+      font-size: 168px;
+      margin-left: 80px;
+      margin-top: 30px;
+      color: var(--ink-blue);
+    }
+    .line-3 {
+      font-size: 220px;
+      margin-left: 220px;
+      margin-top: 30px;
+      color: var(--ink-red);
+      position: relative;
+    }
+    .line-3::after {
+      content: "";
+      position: absolute;
+      left: -20px; right: -20px;
+      top: 55%;
+      height: 18px;
+      background: var(--ink-red);
+      transform: rotate(-4deg);
+      transform-origin: center;
+      opacity: 0;
+    }
+
+    /* 黄便签 */
+    .sticky-bottom {
+      position: absolute;
+      bottom: 540px;
+      right: 100px;
+      max-width: 520px;
+      transform: rotate(-3.2deg);
+      opacity: 0;
+    }
+
+    /* 胶囊瓶 SVG 装饰 — 左下角倾斜 */
+    .pill-bottle {
+      position: absolute;
+      bottom: 560px;
+      left: 80px;
+      width: 200px;
+      height: 280px;
+      opacity: 0;
+      transform: rotate(-15deg);
+    }
+
+    /* 折痕 */
+    .crease-1 { top: 430px; }
+    .crease-2 { bottom: 460px; }
+
+    /* 角章 */
+    .corner-stamp {
+      position: absolute;
+      bottom: 350px;
+      left: 70px;
+      opacity: 0;
+      transform: rotate(-4deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="crease crease-1"></div>
+    <div class="crease crease-2"></div>
+
+    <div class="masthead" id="masthead">
+      <span>REAL · 男士补给 · NO.001</span>
+      <span class="right">★ 实测笔记</span>
+    </div>
+
+    <div class="stage">
+      <div class="line line-1" id="L1">我把家里那瓶</div>
+      <div class="line line-2" id="L2">维生素胶囊</div>
+      <div class="line line-3" id="L3">扔了</div>
+    </div>
+
+    <svg class="pill-bottle" id="bottle" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="0" width="80" height="40" rx="8" fill="#c8232c" />
+      <rect x="40" y="30" width="120" height="240" rx="14" fill="#f4ede2" stroke="#1a1a1a" stroke-width="4" />
+      <rect x="60" y="70" width="80" height="120" fill="#1b3a73" />
+      <text x="100" y="135" text-anchor="middle" font-family="Songti SC" font-size="36" fill="#f4ede2" font-weight="900">VC</text>
+      <text x="100" y="170" text-anchor="middle" font-family="SF Mono" font-size="18" fill="#f4ede2">90 caps</text>
+    </svg>
+
+    <div class="sticky sticky-bottom" id="sticky">
+      放了半年<br>还剩 <span style="font-family:var(--mono);font-weight:900;">78</span> 粒
+    </div>
+
+    <div class="stamp corner-stamp" id="stamp">VOL.01</div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.headline_top) document.getElementById("L1").textContent = data.headline_top;
+    if (data.headline_mid) document.getElementById("L2").textContent = data.headline_mid;
+    if (data.headline_bot) document.getElementById("L3").textContent = data.headline_bot;
+    if (data.sticky_note) {
+      document.getElementById("sticky").innerHTML = data.sticky_note.replace(
+        /(\d+)/g, '<span style="font-family:var(--mono);font-weight:900;">$1</span>'
+      ).replace("·", "<br>");
+    }
+
+    const strikeEl = document.querySelector(".line-3::after");
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.4 · 报头浮入
+    tl.to("#masthead", { opacity: 1, duration: 0.3 }, 0);
+
+    // 0.3 - 1.5 · 衬线大字 三行错位浮入
+    tl.fromTo("#L1",
+      { opacity: 0, y: 30, rotate: -1 },
+      { opacity: 1, y: 0, rotate: -1, duration: 0.5, ease: "power3.out" }, 0.4);
+    tl.fromTo("#L2",
+      { opacity: 0, y: 40, rotate: 0.5 },
+      { opacity: 1, y: 0, rotate: 0.5, duration: 0.55, ease: "power3.out" }, 0.7);
+    tl.fromTo("#L3",
+      { opacity: 0, y: 60, scale: 0.85, rotate: -2 },
+      { opacity: 1, y: 0, scale: 1, rotate: -2, duration: 0.6, ease: "back.out(1.5)" }, 1.1);
+
+    // 1.7s 红划线
+    tl.fromTo(".line-3", {}, { duration: 0.01 }, 1.6);
+    tl.to({}, { duration: 0.4, onUpdate: function() {
+      const p = this.progress();
+      const el = document.querySelector(".line-3");
+      if (el) {
+        let after = el.querySelector(".after-bar");
+        if (!after) {
+          after = document.createElement("div");
+          after.className = "after-bar";
+          after.style.cssText = "position:absolute;left:-20px;top:55%;height:18px;background:var(--ink-red);transform:rotate(-4deg);transform-origin:left center;width:0;";
+          el.appendChild(after);
+        }
+        after.style.width = (p * 100) + "%";
+      }
+    } }, 1.7);
+
+    // 2.2s 胶囊瓶滑入
+    tl.fromTo("#bottle",
+      { opacity: 0, x: -100, rotate: -25 },
+      { opacity: 0.9, x: 0, rotate: -15, duration: 0.6, ease: "back.out(1.2)" }, 2.2);
+
+    // 2.5s 黄便签弹入
+    tl.fromTo("#sticky",
+      { opacity: 0, scale: 0.6, rotate: 6 },
+      { opacity: 1, scale: 1, rotate: -3.2, duration: 0.5, ease: "back.out(2)" }, 2.5);
+
+    // 3.0s 角章浮入
+    tl.fromTo("#stamp",
+      { opacity: 0, scale: 1.4, rotate: 8 },
+      { opacity: 0.82, scale: 1, rotate: -4, duration: 0.3 }, 3.0);
+
+    // 锁尾
+    tl.to({}, { duration: 0.5 }, 3.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

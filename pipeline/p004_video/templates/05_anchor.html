@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>05 Small System Anchor</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .stage {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 360px;
+      bottom: 540px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* 上：杂乱消息堆 */
+    .msg-pile {
+      position: relative;
+      width: 100%;
+      height: 360px;
+    }
+    .msg {
+      position: absolute;
+      background: var(--bg-card);
+      color: var(--gray-1);
+      border-radius: 18px;
+      padding: 14px 22px;
+      font-family: var(--sans);
+      font-size: 30px;
+      max-width: 480px;
+      border: 2px solid var(--gray-4);
+      opacity: 0;
+    }
+    .msg .red-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: var(--red);
+      border-radius: 50%;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    /* 中：小系统胶囊 */
+    .system-pill {
+      width: 720px;
+      height: 140px;
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-window));
+      border: 3px solid var(--green);
+      border-radius: 70px;
+      box-shadow: 0 0 80px var(--green-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      position: relative;
+      opacity: 0;
+    }
+    .system-pill .label {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 64px;
+      color: var(--gray-1);
+      letter-spacing: 4px;
+    }
+    .system-pill .gear {
+      width: 64px;
+      height: 64px;
+      border: 4px solid var(--green);
+      border-radius: 50%;
+      border-top-color: transparent;
+      border-right-color: transparent;
+    }
+
+    /* 下：出活区 */
+    .out-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    .out-chip {
+      background: var(--green-soft);
+      border: 2px solid var(--green);
+      color: var(--green);
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 32px;
+      opacity: 0;
+    }
+
+    /* 流向箭头 */
+    .flow-arrow {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 60px;
+      color: var(--gray-3);
+      opacity: 0;
+    }
+    .flow-arrow.up { top: 360px; }
+    .flow-arrow.down { top: 580px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="stage">
+      <div class="msg-pile" id="pile">
+        <div class="msg" style="left: 4%; top: 0; transform: rotate(-3deg);"><span class="red-dot"></span>几点关门?</div>
+        <div class="msg" style="left: 38%; top: 30px; transform: rotate(2deg);"><span class="red-dot"></span>有没有货?</div>
+        <div class="msg" style="left: 12%; top: 110px; transform: rotate(1deg);"><span class="red-dot"></span>能便宜吗?</div>
+        <div class="msg" style="left: 48%; top: 150px; transform: rotate(-2deg);"><span class="red-dot"></span>能不能预约?</div>
+        <div class="msg" style="left: 22%; top: 230px; transform: rotate(-1deg);"><span class="red-dot"></span>什么时候到?</div>
+        <div class="msg" style="left: 50%; top: 270px; transform: rotate(3deg);"><span class="red-dot"></span>能退吗?</div>
+      </div>
+
+      <div class="flow-arrow up" id="arrow-up">↓</div>
+
+      <div class="system-pill" id="pill">
+        <div class="gear" id="gear"></div>
+        <div class="label">小系统</div>
+      </div>
+
+      <div class="flow-arrow down" id="arrow-down">↓</div>
+
+      <div class="out-row" id="out">
+        <div class="out-chip">替你回</div>
+        <div class="out-chip">不睡觉</div>
+        <div class="out-chip">自己跑</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    const tl = gsap.timeline();
+
+    // 0-1.4s · 消息堆叠浮入(stagger from random)
+    tl.to(".msg", {
+      opacity: 1,
+      duration: 0.25,
+      stagger: { each: 0.1, from: "random" },
+      ease: "power2.out",
+    }, 0);
+
+    // 1.0-1.6s · 箭头朝下淡入
+    tl.to("#arrow-up", { opacity: 1, duration: 0.3 }, 1.2);
+
+    // 1.6-2.4s · 系统胶囊弹出
+    tl.fromTo("#pill",
+      { opacity: 0, scale: 0.6 },
+      { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, 1.6);
+
+    // 1.8s · 齿轮持续转
+    tl.to("#gear", {
+      rotation: 360,
+      duration: 1.5,
+      repeat: 2,
+      ease: "none",
+    }, 1.8);
+
+    // 2.4s · 第二个箭头淡入
+    tl.to("#arrow-down", { opacity: 1, duration: 0.3 }, 2.4);
+
+    // 2.6-3.6s · 出活 chip stagger
+    tl.fromTo(".out-chip",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, stagger: 0.12, ease: "back.out(1.5)" }, 2.6);
+
+    // 3.6-4.0s · 锁尾
+    tl.to({}, { duration: 0.4 }, 3.6);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

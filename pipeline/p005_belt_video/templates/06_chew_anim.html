@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>06 Chew · 为什么换成嚼的</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .head {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      top: 360px;
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 132px;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      color: var(--ink-black);
+      opacity: 0;
+      transform: rotate(-1deg);
+    }
+    .head .accent {
+      color: var(--ink-red);
+      position: relative;
+    }
+    .head .accent::after {
+      content: "?";
+      position: absolute;
+      right: -80px; top: 0;
+      color: var(--ink-blue);
+      font-size: 1.4em;
+    }
+
+    /* 三个理由 横向卡片 */
+    .reasons {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+    .reason {
+      display: flex;
+      align-items: center;
+      gap: 50px;
+      opacity: 0;
+    }
+    .reason .num {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 130px;
+      color: var(--ink-red);
+      line-height: 1;
+      min-width: 200px;
+      text-align: center;
+    }
+    .reason .text {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 130px;
+      color: var(--ink-black);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .reason .check {
+      font-family: var(--hand);
+      font-size: 140px;
+      color: var(--ink-blue);
+      transform: rotate(-12deg);
+      line-height: 1;
+    }
+    .reason.r1 { transform: rotate(-1deg); }
+    .reason.r2 { transform: rotate(0.8deg); margin-left: 60px; }
+    .reason.r3 { transform: rotate(-1.4deg); margin-left: -20px; }
+
+    /* 底部楷书结论 */
+    .conclusion {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      bottom: 460px;
+      text-align: center;
+      font-family: var(--kai);
+      font-weight: 500;
+      font-size: 76px;
+      color: var(--ink-black);
+      line-height: 1.4;
+      opacity: 0;
+      transform: rotate(-0.5deg);
+    }
+    .conclusion .em {
+      color: var(--ink-red);
+      font-weight: 900;
+      border-bottom: 5px solid var(--ink-red);
+    }
+
+    .crease-1 { top: 660px; }
+    .crease-2 { bottom: 580px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-1"></div>
+    <div class="crease crease-2"></div>
+
+    <div class="head" id="head">
+      为什么换成<br><span class="accent">嚼的</span>
+    </div>
+
+    <div class="reasons">
+      <div class="reason r1" id="r1">
+        <div class="num">01</div>
+        <div class="text" id="t1">好下口</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="reason r2" id="r2">
+        <div class="num">02</div>
+        <div class="text" id="t2">不卡喉</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="reason r3" id="r3">
+        <div class="num">03</div>
+        <div class="text" id="t3">顺手</div>
+        <div class="check">✓</div>
+      </div>
+    </div>
+
+    <div class="conclusion" id="concl">
+      嚼一下比吞一颗<span class="em">自然</span>
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.reason_1) document.getElementById("t1").textContent = data.reason_1;
+    if (data.reason_2) document.getElementById("t2").textContent = data.reason_2;
+    if (data.reason_3) document.getElementById("t3").textContent = data.reason_3;
+    if (data.kicker) {
+      // 给 kicker 最后一个词加 em 高亮
+      const k = data.kicker;
+      const words = k.split(/\s+/);
+      if (words.length > 1) {
+        const last = words.pop();
+        document.getElementById("concl").innerHTML =
+          words.join(" ") + '<span class="em">' + last + '</span>';
+      } else {
+        document.getElementById("concl").textContent = k;
+      }
+    }
+    if (data.lead) {
+      const lead = data.lead;
+      const m = lead.match(/^(.+?)(嚼的?)$/);
+      if (m) {
+        document.getElementById("head").innerHTML =
+          m[1] + '<br><span class="accent">嚼的</span>';
+      } else {
+        document.getElementById("head").textContent = lead;
+      }
+    }
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.6 头部
+    tl.fromTo("#head",
+      { opacity: 0, x: -40, rotate: -3 },
+      { opacity: 1, x: 0, rotate: -1, duration: 0.55, ease: "power3.out" }, 0);
+
+    // 1.0 起 · 三个理由 stagger
+    const reasons = [
+      { id: "#r1", rot: -1, t: 1.0 },
+      { id: "#r2", rot: 0.8, t: 1.5 },
+      { id: "#r3", rot: -1.4, t: 2.0 },
+    ];
+    reasons.forEach(r => {
+      tl.fromTo(r.id,
+        { opacity: 0, x: -80, rotate: r.rot - 6 },
+        { opacity: 1, x: 0, rotate: r.rot, duration: 0.45, ease: "back.out(1.4)" },
+        r.t);
+    });
+
+    // 3.2 结论
+    tl.fromTo("#concl",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 3.2);
+
+    // 锁尾
+    tl.to({}, { duration: 2.2 }, 4.3);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

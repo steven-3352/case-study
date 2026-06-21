@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>08 CTA · 漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    /* 顶部 SFX "聊聊?" */
+    .sfx-top {
+      top: 380px;
+      right: 80px;
+      opacity: 0;
+    }
+
+    /* 主漫画框 */
+    .panel-main {
+      left: 60px;
+      right: 60px;
+      top: 580px;
+      height: 760px;
+      padding: 40px;
+      transform: rotate(-1.5deg);
+      opacity: 0;
+    }
+
+    /* 角色 curious 居左 */
+    .char {
+      position: absolute;
+      left: 60px;
+      top: 100px;
+      width: 360px;
+      height: 380px;
+    }
+
+    /* 大对话气泡 */
+    .bubble-big {
+      position: absolute;
+      right: 30px;
+      top: 90px;
+      width: 460px;
+      padding: 40px 36px;
+      background: var(--paper-2);
+      border: 8px solid var(--ink);
+      border-radius: 40px;
+      font-family: var(--hand-bold);
+      font-weight: 900;
+      font-size: 96px;
+      line-height: 1.1;
+      letter-spacing: 1px;
+      color: var(--ink);
+      box-shadow: 6px 8px 0 var(--ink);
+      transform: rotate(2deg);
+      opacity: 0;
+      text-align: center;
+    }
+    .bubble-big::after {
+      content: "";
+      position: absolute;
+      left: -38px;
+      bottom: 60px;
+      width: 0; height: 0;
+      border-top: 30px solid transparent;
+      border-bottom: 30px solid transparent;
+      border-right: 50px solid var(--paper-2);
+    }
+    .bubble-big::before {
+      content: "";
+      position: absolute;
+      left: -50px;
+      bottom: 56px;
+      width: 0; height: 0;
+      border-top: 36px solid transparent;
+      border-bottom: 36px solid transparent;
+      border-right: 60px solid var(--ink);
+    }
+
+    /* 副 CTA 评论区 */
+    .sub-cta {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      bottom: 50px;
+      text-align: center;
+      opacity: 0;
+    }
+    .sub-cta .tag {
+      font-size: 64px;
+      padding: 16px 40px;
+    }
+
+    /* 底部箭头 (在 panel 外) */
+    .arrow {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 440px;
+      text-align: center;
+      font-family: var(--hand-bold);
+      font-size: 260px;
+      color: var(--red);
+      opacity: 0;
+      line-height: 1;
+      text-shadow:
+        -5px 0 0 var(--ink), 5px 0 0 var(--ink),
+        0 -5px 0 var(--ink), 0 5px 0 var(--ink);
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="sfx sfx-top mid yellow tilt-r3" id="sfxTop">聊聊?</div>
+
+    <div class="panel panel-main">
+      <div class="char" id="char"></div>
+      <div class="bubble-big" id="bubble">你怎么补?</div>
+      <div class="sub-cta" id="subCta">
+        <span class="tag red">评论区聊聊</span>
+      </div>
+    </div>
+
+    <div class="arrow" id="arrow">↓</div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    window.drawHead("#char", data.expr || "curious");
+    if (data.bubble) document.getElementById("bubble").textContent = data.bubble;
+    if (data.sub) document.querySelector("#subCta .tag").textContent = data.sub;
+    if (data.sfx) document.getElementById("sfxTop").textContent = data.sfx;
+
+    const tl = gsap.timeline();
+
+    // 0.0 漫画框
+    tl.fromTo(".panel-main",
+      { opacity: 0, scale: 0.85, y: 40 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 0);
+
+    // 0.4 sfx "聊聊?"
+    tl.fromTo("#sfxTop",
+      { opacity: 0, scale: 1.8, y: -60, rotate: 10 },
+      { opacity: 1, scale: 1, y: 0, rotate: 4, duration: 0.4, ease: "back.out(1.8)" }, 0.4);
+
+    // 0.7 大对话气泡
+    tl.fromTo("#bubble",
+      { opacity: 0, scale: 0.5, rotate: 10 },
+      { opacity: 1, scale: 1, rotate: 2, duration: 0.45, ease: "back.out(1.6)" }, 0.7);
+    tl.to("#bubble", { rotate: 0, duration: 0.15, yoyo: true, repeat: 3 }, 1.2);
+
+    // 1.4 副 CTA
+    tl.fromTo("#subCta",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, 1.4);
+
+    // 1.8 箭头
+    tl.fromTo("#arrow",
+      { opacity: 0, y: -40 },
+      { opacity: 0.95, y: 0, duration: 0.4, ease: "bounce.out" }, 1.8);
+    tl.to("#arrow", { y: 30, duration: 0.55, ease: "sine.inOut", repeat: -1, yoyo: true }, 2.3);
+
+    // 锁尾
+    tl.to({}, { duration: 1.5 }, 2.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

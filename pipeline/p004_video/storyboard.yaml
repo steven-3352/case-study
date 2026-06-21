@@ -1,0 +1,138 @@
+# P004 · K1 视频 · 分镜参数 · v2 定稿(实体店老板版)
+#
+# 编辑此文件 → 不改 HTML/CSS 就能调时长、文字、数字
+# 改 HTML 模板 → 视觉风格升级
+#
+# 受众: 实体店老板(餐饮/美容/教培/母婴/零售)
+# 钩子结构: chaos(broll 1.0s) → punch1(0.6s "又是这个") → punch2(1.4s "问八百遍")
+# 文案定稿见 script_k1_v2.md
+#
+# ⚠ 02_pain~08_cta 的 data 字段是上一版(创作者口吻)的占位
+# ⚠ 视觉/分镜重做后再实出全片(Task #12)
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: p004_K1.mp4
+  voice_volume: 1.0
+  music_volume: 0.10
+
+# 字段:
+#   id          — 文件名前缀
+#   type        — html (默认,走 capture_frames) 或 broll (直接 ffmpeg 切片源视频)
+#   template    — html 模式: templates/ 下的 html
+#   source      — broll 模式: 源视频路径(相对 PROJECT_ROOT)
+#   source_in   — broll 模式: 从源视频第几秒切起(默认 0)
+#   duration    — 秒
+#   start_at    — 配音对齐起点(秒,相对全片)
+#   data        — 注入到 HTML 的 JSON,模板里 window.__data 可读
+scenes:
+  - id: "01a_chaos"
+    type: broll
+    source: "assets/broll/k1_chaos.mp4"        # 稳定别名,源 = shop_owner_phone__7669201.mp4 (Pexels MART PRODUCTION 1366p 5s)
+    source_in: 1.5                              # 中段动作峰值
+    duration: 1.0
+    start_at: 0.0
+    data:
+      caption: ""
+
+  - id: "01b_punch1"
+    template: "01b_punch.html"
+    duration: 0.7
+    start_at: 1.0
+    data:
+      big: "又是这个"
+      sub: ""
+
+  - id: "01c_punch2"
+    template: "01b_punch.html"
+    duration: 1.3
+    start_at: 1.7
+    data:
+      big: "问八百遍"
+      sub: ""
+
+  # ⚠ 以下场景的 data 是占位,模板视觉与新文案不匹配,等 Task #12 重做
+  - id: "02_pain"
+    template: "02_pain.html"
+    duration: 3.0
+    start_at: 3.0
+    data:
+      pain_lead: "几点关门?还有没有货?能不能便宜?"
+      pain_kicker: ""
+      pain_extra: ""
+      caption: "三个超具体问题"
+
+  - id: "03_pain_repeat"
+    template: "02_pain.html"
+    duration: 2.5
+    start_at: 6.0
+    data:
+      pain_lead: "一天一百条"
+      pain_kicker: "没一句新的"
+      pain_extra: ""
+      caption: "重复"
+
+  - id: "04_pain_hire"
+    template: "02_pain.html"
+    duration: 2.5
+    start_at: 8.5
+    data:
+      pain_lead: "让员工回?"
+      pain_kicker: "他比你还烦"
+      pain_extra: ""
+      caption: "堵死自救路"
+
+  - id: "05_anchor"
+    template: "05_anchor.html"            # 新模板: 消息堆 → 小系统胶囊 → 出活 chip
+    duration: 4.0
+    start_at: 11.0
+    data:
+      caption: "做成自己跑的小系统"
+
+  - id: "06_meta_proof"
+    template: "07_meta_broll.html"
+    duration: 3.0
+    start_at: 15.0
+    data:
+      caption: "你正在看的这条视频,就是它做的"
+
+  - id: "07_proof_input"
+    template: "04_claude_code_broll.html"
+    duration: 3.5
+    start_at: 18.0
+    data:
+      logs:
+        - "● 编导(总导) launched · scanning topic..."
+        - "● 视觉设计 launched · palette + grid..."
+        - "● 编剧 launched · draft..."
+        - "● 配音 launched · TTS..."
+        - "● 剪辑 launched · timeline..."
+      caption: "自动出图、配音、字幕"
+
+  - id: "08_proof_cost"
+    template: "06_compare.html"
+    duration: 3.5
+    start_at: 21.5
+    data:
+      outsource: { price: 500, time: "5 天", label: "外包" }
+      agent: { price: 2, time: "10 分钟", label: "小系统" }
+      caption: "10 分钟 · 单条 2 块"
+
+  - id: "09_growth"
+    template: "09_growth.html"            # 新模板: 9 已上线 + 6 路上,绿/橙双色
+    duration: 5.0
+    start_at: 25.0
+    data:
+      live: ["编导","记者","纪录片","导演","摄像","编剧","视觉","剪辑","运营"]
+      coming: ["合规","选品","消费者声","销售","表演","造型场景"]
+
+  - id: "10_cta"
+    template: "08_cta.html"
+    duration: 8.0
+    start_at: 30.0
+    data:
+      cta_main: "你那个第 800 遍的活是什么?"
+      cta_sub: "评论区扔过来"
+      accent_word: "第 800 遍"

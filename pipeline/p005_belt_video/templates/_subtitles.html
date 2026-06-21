@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>P005 Subtitles Overlay</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    /* 透明背景 — 与所有内容场景隔离 */
+    html, body, .canvas { background: transparent !important; }
+
+    /* 字幕 · 米黄底片 + 黑字 + 红左竖线 (反 P004 厚黑描边白字) */
+    .sub-line {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      bottom: 360px;
+      text-align: center;
+      opacity: 0;
+    }
+    .sub-line .bubble {
+      display: inline-block;
+      background: rgba(244, 237, 226, 0.94);
+      color: var(--ink-black);
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 50px;
+      letter-spacing: 1px;
+      line-height: 1.35;
+      padding: 14px 32px 18px;
+      border-left: 6px solid var(--ink-red);
+      box-shadow:
+        4px 6px 0 rgba(0, 0, 0, 0.18),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.04);
+      max-width: 900px;
+    }
+    .sub-line.tilt-1 { transform: rotate(-0.6deg); }
+    .sub-line.tilt-2 { transform: rotate(0.5deg); }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="sub-line" id="sub">
+      <span class="bubble" id="bubble"></span>
+    </div>
+  </div>
+
+  <script>
+    // 字幕时序 · 对齐 sub_v0.srt + script_v0.md
+    // 实际 VO 时长由 MiniMax 生成后会有 ±0.3s 偏差,build 时再调
+    const lines = [
+      { t: 0.2,  end: 4.0,  text: "我把家里那瓶维生素胶囊扔了", tilt: 1 },
+      { t: 4.1,  end: 6.5,  text: "放了半年,还剩 78 粒", tilt: 2 },
+      { t: 6.6,  end: 10.2, text: "不是吃不下,是不愿吃", tilt: 1 },
+      { t: 10.3, end: 13.3, text: "大男人吞胶囊总有种病人感", tilt: 2 },
+      { t: 13.4, end: 17.5, text: "后来我换成了能嚼的", tilt: 1 },
+      { t: 17.6, end: 22.5, text: "成分公开:烟酰胺·维C·维E·维B·葡萄籽", tilt: 2 },
+      { t: 22.6, end: 26.5, text: "60 片不到 60 块 · 一天不到 7 毛", tilt: 1 },
+      { t: 26.6, end: 29.5, text: "比一杯瑞幸便宜十几倍", tilt: 2 },
+      { t: 29.6, end: 33.0, text: "好下口 · 不卡喉 · 顺手", tilt: 1 },
+      { t: 33.1, end: 36.0, text: "本视频不构成健康建议", tilt: 2 },
+      { t: 36.1, end: 38.5, text: "你怎么补维生素的?", tilt: 1 },
+      { t: 38.6, end: 40.0, text: "评论区聊聊", tilt: 2 },
+    ];
+
+    const sub = document.getElementById("sub");
+    const bubble = document.getElementById("bubble");
+    const tl = gsap.timeline();
+
+    lines.forEach((line) => {
+      tl.call(() => {
+        bubble.textContent = line.text;
+        sub.className = "sub-line tilt-" + line.tilt;
+      }, [], line.t);
+      tl.fromTo(sub,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.18 },
+        line.t);
+      tl.to(sub, { opacity: 0, duration: 0.2 }, line.end - 0.2);
+    });
+
+    // 锁定 40s 总时长
+    tl.to({}, { duration: 0.05 }, 40.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

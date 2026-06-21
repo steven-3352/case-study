@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>03 Agent Grid</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .header {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 220px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 36px;
+      color: var(--gray-3);
+      letter-spacing: 6px;
+    }
+    .header .count {
+      color: var(--green);
+      font-weight: 900;
+      font-size: 56px;
+    }
+
+    .grid {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 340px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 2px solid var(--gray-4);
+      border-radius: 24px;
+      padding: 40px 24px;
+      text-align: center;
+      position: relative;
+      transition: none;
+    }
+    .card .name {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 56px;
+      color: var(--gray-1);
+      letter-spacing: 2px;
+    }
+    .card .role {
+      font-family: var(--mono);
+      font-size: 28px;
+      color: var(--gray-3);
+      margin-top: 14px;
+    }
+    .card .status {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gray-4);
+    }
+    .card .check {
+      position: absolute;
+      bottom: 18px;
+      right: 24px;
+      font-size: 32px;
+      color: var(--green);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="header">/agents/ <span class="count" id="count">0</span>/9 running</div>
+
+    <div class="grid" id="grid"></div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    const agents = data.agents || [
+      { name: "编导", role: "总导" },
+      { name: "记者", role: "调研" },
+      { name: "纪录片", role: "叙事" },
+      { name: "导演", role: "分镜" },
+      { name: "摄像", role: "B-roll" },
+      { name: "编剧", role: "逐字稿" },
+      { name: "视觉设计", role: "版式" },
+      { name: "剪辑", role: "卡点" },
+      { name: "运营", role: "发布" }
+    ];
+
+    const grid = document.getElementById("grid");
+    agents.forEach((a, i) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = `card-${i}`;
+      card.innerHTML = `
+        <div class="status"></div>
+        <div class="name">${a.name}</div>
+        <div class="role">${a.role}</div>
+        <div class="check">✓</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.4s · grid 整体淡入
+    tl.fromTo("#grid", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
+
+    // 0.4 - 2.5s · 9 张卡片逐个亮起,绿色 status,数字滚到 9
+    agents.forEach((_, i) => {
+      const at = 0.4 + i * 0.22;
+      tl.to(`#card-${i}`, {
+        borderColor: "var(--green)",
+        boxShadow: "0 0 30px rgba(80, 250, 123, 0.3)",
+        backgroundColor: "rgba(80, 250, 123, 0.06)",
+        duration: 0.2
+      }, at);
+      tl.to(`#card-${i} .status`, { backgroundColor: "var(--green)", duration: 0.15 }, at);
+      tl.to(`#card-${i} .check`, { opacity: 1, duration: 0.2 }, at + 0.1);
+      // 数字滚
+      tl.add(window.countUp("#count", i, i + 1, { duration: 0.15 }), at);
+    });
+
+    // 锁尾
+    tl.to({}, { duration: 0.5 }, 3.6);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

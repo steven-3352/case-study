@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>01 Hook · 漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    /* 顶部拟声"啊?" */
+    .sfx-top {
+      top: 320px;
+      left: 80px;
+      opacity: 0;
+    }
+    /* 底部拟声"扔了!" */
+    .sfx-bot {
+      bottom: 540px;
+      right: 60px;
+      opacity: 0;
+      z-index: 8;
+    }
+
+    /* 主漫画框 (中心人物 + 胶囊) */
+    .panel-main {
+      left: 80px;
+      right: 80px;
+      top: 540px;
+      height: 760px;
+      padding: 60px;
+      transform: rotate(-1.5deg);
+      opacity: 0;
+    }
+
+    /* 人物 */
+    .char {
+      position: absolute;
+      left: 80px;
+      top: 80px;
+      width: 380px;
+      height: 410px;
+    }
+    /* 胶囊瓶 (被推开) */
+    .bottle {
+      position: absolute;
+      right: 60px;
+      top: 100px;
+      width: 240px;
+      height: 340px;
+      transform: rotate(28deg);
+      opacity: 0;
+    }
+    /* 思考气泡 */
+    .bubble-thought {
+      position: absolute;
+      top: 30px;
+      right: 100px;
+      transform: rotate(3deg);
+      opacity: 0;
+    }
+    /* 速度线 (3 根从胶囊瓶发出) */
+    .speed {
+      position: absolute;
+      background: var(--ink);
+      height: 8px;
+      transform-origin: left center;
+      opacity: 0;
+    }
+    .speed.s1 { top: 200px; right: 320px; width: 100px; transform: rotate(-15deg); }
+    .speed.s2 { top: 260px; right: 320px; width: 130px; transform: rotate(5deg); }
+    .speed.s3 { top: 320px; right: 320px; width: 90px;  transform: rotate(20deg); }
+
+    /* 底部"扔了!"色块 */
+    .bang-throw {
+      transform: rotate(-6deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="sfx sfx-top mid yellow" id="sfxTop">啊?</div>
+
+    <div class="panel panel-main">
+      <div class="bubble thought bubble-thought" id="bubble">
+        维生素…吃不动了
+      </div>
+      <div class="char" id="char"></div>
+      <div class="bottle" id="bottle"></div>
+      <div class="speed s1" id="sp1"></div>
+      <div class="speed s2" id="sp2"></div>
+      <div class="speed s3" id="sp3"></div>
+    </div>
+
+    <div class="sfx sfx-bot bang-throw huge red" id="sfxBot">扔了!</div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    window.drawHead("#char", data.expr || "confused");
+    window.drawPart("#bottle", "pillBottle");
+    if (data.sfx_top) document.getElementById("sfxTop").textContent = data.sfx_top;
+    if (data.sfx_bottom) document.getElementById("sfxBot").textContent = data.sfx_bottom;
+    if (data.bubble_text) document.getElementById("bubble").firstChild &&
+      (document.getElementById("bubble").textContent = data.bubble_text);
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.4 漫画框弹入
+    tl.fromTo(".panel-main",
+      { opacity: 0, scale: 0.85, y: 40 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 0);
+
+    // 0.5 顶部拟声"啊?"
+    tl.fromTo("#sfxTop",
+      { opacity: 0, y: -60, scale: 1.6, rotate: -10 },
+      { opacity: 1, y: 0, scale: 1, rotate: -3, duration: 0.4, ease: "back.out(1.8)" }, 0.4);
+
+    // 0.8 思考气泡
+    tl.fromTo("#bubble",
+      { opacity: 0, scale: 0.6, rotate: 12 },
+      { opacity: 1, scale: 1, rotate: 3, duration: 0.4, ease: "back.out(1.6)" }, 0.8);
+
+    // 1.5 速度线刷出
+    tl.fromTo(["#sp1","#sp2","#sp3"],
+      { opacity: 0, scaleX: 0 },
+      { opacity: 1, scaleX: 1, duration: 0.25, stagger: 0.06 }, 1.5);
+
+    // 1.7 胶囊瓶被推飞
+    tl.fromTo("#bottle",
+      { opacity: 0, x: -100, y: 60, rotate: -30, scale: 1.1 },
+      { opacity: 1, x: 0, y: 0, rotate: 28, scale: 1, duration: 0.5, ease: "power3.out" }, 1.6);
+
+    // 2.4 "扔了!" 巨字砸入
+    tl.fromTo("#sfxBot",
+      { opacity: 0, scale: 2.5, rotate: 20, y: -200 },
+      { opacity: 1, scale: 1, rotate: -6, y: 0, duration: 0.55, ease: "back.out(2)" }, 2.2);
+
+    // 持续轻抖"扔了!"
+    tl.to("#sfxBot", { rotate: -8, duration: 0.15, yoyo: true, repeat: 4 }, 2.8);
+
+    // 锁尾
+    tl.to({}, { duration: 0.5 }, 3.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

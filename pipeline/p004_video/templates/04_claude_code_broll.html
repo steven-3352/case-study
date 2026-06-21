@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>04 Claude Code B-roll</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .terminal {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 240px;
+      bottom: 240px;
+    }
+    .terminal-body {
+      padding: 40px 36px;
+      font-family: var(--mono);
+      font-size: 30px;
+      line-height: 1.55;
+      color: var(--gray-1);
+      background: var(--bg-deep);
+      height: 100%;
+      overflow: hidden;
+    }
+    .log-line {
+      opacity: 0;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .log-line .badge {
+      color: var(--green);
+      font-weight: 800;
+      margin-right: 12px;
+    }
+    .log-line .agent-name {
+      color: var(--orange);
+      font-weight: 700;
+    }
+    .log-line .action {
+      color: var(--gray-2);
+    }
+    .meta-line {
+      color: var(--gray-3);
+      font-size: 26px;
+      margin-top: 20px;
+      opacity: 0;
+    }
+    .meta-line .ok { color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="terminal mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-traffic-lights">
+          <div class="mac-dot r"></div>
+          <div class="mac-dot y"></div>
+          <div class="mac-dot g"></div>
+        </div>
+        <div class="mac-title">claude-code · 9 agents · parallel</div>
+      </div>
+      <div class="terminal-body" id="logs">
+        <!-- log lines injected -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    const logs = data.logs || [];
+
+    const logsEl = document.getElementById("logs");
+
+    // 顶部 prompt 行
+    const prompt = document.createElement("div");
+    prompt.className = "log-line";
+    prompt.style.opacity = 1;
+    prompt.innerHTML = `<span style="color:var(--orange)">$</span> <span style="color:var(--gray-1)">claude</span> <span style="color:var(--gray-2)">--workflow case-study --topic T007</span>`;
+    logsEl.appendChild(prompt);
+
+    const dispatch = document.createElement("div");
+    dispatch.className = "log-line";
+    dispatch.style.opacity = 1;
+    dispatch.innerHTML = `<span class="badge">▶</span><span class="action">dispatching 9 agents in parallel...</span>`;
+    logsEl.appendChild(dispatch);
+    dispatch.style.opacity = "0";
+
+    const lineEls = logs.map((line, i) => {
+      const el = document.createElement("div");
+      el.className = "log-line";
+      const m = line.match(/^●\s*([^l]+)launched(.+)$/);
+      if (m) {
+        el.innerHTML = `<span class="badge">●</span><span class="agent-name">${m[1].trim()}</span><span class="action"> launched${m[2]}</span>`;
+      } else {
+        el.textContent = line;
+      }
+      logsEl.appendChild(el);
+      return el;
+    });
+
+    const meta = document.createElement("div");
+    meta.className = "meta-line";
+    meta.innerHTML = `<span class="ok">✓</span> all agents idle · 9 outputs · <span class="ok">10 min</span> elapsed`;
+    logsEl.appendChild(meta);
+
+    const tl = gsap.timeline();
+
+    // dispatching 这一行 0.0 - 0.3s
+    tl.to(dispatch, { opacity: 1, duration: 0.2 }, 0);
+
+    // 9 行日志,每条间隔 0.5s 弹入
+    lineEls.forEach((el, i) => {
+      const at = 0.5 + i * 0.55;
+      tl.fromTo(el,
+        { opacity: 0, x: -40 },
+        { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, at);
+    });
+
+    // 6.5s · meta 行
+    tl.to(meta, { opacity: 1, duration: 0.4 }, 6.4);
+
+    // 锁尾
+    tl.to({}, { duration: 0.5 }, 7.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>
