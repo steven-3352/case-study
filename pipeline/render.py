@@ -376,6 +376,8 @@ def cover_light_split(cv: dict, out: pathlib.Path, panel: pathlib.Path | None) -
     kicker = (cv.get("kicker") or "真实小店").strip()
     sub = (cv.get("sub") or "").strip()
     badge = (cv.get("badge") or "").strip()
+    theme = (cv.get("theme") or "").strip()
+    accent = "#2e7d52" if theme == "health" else "#d32f2f"
     lines = [ln for ln in re.split(r"[\n｜]", hook) if ln.strip()] or [hook]
     l1 = html.escape(lines[0]) if lines else ""
     l2 = html.escape(lines[1]) if len(lines) > 1 else ""
@@ -398,11 +400,11 @@ html,body{{width:{VW}px;height:{VH}px;font-family:{FONT_STACK};background:#faf8f
 .panel img{{width:100%;height:100%;object-fit:cover;object-position:left top}}
 .kicker{{font-size:30px;font-weight:700;color:#8a7560;letter-spacing:.06em;margin-bottom:36px}}
 .hk1{{font-size:88px;font-weight:900;line-height:1.12;color:#1a1a1a;margin-bottom:12px}}
-.hk2{{font-size:88px;font-weight:900;line-height:1.12;color:#d32f2f;margin-bottom:auto}}
+.hk2{{font-size:88px;font-weight:900;line-height:1.12;color:{accent};margin-bottom:auto}}
 .badge{{align-self:flex-start;margin-top:32px;font-size:32px;font-weight:800;color:#fff;
-  background:#d32f2f;padding:16px 28px;border-radius:12px}}
+  background:{accent};padding:16px 28px;border-radius:12px}}
 .sub{{margin-top:28px;font-size:40px;font-weight:700;line-height:1.35;color:#4a4540;
-  border-left:6px solid #d32f2f;padding-left:24px}}"""
+  border-left:6px solid {accent};padding-left:24px}}"""
     _chrome(
         f"<!DOCTYPE html><html><head><meta charset=utf-8><style>{css}</style></head>"
         f"<body><div class=c><div class=left>"
@@ -573,6 +575,105 @@ def render_carousel(car_spec: dict, out_dir: pathlib.Path) -> None:
         print(f"    carousel/{out.name}")
 
 
+def _resolve_cover_video(pid: str, cv: dict) -> pathlib.Path | None:
+    """定位抖音成片，供 video_frame 封面截取。"""
+    explicit = (cv.get("video") or "").strip()
+    if explicit:
+        p = pathlib.Path(explicit) if pathlib.Path(explicit).is_absolute() else ROOT / explicit
+        if p.exists():
+            return p
+    candidates: list[pathlib.Path] = [
+        publish_out_root(pid) / "douyin" / "video.mp4",
+        ROOT / "pipeline" / "p004_video" / "out" / "final" / "video.mp4",
+    ]
+    for week_dir in sorted((ROOT / "publish").glob("20*"), reverse=True):
+        for day_dir in week_dir.iterdir():
+            meta_f = day_dir / "meta.yaml"
+            if not meta_f.exists():
+                continue
+            try:
+                meta = yaml.safe_load(meta_f.read_text(encoding="utf-8")) or {}
+            except Exception:
+                continue
+            if meta.get("project_id") == pid:
+                v = day_dir / "douyin" / "video.mp4"
+                if v.exists():
+                    candidates.insert(0, v)
+    for p in candidates:
+        if p.exists():
+            return p
+    return None
+
+
+def cover_video_frame(video: pathlib.Path, at_sec: float, out: pathlib.Path) -> None:
+    """抖音原生：成片定格帧，封面=视频缩略图感。"""
+    subprocess.run(
+        ["ffmpeg", "-y", "-ss", f"{at_sec:.3f}", "-i", str(video),
+         "-frames:v", "1", "-q:v", "2", str(out)],
+        capture_output=True, check=True,
+    )
+
+
+def cover_douyin_punch(cv: dict, out: pathlib.Path) -> None:
+    """抖音原生：全屏黑底 punch 大字（P004 首镜风），禁分屏幻灯片。"""
+    hook = (cv.get("hook") or "").strip()
+    sub = (cv.get("sub") or "").strip()
+    lines = [ln for ln in re.split(r"[\n｜]", hook) if ln.strip()] or [hook]
+    l1 = html.escape(lines[0]) if lines else ""
+    l2 = html.escape(lines[1]) if len(lines) > 1 else ""
+    l2_html = f'<div class=big2>{l2}</div>' if l2 else ""
+    sub_html = f'<div class=sub>{html.escape(sub)}</div>' if sub else ""
+    css = f"""*{{margin:0;padding:0;box-sizing:border-box}}
+html,body{{width:{VW}px;height:{VH}px;font-family:{FONT_STACK};background:#000}}
+.c{{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 48px;text-align:center}}
+.big1{{font-size:168px;font-weight:900;line-height:1.05;color:#fff;letter-spacing:-4px}}
+.big2{{font-size:168px;font-weight:900;line-height:1.05;color:#50fa7b;letter-spacing:-4px;margin-top:8px}}
+.sub{{margin-top:48px;font-size:52px;font-weight:700;color:#8b93a7;line-height:1.35;max-width:920px}}"""
+    _chrome(
+        f"<!DOCTYPE html><html><head><meta charset=utf-8><style>{css}</style></head>"
+        f"<body><div class=c><div class=big1>{l1}</div>{l2_html}{sub_html}</div></body></html>",
+        out,
+    )
+
+
+def _render_cover_file(pid: str, plat: str, cv: dict, title: str, out: pathlib.Path,
+                       *, status: dict, shots_dir: pathlib.Path, tmp: pathlib.Path) -> None:
+    style = (cv.get("style") or "").strip()
+    if style == "video_frame":
+        video = _resolve_cover_video(pid, cv)
+        if not video:
+            raise SystemExit(
+                f"封面 video_frame 需要 douyin/video.mp4（{pid}），先出 P004 成片再 render cover"
+            )
+        at = float(cv.get("at", 1.0))
+        cover_video_frame(video, at, out)
+        print(f"    cover ← video_frame @{at}s · {video.name}")
+        return
+    if style == "douyin_punch":
+        cover_douyin_punch(cv, out)
+        return
+    if plat == "douyin" and style in ("light_split", "phone_ui"):
+        raise SystemExit(
+            f"抖音封面禁止 style={style}（分屏+窗口 mock，非平台原生）。"
+            "改用 video_frame 或 douyin_punch。见 templates/design/cover_standards.md"
+        )
+    bg = pick_cover_bg(pid, cv, status, shots_dir)
+    panel_path = _cover_panel(cv, tmp)
+    cover_png(cv, title, bg, out, panel=panel_path)
+
+
+def _cover_panel(cv: dict, tmp: pathlib.Path) -> pathlib.Path | None:
+    """从 panel_detail 生成封面证据卡（light_split / phone_ui 右栏）。"""
+    pd = (cv.get("panel_detail") or "").strip()
+    style = (cv.get("style") or "").strip()
+    if not pd or style in ("xhs_clean", "newspaper"):
+        return None
+    panel = tmp / "cover_panel.png"
+    evidence_card(cv.get("panel_kind", "chat"), pd, cv.get("sub", ""), panel)
+    return panel
+
+
 def cover_png(cv: dict, title: str, bg_img: pathlib.Path | None, out: pathlib.Path,
               *, panel: pathlib.Path | None = None) -> None:
     style = (cv.get("style") or "").strip()
@@ -588,6 +689,14 @@ def cover_png(cv: dict, title: str, bg_img: pathlib.Path | None, out: pathlib.Pa
     if style == "light_split":
         cover_light_split(cv, out, panel)
         return
+
+    # 禁止无 style 回落黑金渐变——须显式 cover.style 或 panel_detail/背景图
+    pd = (cv.get("panel_detail") or "").strip()
+    if not style and not bg_img and not pd:
+        raise SystemExit(
+            "封面拒绝渲染：未指定 cover.style，且无 panel_detail/背景图。\n"
+            "禁止回落黑金渐变模板。见 templates/design/cover_standards.md"
+        )
 
     hook = (cv.get("hook") or title or "").strip()
     kicker = (cv.get("kicker") or "真实项目 · AI 小系统").strip()
@@ -795,12 +904,12 @@ def render_platform(pid: str, plat: str, spec: dict, shots_dir: pathlib.Path,
 
     if not segs:
         if car_spec:
-            bg = pick_cover_bg(pid, cv, status, shots_dir)
-            cover_png(cv, spec.get("title", ""), bg, out_dir / "cover.png")
+            _render_cover_file(pid, plat, cv, spec.get("title", ""), out_dir / "cover.png",
+                               status=status, shots_dir=shots_dir, tmp=tmp)
             print(f"  [{plat}] ✓ carousel {len(car_spec.get('slides') or [])} 张 + cover.png")
         elif cv:
-            bg = pick_cover_bg(pid, cv, status, shots_dir)
-            cover_png(cv, spec.get("title", ""), bg, out_dir / "cover.png")
+            _render_cover_file(pid, plat, cv, spec.get("title", ""), out_dir / "cover.png",
+                               status=status, shots_dir=shots_dir, tmp=tmp)
             print(f"  [{plat}] ✓ cover.png only（无 video）")
         else:
             print(f"  [{plat}] 无 segments，跳过")
@@ -826,16 +935,8 @@ def render_platform(pid: str, plat: str, spec: dict, shots_dir: pathlib.Path,
     total = dur(video)
 
     # 封面
-    bg = pick_cover_bg(pid, cv, status, shots_dir)
-    panel = tmp / "cover_panel.png"
-    pd = (cv.get("panel_detail") or "").strip()
-    style = (cv.get("style") or "").strip()
-    panel_path: pathlib.Path | None = None
-    if pd and style not in ("xhs_clean", "newspaper"):
-        pk = cv.get("panel_kind", "chat")
-        evidence_card(pk, pd, cv.get("sub", ""), panel)
-        panel_path = panel
-    cover_png(cv, spec.get("title", ""), bg, out_dir / "cover.png", panel=panel_path)
+    _render_cover_file(pid, plat, cv, spec.get("title", ""), out_dir / "cover.png",
+                       status=status, shots_dir=shots_dir, tmp=tmp)
     print(f"  [{plat}] ✓ video.mp4 {total:.1f}s + cover.png")
 
 

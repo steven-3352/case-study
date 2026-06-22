@@ -28,7 +28,7 @@
 
 ## 素材路径
 
-- 抖音：`douyin/video.mp4`（30.4s）+ `cover.png`
+- 抖音：`douyin/video.mp4`（30.4s）+ `cover.png`（**video_frame @1.2s**）
 - 小红书：`xhs/cover.png` + `carousel/01–07.png`（**无 video**）
 
 ## 预期信心（48h 验证）

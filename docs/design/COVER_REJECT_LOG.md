@@ -36,3 +36,51 @@
 - 须经 `design/cover_review.md` **pass** 后再发布  
 
 ---
+
+## 2026-06-22 · W26D03 · 抖音 cover.png
+
+**文件：** `publish/2026-W26/D03-试吃反馈/douyin/cover.png`  
+**判定：** ❌ **完全不可用**（用户原话：「完全没有审美，无脑的产出」）  
+**视觉设计验收：** ❌ **假 pass**（cover_review 写了 light_split，实际 render 回落黑金渐变）
+
+### 问题（像素级）
+
+1. **无 style** — `topics_content` 未设 `cover.style`，触发 `render.py` 默认黑金径向渐变  
+2. **无场景** — 中间 60% 空黑，零试吃/微信群语境  
+3. **黑金模板感** — 与 D01 反例同款：kicker 金边 pill + 黄底 mark + 棕黑底  
+4. **形式错位** — F2 强钩子却纯 typography，无 chat/metric 证据  
+5. **门禁失效** — cover_review 未对照 PNG 签字
+
+### 根因链
+
+```
+W26D03 cover 仅写 hook 文案，无 style / panel_detail
+  → render_platform cover-only 路径不生成 panel
+  → cover_png() 第 5 档回落黑金渐变
+  → cover_review 按 spec 文字 pass，未审像素
+```
+
+### 已改为
+
+- `style: video_frame` + `at: 1.2`（P004 成片 punch 定格「反馈17份」）  
+- `render.py`：抖音 **禁止** `light_split` / `phone_ui`  
+- 备选 `douyin_punch`（全屏黑底大字，无分屏）
+
+---
+
+## 2026-06-22 · W26D03 · 抖音 cover v2（light_split）
+
+**文件：** 同上 · light_split + 右栏微信窗口  
+**判定：** ❌ **布局违和**（用户：「100% 平台不喜欢，用户看了也很怪」）
+
+### 问题
+
+1. **分屏幻灯片** — 左 58% 文案 + 右 macOS 窗口 mock，像 B2B 提案页  
+2. **非抖音原生** — 信息流里像 PPT 封面，不像短视频定格  
+3. **与成片脱节** — 视频是 punch/agent_grid，封面却是另一套视觉语言
+
+### 已改为
+
+- `video_frame @1.2s` — 直接截取成片 punch 镜，封面=视频缩略图
+
+---

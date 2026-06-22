@@ -36,5 +36,5 @@
 - [x] 纪录片导演 · 故事：发出≠跟进，非改造实录口播
 - [x] 留存设计师 · ≥4 种视觉、5–8s 切换
 - [x] 动效分镜师 · storyboard 已写
-- [x] 视觉设计 · cover_review pass
+- [x] 视觉设计 · cover_review v4 pass（video_frame 对照 PNG）
 - [x] 合规审核 · 不讲功效

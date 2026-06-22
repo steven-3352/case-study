@@ -212,9 +212,9 @@ W26D03:
     duration_s: 36
     interaction: 发过试吃/体验装的，反馈现在记在哪？评论区说说。
     cover:
-      hook: "186份发出\n反馈17份"
-      kicker: 私域试吃 · 跟进实录
-      sub: 不是发货完就结束
+      style: video_frame
+      at: 1.2
+      sub: 试吃不是发货就完事
     segments: []
   xhs:
     title: 私域发试吃别只盯发货：领取登记+3天反馈表（可收藏）

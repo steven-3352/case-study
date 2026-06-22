@@ -13,6 +13,15 @@
 | 高亮 | mark 关键词自然嵌入句中，忌黄块切字、括号感 | 「约了**两个人**」只高亮末两字 |
 | 可读性 | 小屏缩略 1:1 仍可读；对比度 ≥4.5:1 | 暗底 + 细金边 kicker 糊成一团 |
 | 形式对齐 | F2 强钩子 ≠ 纯 typography；宜叠 chat/metric 角标 | F2 却用默认 `cover_png` 无图回落 |
+| **抖音原生** | **成片定格 `video_frame` 或全屏 `douyin_punch`** | **light_split / phone_ui 分屏+桌面窗口 mock** |
+
+## 抖音封面专用（平台原生策划签字）
+
+| 优先 | style | 何时用 |
+|------|-------|--------|
+| 1 | `video_frame` | P004/有 `douyin/video.mp4` — 封面=视频某一帧（默认 `@1.2s` punch 镜） |
+| 2 | `douyin_punch` | 成片未出前 — 全屏黑底大字，与 P004 punch 首镜一致 |
+| ❌ | `light_split` / `phone_ui` | **禁止用于抖音** — 分屏幻灯片感，平台与用户均违和 |
 
 ## 产出物
 
@@ -26,7 +35,8 @@ publish/{week}/Dxx-*/design/
 ## 门禁
 
 - `cover_review.md` 为 **reject** → `meta.yaml` 封面状态 `blocked`，不可标 ready
-- `render.py` 默认回落渐变 **不得** 直接外发，须换 `cover.shot_ref` / `coverbg/` / 证据卡片合成
+- `render.py`：**抖音禁止 `light_split`/`phone_ui`**；无 style 且无 panel/bg → 拒绝渲染
+- 视觉设计签字前 **必须打开 PNG** 对照 brief，不得仅审 hook 文案
 
 ## 反例登记
 

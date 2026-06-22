@@ -1,31 +1,24 @@
-# 封面验收 · v2
+# 封面验收 · v4
 
-> status: **pass**（2026-06-22 · P004 抖音 + health 报纸轮播）
+> status: **pass**（2026-06-22 · video_frame 成片定格）
 
-## 抖音 · light_split
+## v2/v3 拒稿
 
-- style: `light_split` · 黑底金字强调
-- 主钩子：186份发出 / 反馈17份 ✓
-- kicker：私域试吃 · 跟进实录 ✓
-- 副文案：不是发货完就结束 ✓
-- 与 P004 首镜 punch_black 数据一致 ✓
+- ❌ light_split 分屏 + 微信窗口 mock → 平台违和
+- 登记见 `COVER_REJECT_LOG.md`
 
-## 小红书 · newspaper_health
+## 抖音 · video_frame
 
-- style: `newspaper` + `theme: health` ✓
-- 主钩子：试吃别只盯 / 发货（红色强调行）✓
-- kicker：私域跟进参考 · 试吃链 ✓
-- 流程 pill：领取→3天反馈→意向 ✓
-- stamp：号外 ✓
-- 轮播 7 张：头版→3 断点→三表→字段→合规→CTA，health 绿系统一 ✓
-- **无 video.mp4** ✓
+- style: `video_frame` @1.2s ✓
+- 画面：P004 punch「反馈17份」+ 副文案 ✓
+- 与 `douyin/video.mp4` 首段一致，信息流像视频缩略图 ✓
+- **无分屏、无幻灯片感** ✓
 
-## 待上线验证
+## 小红书
 
-- 抖音 30s 成片完播（目标 ≥35%）
-- 小红书收藏率（三张表页 05）
+- 维持 newspaper_health pass
 
 ## 签字
 
-- [x] 视觉设计（render 后验收）
-- [x] 编导（与 format_spec 一致）
+- [x] 视觉设计（对照 PNG）
+- [x] 平台原生策划（抖音=成片帧）
