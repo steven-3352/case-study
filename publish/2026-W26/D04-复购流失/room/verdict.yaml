@@ -1,0 +1,35 @@
+status: approved
+topic_id: T012
+project_id: W26D04
+week_id: 2026-W26
+approved_at: '2026-06-16'
+participants:
+  required:
+  - 编导
+  - 记者
+  - 内核提炼师
+  - 领域专家
+  - 事实校验员
+  - 编剧
+  - 留存与互动设计师
+  - 运营
+  - 合规审核
+  activated: []
+decisions:
+  hook: 复购靠Excel
+  value_anchor: 第25天该触达，别靠人记
+  script_choice: vA
+  douyin:
+    format: F3
+    title: 300个老客户，复购全靠Excel记
+  xhs:
+    format: F4
+    title: 小团队卖营养品，复购提醒表比投流重要
+revisions:
+- CTA 改讨论型
+- 触达模板合规审过
+gates:
+  insights_complete: true
+  p0_count: 4
+  fact_check_clear: true
+  retention_aligned: true

@@ -1,44 +1,52 @@
 # 待发布成品
 
-> 引擎最终输出层：每条选题经多 Agent 编排 + `pipeline/` 生产后，验收通过的成品落在此目录，可直接发布。
+> 引擎最终输出层：讨论定稿 → pipeline 生产 → 可直接发布的文案 + 素材。
 
-## 规范
-
-```
-publish/{content_id}/
-├── insights/                    # 洞察包四件套（必跑）
-│   ├── topic_brief.md
-│   ├── core_message.md
-│   ├── domain_notes.md
-│   └── fact_check.md
-├── retention_beat_sheet.md      # 视频/强互动图文（必跑）
-├── audio_plan.yaml              # 视频必跑
-├── douyin.mp4                   # 含 BGM + 字幕（外发版）
-├── xhs_video.mp4
-├── channels.mp4                 # 可选
-├── carousel/
-├── publish_三平台.md
-├── CHECKLIST_verdict.md         # 验收记录
-└── status.yaml                  # draft | ready | published
-```
-
-模板来源：`templates/insights/`、`templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`
-
-标杆示例：`publish/P004/`（K1 洞察包 + 节拍表 + 音画方案）
-
-## 状态流
+## 目录一览
 
 ```
-洞察包 + 节拍表 + 音画方案
-  → pipeline 出片
-  → CHECKLIST 验收
-  → 复制到 publish/ → status=ready
-  → 人工发布 → status=published → 填 metrics.csv
+publish/
+├── README.md
+├── 2026-W26/              ← 【主】周发布包（按天：文案+素材+讨论室）
+├── P001/                  ← 单项目：Project-001 多形态（backlog）
+├── P004/                  ← 单项目：K1 介绍片（ready_to_publish）
+├── P005/                  ← 单项目：微信体演示
+└── .staging/              ← 渲染中间落盘（W26D* 等，git 忽略；同步到周目录后可选删）
 ```
 
-## 外发文件约定
+| 目录 | 用途 | 可否删 |
+|------|------|--------|
+| `2026-W26/` | 本周 7 天发布包 | **保留** |
+| `P001/` `P004/` `P005/` | 队列中引用的单项目成品 | **保留** |
+| `.staging/W26Dxx/` | `render.py` 输出，已同步到周目录 | 可删，下次 render 再生 |
+| `W26Dxx/`（根目录） | 旧版重复目录 | **已清理，勿再出现** |
+| `*/_tmp/` | 渲染段中间文件 | **已清理，render 时临时生成** |
 
-| 文件 | 用途 |
-|------|------|
-| `*_with_bgm.mp4` | **默认外发**（配音 + BGM + 字幕） |
-| `p004_K1.mp4` 等裸片 | 工程中间件，不直接发布 |
+## 周发布包（推荐）
+
+```
+publish/2026-W26/
+├── week.yaml · web_research.yaml · topics_content.yaml
+├── D01-美甲撞档/
+│   ├── room/ · insights/ · scripts/
+│   ├── douyin/   publish.md · video.mp4 · cover.png
+│   └── xhs/
+└── D02–D07 …
+```
+
+```bash
+python3 pipeline/week_room.py
+python3 pipeline/week_build.py
+python3 pipeline/week_build.py --render    # 产出 → .staging/ → 同步到 Dxx/
+```
+
+## 单项目（P00x）
+
+大项目或历史案例仍用 `publish/P00x/{douyin,xhs,channels}/`。  
+标杆：`P004/`（见 `queue/topics.yaml` T008）。
+
+## 清理约定
+
+- 周项目视频以 **`2026-W26/Dxx-*/`** 为准，不保留根目录 `W26Dxx/` 副本
+- 渲染完并同步后，可 `rm -rf publish/.staging/W26D*`
+- 不提交 `*.mp4` `*.png`、`**/_tmp/`（见根 `.gitignore`）

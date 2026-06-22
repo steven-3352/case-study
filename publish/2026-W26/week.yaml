@@ -1,0 +1,127 @@
+# 2026-W26 · 表现形式测试周 · 本地生活 / 保健品 / 小公司自动化
+# 生成：python3 pipeline/week_build.py --week publish/2026-W26/week.yaml
+
+week_id: "2026-W26"
+title: "三板块痛点 × 四形式测试"
+start_date: "2026-06-22"
+end_date: "2026-06-28"
+goal: "测 F1–F4 哪种表现形式更吸人（曝光/互动/私信）"
+
+formats:
+  F1: 仿真证据风（聊天/表格/备忘录截图）
+  F2: 强钩子短视频（punch + 痛点堆叠）
+  F3: 原生 UI 体（微信聊天/档案卡）
+  F4: 报纸/清单图文（小红书收藏向）
+
+days:
+  - day: D01
+    slug: 美甲撞档
+    vertical: 本地生活
+    project_id: W26D01
+    topic_id: T009
+    douyin:
+      format: F2
+      publish_at: "2026-06-22 19:30"
+      title: "美甲店最亏的不是没客人，是同一时段约了两个人"
+      hook: "同一时段约了两个人"
+    xhs:
+      format: F1
+      publish_at: "2026-06-22 12:30"
+      title: "小美甲店不用买系统，先把预约从微信里拎出来"
+      hook: "预约还在微信里接吗"
+
+  - day: D02
+    slug: 团购回访
+    vertical: 本地生活
+    project_id: W26D02
+    topic_id: T010
+    douyin:
+      format: F3
+      publish_at: "2026-06-23 19:30"
+      title: "帮20桌小馆改团购跟进：218单卖了，回访还是0"
+      hook: "流量来了留不下"
+    xhs:
+      format: F4
+      publish_at: "2026-06-23 20:00"
+      title: "小餐馆团购复盘清单：核销·差评·留微三条线（可收藏）"
+      hook: "团购别只盯销量"
+
+  - day: D03
+    slug: 试吃反馈
+    vertical: 健康知识
+    project_id: W26D03
+    topic_id: T011
+    douyin:
+      format: F2
+      publish_at: "2026-06-24 12:15"
+      title: "200份试吃发出去了，能说出谁反馈的不到20个"
+      hook: "反馈不到20个"
+    xhs:
+      format: F1
+      publish_at: "2026-06-24 20:00"
+      title: "私域发试吃别只盯发货：领取登记+3天反馈表"
+      hook: "试吃别只发货"
+
+  - day: D04
+    slug: 复购流失
+    vertical: 健康知识
+    project_id: W26D04
+    topic_id: T012
+    douyin:
+      format: F3
+      publish_at: "2026-06-25 19:30"
+      title: "300个老客户，复购全靠Excel记"
+      hook: "复购靠Excel"
+    xhs:
+      format: F4
+      publish_at: "2026-06-25 12:30"
+      title: "小团队卖营养品，复购提醒表比投流重要"
+      hook: "复购在漏"
+
+  - day: D05
+    slug: 催票轮回
+    vertical: 小公司自动化
+    project_id: W26D05
+    topic_id: T013
+    douyin:
+      format: F2
+      publish_at: "2026-06-26 19:30"
+      title: "5人小公司，行政每天发30条催进度"
+      hook: "30条催进度"
+    xhs:
+      format: F1
+      publish_at: "2026-06-26 20:00"
+      title: "贸易公司不用上ERP，催票催章节点做成提醒表"
+      hook: "催票别靠人盯"
+
+  - day: D06
+    slug: 退货对账
+    vertical: 小公司自动化
+    project_id: W26D06
+    topic_id: T014
+    douyin:
+      format: F1
+      publish_at: "2026-06-27 12:15"
+      title: "3人电商，退货对账对到差800块找不到"
+      hook: "差800找不到"
+    xhs:
+      format: F4
+      publish_at: "2026-06-27 20:00"
+      title: "小电商退货一张表：平台+微信+仓库对齐"
+      hook: "三端对不上"
+
+  - day: D07
+    slug: 流程断档
+    vertical: 跨板块
+    project_id: W26D07
+    topic_id: T015
+    douyin:
+      format: F2
+      publish_at: "2026-06-28 10:30"
+      title: "小老板最该自动化的，是人走了不会断的那几步"
+      hook: "人走了就断"
+    xhs:
+      format: F1
+      publish_at: "2026-06-28 18:00"
+      title: "本地店/保健品/小公司，最值得先自动化的3类重复活"
+      hook: "三类重复活"

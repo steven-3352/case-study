@@ -241,14 +241,14 @@ def main() -> None:
     # Phase 1: 截帧(可跳过)
     if not args.skip_capture:
         print("Phase 1 · 截帧 (scene + subtitles)")
-        cmd = ["python3", str(ROOT / "capture_frames.py"), "--all",
+        cmd = [sys.executable, str(ROOT / "capture_frames.py"), "--all",
                "--storyboard", str(args.storyboard)]
         res = subprocess.run(cmd, cwd=str(PROJECT_ROOT))
         if res.returncode != 0:
             sys.exit("scene 截帧失败")
         if not args.no_subtitle:
             total_dur = sum(s.duration for s in scenes)
-            cmd2 = ["python3", str(ROOT / "capture_frames.py"),
+            cmd2 = [sys.executable, str(ROOT / "capture_frames.py"),
                     "--template", "_subtitles.html",
                     "--duration", f"{total_dur}",
                     "--out-id", "_subtitles",

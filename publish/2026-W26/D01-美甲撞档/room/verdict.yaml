@@ -1,0 +1,40 @@
+status: approved
+topic_id: T009
+project_id: W26D01
+week_id: 2026-W26
+approved_at: '2026-06-16'
+participants:
+  required:
+  - 编导
+  - 记者
+  - 选题深挖师
+  - 内核提炼师
+  - 领域专家
+  - 事实校验员
+  - 编剧
+  - 留存与互动设计师
+  - 运营
+  activated:
+  - 视觉设计
+  - 导演
+decisions:
+  hook: 同一时段约了两个人
+  value_anchor: 不用先买系统，先把预约从聊天里拎出来
+  script_choice: vA
+  douyin:
+    format: F2
+    title: 美甲店最亏的不是没客人，是同一时段约了两个人
+  xhs:
+    format: F1
+    title: 小美甲店不用买系统，先把预约从微信里拎出来
+revisions:
+- 5 个微信窗口具体化为老板+3技师+预约号
+- CTA 扣1 改讨论型提问
+- 数据点区间化/合成场景标注
+gates:
+  insights_complete: true
+  p0_count: 4
+  fact_check_clear: true
+  retention_aligned: true
+  cover_review: pass
+  content_version: v2-redo

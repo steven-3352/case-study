@@ -1,0 +1,44 @@
+# W26 形式矩阵 · 形式选型师维护
+# 规则：相邻两天不得共用同一 render_route；抖音与小红书须不同 delivery
+
+week_id: 2026-W26
+
+# 已发布 / 已定稿 — 占用登记
+occupied:
+  W26D01:
+    douyin: { route: render_evidence, formats: [hook, chat, table, flow, terminal, metric] }
+    xhs: { route: render_evidence, delivery: video, formats: [xhs_clean, flow, terminal] }
+
+  W26D03:
+    douyin: { route: p004_gsap, catalog: [punch_black, agent_grid, pain_stack, before_after] }
+    xhs: { route: carousel_newspaper_health, delivery: carousel_only, slides: 7 }
+
+# D02 起必须错开 — v3 目标（待 render）
+targets:
+  W26D02:
+    douyin:
+      route: p004_gsap
+      catalog: [chaos_broll, punch_black, pain_stack, before_after]
+      narrative: 忙时 chaos → 三连 pain → 左右对比改造 → 讨论 CTA（无 terminal/flow 链）
+    xhs:
+      route: p007_comic
+      delivery: carousel_only
+      catalog: [comic_4panel]
+      narrative: 四格漫画故事（老板+前台+团购客）→ 字段清单页
+    anti_patterns:
+      - 与 D01 相同的 evidence 卡片 Ken Burns slideshow
+      - flow 三步 pill + terminal 助手 + metric 两周 三连
+      - xhs 保留 video.mp4
+
+  W26D03:
+    douyin: { route: p004_gsap, catalog: [punch_black, agent_grid, before_after] }
+    xhs: { route: p002_newspaper_gpt, delivery: carousel_only }
+
+  W26D04:
+    douyin: { route: render_evidence, catalog: [profile, metric] }  # 仅当与 D01/D02 体裁不同
+    xhs: { route: p007_comic, delivery: carousel_only }
+
+rules:
+  - 形式选型师在 room Round 中必须引用本表
+  - render.py 默认 evidence 链：每周最多 2 天
+  - F4 小红书：禁止生成 video；发布包不得含 video.mp4

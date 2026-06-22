@@ -1,0 +1,97 @@
+topic:
+  id: W26D05
+  pain: 5人贸易公司，催客户开票、催供应商盖章、催货代提单全在Excel+微信，行政每天30条催进度仍常漏。
+  solves: 催票催章节点表+到期提醒，不用先上ERP。
+  hook: 30条催进度
+  angle: 小公司自动化 · 催票催章
+shots: []
+douyin:
+  title: 5人小公司，行政每天发30条催进度
+  body: 不是单子少，是跟进节点没人统一盯，一忙就拖成客户投诉。
+  tags:
+  - 小公司
+  - 贸易
+  - 行政
+  - 流程管理
+  - 创业
+  duration_s: 38
+  interaction: 催进度还在微信里的，评论区说说你们怎么盯节点。
+  cover:
+    hook: '每天30条
+
+      催进度'
+    kicker: 5人贸易 · 催票
+    sub: 一忙就漏
+    mark: 30条
+  segments:
+  - source: evidence
+    ref: d05-1
+    evidence_kind: chat
+    detail: '微信 · 行政
+
+      「张总发票开了吗」
+
+      「李总章盖了吗」
+
+      「货代提单有了吗」
+
+      ×30'
+    vo: 五人小公司，行政每天发30条催进度，还是常漏。
+    sub: 30条催进度
+    emotion: surprised
+  - source: evidence
+    ref: d05-2
+    evidence_kind: note
+    detail: '节点：开票/盖章/提单/付款
+
+      状态：待办/已催/完成
+
+      到期日'
+    vo: 开票、盖章、提单、付款，每个节点有到期日和状态，别散在聊天里。
+    sub: 节点别散聊天
+    emotion: sad
+  - source: evidence
+    ref: d05-3
+    evidence_kind: note
+    detail: '到期前1天自动提醒
+
+      （表格+日历即可）'
+    vo: 到期前一天提醒，表格加日历就能跑，不用先上ERP。
+    sub: 到期提醒就行
+    emotion: happy
+  - source: evidence
+    ref: d05-4
+    evidence_kind: note
+    detail: '催进度靠微信的
+
+      评论区说说'
+    vo: 催进度还在微信里的，评论区说说你们怎么盯节点。
+    sub: 你们怎么催
+    emotion: neutral
+xhs:
+  title: 贸易公司不用上ERP，催票催章节点做成提醒表
+  body: '5人团队，单子不多，漏一次就投诉。
+
+
+    节点表字段：单号 / 节点 / 责任人 / 到期日 / 状态 / 上次催办
+
+
+    到期前1天提醒，比事后追30条微信有用。
+
+    '
+  tags:
+  - 小公司管理
+  - 贸易
+  - 行政效率
+  - 流程表
+  - 创业
+  duration_s: 0
+  interaction: 需要节点表模板扣「催票」。
+  cover:
+    hook: '催票别靠
+
+      30条微信'
+    kicker: 贸易 · 节点表
+    sub: 到期提醒比追债有用
+    mark: 别靠
+  segments: []

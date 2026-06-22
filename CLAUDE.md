@@ -53,15 +53,13 @@ pip install openai pillow python-dotenv edge-tts requests
 - 中文标题渲染质量高，正文长段落约 5% 乱码（可接受）
 - 不适合：精确文字排版、可编辑版面、品牌 logo
 
-## 可用但未启用的能力
-
-### GSAP Skills（全局注册，8 个）
+## GSAP Skills（项目已安装 · `.agents/skills/` · 8 个）
 
 gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance / gsap-utils / gsap-react / gsap-frameworks
 
-来源：https://github.com/greensock/gsap-skills.git
+来源：https://github.com/greensock/gsap-skills.git · 索引见 `.agents/skills/gsap-llms.txt`
 
-适用场景（未来）：
+适用场景：
 - 项目演示落地页 / 长滚动案例页
 - 交互式作品集 / Before-After 对比
 - 网页动效 → 录屏当 B-roll
@@ -90,6 +88,14 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 模板见 `templates/insights/`。**门禁：** 洞察包未完成 → 禁止编剧写稿。
 
+#### 网络调研层（所有选题必跑 · 2026-06 起）
+
+| 工种 | 职责 | 输出 |
+|------|------|------|
+| **网络调研员** | 搜公开内容（行业文/案例/社区），提炼痛点与可引用转述 | `insights/external_references.md` |
+
+**门禁：** 无 external_references（≥3 URL、≥2 网络原话）→ 禁止洞察包定稿。前期宁可多讨论，不可跳过调研。
+
 #### 核心 9 工种（所有形态都跑）
 
 | 工种 | 职责 | 输出 |
@@ -100,7 +106,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **导演（执行）** | 镜头语言、节奏、信息密度 | 分镜表：画面/口播/字幕/时长（出镜型含机位） |
 | **摄像/视觉** | 画面可拍性、构图、可复用素材 | 画面清单：B-roll 列表、截图需求 |
 | **编剧** | 钩子、逐字稿、字幕节奏 | v0/vA/vB 三版脚本 + 前 3s 大字钩子 |
-| **视觉设计** | 版面、色彩、品牌一致性 | 视觉路线：P001 截图风 / P002 报纸风 / 新路线 |
+| **视觉设计** | 版面、色彩、品牌一致性；**封面 mock 验收** | 视觉路线 + `design/cover_brief.md` + `design/cover_review.md` |
 | **剪辑** | 时长卡控、三平台规格 | 剪辑说明：抖音 45-60s / 小红书 ≤60s / 视频号 60-90s |
 | **运营/增长** | 分发策略、私信转化承接 | 三平台文案 + 评论区埋点 + 私信路径 |
 
@@ -174,6 +180,14 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - 可由 Claude 串行扮演各工种，也可调 Agent 工具并行
 - 每个工种产出独立、可审阅的段落，不合并成"四不像"
 - Phase 0 全人工串行；Phase 2+ 半自动后 Agent 并行
+
+### 铁律 · 结果负责制（2026-06 起）
+
+1. **不看系统有什么，只看能做到什么** — pipeline/模板/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
+2. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质或封面不可用；负责工种退稿重做。
+3. **尽一切可能让内容更好** — 宁可多一轮讨论、换 route、重写 storyboard、重出封面，不可「能出片就行」。
+
+责权表与验收问句：`.cursor/rules/content-outcome-accountability.mdc` · `templates/agent_room/README.md`
 
 ### 反例（不要这么做）
 

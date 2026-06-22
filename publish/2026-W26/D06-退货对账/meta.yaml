@@ -1,0 +1,16 @@
+week_id: 2026-W26
+day: D06
+slug: 退货对账
+vertical: 小公司自动化
+project_id: W26D06
+topic_id: T014
+status: approved
+formats:
+  douyin: F1
+  xhs: F4
+schedule:
+  douyin: 2026-06-27 12:15
+  xhs: 2026-06-27 20:00
+topic:
+  pain: 3人电商，退货理由在平台、退款在支付宝、沟通在微信，对账对不上，月底算利润靠猜。
+  hook: 差800找不到

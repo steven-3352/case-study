@@ -1,0 +1,85 @@
+# W26D03 · 试吃反馈 · P004 GSAP 分镜 · v2
+# 与 D02 差异：无 chaos broll；主视觉 agent_grid（三群散乱）
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.12
+
+scenes:
+  - id: "01b_punch1"
+    template: "01b_punch.html"
+    duration: 1.0
+    start_at: 0.0
+    data:
+      big: "186份发出"
+      sub: ""
+
+  - id: "01c_punch2"
+    template: "01b_punch.html"
+    duration: 1.4
+    start_at: 1.0
+    data:
+      big: "反馈17份"
+      sub: "试吃不是发货就完事"
+
+  - id: "03_agent_grid"
+    template: "03_agent_grid.html"
+    duration: 7.5
+    start_at: 2.4
+    data:
+      caption: "三个群 · 各说各话"
+      agents:
+        - { name: "群A", role: "「还行吧」" }
+        - { name: "群B", role: "「吃了」" }
+        - { name: "群C", role: "语音60秒" }
+        - { name: "Excel", role: "只记发货" }
+        - { name: "销售", role: "凭感觉跟" }
+        - { name: "老板", role: "谁有意向？" }
+
+  - id: "02_pain_scatter"
+    template: "02_pain.html"
+    duration: 5.0
+    start_at: 9.9
+    data:
+      pain_lead: "汇总反馈要半天"
+      pain_kicker: "翻三个群聊天记录"
+      pain_extra: "无意向标记"
+      caption: "反馈散在群里"
+
+  - id: "02_pain_excel"
+    template: "02_pain.html"
+    duration: 4.0
+    start_at: 14.9
+    data:
+      pain_lead: "表缺反馈截止"
+      pain_kicker: "发是发了"
+      pain_extra: "跟是跟不上"
+      caption: "表缺关键字段"
+
+  - id: "05_before_after"
+    template: "06_compare.html"
+    duration: 6.0
+    start_at: 18.9
+    data:
+      outsource:
+        price: "17"
+        time: "/186 有反馈"
+        label: "改造前"
+      agent:
+        price: "3天"
+        time: "反馈表+意向"
+        label: "改造后"
+      caption: "只讲跟进 · 不讲功效"
+
+  - id: "06_cta"
+    template: "08_cta.html"
+    duration: 5.5
+    start_at: 24.9
+    data:
+      cta_main: "发过试吃/体验装的"
+      cta_sub: "反馈现在记在哪？评论区说说"
+      accent_word: "记在哪"

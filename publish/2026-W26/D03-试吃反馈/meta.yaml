@@ -1,0 +1,16 @@
+week_id: 2026-W26
+day: D03
+slug: 试吃反馈
+vertical: 健康知识
+project_id: W26D03
+topic_id: T011
+status: approved
+formats:
+  douyin: F2
+  xhs: F1
+schedule:
+  douyin: 2026-06-24 12:15
+  xhs: 2026-06-24 20:00
+topic:
+  pain: 小团队发100–200份试吃装，登记靠Excel，反馈散在3个微信群，汇总要半天，不知道谁有意向。
+  hook: 发出不等于跟进

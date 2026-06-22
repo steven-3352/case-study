@@ -1,0 +1,32 @@
+status: approved
+topic_id: T013
+project_id: W26D05
+week_id: 2026-W26
+approved_at: '2026-06-16'
+participants:
+  required:
+  - 编导
+  - 记者
+  - 内核提炼师
+  - 领域专家
+  - 编剧
+  - 留存与互动设计师
+  - 运营
+  activated: []
+decisions:
+  hook: 30条催进度
+  value_anchor: 到期提醒比事后追 30 条微信有用
+  script_choice: vA
+  douyin:
+    format: F2
+    title: 5人小公司，行政每天发30条催进度
+  xhs:
+    format: F1
+    title: 贸易公司不用上ERP，催票催章节点做成提醒表
+revisions:
+- CTA 去扣1
+gates:
+  insights_complete: true
+  p0_count: 4
+  fact_check_clear: true
+  retention_aligned: true

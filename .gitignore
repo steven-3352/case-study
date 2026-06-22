@@ -21,4 +21,5 @@ pipeline/**/*.tts.yaml
 
 # 通用产线工作区：克隆的外部仓库、渲染中间文件不入库
 projects/*/repo/
+publish/.staging/
 **/_tmp/

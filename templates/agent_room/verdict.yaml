@@ -1,0 +1,42 @@
+# Agent 讨论室 · 定稿决议
+# status: draft | in_review | approved | rejected
+
+status: draft
+topic_id: T___
+project_id: W26D__
+week_id: "2026-W26"
+approved_at: null
+
+participants:
+  required:
+    - 编导
+    - 记者
+    - 选题深挖师
+    - 内核提炼师
+    - 领域专家
+    - 事实校验员
+    - 编剧
+    - 留存与互动设计师
+    - 运营
+  activated:
+    - 视觉设计
+    - 导演
+
+decisions:
+  hook: ""
+  value_anchor: ""
+  script_choice: vA  # v0 | vA | vB
+  douyin:
+    format: F2
+    title: ""
+  xhs:
+    format: F1
+    title: ""
+
+revisions: []  # 讨论中采纳的修改点
+
+gates:
+  insights_complete: false
+  p0_count: 0
+  fact_check_clear: false
+  retention_aligned: false

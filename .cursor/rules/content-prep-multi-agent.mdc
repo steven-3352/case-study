@@ -1,0 +1,77 @@
+---
+description: 选题后必须多 Agent 讨论定稿；重视痛点、场景与网络调研，再进 pipeline
+alwaysApply: true
+---
+
+# 内容前期：多 Agent 讨论定稿（强制）
+
+> **铁律（最高优先级）：** 不看系统有什么，只看能做到什么。各环节专家对**最终成片/成图/成文**负责，尽一切可能让内容更好。详见 `.cursor/rules/content-outcome-accountability.mdc`。
+
+## 何时触发
+
+`queue/topics.yaml` 新增选题、用户口头给场景、或 `publish/{week}/` 周发布包开做时——**禁止**直接写脚本、跑 render、或填 `topics_content.yaml` 定稿。
+
+用户愿意在前期花时间；**宁可多一轮讨论，不可跳过调研**。
+
+## 标准流程
+
+```
+选题输入
+  → 网络调研员（拉公开参考：小红书/知乎/行业文/案例）
+  → 记者 + 选题深挖师（痛点、钉子场景、≥5 条原话/转述）
+  → 洞察包四件套（topic_brief / core_message / domain_notes / fact_check）
+  → 编剧 v0/vA/vB + 留存设计师 + 运营 选稿
+  → 视觉/导演对齐形式
+  → room/verdict.yaml status=approved
+  → week_build.py → render
+```
+
+## 必跑工种（可增不可减）
+
+| 工种 | 职责 |
+|------|------|
+| **网络调研员** | 搜公开内容，整理 `insights/external_references.md`（链接+摘要+可引用原话）；标注来源 URL |
+| **记者** | 证据链、用户原话；区分「网络转述 / 合成场景 / 一手项目」 |
+| **选题深挖师** | 受众画像、≥3 个具体使用场景、改造前后对比 |
+| **内核提炼师** | P0≥3、价值锚、禁用表述 |
+| **领域专家** | 决策链、替代方案、口语化术语 |
+| **事实校验员** | 绿/黄/红区；数据区间化；合规（保健品类） |
+| **形式选型师** | 从 `assets/formats/catalog.yaml` 选 ≥3 形式；对照 `assets/formats/week_*_matrix.yaml` **禁止与已发条目同 pipeline**；产出 `design/format_spec.md` |
+| **平台原生策划** | 抖音/小红书/视频号 **不同 delivery**（短视频 vs 纯轮播 vs 对比动效） |
+| **纪录片导演** | 故事弧线（**非默认改造实录模板**）；改造前后情绪锚点 |
+| **动效分镜师** | 视频走 P004/P005 时：`projects/{id}/storyboard.yaml` |
+| **漫画分镜师** | 轮播走 P007/P002 时：`projects/{id}/storyboard_carousel.yaml` |
+| **编剧** | 三版脚本，只引用洞察卡 |
+| **留存与互动设计师** | 节拍表；讨论型 CTA（非扣1）；**单模板 ≤40% 时长** |
+| **运营** | 定时发布、标签、收藏动机 |
+| **编导** | 立项、形式分工、最终签字 |
+
+**扩展工种**（按需激活）：合规审核（保健/带货）、消费者声音研究员（Agent-Reach）、选品分析师。
+
+## 渲染路由（禁止全周 render.py）
+
+| render_route | pipeline | 适用 |
+|--------------|----------|------|
+| `render_evidence` | `pipeline/render.py` | 仿真卡片风；**每周最多 2 天** |
+| `p004_gsap` | `pipeline/p004_video/build.py` | chaos/punch/pain/compare 动效 |
+| `p007_comic` | `p007_xhs_engine_comic/capture_carousel.py` | 漫画轮播 |
+| `p002_newspaper_gpt` | `p002_carousel_gen.py` | GPT 报纸风插画轮播 |
+
+**反例：** 讨论室只改文案、全周 `evidence_card` Ken Burns → 观众审美疲劳、完播/收藏数据差。
+
+## 痛点与场景门禁
+
+- 钉子场景必须能回答：**谁、什么时间、在哪、烦什么、要什么结果**
+- 用户原话 ≥5 条，至少 **2 条来自网络公开内容**（转述+链接）
+- 网络参考 ≥3 条 URL，写入 `external_references.md`
+- 关键信息 <3 条 P0 → 退回；无场景细节 → 退回记者/网络调研员
+
+## 命令
+
+```bash
+python3 pipeline/week_room.py      # 展开讨论室产物
+python3 pipeline/week_build.py     # 仅 verdict=approved
+python3 pipeline/week_build.py --render
+```
+
+模板：`templates/agent_room/` · 详规：`CLAUDE.md` 多工种协作

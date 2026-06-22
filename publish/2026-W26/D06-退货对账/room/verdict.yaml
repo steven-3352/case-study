@@ -1,0 +1,32 @@
+status: approved
+topic_id: T014
+project_id: W26D06
+week_id: 2026-W26
+approved_at: '2026-06-16'
+participants:
+  required:
+  - 编导
+  - 记者
+  - 内核提炼师
+  - 编剧
+  - 留存与互动设计师
+  - 运营
+  activated: []
+decisions:
+  hook: 差800找不到
+  value_anchor: 一张表对齐三端，差异行标红
+  script_choice: vA
+  douyin:
+    format: F1
+    title: 3人电商，退货对账对到差800块找不到
+  xhs:
+    format: F4
+    title: 小电商退货一张表：平台+微信+仓库对齐
+revisions:
+- CTA 改讨论型
+- 803→差800口语
+gates:
+  insights_complete: true
+  p0_count: 4
+  fact_check_clear: true
+  retention_aligned: true

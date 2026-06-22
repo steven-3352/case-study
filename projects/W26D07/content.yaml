@@ -1,0 +1,105 @@
+topic:
+  id: W26D07
+  pain: 美甲店、保健品团队、贸易公司共性——流程在人脑子里，人走了、一忙就断。
+  solves: 三类最值得先自动化的重复活：预约接单、试吃/复购跟进、节点催办。
+  hook: 人走了就断
+  angle: 跨板块总结 · 最小自动化
+shots: []
+douyin:
+  title: 小老板最该自动化的，是人走了不会断的那几步
+  body: 不是先搞营销自动化。先把人走了就断、一忙就漏的那几步拎出来。
+  tags:
+  - 小老板
+  - 创业
+  - 自动化
+  - 流程管理
+  - 干货
+  duration_s: 45
+  interaction: 你们最烦的重复活是什么？评论区说。
+  cover:
+    hook: '人走了
+
+      流程就断'
+    kicker: 三类小老板 · 总结
+    sub: 先自动化哪几步
+    mark: 就断
+  segments:
+  - source: evidence
+    ref: d07-1
+    evidence_kind: note
+    detail: '本地店：预约/核销/回访
+
+      人在微信里 → 一走就乱'
+    vo: 本地店，预约核销回访全在微信，人一走就乱。
+    sub: 本地店人走就乱
+    emotion: sad
+  - source: evidence
+    ref: d07-2
+    evidence_kind: note
+    detail: '保健品团队：试吃反馈/复购提醒
+
+      在销售脑子里'
+    vo: 保健品团队，试吃反馈和复购提醒在销售脑子里，离职就断档。
+    sub: 复购在脑子里
+    emotion: sad
+  - source: evidence
+    ref: d07-3
+    evidence_kind: note
+    detail: '小公司：催票/退货对账
+
+      Excel+微信混用'
+    vo: 小公司催票退货对账，Excel加微信，一忙就漏。
+    sub: 一忙就漏
+    emotion: sad
+  - source: evidence
+    ref: d07-4
+    evidence_kind: note
+    detail: '先自动化三类
+
+      ① 接单登记 ② 跟进提醒 ③ 节点催办'
+    vo: 先自动化三类：接单登记、跟进提醒、节点催办。别一上来搞营销。
+    sub: 三类重复活
+    emotion: happy
+  - source: evidence
+    ref: d07-5
+    evidence_kind: note
+    detail: '最烦的重复活
+
+      评论区说'
+    vo: 你们现在最烦、一忙就漏的重复活是什么？
+    sub: 你说说看
+    emotion: neutral
+xhs:
+  title: 本地店/保健品/小公司，最值得先自动化的3类重复活
+  body: '本周7条对照下来，三类最值得先做：
+
+
+    1. **接单登记**（预约/试吃领取/订单节点）
+
+    2. **跟进提醒**（反馈/复购/催办到期）
+
+    3. **节点催办**（核销/差评/对账差异）
+
+
+    不是先上大而全系统，是把「人走了就断」的几步拎到表+提醒。
+
+
+    收藏对照，下周按 win 形式复制。
+
+    '
+  tags:
+  - 创业干货
+  - 小老板
+  - 流程管理
+  - 自动化
+  - 效率
+  duration_s: 0
+  interaction: 你最想先自动化哪一类？评论区选123。
+  cover:
+    hook: '3类重复活
+
+      先自动化'
+    kicker: 本周总结 · W26
+    sub: 人走了不能断
+    mark: 3类
+  segments: []

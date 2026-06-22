@@ -1,0 +1,24 @@
+# 声音方案 · audio_plan
+
+> W26D01 · 工种：声音设计师 · v2
+
+## 配音
+- provider: minimax · voice: male-qn-badao
+- 整体：具体、克制；首段略快（钩子），踩坑段沉一点，解法段笃定
+
+## 情绪弧线（段序）
+| 段 | 情绪 | BGM |
+|----|------|-----|
+| 0 hook | surprised | 低→升 |
+| 1-3 痛点 | sad | 保持 |
+| 4 metric | neutral | 略收 |
+| 5 解法 | happy | 略亮 |
+| 6 CTA | neutral | 淡出 |
+
+## 字幕
+- 底栏半透明；关键词与 sub 一致
+- 0–3s 钩子字幕 = 口播首句，不另起一行
+
+## 门禁
+- [x] 与 retention 节拍对齐
+- [x] 无 BGM 盖人声
