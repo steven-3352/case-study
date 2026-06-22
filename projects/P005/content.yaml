@@ -1,0 +1,289 @@
+topic:
+  id: P005
+  pain: 做开发的人（独立开发者/程序员），AI 编程工具一年换三四个。Copilot 还没焐热，Cursor、Windsurf、Claude Code、Codex 一个接一个冒出来，新得快、撩得狠，永远在「这次一定是真爱」和下个月又移情之间反复横跳。
+  solves: 用「男人看美女、见异思迁」的视角，把 2021 到 2025 这 5 个主流 AI 编程工具的演变串成一条恋爱史——初恋只会补全、会读心的黏人、新欢更年轻、素颜的最能干、最新的最撩——一条短视频讲清谁是花瓶、谁能过日子。
+  hook: 我换 AI 编程工具，比有些人换对象还勤。
+  angle: 段子手 · 把工具演变拟人成喜新厌旧的恋爱史，用看美女视角逐个点评 5 个工具
+shots: []
+
+douyin:
+  title: "我换AI编程工具，比换对象还勤"
+  body: "从2021到现在，Copilot、Cursor、Windsurf、Claude Code、Codex 我挨个用了一遍。一个比一个新，一个比一个会撩，可换到最后我才发现：让你心动的一大把，能陪你把活干完的没几个。"
+  tags:
+  - 程序员
+  - 编程工具
+  - Cursor
+  - ClaudeCode
+  - 独立开发
+  duration_s: 50
+  interaction: "你现在用到第几任了？还在用 Copilot 的，是初恋难忘吧。"
+  cover:
+    hook: "我换AI编程工具\n比换对象还勤"
+    kicker: "5个工具 · 喜新厌旧"
+    sub: "你移情到第几个了"
+    mark: "比换对象还勤"
+    shot_ref: ""
+    bg: ""
+  segments:
+  - source: evidence
+    ref: dy-01
+    evidence_kind: note
+    detail: |
+      - 我的 AI 编程工具更换史
+      - 2021 → 2025，整整五个
+      - 换得比换对象还勤
+    vo: "我换 AI 编程工具，比有些人换对象还勤。"
+    sub: "换工具比换对象勤"
+    emotion: surprised
+  - source: evidence
+    ref: dy-02
+    evidence_kind: code
+    detail: |
+      # 2021 · 初恋 GitHub Copilot
+      def send_welcome(user):
+          # 你刚敲到这，灰字自己补好下一行
+          mailer.send(user.email, tpl)   # ← 按 Tab 接受
+    vo: "初恋是 Copilot，第一次有人用灰字替我补完下一行，我以为这就是真爱。"
+    sub: "初恋只会接话茬"
+    emotion: happy
+  - source: evidence
+    ref: dy-03
+    evidence_kind: code
+    detail: |
+      // 2023 · 会读心 Cursor
+      - const data = fetch(url)
+      + const data = await fetch(url).then(r => r.json())
+      // 光标一停，她就知道我要改哪行 · Cmd+K 改一片
+    vo: "后来 Cursor 会读心，光标一停就知道我要改哪，黏得很。"
+    sub: "会读心 还黏人"
+    emotion: happy
+  - source: evidence
+    ref: dy-04
+    evidence_kind: note
+    detail: |
+      - 2024 · 新欢 Windsurf
+      - 比 Cursor 更年轻、界面更顺
+      - Cascade 顺着你的活自己往下跑
+      - 我一眼就移情
+    vo: "转头 Windsurf 更年轻界面更顺，活儿自己往下跑，我一眼就移情。"
+    sub: "新欢更年轻"
+    emotion: surprised
+  - source: evidence
+    ref: dy-05
+    evidence_kind: terminal
+    detail: |
+      $ claude
+      > 把支付模块重构，跑通测试
+      ● 读了 18 个文件，改了 6 个
+      ✓ 41 passed
+    vo: "直到 Claude Code，素颜蹲终端不打扮，但脏活累活全包，最能扛。"
+    sub: "素颜的最能扛"
+    emotion: happy
+  - source: evidence
+    ref: dy-06
+    evidence_kind: terminal
+    detail: |
+      $ codex "修掉这个 CI 报错"
+      ○ 云端开个沙箱，自己跑
+      ○ 拉分支 → 改 → 提 PR
+    vo: "现在又冒出 Codex，云端自己开沙箱跑，最新最热，我又心痒想尝鲜。"
+    sub: "最新最热 又想尝鲜"
+    emotion: happy
+  - source: evidence
+    ref: dy-07
+    evidence_kind: metric
+    detail: |
+      - 让你心动的 = 一大把
+      - 陪你干完活的 = 没几个
+      - 你现在 = 用到第几任
+    vo: "五个换下来我才懂，让你心动的一大把，能陪你干完活的没几个。你用到第几任了？"
+    sub: "你用到第几任了"
+    emotion: neutral
+
+xhs:
+  title: "用过这5个AI编程工具，我说句掏心窝的真心话"
+  body: "不是教程，是我自己的真心话。从2021年的Copilot到现在的Codex，这5个AI编程工具我挨个谈了一遍。一个比一个会撩：初恋只会补全，会读心的黏人，新欢更年轻。可真正陪我把大项目啃完的，是那个素颜蹲在终端、不打扮的Claude Code。后来又冒出云端自己跑的Codex，我承认我还是心痒。说到底，会撩的多，能过日子的少——你心里那个真爱，是哪一个？"
+  tags:
+  - 程序员
+  - 编程工具测评
+  - Cursor
+  - ClaudeCode
+  - 独立开发
+  duration_s: 56
+  interaction: "你心里的真爱是哪个？还是你也见一个爱一个、用一个换一个？"
+  cover:
+    hook: "5个AI编程工具\n我挨个谈了一遍"
+    kicker: "真实测评 · 5个工具"
+    sub: "谁值得留下，说真心话"
+    mark: "挨个谈了一遍"
+    shot_ref: ""
+    bg: ""
+  segments:
+  - source: evidence
+    ref: xhs-01
+    evidence_kind: note
+    detail: |
+      - 不是教程，是我的真心话
+      - 5 个 AI 编程工具，我挨个用过
+      - 2021 Copilot → 2025 Codex
+    vo: "不是教程，是我的真心话，这五个 AI 编程工具我挨个谈了一遍。"
+    sub: "5个工具的真心话"
+    emotion: happy
+  - source: evidence
+    ref: xhs-02
+    evidence_kind: code
+    detail: |
+      # 2021 · 初恋 GitHub Copilot
+      def send_welcome(user):
+          # 你刚敲到这，灰字自己补好下一行
+          mailer.send(user.email, tpl)   # ← 按 Tab 接受
+    vo: "初恋是2021年的 Copilot，用灰字替我补完代码，我以为这辈子就她了。"
+    sub: "初恋 Copilot"
+    emotion: happy
+  - source: evidence
+    ref: xhs-03
+    evidence_kind: code
+    detail: |
+      // 2023 · 会读心 Cursor
+      - const data = fetch(url)
+      + const data = await fetch(url).then(r => r.json())
+      // 光标一停就知道我要改哪 · Cmd+K 改一片
+    vo: "2023年的 Cursor 会读心，我光标一停她就知道要改哪，如胶似漆。"
+    sub: "会读心 如胶似漆"
+    emotion: happy
+  - source: evidence
+    ref: xhs-04
+    evidence_kind: note
+    detail: |
+      - 2024 · 新欢 Windsurf
+      - 更年轻、界面更顺手
+      - Cascade 顺着活自己往下跑
+      - 我当场就动心
+    vo: "2024年 Windsurf 更年轻、界面更顺、活儿自己跑，我当场就动心。"
+    sub: "新欢更年轻"
+    emotion: surprised
+  - source: evidence
+    ref: xhs-05
+    evidence_kind: terminal
+    detail: |
+      $ claude
+      > 把这个仓库的大模块重构一遍
+      ● 读 18 个文件，改 6 个，跑测试
+      ✓ 全绿，41 passed
+    vo: "真正陪我啃完大项目的是 Claude Code，素颜蹲终端不打扮，脏活全包，最扛事。"
+    sub: "素颜的最扛事"
+    emotion: happy
+  - source: evidence
+    ref: xhs-06
+    evidence_kind: terminal
+    detail: |
+      $ codex "修掉这个 CI 报错"
+      ○ 云端开沙箱，自己跑
+      ○ 改完直接提 PR
+    vo: "今年又冒出 Codex，云端自己开沙箱、还能提 PR，最新最热，我又心痒了。"
+    sub: "最新最热又心痒"
+    emotion: happy
+  - source: evidence
+    ref: xhs-07
+    evidence_kind: metric
+    detail: |
+      - 会撩的 = 一大把
+      - 能过日子的 = 没几个
+      - 你心里的真爱 = 哪一个
+    vo: "谈下来我才明白，会撩的一大把，能过日子的没几个。你心里那个真爱，到底是哪一个？"
+    sub: "你的真爱是哪个"
+    emotion: neutral
+
+channels:
+  title: "做开发这几年，我换过的5个AI编程工具"
+  body: "跟同行聊聊。从Copilot、Cursor、Windsurf到Claude Code、Codex，做开发这几年我换工具比换对象还勤。每个刚上手都觉得是真命天子，过阵子又有更新更顺的把我撩走。一圈下来最大的体会是：让你眼前一亮的工具一大把，能稳稳陪你把项目交付的没几个。分享给也在不停换工具的同行。"
+  tags:
+  - 程序员
+  - 编程工具
+  - 独立开发
+  - ClaudeCode
+  - Cursor
+  duration_s: 57
+  interaction: "做开发的同行，你现在换到第几个工具了？谁是你心里的真命天子？"
+  cover:
+    hook: "换工具比换对象勤\n这5个我都用过"
+    kicker: "开发这几年 · 工具变迁"
+    sub: "你换到第几任了"
+    mark: "这5个我都用过"
+    shot_ref: ""
+    bg: ""
+  segments:
+  - source: evidence
+    ref: ch-01
+    evidence_kind: note
+    detail: |
+      - 跟同行聊聊
+      - 做开发这几年换过的 5 个 AI 工具
+      - 换得比换对象还勤
+    vo: "跟同行聊聊，做开发这几年，我换 AI 编程工具，真的比换对象还勤。"
+    sub: "换工具比换对象勤"
+    emotion: happy
+  - source: evidence
+    ref: ch-02
+    evidence_kind: code
+    detail: |
+      # 2021 · 初恋 GitHub Copilot
+      def send_welcome(user):
+          # 你刚敲到这，灰字自己补好下一行
+          mailer.send(user.email, tpl)   # ← 按 Tab 接受
+    vo: "最早是 Copilot，第一次有人用灰字替我补全代码，那会儿觉得这就是真命天子了。"
+    sub: "最早的 Copilot"
+    emotion: happy
+  - source: evidence
+    ref: ch-03
+    evidence_kind: code
+    detail: |
+      // 2023 · 会读心 Cursor
+      - const data = fetch(url)
+      + const data = await fetch(url).then(r => r.json())
+      // 光标停哪她就改哪 · Cmd+K 改一片
+    vo: "后来换到 Cursor，她会读我的心，光标停哪她就改哪，黏得我一时离不开。"
+    sub: "Cursor 会读心"
+    emotion: happy
+  - source: evidence
+    ref: ch-04
+    evidence_kind: note
+    detail: |
+      - 2024 · 新欢 Windsurf
+      - 更年轻、界面更顺
+      - Cascade 顺着活自己往下跑
+      - 又被撩走了
+    vo: "再后来 Windsurf 更年轻、界面更顺、活儿自己往下跑，我又被撩走了。"
+    sub: "又被新欢撩走"
+    emotion: surprised
+  - source: evidence
+    ref: ch-05
+    evidence_kind: terminal
+    detail: |
+      $ claude
+      > 把整个仓库的老模块重构掉
+      ● 读 18 个文件，改 6 个，跑测试
+      ✓ 41 passed
+    vo: "直到 Claude Code，她不在编辑器里打扮，素颜蹲在终端，可仓库的脏活累活全包，最稳。"
+    sub: "素颜的最稳"
+    emotion: happy
+  - source: evidence
+    ref: ch-06
+    evidence_kind: terminal
+    detail: |
+      $ codex "修掉这个 CI 报错"
+      ○ 云端开沙箱，自己跑
+      ○ 改完自己提 PR
+    vo: "现在又有 Codex，云端自己开沙箱、自己提 PR，最新最热，我又想去试试。"
+    sub: "又想试新的"
+    emotion: happy
+  - source: evidence
+    ref: ch-07
+    evidence_kind: metric
+    detail: |
+      - 眼前一亮的 = 一大把
+      - 能交付项目的 = 没几个
+      - 你换到 = 第几个
+    vo: "一圈换下来才懂，眼前一亮的一大把，能陪你把项目交付的没几个。你换到第几个了？"
+    sub: "你换到第几个了"
+    emotion: neutral

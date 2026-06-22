@@ -39,7 +39,7 @@ volcengine:
   api_base: https://openspeech.bytedance.com
 minimax:
   model: speech-2.8-turbo
-  mode: sync                     # 云雾中转 async 轮询易超时，短口播用 sync /v1/t2a_v2
+  mode: async                    # 云雾中转：同步 t2a_v2 报 1008，异步 t2a_async_v2 可用（建任务→轮询→/v1/files/retrieve 取 tar 解 mp3）
   # api_host 仅作未设置 MINIMAX_BASE_URL 时的兜底；中转请写 .env
   api_host: https://api.minimaxi.com
   voice_id: male-qn-badao

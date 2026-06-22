@@ -106,15 +106,48 @@ def poll_async_task(task_id: str, cfg: dict, *, key: str, group_id: str | None,
 
 
 def download_file(file_id: int, cfg: dict, *, key: str, group_id: str | None) -> bytes:
+    """取异步任务音频。
+
+    云雾中转下：/v1/files/retrieve 返回 {file:{download_url}}，下载得到 .tar
+    包（content-*.mp3 + .titles + .extra）；需解包取 mp3。官方裸二进制也兼容。
+    """
     host = _minimax_host(cfg)
-    url = _with_group(f"{host}/v1/files/retrieve_content?file_id={file_id}", group_id)
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {key}"}, method="GET")
+    # 先拿元信息（含 OSS download_url）。云雾把 retrieve_content 路由吞成首页 HTML，
+    # 真正可用的是 /v1/files/retrieve。
+    meta_url = _with_group(f"{host}/v1/files/retrieve?file_id={file_id}", group_id)
+    meta = _request("GET", meta_url, key)
+    _check_base_resp(meta)
+    dl = ((meta.get("file") or {}).get("download_url") or "").strip()
+    if not dl:
+        raise RuntimeError(f"MiniMax 未返回 download_url：{meta}")
+    req = urllib.request.Request(dl, method="GET")  # OSS 预签名 URL，无需鉴权头
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
-            return r.read()
+        with urllib.request.urlopen(req, timeout=90) as r:
+            raw = r.read()
     except urllib.error.HTTPError as e:
         err = e.read().decode(errors="replace")
         raise RuntimeError(f"MiniMax 下载 HTTP {e.code}: {err}") from e
+    return _extract_audio(raw)
+
+
+def _extract_audio(raw: bytes) -> bytes:
+    """从下载内容里取音频字节：.tar 包则解出 mp3，裸音频则原样返回。"""
+    import io
+    import tarfile
+
+    if raw[:1] == b"{":  # 误拿到 JSON 错误体
+        raise RuntimeError(f"MiniMax 下载返回 JSON 而非音频：{raw[:300]!r}")
+    if not (len(raw) > 262 and raw[257:262] == b"ustar") and raw[:1] in (b"<",):
+        raise RuntimeError("MiniMax 下载返回 HTML（中转路由未命中）")
+    try:
+        with tarfile.open(fileobj=io.BytesIO(raw)) as tf:
+            mp3 = next((m for m in tf.getmembers() if m.name.endswith(".mp3")), None)
+            if mp3 is None:
+                raise RuntimeError(f"tar 内无 mp3：{[m.name for m in tf.getmembers()]}")
+            f = tf.extractfile(mp3)
+            return f.read() if f else b""
+    except tarfile.ReadError:
+        return raw  # 不是 tar，按裸音频处理（官方直连）
 
 
 def synth_async(

@@ -33,8 +33,8 @@ PAD = 0.15          # 每段尾部留白（节奏更紧）
 XFADE = 0.22        # 转场时长（更利落）
 XF_KINDS = ["fade", "slideleft", "slideup", "fade", "smoothleft"]
 
-# 背景音乐：项目根目录单曲，随机截取一段（--bgm 可覆盖）
-BGM_DEFAULT = ROOT / "我曾经的丫头.mp3"
+# 背景音乐：bgm/ 下的免版税循环曲，随机截取一段（--bgm 可覆盖）
+BGM_DEFAULT = ROOT / "bgm" / "bgm_main.mp3"
 BGM_PATH = BGM_DEFAULT          # main() 按 --bgm 覆盖
 # 情绪弧线兜底（content 段未标 emotion 时按位置取）：钩子兴奋→踩坑无奈→方案笃定→收尾真诚
 EMOTION_ARC = ["happy", "sad", "happy", "neutral"]
@@ -227,7 +227,7 @@ html,body{{width:{VW}px;height:{VH}px;font-family:{FONT_STACK}}}
 .hk{{font-size:108px;font-weight:900;line-height:1.16;color:#fff;letter-spacing:.01em;
   text-shadow:0 4px 22px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.9)}}
 .mark{{box-decoration-break:clone;-webkit-box-decoration-break:clone;
-  background:linear-gradient(transparent 58%,#ffcf2e 58% 96%,transparent 96%);
+  background:linear-gradient(transparent 6%,#ffcf2e 6% 96%,transparent 96%);
   color:#1a1206;padding:0 10px;border-radius:4px}}
 .sub{{margin-top:auto;font-size:46px;font-weight:700;line-height:1.4;color:#ffe7b0;
   text-shadow:0 3px 14px rgba(0,0,0,.9)}}
