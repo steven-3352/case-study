@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>03 Switch · 漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    /* 顶部 SFX "诶?" */
+    .sfx-top {
+      top: 380px;
+      left: 80px;
+      opacity: 0;
+    }
+
+    /* 主框 - 男人 + 手机 */
+    .panel-main {
+      left: 60px;
+      right: 60px;
+      top: 540px;
+      height: 800px;
+      padding: 50px;
+      transform: rotate(-1deg);
+      opacity: 0;
+    }
+    .char {
+      position: absolute;
+      left: 60px;
+      top: 80px;
+      width: 320px;
+      height: 350px;
+    }
+    .phone {
+      position: absolute;
+      right: 60px;
+      top: 80px;
+      width: 260px;
+      height: 450px;
+      transform: rotate(8deg);
+      opacity: 0;
+    }
+    /* 手机屏内的商品 */
+    .phone-screen {
+      position: absolute;
+      right: 96px;
+      top: 138px;
+      width: 188px;
+      height: 280px;
+      background: #fff;
+      transform: rotate(8deg);
+      opacity: 0;
+      z-index: 6;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* 对话气泡 "哦? 能嚼?" */
+    .bubble-says {
+      position: absolute;
+      top: 30px;
+      left: 100px;
+      transform: rotate(-4deg);
+      opacity: 0;
+      z-index: 7;
+    }
+
+    /* 闪光 */
+    .spark {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      opacity: 0;
+    }
+    .spark.s1 { top: 110px; right: 80px; }
+    .spark.s2 { top: 460px; right: 320px; width: 60px; height: 60px;}
+    .spark.s3 { top: 200px; right: 380px; width: 50px; height: 50px;}
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="sfx sfx-top mid yellow" id="sfxTop">诶?</div>
+
+    <div class="panel panel-main">
+      <div class="bubble bubble-says" id="bubble">哦? 能嚼?</div>
+      <div class="char" id="char"></div>
+      <div class="phone" id="phone"></div>
+      <div class="phone-screen" id="screen">
+        <img id="prodImg" src="../assets/product.png" alt="">
+      </div>
+      <div class="spark s1" id="spk1"></div>
+      <div class="spark s2" id="spk2"></div>
+      <div class="spark s3" id="spk3"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    window.drawHead("#char", data.expr_curious || "curious");
+    window.drawPart("#phone", "phone");
+    window.drawPart("#spk1", "sparkle");
+    window.drawPart("#spk2", "sparkle");
+    window.drawPart("#spk3", "sparkle");
+    if (data.product_image) document.getElementById("prodImg").src = data.product_image;
+    if (data.sfx) document.getElementById("sfxTop").textContent = data.sfx;
+    if (data.bubble) document.getElementById("bubble").textContent = data.bubble;
+
+    const tl = gsap.timeline();
+
+    // 0.0 panel
+    tl.fromTo(".panel-main",
+      { opacity: 0, scale: 0.85, y: 40 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 0);
+
+    // 0.4 拟声"诶?"
+    tl.fromTo("#sfxTop",
+      { opacity: 0, y: -60, scale: 1.8, rotate: -10 },
+      { opacity: 1, y: 0, scale: 1, rotate: -3, duration: 0.4, ease: "back.out(1.8)" }, 0.4);
+
+    // 0.9 手机滑入
+    tl.fromTo("#phone",
+      { opacity: 0, x: 100, rotate: 20 },
+      { opacity: 1, x: 0, rotate: 8, duration: 0.55, ease: "back.out(1.5)" }, 0.9);
+
+    // 1.5 商品图浮现在屏内
+    tl.fromTo("#screen",
+      { opacity: 0, scale: 0.5 },
+      { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, 1.5);
+
+    // 2.2 - 2.7 三颗闪光星 stagger 弹入
+    tl.fromTo(["#spk1","#spk2","#spk3"],
+      { opacity: 0, scale: 0, rotate: 0 },
+      { opacity: 1, scale: 1, rotate: 180, duration: 0.35, stagger: 0.15, ease: "back.out(1.8)" }, 2.2);
+
+    // 2.5 对话气泡
+    tl.fromTo("#bubble",
+      { opacity: 0, scale: 0.5, y: 30 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, 2.5);
+
+    // 持续闪光抖动
+    tl.to(["#spk1","#spk2","#spk3"],
+      { rotate: "+=360", duration: 1.5, ease: "none", repeat: -1 }, 2.7);
+
+    // 锁尾
+    tl.to({}, { duration: 0.8 }, 4.2);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

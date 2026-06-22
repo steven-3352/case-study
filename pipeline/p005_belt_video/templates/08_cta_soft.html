@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>08 CTA · 评论区聊聊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .stage {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 480px;
+      text-align: center;
+    }
+    .head {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 152px;
+      line-height: 1.05;
+      letter-spacing: -3px;
+      color: var(--ink-black);
+      opacity: 0;
+      transform: rotate(-1deg);
+    }
+    .head .accent {
+      color: var(--ink-red);
+      position: relative;
+      display: inline-block;
+    }
+    .head .accent::after {
+      content: "?";
+      color: var(--ink-blue);
+      margin-left: 16px;
+    }
+
+    /* 评论区印章 */
+    .sub-stamp {
+      margin-top: 80px;
+      opacity: 0;
+    }
+    .sub-stamp .stamp {
+      transform: rotate(-3deg);
+      font-size: 72px;
+      padding: 24px 48px;
+    }
+
+    /* 弹跳箭头 */
+    .arrow {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 580px;
+      text-align: center;
+      font-family: var(--hand);
+      font-size: 280px;
+      color: var(--ink-red);
+      opacity: 0;
+      line-height: 1;
+      filter: drop-shadow(0 8px 0 rgba(0,0,0,0.15));
+    }
+
+    /* 底部手写笔注 · 小黄车 */
+    .bottom-note {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      bottom: 420px;
+      text-align: center;
+      font-family: var(--hand);
+      font-size: 56px;
+      color: var(--ink-gray);
+      opacity: 0;
+      transform: rotate(-1.5deg);
+    }
+    .bottom-note .pi {
+      display: inline-block;
+      background: var(--ink-yellow);
+      color: var(--ink-black);
+      padding: 6px 20px;
+      border-radius: 4px;
+      margin: 0 8px;
+      transform: rotate(1deg);
+    }
+
+    .crease-top { top: 420px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-top"></div>
+
+    <div class="stage">
+      <div class="head" id="head">
+        你怎么补<br><span class="accent">维生素</span>
+      </div>
+      <div class="sub-stamp" id="sub">
+        <span class="stamp">评论区 · 聊聊</span>
+      </div>
+    </div>
+
+    <div class="arrow" id="arrow">↓</div>
+
+    <div class="bottom-note" id="bottom">
+      <span class="pi">小黄车</span> 自己看 · 不强推
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.cta_main) {
+      const m = data.cta_main;
+      // 提取 "维生素" / "重复活" 等末尾词作 accent
+      const idx = m.indexOf("维生素");
+      if (idx >= 0) {
+        document.getElementById("head").innerHTML =
+          m.substring(0, idx) + '<br><span class="accent">' + m.substring(idx) + '</span>';
+      }
+    }
+    if (data.cta_sub) {
+      document.querySelector(".sub-stamp .stamp").textContent = data.cta_sub;
+    }
+    if (data.bottom_note) {
+      const t = data.bottom_note;
+      document.getElementById("bottom").innerHTML =
+        t.replace(/(小黄车|主页)/, '<span class="pi">$1</span>');
+    }
+
+    const tl = gsap.timeline();
+
+    // 0.0 标题
+    tl.fromTo("#head",
+      { opacity: 0, y: 50, rotate: -3 },
+      { opacity: 1, y: 0, rotate: -1, duration: 0.6, ease: "back.out(1.4)" }, 0);
+
+    // 0.7 评论区印章
+    tl.fromTo("#sub",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.6)" }, 0.7);
+
+    // 1.4 箭头进入
+    tl.fromTo("#arrow",
+      { opacity: 0, y: -60 },
+      { opacity: 0.9, y: 0, duration: 0.4, ease: "bounce.out" }, 1.4);
+
+    // 1.8s 起 箭头持续弹
+    tl.to("#arrow", { y: 30, duration: 0.55, ease: "sine.inOut", repeat: -1, yoyo: true }, 1.8);
+
+    // 1.6 底部笔注
+    tl.fromTo("#bottom",
+      { opacity: 0, x: -20 },
+      { opacity: 1, x: 0, duration: 0.4 }, 1.6);
+
+    // 锁尾
+    tl.to({}, { duration: 1.8 }, 2.2);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>09 Roles Growth</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .header {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 320px;
+      text-align: center;
+      font-family: var(--mono);
+      color: var(--gray-3);
+      letter-spacing: 6px;
+      font-size: 32px;
+    }
+    .counter {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 380px;
+      text-align: center;
+      font-family: var(--mono);
+      font-weight: 900;
+      letter-spacing: -4px;
+    }
+    .counter .from {
+      font-size: 140px;
+      color: var(--gray-2);
+    }
+    .counter .arrow {
+      font-size: 100px;
+      color: var(--orange);
+      margin: 0 24px;
+    }
+    .counter .to {
+      font-size: 180px;
+      color: var(--green);
+    }
+
+    .grid {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 760px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .chip {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px 14px;
+      text-align: center;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 32px;
+      opacity: 0;
+    }
+    .chip.live {
+      color: var(--green);
+      border: 2px solid var(--green);
+      background: var(--green-soft);
+    }
+    .chip.coming {
+      color: var(--orange);
+      border: 2px dashed var(--orange);
+      background: transparent;
+    }
+
+    .footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 540px;
+      text-align: center;
+      font-family: var(--sans);
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--gray-1);
+      letter-spacing: 2px;
+    }
+    .footer .accent { color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="header">已上线 · 路上</div>
+    <div class="counter">
+      <span class="from" id="from">9</span>
+      <span class="arrow">→</span>
+      <span class="to" id="to">15</span>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="footer">每多一个 · <span class="accent">少一件烦事</span></div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    const live = data.live || ["编导","记者","纪录片","导演","摄像","编剧","视觉","剪辑","运营"];
+    const coming = data.coming || ["合规","选品","消费者声","销售","表演","造型场景"];
+
+    const grid = document.getElementById("grid");
+    live.forEach((n) => {
+      const d = document.createElement("div");
+      d.className = "chip live";
+      d.textContent = n;
+      grid.appendChild(d);
+    });
+    coming.forEach((n) => {
+      const d = document.createElement("div");
+      d.className = "chip coming";
+      d.textContent = n;
+      grid.appendChild(d);
+    });
+
+    const tl = gsap.timeline();
+
+    // 0 - 0.4s · 数字 9 弹入
+    tl.fromTo("#from",
+      { opacity: 0, scale: 0.5 },
+      { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 0);
+
+    // 0.5 - 1.6s · 9 个 live chip 滚出
+    tl.to(".chip.live", {
+      opacity: 1,
+      duration: 0.2,
+      stagger: 0.05,
+      ease: "power2.out",
+    }, 0.4);
+
+    // 1.6 - 2.0s · 数字 15 砸下,绿色脉冲
+    tl.fromTo("#to",
+      { opacity: 0, scale: 1.6 },
+      { opacity: 1, scale: 1, duration: 0.3, ease: "power3.out" }, 1.6);
+
+    // 2.0 - 2.8s · 6 个 coming chip 渐入(虚线感觉=未来)
+    tl.fromTo(".chip.coming",
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.25, stagger: 0.06, ease: "power2.out" }, 2.0);
+
+    // 3.0 - 4.0s · 锁尾
+    tl.to({}, { duration: 1.0 }, 3.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

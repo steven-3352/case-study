@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>05 Price · 漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    /* 顶部价格巨字 */
+    .price-stage {
+      position: absolute;
+      left: 0; right: 0;
+      top: 400px;
+      text-align: center;
+    }
+    .price-huge {
+      display: inline-block;
+      font-family: var(--hand-bold);
+      font-weight: 900;
+      font-size: 360px;
+      color: var(--red);
+      letter-spacing: -8px;
+      line-height: 1;
+      opacity: 0;
+      text-shadow:
+        -6px 0 0 var(--ink), 6px 0 0 var(--ink),
+        0 -6px 0 var(--ink), 0 6px 0 var(--ink),
+        -6px -6px 0 var(--ink), 6px -6px 0 var(--ink),
+        -6px 6px 0 var(--ink), 6px 6px 0 var(--ink),
+        12px 18px 0 rgba(0,0,0,0.2);
+    }
+
+    /* 拆解行 */
+    .split-row {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      top: 1120px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .split-tag {
+      opacity: 0;
+    }
+    .split-tag .tag {
+      font-size: 56px;
+      padding: 14px 32px;
+    }
+
+    /* 钱包流泪 vs 笑脸 (左右对比) */
+    .compare-row {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 1320px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .compare-box {
+      width: 360px;
+      text-align: center;
+      opacity: 0;
+    }
+    .compare-box .face {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+    }
+
+    /* 拟声"便宜!" */
+    .sfx-cheap {
+      position: absolute;
+      bottom: 480px;
+      left: 0; right: 0;
+      text-align: center;
+      opacity: 0;
+    }
+
+    /* VS */
+    .vs-mark {
+      font-family: var(--hand-bold);
+      font-size: 120px;
+      font-weight: 900;
+      color: var(--blue);
+      opacity: 0;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="price-stage">
+      <div class="price-huge" id="price">¥39.99</div>
+    </div>
+
+    <div class="split-row">
+      <div class="split-tag" id="t1">
+        <span class="tag yellow tilt-l">60 片</span>
+      </div>
+      <div class="split-tag" id="t2">
+        <span class="tag green tilt-r">≈ ¥0.67/天</span>
+      </div>
+    </div>
+
+    <div class="sfx-cheap sfx big yellow tilt-l3" id="sfx">便宜!</div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.price) document.getElementById("price").textContent = data.price;
+    if (data.tablets) document.querySelector("#t1 .tag").textContent = data.tablets;
+    if (data.per_day) document.querySelector("#t2 .tag").textContent = data.per_day;
+    if (data.sfx_big) document.getElementById("sfx").textContent = data.sfx_big;
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.6 价格"砸"入
+    tl.fromTo("#price",
+      { opacity: 0, scale: 2.5, rotate: -10, y: -100 },
+      { opacity: 1, scale: 1, rotate: 0, y: 0, duration: 0.55, ease: "back.out(2)" }, 0);
+    tl.to("#price", { rotate: 3, duration: 0.1, yoyo: true, repeat: 3 }, 0.55);
+
+    // 1.0 60 片标签
+    tl.fromTo("#t1",
+      { opacity: 0, x: -100, scale: 0.6 },
+      { opacity: 1, x: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 1.0);
+
+    // 1.3 价格分摊标签
+    tl.fromTo("#t2",
+      { opacity: 0, x: 100, scale: 0.6 },
+      { opacity: 1, x: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 1.3);
+
+    // 2.0 "便宜!" 巨字爆出
+    tl.fromTo("#sfx",
+      { opacity: 0, scale: 2.8, rotate: 25 },
+      { opacity: 1, scale: 1, rotate: -5, duration: 0.55, ease: "back.out(2)" }, 2.0);
+    tl.to("#sfx", { rotate: -8, duration: 0.12, yoyo: true, repeat: 5 }, 2.6);
+
+    // 锁尾
+    tl.to({}, { duration: 2.0 }, 4.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

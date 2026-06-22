@@ -1,0 +1,7 @@
+provider: minimax-async
+model: speech-2.8-turbo
+voice_id: male-qn-jingying-jingpin
+speed: 0.95
+pitch: 0
+vol: 1.05
+emotion: neutral

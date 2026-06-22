@@ -1,0 +1,230 @@
+/* P005 公共样式 · 杂志拼贴风 · 1080×1920 9:16
+ *
+ * 与 P004 (黑底霓虹) 的关键差异:
+ *   - 米黄纸底 + 印刷红蓝黑 (反高饱和暗调 AI 味)
+ *   - 字体 mix: 衬线宋体 + 黑体 + 等宽 + 手札体 + 楷
+ *   - 全局 ±2-3° 偏轴 (反完美对齐 AI 味)
+ *   - 数据 URI SVG 噪点叠层 (反"过度干净")
+ *   - 折痕 / 便签 / 贴纸辅助元素 (拟物纸感)
+ */
+
+:root {
+  /* 杂志纸色 */
+  --paper:        #f4ede2;
+  --paper-dark:   #e8dfca;
+  --paper-edge:   #d8cdb5;
+  --ink-black:    #1a1a1a;
+  --ink-red:      #c8232c;
+  --ink-blue:     #1b3a73;
+  --ink-yellow:   #e6b73e;
+  --ink-gray:     #6b6b6b;
+  --ink-faded:    #a8a08e;
+
+  /* 字体 mix */
+  --serif:       "STSongti-SC-Bold", "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", serif;
+  --serif-light: "Songti SC", "STSong", "Source Han Serif SC", serif;
+  --sans:        "PingFang SC", -apple-system, BlinkMacSystemFont, "Hiragino Sans GB", sans-serif;
+  --mono:        "SF Mono", "Menlo", "Courier New", monospace;
+  --hand:        "Hannotate SC", "Hanzipen SC", cursive;
+  --kai:         "Kaiti SC", "STKaiti", "Kaiti", serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink-black);
+  font-family: var(--sans);
+  font-size: 36px;
+  line-height: 1.4;
+}
+
+/* 通用画布 — 纸色底 + 内联 SVG 噪点纹理 */
+.canvas {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, var(--paper-edge), transparent 70%);
+}
+
+/* 折痕 (横向纸折) */
+.crease {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,0,0,0.08) 15%,
+    rgba(0,0,0,0.12) 50%,
+    rgba(0,0,0,0.08) 85%,
+    transparent 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  pointer-events: none;
+}
+
+/* 偏轴实用类 — 全局反"AI 对齐" */
+.tilt-l   { transform: rotate(-2.3deg); }
+.tilt-r   { transform: rotate(1.8deg); }
+.tilt-l2  { transform: rotate(-1.1deg); }
+.tilt-r2  { transform: rotate(0.9deg); }
+.tilt-l3  { transform: rotate(-3.7deg); }
+.tilt-r3  { transform: rotate(2.9deg); }
+
+/* 主标题大字 (衬线 · 反 P004 黑体) */
+.head-serif {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 156px;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: var(--ink-black);
+}
+.head-serif .red { color: var(--ink-red); }
+.head-serif .blue { color: var(--ink-blue); }
+.head-serif .strike {
+  position: relative;
+  display: inline-block;
+}
+.head-serif .strike::after {
+  content: "";
+  position: absolute;
+  left: -6px; right: -6px;
+  top: 52%;
+  height: 12px;
+  background: var(--ink-red);
+  transform: rotate(-3deg);
+}
+
+/* 副标 (黑体 PingFang) */
+.sub-sans {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 56px;
+  line-height: 1.3;
+  color: var(--ink-black);
+  letter-spacing: 1px;
+}
+.sub-sans .muted { color: var(--ink-gray); }
+
+/* 手写 / 便签 (Hannotate) */
+.hand {
+  font-family: var(--hand);
+  font-weight: 500;
+}
+
+/* 等宽 (数字 / 成分名 / 价格) */
+.mono {
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+/* 楷书 (古典质感 · 用于免责/警示) */
+.kai {
+  font-family: var(--kai);
+  font-weight: 500;
+}
+
+/* 黄色便签贴纸 (隐藏破绽 · 故意贴歪) */
+.sticky {
+  display: inline-block;
+  background: var(--ink-yellow);
+  color: var(--ink-black);
+  font-family: var(--hand);
+  font-size: 44px;
+  padding: 18px 36px 22px;
+  box-shadow:
+    4px 8px 0 rgba(0,0,0,0.18),
+    inset 0 -6px 12px rgba(0,0,0,0.06);
+  border-radius: 2px;
+  line-height: 1.2;
+}
+.sticky.red { background: var(--ink-red); color: var(--paper); }
+.sticky.blue { background: var(--ink-blue); color: var(--paper); }
+
+/* 红印 / 蓝印章 */
+.stamp {
+  display: inline-block;
+  border: 6px solid var(--ink-red);
+  color: var(--ink-red);
+  padding: 16px 32px;
+  font-family: var(--kai);
+  font-weight: 800;
+  font-size: 60px;
+  letter-spacing: 8px;
+  background: transparent;
+  opacity: 0.82;
+}
+.stamp.blue { border-color: var(--ink-blue); color: var(--ink-blue); }
+
+/* 价格大字 */
+.price-huge {
+  font-family: var(--mono);
+  font-weight: 900;
+  font-size: 280px;
+  line-height: 1;
+  color: var(--ink-red);
+  letter-spacing: -10px;
+}
+.price-huge .small { font-size: 0.4em; vertical-align: top; }
+
+/* 横线 (强调用) */
+.underline-red {
+  border-bottom: 8px solid var(--ink-red);
+  padding-bottom: 4px;
+}
+.underline-blue {
+  border-bottom: 8px solid var(--ink-blue);
+  padding-bottom: 4px;
+}
+
+/* 报头 / 角标 */
+.masthead-corner {
+  position: absolute;
+  top: 240px;
+  left: 60px;
+  font-family: var(--mono);
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--ink-gray);
+  text-transform: uppercase;
+}
+
+/* 撕边纸 */
+.torn-edge {
+  background: var(--paper);
+  position: relative;
+}
+.torn-edge::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -20px;
+  height: 20px;
+  background:
+    radial-gradient(circle at 10px 0, var(--paper) 8px, transparent 9px) repeat-x,
+    radial-gradient(circle at 25px 8px, var(--paper) 6px, transparent 7px) repeat-x;
+  background-size: 20px 20px, 40px 20px;
+}
+
+/* 实拍商品包装容器 (圆角阴影) */
+.product-card {
+  background: white;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.18),
+    inset 0 0 0 1px rgba(0,0,0,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>07 Meta</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .timeline {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 320px;
+      bottom: 320px;
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 60px 40px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .timeline-title {
+      font-family: var(--mono);
+      font-size: 28px;
+      color: var(--gray-3);
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 110px;
+      background: var(--bg-deep);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 24px;
+    }
+    .clip {
+      height: 100%;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 24px;
+      color: var(--bg-deep);
+      font-weight: 800;
+      margin-right: 8px;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+    .clip:last-child { margin-right: 0; }
+
+    .clip.hook { background: var(--orange); width: 100px; }
+    .clip.pain { background: var(--red); width: 180px; }
+    .clip.grid { background: var(--blue); width: 110px; }
+    .clip.code { background: var(--green); width: 200px; }
+    .clip.finder { background: var(--purple); width: 100px; }
+    .clip.compare { background: var(--pink); width: 130px; }
+    .clip.meta { background: var(--orange); width: 90px; }
+    .clip.cta { background: var(--green); width: 180px; }
+
+    .track-label {
+      font-family: var(--mono);
+      font-size: 22px;
+      color: var(--gray-3);
+      margin-left: 8px;
+      margin-bottom: 8px;
+    }
+
+    .playhead {
+      position: absolute;
+      top: 200px;
+      bottom: 120px;
+      width: 4px;
+      background: var(--green);
+      box-shadow: 0 0 20px var(--green);
+      left: 100px;
+    }
+
+    .meta-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 380px;
+      text-align: center;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 60px;
+      color: var(--gray-1);
+      opacity: 0;
+      padding: 0 80px;
+    }
+    .meta-line .accent { color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="timeline">
+      <div class="timeline-title">/timeline/ p004_K1.mp4 · 8 scenes · 42s</div>
+
+      <div class="track-label">v1 · video</div>
+      <div class="track">
+        <div class="clip hook">01</div>
+        <div class="clip pain">02</div>
+        <div class="clip grid">03</div>
+        <div class="clip code">04</div>
+        <div class="clip finder">05</div>
+        <div class="clip compare">06</div>
+        <div class="clip meta">07</div>
+        <div class="clip cta">08</div>
+      </div>
+
+      <div class="track-label">a1 · voice</div>
+      <div class="track" id="audio-track">
+        <div class="clip" style="background:var(--gray-2); width:90%; height:40px; margin-top:30px"></div>
+      </div>
+
+      <div class="track-label">a2 · bgm</div>
+      <div class="track">
+        <div class="clip" style="background:var(--gray-4); width:90%; height:30px; margin-top:35px"></div>
+      </div>
+    </div>
+
+    <div class="playhead" id="playhead"></div>
+
+    <div class="meta-line" id="meta">
+      <span class="accent">这条视频本身,</span><br>也是这么出的
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+
+    const tl = gsap.timeline();
+
+    // 0 - 2.0s · 8 个剪辑块依次从左展开
+    document.querySelectorAll(".clip").forEach((c, i) => {
+      tl.to(c, { scaleX: 1, duration: 0.15, ease: "power2.out" }, i * 0.12);
+    });
+
+    // 0 - 2.5s · playhead 从左扫到右
+    tl.fromTo("#playhead",
+      { left: 100 },
+      { left: 980, duration: 2.5, ease: "none" }, 0);
+
+    // 2.5s · meta line 弹入
+    tl.fromTo("#meta",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.5);
+
+    // 锁尾
+    tl.to({}, { duration: 1.0 }, 3.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

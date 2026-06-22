@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>01 Hook</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .terminal-window {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 300px;
+      height: 720px;
+    }
+    .terminal-body {
+      padding: 50px 40px;
+      font-family: var(--mono);
+      font-size: 36px;
+      line-height: 1.5;
+      color: var(--green);
+      background: var(--bg-deep);
+      height: 640px;
+      overflow: hidden;
+    }
+    .prompt {
+      color: var(--orange);
+      margin-right: 12px;
+    }
+    .typed { color: var(--gray-1); }
+    .cursor {
+      display: inline-block;
+      width: 18px;
+      height: 40px;
+      background: var(--green);
+      vertical-align: -6px;
+      margin-left: 4px;
+    }
+
+    /* 数字爆出区 */
+    .number-burst {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 1080px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 80px;
+    }
+    .num-block { text-align: center; opacity: 0; }
+    .num-block .v {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 280px;
+      line-height: 1;
+      letter-spacing: -8px;
+    }
+    .num-block .label {
+      font-family: var(--sans);
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--gray-2);
+      margin-top: 16px;
+    }
+    .num-block.input .v { color: var(--orange); }
+    .num-block.output .v { color: var(--green); }
+    .arrow {
+      font-size: 140px;
+      color: var(--red);
+      opacity: 0;
+      font-weight: 900;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="terminal-window mac-window" id="terminal">
+      <div class="mac-titlebar">
+        <div class="mac-traffic-lights">
+          <div class="mac-dot r"></div>
+          <div class="mac-dot y"></div>
+          <div class="mac-dot g"></div>
+        </div>
+        <div class="mac-title">~/case-study  —  claude</div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span><span class="typed" id="typed"></span><span class="cursor" id="cursor"></span></div>
+      </div>
+    </div>
+
+    <div class="number-burst">
+      <div class="num-block input" id="num-input">
+        <div class="v" id="input-num">0</div>
+        <div class="label">字输入</div>
+      </div>
+      <div class="arrow" id="arrow">→</div>
+      <div class="num-block output" id="num-output">
+        <div class="v" id="output-num">0</div>
+        <div class="label">个 AI</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    document.getElementById("input-num").textContent = "0";
+    document.getElementById("output-num").textContent = "0";
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 1.4s · 打字
+    tl.add(window.typewriter("#typed", data.typed_text || "> hello", { stagger: 0.05 }), 0);
+
+    // 1.0 - 1.4s · 光标闪烁两下
+    tl.to("#cursor", { opacity: 0, duration: 0.2, repeat: 2, yoyo: true, ease: "steps(1)" }, 1.0);
+
+    // 1.5s · 终端窗口稍微 scale 进 + 数字区淡入
+    tl.to("#terminal", { scale: 0.92, transformOrigin: "center center", duration: 0.4, ease: "power2.inOut" }, 1.5);
+    tl.to("#cursor", { opacity: 0, duration: 0.1 }, 1.5);
+    tl.to("#num-input", { opacity: 1, duration: 0.3 }, 1.6);
+
+    // 1.7 - 2.3s · 输入字数滚出
+    tl.add(window.countUp("#input-num", 0, data.input_chars || 23, { duration: 0.6 }), 1.7);
+
+    // 2.3s · 箭头弹出
+    tl.fromTo("#arrow",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(2.5)" }, 2.3);
+
+    // 2.5s · 输出数字弹出
+    tl.fromTo("#num-output",
+      { opacity: 0, scale: 0.5 },
+      { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 2.5);
+    tl.add(window.countUp("#output-num", 0, data.agent_count || 9, { duration: 0.5 }), 2.6);
+
+    // 锁尾 3.5s
+    tl.to({}, { duration: 0.4 }, 3.1);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

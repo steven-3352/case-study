@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>03 Switch · 换成嚼的</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    /* 顶部转场标题 */
+    .transition {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 360px;
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 110px;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      color: var(--ink-black);
+      text-align: left;
+      opacity: 0;
+      transform: rotate(-1deg);
+    }
+    .transition .accent {
+      color: var(--ink-red);
+      position: relative;
+      display: inline-block;
+    }
+    .transition .accent::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 8px;
+      height: 16px;
+      background: var(--ink-yellow);
+      z-index: -1;
+      transform: rotate(-1deg);
+    }
+
+    /* 商品卡 · 倾斜白底 */
+    .product-stage {
+      position: absolute;
+      left: 0; right: 0;
+      top: 720px;
+      display: flex;
+      justify-content: center;
+    }
+    .product-card {
+      width: 700px;
+      height: 700px;
+      transform: rotate(-3.5deg);
+      opacity: 0;
+      position: relative;
+      padding: 40px;
+    }
+    .product-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    /* 红箭头从字指向图 */
+    .arrow {
+      position: absolute;
+      top: 580px;
+      left: 540px;
+      font-family: var(--hand);
+      font-size: 200px;
+      color: var(--ink-red);
+      opacity: 0;
+      transform: rotate(60deg);
+      line-height: 1;
+    }
+
+    /* 双印章: 60片 + 不到60块 */
+    .stamps {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      bottom: 540px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stamp-1 {
+      opacity: 0;
+      transform: rotate(-6deg);
+    }
+    .stamp-2 {
+      opacity: 0;
+      transform: rotate(4deg);
+    }
+
+    .crease-top { top: 580px; }
+    .crease-bot { bottom: 460px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-top"></div>
+    <div class="crease crease-bot"></div>
+
+    <div class="transition" id="trans">
+      后来我换成了<br>
+      <span class="accent" id="accent">能嚼的</span>
+    </div>
+
+    <div class="arrow" id="arrow">↘</div>
+
+    <div class="product-stage">
+      <div class="product-card" id="card">
+        <img id="img" src="" alt="product">
+      </div>
+    </div>
+
+    <div class="stamps">
+      <div class="stamp stamp-1" id="s1">60 片</div>
+      <div class="stamp blue stamp-2" id="s2">¥39.99</div>
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.product_image) {
+      document.getElementById("img").src = data.product_image;
+    }
+    if (data.transition_text) {
+      const t = data.transition_text;
+      // 提取"能嚼的"作为 accent
+      if (t.includes("能嚼")) {
+        const m = t.match(/^(.*?)能嚼的?(.*)$/);
+        if (m) {
+          document.getElementById("trans").innerHTML =
+            m[1] + '<br><span class="accent">能嚼的</span>' + m[2];
+        }
+      } else {
+        document.getElementById("trans").textContent = t;
+      }
+    }
+
+    const tl = gsap.timeline();
+
+    // 0.0 - 0.8 · 转场文字浮入
+    tl.fromTo("#trans",
+      { opacity: 0, x: -60, rotate: -3 },
+      { opacity: 1, x: 0, rotate: -1, duration: 0.7, ease: "power3.out" }, 0);
+
+    // 1.0s 商品卡从下方弹入(旋转着上来)
+    tl.fromTo("#card",
+      { opacity: 0, y: 200, scale: 0.7, rotate: 10 },
+      { opacity: 1, y: 0, scale: 1, rotate: -3.5, duration: 0.9, ease: "back.out(1.3)" }, 0.9);
+
+    // 1.6s 红箭头入
+    tl.fromTo("#arrow",
+      { opacity: 0, scale: 0.4, rotate: 100 },
+      { opacity: 0.85, scale: 1, rotate: 60, duration: 0.4, ease: "back.out(2)" }, 1.6);
+
+    // 2.2s 60片印章
+    tl.fromTo("#s1",
+      { opacity: 0, scale: 1.6, rotate: -20 },
+      { opacity: 0.85, scale: 1, rotate: -6, duration: 0.4, ease: "back.out(1.8)" }, 2.2);
+
+    // 2.5s 价格印章
+    tl.fromTo("#s2",
+      { opacity: 0, scale: 1.6, rotate: 20 },
+      { opacity: 0.85, scale: 1, rotate: 4, duration: 0.4, ease: "back.out(1.8)" }, 2.5);
+
+    // 锁尾
+    tl.to({}, { duration: 1.5 }, 3.5);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

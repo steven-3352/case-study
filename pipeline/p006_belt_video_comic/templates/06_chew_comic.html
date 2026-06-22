@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>06 Chew · 漫画 · 三表情分镜</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    /* 顶部小问号标题 */
+    .title-area {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 360px;
+      text-align: center;
+    }
+    .title {
+      display: inline-block;
+      font-family: var(--hand-bold);
+      font-weight: 900;
+      font-size: 130px;
+      color: var(--ink);
+      letter-spacing: 2px;
+      opacity: 0;
+      transform: rotate(-1.5deg);
+    }
+    .title .q {
+      color: var(--red);
+      font-size: 1.2em;
+    }
+
+    /* 3 个小漫画框横向 */
+    .row-panels {
+      position: absolute;
+      left: 30px;
+      right: 30px;
+      top: 720px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .mini-panel {
+      width: 320px;
+      height: 480px;
+      padding: 16px 16px 60px;
+      opacity: 0;
+      position: relative;
+    }
+    .mini-panel .face {
+      width: 200px;
+      height: 220px;
+      margin: 30px auto 0;
+    }
+    .mini-panel .label {
+      position: absolute;
+      bottom: 12px;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: var(--hand-bold);
+      font-weight: 900;
+      font-size: 50px;
+      color: var(--ink);
+    }
+    .mini-panel .sfx-mini {
+      position: absolute;
+      top: -30px;
+      right: -10px;
+      font-family: var(--hand-bold);
+      font-weight: 900;
+      font-size: 80px;
+      letter-spacing: 1px;
+      line-height: 1;
+      text-shadow:
+        -3px 0 0 var(--ink), 3px 0 0 var(--ink),
+        0 -3px 0 var(--ink), 0 3px 0 var(--ink);
+    }
+    .mp-1 { transform: rotate(-3deg); }
+    .mp-2 { transform: rotate(1.5deg); margin-top: 60px;}
+    .mp-3 { transform: rotate(-2deg); }
+    .mp-1 .sfx-mini { color: var(--yellow); }
+    .mp-2 .sfx-mini { color: var(--red); }
+    .mp-3 .sfx-mini { color: var(--blue); }
+
+    /* 底部结论 */
+    .conclusion {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      bottom: 500px;
+      text-align: center;
+      font-family: var(--kai);
+      font-weight: 700;
+      font-size: 80px;
+      color: var(--ink);
+      opacity: 0;
+      transform: rotate(-0.5deg);
+    }
+    .conclusion .em {
+      color: var(--red);
+      font-family: var(--hand-bold);
+      border-bottom: 6px solid var(--red);
+      padding: 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="title-area">
+      <div class="title" id="title">为什么嚼<span class="q">?</span></div>
+    </div>
+
+    <div class="row-panels">
+      <div class="panel skin mini-panel mp-1" id="mp1">
+        <div class="sfx-mini" id="sfx1">嗯~</div>
+        <div class="face" id="f1"></div>
+        <div class="label" id="l1">好下口</div>
+      </div>
+      <div class="panel yellow mini-panel mp-2" id="mp2">
+        <div class="sfx-mini" id="sfx2">啧!</div>
+        <div class="face" id="f2"></div>
+        <div class="label" id="l2">不卡喉</div>
+      </div>
+      <div class="panel skin mini-panel mp-3" id="mp3">
+        <div class="sfx-mini" id="sfx3">嗨!</div>
+        <div class="face" id="f3"></div>
+        <div class="label" id="l3">顺手</div>
+      </div>
+    </div>
+
+    <div class="conclusion" id="concl">
+      嚼一下比吞一颗 <span class="em">自然</span>
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.title) {
+      const t = data.title;
+      const m = t.match(/^(.*?)([?？]?)$/);
+      if (m) {
+        document.getElementById("title").innerHTML =
+          m[1] + '<span class="q">' + (m[2] || '?') + '</span>';
+      }
+    }
+
+    const panels = data.panels || [
+      { label: "好下口", sfx: "嗯~",  expr: "chill" },
+      { label: "不卡喉", sfx: "啧!", expr: "happy" },
+      { label: "顺手",   sfx: "嗨!", expr: "curious" },
+    ];
+
+    panels.forEach((p, i) => {
+      const n = i + 1;
+      window.drawHead(`#f${n}`, p.expr);
+      const lbl = document.getElementById(`l${n}`);
+      const sfx = document.getElementById(`sfx${n}`);
+      if (lbl) lbl.textContent = p.label;
+      if (sfx) sfx.textContent = p.sfx;
+    });
+
+    const tl = gsap.timeline();
+
+    // 0.0 标题
+    tl.fromTo("#title",
+      { opacity: 0, y: 30, rotate: -6 },
+      { opacity: 1, y: 0, rotate: -1.5, duration: 0.5, ease: "back.out(1.5)" }, 0);
+
+    // 0.6 起 三框 stagger
+    const mps = ["#mp1","#mp2","#mp3"];
+    const rots = [-3, 1.5, -2];
+    mps.forEach((id, i) => {
+      tl.fromTo(id,
+        { opacity: 0, y: 80, scale: 0.7, rotate: rots[i] + 10 },
+        { opacity: 1, y: 0, scale: 1, rotate: rots[i], duration: 0.5, ease: "back.out(1.5)" },
+        0.6 + i * 0.6);
+    });
+
+    // 各自 sfx 抖动
+    [0.9, 1.5, 2.1].forEach((t, i) => {
+      tl.to(`#sfx${i+1}`,
+        { rotate: 12, duration: 0.1, yoyo: true, repeat: 3 }, t);
+    });
+
+    // 3.0 结论
+    tl.fromTo("#concl",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 3.0);
+
+    // 锁尾
+    tl.to({}, { duration: 2.5 }, 4.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

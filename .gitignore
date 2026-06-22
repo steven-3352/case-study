@@ -1,5 +1,7 @@
 .venv/
 .env
+.env.*
+!.env.example
 out/_seg/
 out/_*.png
 *.mp3

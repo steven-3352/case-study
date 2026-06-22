@@ -1,0 +1,45 @@
+# P007 · 小红书图文 · 引擎升级漫画轮播
+#
+# 用法: python3 pipeline/p007_xhs_engine_comic/capture_carousel.py --all
+# 输出: out/carousel/slide_01.png … slide_08.png
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+
+slides:
+  - id: slide_01
+    template: "01_cover_comic.html"
+    duration: 2.5
+    data:
+      sfx: "升级!"
+      sub: "左边素材包 → 右边内容引擎"
+
+  - id: slide_02
+    template: "02_what_comic.html"
+    duration: 2.3
+
+  - id: slide_03
+    template: "03_compare_pos_comic.html"
+    duration: 2.5
+
+  - id: slide_04
+    template: "04_flow_comic.html"
+    duration: 2.6
+
+  - id: slide_05
+    template: "05_agents_comic.html"
+    duration: 2.7
+
+  - id: slide_06
+    template: "06_audio_comic.html"
+    duration: 2.7
+
+  - id: slide_07
+    template: "07_k1_compare_comic.html"
+    duration: 2.5
+
+  - id: slide_08
+    template: "08_cta_comic.html"
+    duration: 2.5

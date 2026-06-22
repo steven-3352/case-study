@@ -1,0 +1,160 @@
+/* P004 公共样式 · 视频版 · 1080×1920 9:16 */
+
+:root {
+  --bg-deep: #0a0e14;
+  --bg-card: #11161e;
+  --bg-window: #1a1f29;
+  --window-chrome: #2a3140;
+  --green: #50fa7b;
+  --green-soft: rgba(80, 250, 123, 0.15);
+  --orange: #ffb86c;
+  --red: #ff5252;
+  --red-soft: rgba(255, 82, 82, 0.15);
+  --blue: #8be9fd;
+  --purple: #bd93f9;
+  --pink: #ff79c6;
+  --gray-1: #f8f8f2;
+  --gray-2: #abb2bf;
+  --gray-3: #6b7280;
+  --gray-4: #3a3f4b;
+
+  --mono: "SF Mono", "Menlo", "JetBrains Mono", "Courier New", monospace;
+  --sans: "PingFang SC", "Source Han Sans CN", "Hiragino Sans GB",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--gray-1);
+  font-family: var(--sans);
+  font-size: 36px;
+  line-height: 1.4;
+}
+
+/* 通用画布(所有场景的根容器) */
+.canvas {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+}
+
+/* 安全区(避开 XHS UI 遮挡) */
+/* XHS 视频上方约 200px 是头像/标题区,下方约 400px 是点赞/评论/正文区 */
+/* 我们把"必读内容"塞进中间 1320px */
+.safe-zone {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 280px;
+  bottom: 480px;
+}
+
+/* 大字字幕(烧在画面上的硬字幕) */
+.big-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 540px;
+  text-align: center;
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 96px;
+  line-height: 1.2;
+  letter-spacing: 4px;
+  color: var(--gray-1);
+  text-shadow:
+    0 0 30px rgba(0, 0, 0, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  padding: 0 60px;
+}
+.big-caption .accent { color: var(--red); }
+.big-caption .green { color: var(--green); }
+.big-caption .orange { color: var(--orange); }
+
+/* 小红书风格 · 双行字幕(模拟 XHS 自动字幕的位置) */
+.sub-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 420px;
+  text-align: center;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 1.3;
+  color: #fff;
+  text-shadow:
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    0 0 20px rgba(0,0,0,0.8);
+  padding: 0 80px;
+}
+
+/* macOS 风格的窗口外壳(终端/Finder/VSCode 共用) */
+.mac-window {
+  background: var(--bg-window);
+  border-radius: 24px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.mac-titlebar {
+  height: 80px;
+  background: var(--window-chrome);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+}
+.mac-traffic-lights {
+  display: flex;
+  gap: 14px;
+}
+.mac-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+.mac-dot.r { background: #ff5f57; }
+.mac-dot.y { background: #febc2e; }
+.mac-dot.g { background: #28c840; }
+.mac-title {
+  flex: 1;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 28px;
+  color: var(--gray-2);
+  font-weight: 500;
+  margin-right: 100px;
+}
+
+/* 通用大数字 */
+.huge-num {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 320px;
+  line-height: 1;
+  letter-spacing: -8px;
+}
+
+/* P004 角标(右上,小白噪) */
+.brand-corner {
+  position: absolute;
+  top: 320px;
+  right: 60px;
+  font-family: var(--mono);
+  font-size: 24px;
+  color: var(--gray-3);
+  opacity: 0.5;
+}

@@ -1,4 +1,13 @@
 # B-roll 素材登记 · Project-001
+#
+# 两个段落:
+#   items          — 单条 b-roll(截图/录屏/单段视频),供分镜按需引用
+#   contrast_pairs — 强反差 3s 钩子素材组(chaos → punch → reveal),供 P004+ 视频开头使用
+#
+# 反差钩子设计依据:
+#   - 前 3s 多 cut 抓注意力(参考抖音/小红书 hook 工业模板)
+#   - chaos(糙、抖、低饱和) → punch(黑底大字静帧) → reveal(亮、品牌色、系统就位)
+#   - 配合反 AI 味原则(feedback_anti-ai-visual): chaos 必须真实手机素材,不能 AI 出图
 items:
   - id: BR001
     name: 落地页录屏
@@ -29,3 +38,66 @@ items:
     type: screenshot
     source: assets/shots/shot_pins.png
     use: [内容像人]
+
+# ─────────────────────────────────────────────
+# 反差钩子素材组(3s 强反差转场)
+# 字段:
+#   id        — CP + 三位数
+#   theme     — 反差主题(一句话)
+#   form      — 适用形态: 演示型 / 知识型 / 带货型 / 出镜型 / *(全适用)
+#   chaos     — 第 1 帧素材路径 + 时长 + 来源标签
+#   punch     — 第 2 帧黑底大字(HTML 模板路径或图片)
+#   reveal    — 第 3 帧系统就位(项目自产 mp4 或 HTML 模板)
+#   audio     — 三段音频(drone / hit / melody)目录
+#   duration  — 三段时长 [chaos, punch, reveal](秒,合计建议 3.0)
+#   notes     — 关键提示(为什么挑这组)
+# ─────────────────────────────────────────────
+contrast_pairs:
+  - id: CP001
+    theme: 凌晨焦虑 → 9 个 Agent 接管
+    form: 演示型
+    status: deprecated   # 创作者口吻占位,已被 CP002(实体店老板版)替代,见 [[project_audience-brick-mortar]]
+    chaos:
+      source: legacy/p004_video_drafts/iphone_2am_excel.mp4
+      origin: self_shot          # self_shot / pexels / pixabay / storyblocks / public_domain / sora
+      duration: 1.0
+      desc: 凌晨 2 点桌面乱、Excel 红格子、手揉眼睛特写
+    punch:
+      template: 01b_punch.html   # 黑底大字 "23 字"
+      data: { big: "23 字", sub: "" }
+      duration: 0.6
+    reveal:
+      template: 01c_reveal.html  # 9 个 Agent 卡片亮起
+      data: { agent_count: 9, caption: "→ 9 个 AI" }
+      duration: 1.4
+    audio:
+      pack: assets/audio/hook_pack_01/   # drone.wav + hit.wav + melody.wav
+    notes: |
+      第 1 帧禁用居中构图,手抖最佳,iPhone 自拍即可。
+      punch 一定要纯黑底,字号填满 80% 宽,无渐变无阴影。
+      reveal 接 03_agent_grid 的视觉延续,色彩从冷过渡到 P004 品牌绿。
+
+  - id: CP002
+    theme: 微信群 99+ → 自己跑的小系统
+    form: 演示型
+    audience: 实体店老板        # 首要受众,见 [[project_audience-brick-mortar]]
+    chaos:
+      source: assets/broll/k1_chaos.mp4    # 稳定别名,实际是 raw/shop_owner_phone__7669201.mp4
+      origin: pexels             # MART PRODUCTION, 1366p, 5s
+      source_in: 1.5             # 中段动作峰值
+      duration: 1.0
+      desc: 实体店主低头快速滑手机消息流
+    punch1:
+      template: 01b_punch.html
+      data: { big: "又是这个", sub: "" }
+      duration: 0.6
+    punch2:
+      template: 01b_punch.html   # 双 punch 结构,不接 reveal
+      data: { big: "问八百遍", sub: "" }
+      duration: 1.4
+    audio:
+      pack: assets/audio/hook_pack_02/   # drone.wav + hit1.wav + hit2.wav(无 melody,持续压抑)
+    notes: |
+      P004 K1 主投钩子。受众=实体店老板,不要任何创作者画面(电脑/桌面/打字)。
+      双 punch 取代 chaos→punch→reveal 的 reveal 段:让"重复"砸两次,留白到 19s 用全片自证。
+      参考脚本 pipeline/p004_video/script_k1_v2.md。

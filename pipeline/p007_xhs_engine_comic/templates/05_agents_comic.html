@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>05 Agents · 引擎漫画</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <script src="../shared/comic_parts.js"></script>
+  <style>
+    .title {
+      position: absolute; left: 50px; right: 50px; top: 280px; text-align: center;
+      font-family: var(--hand-bold); font-size: 72px; line-height: 1.15; opacity: 0;
+      z-index: 2;
+    }
+    .title .old { color: #999; text-decoration: line-through; font-size: 48px; }
+    .title .new { color: var(--red); }
+
+    .grid {
+      position: absolute; left: 44px; right: 44px; top: 600px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 18px;
+    }
+    .agent-card {
+      display: flex; flex-direction: column; align-items: center;
+      opacity: 0;
+    }
+    .agent-card .avatar {
+      width: 100%; aspect-ratio: 1; max-width: 260px;
+    }
+    .agent-card .name {
+      margin-top: 8px; font-family: var(--hand-bold); font-size: 40px;
+      font-weight: 900; color: var(--ink); text-align: center;
+      padding: 6px 16px; background: var(--paper);
+      border: 5px solid var(--ink); border-radius: 14px;
+      box-shadow: 3px 4px 0 var(--ink);
+    }
+    .agent-card:nth-child(3n+1) .name { transform: rotate(-2deg); }
+    .agent-card:nth-child(3n+2) .name { transform: rotate(1deg); background: var(--yellow); }
+    .agent-card:nth-child(3n)   .name { transform: rotate(-1deg); background: var(--paper-2); }
+
+    .sfx-wrap {
+      position: absolute; left: 0; right: 0; top: 468px;
+      display: flex; justify-content: center; z-index: 5;
+      pointer-events: none;
+    }
+    .sfx-top {
+      font-size: 96px; opacity: 0; transform: rotate(-4deg);
+    }
+
+    .caption {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 24px 50px 44px; text-align: center;
+      font-family: var(--hand-bold); font-size: 38px;
+      line-height: 1.35; opacity: 0; z-index: 20;
+      background: var(--paper); border-top: 6px solid var(--ink);
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="title" id="title">
+      <div class="old">9 个工种一人演</div>
+      <div class="new">理解4 + 核心9 + 音画2</div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="sfx-wrap">
+      <div class="sfx sfx-top yellow" id="sfx">组队!</div>
+    </div>
+    <div class="caption" id="cap">记者·深挖·内核·留存·声音… 各干各的</div>
+  </div>
+  <script>
+    const labels = ["深挖", "记者", "编剧", "导演", "留存", "声音", "合规", "运营", "领域"];
+    const grid = document.getElementById("grid");
+    labels.forEach((lb, i) => {
+      const card = document.createElement("div");
+      card.className = "agent-card";
+      card.id = "c" + i;
+      card.innerHTML = `<div class="avatar" id="av${i}"></div><div class="name">${lb}</div>`;
+      grid.appendChild(card);
+      window.drawPart("#av" + i, "agentAvatar", lb);
+    });
+    const rots = [-3, 2, -2, 1, -1, 3, -2, 2, -1];
+    const tl = gsap.timeline();
+    tl.fromTo("#title", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45 }, 0);
+    labels.forEach((_, i) => {
+      tl.fromTo("#c" + i,
+        { opacity: 0, scale: 0.4, y: 50, rotate: rots[i] + 12 },
+        { opacity: 1, scale: 1, y: 0, rotate: rots[i], duration: 0.35, ease: "back.out(1.7)" },
+        0.35 + i * 0.1);
+    });
+    tl.fromTo("#sfx", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 1.5);
+    tl.fromTo("#cap", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35 }, 1.85);
+    tl.to({}, { duration: 0.4 }, 2.3);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

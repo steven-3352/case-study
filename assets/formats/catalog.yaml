@@ -1,0 +1,71 @@
+# 表现形式库 · 分镜选型用
+# 导演分镜须从本表选 ≥3 种形式；同一 HTML 模板不超过全片 40% 时长
+
+formats:
+  - id: chaos_broll
+    name: Chaos B-roll
+    use: 前 3s 钩子，真实手机/场景素材
+    pipeline: P004 type=broll
+    example: pipeline/p004_video/storyboard.yaml · 01a_chaos
+
+  - id: punch_black
+    name: 黑底大字 Punch
+    use: 钩子砸字、CTA 收束
+    pipeline: P004 templates/01b_punch.html
+    example: 又是这个 / 问八百遍
+
+  - id: pain_stack
+    name: 痛点堆叠
+    use: 具体问题罗列、重复强调
+    pipeline: P004 templates/02_pain.html
+
+  - id: agent_grid
+    name: 多角色/多系统网格
+    use: 展示分工、系统能力
+    pipeline: P004 templates/03_agent_grid.html
+
+  - id: before_after
+    name: 改造前后对比
+    use: 反转、信任建立
+    pipeline: P004 templates/06_compare.html
+
+  - id: meta_reveal
+    name: 元层自指
+    use: 「这条就是它做的」类证明
+    pipeline: P004 templates/07_meta_broll.html
+
+  - id: broll_demo
+    name: 录屏/后台演示
+    use: 真实项目画面
+    pipeline: P001 render_p001 · assets/broll/
+
+  - id: price_split
+    name: 价位锚点分屏
+    use: 带货比价、价值感
+    pipeline: P005 templates/05_price_split.html
+
+  - id: ingredients_grid
+    name: 成分/卖点网格
+    use: 带货成分拆解
+    pipeline: P005 templates/04_ingredients_grid.html
+
+  - id: comic_4panel
+    name: 漫画分镜
+    use: 故事化、轻幽默、小红书轮播
+    pipeline: P006 templates/*_comic.html · P007 xhs_engine_comic
+    example: pipeline/p007_xhs_engine_comic/capture_carousel.py
+
+  - id: newspaper_carousel
+    name: 报纸风轮播
+    use: 小红书 6–8 张图文
+    pipeline: P002 p002_carousel_gen.py
+
+  - id: memo_text
+    name: 备忘录风文字页
+    use: 图文轮播中段、干货沉淀
+    pipeline: 手工 / P002 混合
+
+rules:
+  min_distinct_formats: 3
+  max_single_template_ratio: 0.40
+  chaos_must_be_real_footage: true  # 反 AI 味：钩子 chaos 禁止 AI 出图

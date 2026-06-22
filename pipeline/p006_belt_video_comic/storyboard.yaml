@@ -1,0 +1,102 @@
+# P006 · 男士复合维生素咀嚼片 · v0 漫画风分镜
+#
+# 视觉路线: 手绘漫画 (反 P004 演示型 / P005 杂志拼贴)
+# 复用 P005 的 vo_v0.mp3 + sub_v0.srt + 商品图
+# 时长完全一致 (40s, VO 因 freeze 自动补到 44.3s)
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: p006_belt_comic_v0.mp4
+  voice_volume: 1.0
+  music_volume: 0.07
+
+scenes:
+  - id: "01_hook"
+    template: "01_hook_comic.html"
+    duration: 4.0
+    start_at: 0.0
+    data:
+      sfx_top: "啊?"
+      sfx_bottom: "扔了!"
+      expr: "confused"
+      bubble_text: "维生素…吃不动了"
+
+  - id: "02_pain"
+    template: "02_pain_comic.html"
+    duration: 4.5
+    start_at: 4.0
+    data:
+      panel_1_label: "不是吃不下"
+      panel_2_label: "是不愿吃"
+      sfx_panel2: "咳!"
+      expr_pain: "pained"
+
+  - id: "03_switch"
+    template: "03_switch_comic.html"
+    duration: 5.0
+    start_at: 8.5
+    data:
+      expr_curious: "curious"
+      bubble: "哦? 能嚼?"
+      sfx: "诶?"
+      product_image: "../assets/product.png"
+
+  - id: "04_ingredients"
+    template: "04_ingredients_comic.html"
+    duration: 6.5
+    start_at: 13.5
+    data:
+      title: "成分公开"
+      ingredients:
+        - { name: "烟酰胺", label: "VB3" }
+        - { name: "维 C",   label: "VC" }
+        - { name: "维 E",   label: "VE" }
+        - { name: "维 B",   label: "VB" }
+        - { name: "葡萄籽", label: "OPC" }
+      sfx: "嗯!"
+
+  - id: "05_price"
+    template: "05_price_comic.html"
+    duration: 6.0
+    start_at: 20.0
+    data:
+      price: "¥39.99"
+      tablets: "60 片"
+      per_day: "≈ ¥0.67/天"
+      sfx_big: "便宜!"
+      compare: "瑞幸的 1/15"
+
+  - id: "06_chew"
+    template: "06_chew_comic.html"
+    duration: 6.5
+    start_at: 26.0
+    data:
+      title: "为什么嚼?"
+      panels:
+        - { label: "好下口", sfx: "嗯~",  expr: "chill" }
+        - { label: "不卡喉", sfx: "啧!", expr: "happy" }
+        - { label: "顺手",   sfx: "嗨!", expr: "curious" }
+
+  - id: "07_disclaimer"
+    template: "07_disclaimer_comic.html"
+    duration: 3.5
+    start_at: 32.5
+    data:
+      title: "等等⚠"
+      lines:
+        - "孕产期 - 问医生"
+        - "长期吃药 - 问医生"
+        - "成分看包装"
+      expr_serious: "serious"
+
+  - id: "08_cta"
+    template: "08_cta_comic.html"
+    duration: 4.0
+    start_at: 36.0
+    data:
+      bubble: "你怎么补?"
+      sub: "评论区聊聊"
+      expr: "curious"
+      sfx: "聊聊?"

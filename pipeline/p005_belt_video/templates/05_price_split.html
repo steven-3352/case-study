@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>05 Price · 价格分解</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    /* 顶部小字 */
+    .top-line {
+      position: absolute;
+      top: 380px;
+      left: 80px;
+      right: 80px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 48px;
+      color: var(--ink-gray);
+      letter-spacing: 3px;
+      opacity: 0;
+      text-transform: uppercase;
+      font-family: var(--mono);
+    }
+
+    /* 巨大红价 */
+    .price-stage {
+      position: absolute;
+      left: 0; right: 0;
+      top: 520px;
+      text-align: center;
+    }
+    .price-symbol {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 120px;
+      color: var(--ink-red);
+      vertical-align: top;
+      margin-right: -10px;
+      opacity: 0;
+      display: inline-block;
+    }
+    .price-int {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 540px;
+      color: var(--ink-red);
+      letter-spacing: -20px;
+      line-height: 1;
+      opacity: 0;
+      display: inline-block;
+    }
+    .price-cents {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 200px;
+      color: var(--ink-red);
+      vertical-align: top;
+      margin-left: 10px;
+      opacity: 0;
+      display: inline-block;
+    }
+
+    /* 拆解线 */
+    .split-row {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      top: 1240px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .split-box {
+      text-align: center;
+      opacity: 0;
+    }
+    .split-box .num {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 130px;
+      color: var(--ink-black);
+      line-height: 1;
+    }
+    .split-box .label {
+      font-family: var(--sans);
+      font-size: 32px;
+      color: var(--ink-gray);
+      letter-spacing: 4px;
+      margin-top: 14px;
+    }
+    .divide {
+      font-family: var(--serif);
+      font-size: 160px;
+      color: var(--ink-blue);
+      opacity: 0;
+    }
+
+    /* 类比印章 */
+    .compare {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 520px;
+      text-align: center;
+      opacity: 0;
+    }
+    .compare .stamp {
+      transform: rotate(-3deg);
+    }
+
+    .crease-1 { top: 460px; }
+    .crease-2 { top: 1180px; }
+    .crease-3 { bottom: 460px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="crease crease-1"></div>
+    <div class="crease crease-2"></div>
+    <div class="crease crease-3"></div>
+
+    <div class="top-line" id="topline">PRICE · 价签 · NO.05</div>
+
+    <div class="price-stage">
+      <span class="price-symbol" id="sym">¥</span><span class="price-int" id="pint">39</span><span class="price-cents" id="pcent">.99</span>
+    </div>
+
+    <div class="split-row">
+      <div class="split-box" id="box1">
+        <div class="num" id="num1">60</div>
+        <div class="label">片</div>
+      </div>
+      <div class="divide" id="divide">÷</div>
+      <div class="split-box" id="box2">
+        <div class="num" id="num2">≈ ¥0.67</div>
+        <div class="label">每天</div>
+      </div>
+    </div>
+
+    <div class="compare" id="compare">
+      <span class="stamp blue" id="compStamp">≈ 瑞幸的 1/15</span>
+    </div>
+  </div>
+
+  <script>
+    const data = window.getData();
+    if (data.total_yuan) document.getElementById("pint").textContent = data.total_yuan;
+    if (data.total_cents) document.getElementById("pcent").textContent = "." + data.total_cents;
+    if (data.tablets) document.getElementById("num1").textContent = data.tablets;
+    if (data.per_day_yuan) document.getElementById("num2").textContent = "≈ ¥" + data.per_day_yuan;
+    if (data.compare_text) document.getElementById("compStamp").textContent = "≈ " + data.compare_text;
+
+    const tl = gsap.timeline();
+
+    // 0.0 顶部 NO.05
+    tl.fromTo("#topline", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0);
+
+    // 0.3 ¥ 符号
+    tl.fromTo("#sym",
+      { opacity: 0, x: 30 },
+      { opacity: 1, x: 0, duration: 0.25 }, 0.3);
+
+    // 0.5 整数 39 弹入(countUp 效果)
+    tl.fromTo("#pint",
+      { opacity: 0, scale: 0.4, rotate: -8 },
+      { opacity: 1, scale: 1, rotate: 0, duration: 0.55, ease: "back.out(1.6)" }, 0.5);
+
+    // 1.0 .99
+    tl.fromTo("#pcent",
+      { opacity: 0, x: -20 },
+      { opacity: 1, x: 0, duration: 0.3 }, 1.0);
+
+    // 1.6 拆解 60 / 0.67
+    tl.fromTo("#box1",
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 0.4 }, 1.6);
+    tl.fromTo("#divide",
+      { opacity: 0, scale: 2 },
+      { opacity: 1, scale: 1, duration: 0.3 }, 2.0);
+    tl.fromTo("#box2",
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 0.4 }, 2.3);
+
+    // 3.2 类比印章
+    tl.fromTo("#compare",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.4 }, 3.2);
+    tl.fromTo("#compStamp",
+      { scale: 1.5, rotate: 8 },
+      { scale: 1, rotate: -3, duration: 0.4, ease: "back.out(1.6)" }, 3.2);
+
+    // 锁尾
+    tl.to({}, { duration: 1.8 }, 4.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>05 Finder B-roll</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .finder {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 220px;
+      bottom: 220px;
+    }
+    .finder-body {
+      background: #1d2230;
+      padding: 32px 36px;
+      height: calc(100% - 80px);
+      overflow: hidden;
+    }
+    .path {
+      font-family: var(--mono);
+      font-size: 26px;
+      color: var(--gray-3);
+      margin-bottom: 30px;
+    }
+    .path .seg { color: var(--gray-2); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+    }
+    .thumb {
+      background: var(--bg-deep);
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 1080 / 1620;
+      opacity: 0;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb .name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: var(--gray-1);
+      font-family: var(--mono);
+      font-size: 22px;
+      padding: 6px 10px;
+    }
+
+    /* 角标:数字代价/时间 */
+    .badge-cost {
+      position: absolute;
+      top: 1380px;
+      left: 60px;
+      right: 60px;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+    .badge {
+      background: var(--bg-card);
+      border: 3px solid var(--green);
+      border-radius: 20px;
+      padding: 24px 40px;
+      text-align: center;
+      opacity: 0;
+    }
+    .badge .v {
+      font-family: var(--mono);
+      font-size: 96px;
+      font-weight: 900;
+      color: var(--green);
+      line-height: 1;
+    }
+    .badge .l {
+      font-family: var(--sans);
+      font-size: 32px;
+      color: var(--gray-2);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="finder mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-traffic-lights">
+          <div class="mac-dot r"></div>
+          <div class="mac-dot y"></div>
+          <div class="mac-dot g"></div>
+        </div>
+        <div class="mac-title">publish · P003 · xhs</div>
+      </div>
+      <div class="finder-body">
+        <div class="path">publish <span class="seg">/</span> P003 <span class="seg">/</span> xhs <span class="seg">/</span></div>
+        <div class="grid" id="thumbs"></div>
+      </div>
+    </div>
+
+    <div class="badge-cost">
+      <div class="badge" id="badge-time">
+        <div class="v"><span id="t-num">0</span> min</div>
+        <div class="l">交付时间</div>
+      </div>
+      <div class="badge" id="badge-cost">
+        <div class="v">¥<span id="c-num">0</span></div>
+        <div class="l">成本</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const data = window.getData();
+    const images = data.images || [];
+    const thumbs = document.getElementById("thumbs");
+    const thumbEls = images.map((src, i) => {
+      const t = document.createElement("div");
+      t.className = "thumb";
+      t.id = `thumb-${i}`;
+      t.innerHTML = `<img src="${src}" alt="page ${i+1}"><div class="name">page_0${i+1}.png</div>`;
+      thumbs.appendChild(t);
+      return t;
+    });
+
+    const tl = gsap.timeline();
+
+    // 0 - 1.8s · 6 张缩略图逐个弹入(每张 0.3s)
+    thumbEls.forEach((el, i) => {
+      const at = i * 0.3;
+      tl.fromTo(el,
+        { opacity: 0, scale: 0.6, y: 30 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "back.out(1.8)" }, at);
+    });
+
+    // 2.0s · 角标淡入并滚数字
+    tl.to(["#badge-time", "#badge-cost"], { opacity: 1, duration: 0.3 }, 2.0);
+    tl.add(window.countUp("#t-num", 0, data.duration_min || 10, { duration: 0.5 }), 2.2);
+    tl.add(window.countUp("#c-num", 0, data.cost_yuan || 2, { duration: 0.5 }), 2.2);
+
+    // 锁尾
+    tl.to({}, { duration: 0.5 }, 3.0);
+
+    registerTimeline(tl);
+  </script>
+</body>
+</html>
