@@ -39,8 +39,13 @@ rules:
 
   - id: R03
     when: "completion_rate < 25%"
-    suggest: 砍到45s，加强前3s字幕
+    suggest: 砍到45s，加强前3s字幕；对照 hook_benchmark 重做首镜
     owner: pipeline
+
+  - id: R07
+    when: "completion_3s < 45%"
+    suggest: 拆解同行热门首镜（人设/镜头/音乐），重做 0–3s 停划设计后 re-render
+    owner: 留存与互动设计师
 
   - id: R04
     when: "saves > likes"

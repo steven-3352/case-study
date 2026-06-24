@@ -183,6 +183,8 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 铁律 · 结果负责制（2026-06 起 · D04 升级）
 
+0. **完播率北极星** — `completion_rate` + `completion_3s` 贯穿全链路；前 3 秒须拆解同行业热门的人设/镜头/音乐，结合自身特点设计停划。详规：`templates/design/completion_rate_north_star.md`
+
 1. **不看系统有什么，只看能做到什么** — pipeline/模板/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
 2. **内容门与形式门分开** — 脚本 90+ 允许 TTS；**形式**（视觉同质、分析师 forecast、CTA 完整）pass 才允许外发。禁止 catalog 拼盘假 approved。
 3. **合规分 vs 效果分** — scorecard 纸面 90+ ≠ 能投；外发以像素 + `pre_publish_forecast` 为准。差距 >5 归档 `form_audit`。
@@ -191,6 +193,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 6. **自我进化** — 提高标准 → 多轮测试 → 更新 Rubric + `gate_check` + REJECT_LOG。详规：`templates/design/system_evolution.md`
 
 **核心文档：**
+- 完播北极星：`templates/design/completion_rate_north_star.md` · `templates/insights/hook_benchmark.md`
 - 铁律：`.cursor/rules/content-outcome-accountability.mdc` · `.cursor/rules/content-prep-multi-agent.mdc`
 - 两道门：`templates/design/content_form_split_gates.md`
 - 门禁：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md`

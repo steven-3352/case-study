@@ -46,22 +46,24 @@ python3 pipeline/week_build.py --render
 
 **`--force`：** 登记 `GATE_BYPASS_LOG.md`；**禁止**外发。
 
-## 标准流程（顺序不可颠倒 · 内容/形式两道门）
+## 标准流程（顺序不可颠倒 · 内容/形式两道门 · 完播北极星）
 
 ```
 选题输入
+  → 网络调研：insights/hook_benchmark.md（≥2 条同行 · 人设/镜头/音乐/3s）
   → 洞察包 + 各工种 Phase A scorecard 90+（内容门）
-  → 编剧 v0/vA/vB + script_review pass
-  → 形式选型：视觉 diff 审计（专属≥3 · catalog≤35% · 无重复 template）
-  → storyboard + motion_wow（≥3 CREATIVE · 每条写「为何唯一」）
+  → 留存：retention_beat_sheet 完播目标 + 0–3s 设计
+  → 编剧 v0/vA/vB + script_review pass（钩子落前 3s）
+  → 形式选型 + storyboard（首镜 ≤4s 停划）+ motion_wow
   → gate_check(pre_render) PASS → TTS / render（有成本工序）
-  → Phase B：听 mp4 + 平台表现分析师 pre_publish_forecast
-  → gate_check(approve) PASS（形式门 + 视觉审计 + forecast）
-  → **发布 → 48–72h 填 performance.yaml actual**
-  → **evolution_apply.py → evolution_brief.yaml**
-  → **下一条读 evolution_overlay.md · 形式按数据进化**
+  → Phase B：听 mp4 0–3s + pre_publish_forecast（3s/完播区间首要）
+  → gate_check(approve) PASS（形式门 + 完播预估 + 视觉审计）
+  → **发布 → 48h 填 performance.yaml actual（completion_3s + completion_rate）**
+  → **evolution_apply.py → 下一条读 overlay · 完播差则改首镜**
   → approved · 可外发
 ```
+
+详规：`templates/design/completion_rate_north_star.md`
 
 **D04 起：** 内容 pass 形式 fail → `approved_content_blocked_form`，不得外发。  
 详规：`templates/design/content_form_split_gates.md` · `templates/design/system_evolution.md`
@@ -72,7 +74,7 @@ python3 pipeline/week_build.py --render
 
 | 工种 | 职责 |
 |------|------|
-| **网络调研员** | 搜公开内容，整理 `insights/external_references.md`（链接+摘要+可引用原话）；标注来源 URL |
+| **网络调研员** | 搜公开内容，整理 `insights/external_references.md` + **`insights/hook_benchmark.md`（≥2 条同行前3秒：人设/镜头/音乐）** | 无 hook_benchmark → 禁止 pre_render |
 | **记者** | 证据链、用户原话；区分「网络转述 / 合成场景 / 一手项目」 |
 | **选题深挖师** | 受众画像、≥3 个具体使用场景、改造前后对比 |
 | **内核提炼师** | P0≥3、价值锚、禁用表述 |
@@ -85,7 +87,7 @@ python3 pipeline/week_build.py --render
 | **动效设计师** | **`motion_wow`（≥3 CREATIVE · catalog≤35%）**；禁 catalog 三连；render 后复验 mp4 |
 | **漫画分镜师** | 轮播走 P007/P002 时：`projects/{id}/storyboard_carousel.yaml` |
 | **编剧** | 三版脚本（**结构须不同**）；场景+对话；`design/script_review.md`；**禁念 PPT / 禁克隆上条模板** · 见 `templates/design/script_standards.md` |
-| **留存与互动设计师** | 节拍表；讨论型 CTA（非扣1）；**单模板 ≤40% 时长** |
+| **留存与互动设计师** | 完播北极星 + **0–3s 停划**；节拍表；讨论型 CTA；单模板 ≤40% 时长 | `retention_beat_sheet.md` |
 | **运营** | 定时发布、标签、收藏动机 |
 | **编导** | 立项、形式分工、最终签字 |
 | **平台表现分析师** | render 后：`design/pre_publish_forecast.md` · 三平台未发布预估 · **形式 go/no-go**（fail=blocked） |
@@ -120,6 +122,7 @@ python3 pipeline/week_build.py --render
 ## 痛点与场景门禁
 
 - 钉子场景必须能回答：**谁、什么时间、在哪、烦什么、要什么结果**
+- **完播北极星：** 每条须有 `hook_benchmark.md` + retention 0–3s 设计（`completion_rate_north_star.md`）
 - 用户原话 ≥5 条，至少 **2 条来自网络公开内容**（转述+链接）
 - 网络参考 ≥3 条 URL，写入 `external_references.md`
 - 关键信息 <3 条 P0 → 退回；无场景细节 → 退回记者/网络调研员

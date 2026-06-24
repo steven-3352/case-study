@@ -20,7 +20,9 @@ bgm:
   fade_in_s: 1.5
   fade_out_s: 2.0
   loop: true
-  notes:                   # 选曲理由、与情绪曲线关系
+  benchmark_ref:           # hook_benchmark 参考编号（如「参考1·紧张铺底」）
+  hook_0_3s:               # 0–3s：入点情绪、是否压人声、与钩子同拍
+  notes:                   # 选曲理由、与 retention 情绪曲线关系
 
 subtitles:
   srt_path:                # 如 pipeline/p004_video/sub_k1.srt
@@ -35,5 +37,6 @@ outputs:
 
 qc:
   - VO 清晰可辨，BGM 不盖人声（人工听 30s）
-  - 前 3s 钩子字幕可见
+  - 前 3s 钩子字幕可见，且与 hook_benchmark 停划设计一致
+  - 0–3s BGM 入点不抢戏（对照 retention 节拍表）
   - 外发使用 video_publish，非 video_raw

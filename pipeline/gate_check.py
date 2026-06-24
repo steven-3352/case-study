@@ -463,6 +463,29 @@ def check_no_dark_p004_clone(
                 errors.append("形式层：首镜仍为暗色 P004 族 · 须形式 v2 整片重做")
 
 
+def check_hook_benchmark(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """完播北极星 · 同行前3秒拆解 · pre_render 必填."""
+    hb = day_dir / "insights" / "hook_benchmark.md"
+    retention = day_dir / "retention_beat_sheet.md"
+    if not hb.exists():
+        errors.append("缺少 insights/hook_benchmark.md（网络调研员 · ≥2 条同行前3秒拆解）")
+        return
+    text = _read_text(hb)
+    if not re.search(r"参考\s*1|参考1", text):
+        errors.append("hook_benchmark 缺少「参考 1」")
+    if not re.search(r"参考\s*2|参考2", text):
+        errors.append("hook_benchmark 缺少「参考 2」")
+    for label in ("人设", "镜头", "音乐"):
+        if label not in text:
+            errors.append(f"hook_benchmark 须拆解：{label}")
+    if retention.exists():
+        rt = _read_text(retention)
+        if "0–3s" not in rt and "0-3s" not in rt:
+            errors.append("retention_beat_sheet 缺少 0–3s 节拍行")
+        if "完播北极星" not in rt and "完播目标" not in rt:
+            errors.append("retention_beat_sheet 缺少完播北极星/完播目标")
+
+
 def check_pre_publish_forecast(day_dir: pathlib.Path, errors: list[str]) -> None:
     """平台表现分析师 · 未发布数据预估 · 外发前必填."""
     if not _has_douyin_video(day_dir):
@@ -478,6 +501,14 @@ def check_pre_publish_forecast(day_dir: pathlib.Path, errors: list[str]) -> None
 
     if not re.search(r"平台表现分析师|表现分析师", text):
         errors.append("pre_publish_forecast 须标注工种：平台表现分析师")
+
+    # 完播北极星 · 首要预估项
+    has_3s = bool(re.search(r"3s.{0,24}%|completion_3s", text, re.I))
+    has_completion = bool(re.search(r"完播.{0,24}%|completion_rate", text, re.I))
+    if not has_3s:
+        errors.append("pre_publish_forecast 须含 3s 完播预估（如 3s 54–64%）")
+    if not has_completion:
+        errors.append("pre_publish_forecast 须含完播率预估（如 完播 14–19%）")
 
     # 表现形式层 fail → 禁止 approve 外发
     if re.search(r"表现形式.{0,40}fail|表现形式层.{0,20}fail", text, re.I | re.S):
@@ -560,6 +591,7 @@ def gate_check(
     if phase == "pre_render":
         validate_scorecards(day_dir, phase="pre_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="pre_render", errors=errors)
+        check_hook_benchmark(day_dir, errors=errors)
         mw = day_dir / "design" / "motion_wow.md"
         if not mw.exists():
             errors.append("render 前缺少 design/motion_wow.md")

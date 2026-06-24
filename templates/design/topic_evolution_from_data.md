@@ -37,8 +37,8 @@ python3 pipeline/import_metrics_48h.py --file path/W26D04_48h.json
 
 | 字段 | 取数位置 | 写入 performance.yaml |
 |------|----------|-------------------------|
-| 3s 完播 | 数据分析 → 完播率 → 3s | `completion_3s` (0.62 = 62%) |
-| 完播率 | 完播率 | `completion_rate` |
+| **3s 完播** | 数据分析 → 完播率 → 3s | `completion_3s` — **首要复盘项** |
+| **完播率** | 完播率 | `completion_rate` — **北极星** |
 | 互动率 | (评+赞+转)/播放 | `interaction_rate` |
 | 均播 | 平均观看时长 | `avg_watch_s` |
 | 播放/赞/评 | 概览 | `views` `likes` `comments` |

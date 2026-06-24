@@ -264,10 +264,28 @@ def md_retention(session: dict, ins: dict) -> str:
 > 选题 ID: {session['topic_id']} · 内容 ID: {session['project_id']}
 > 工种: 留存与互动设计师
 > 目标时长: {session.get('duration_s', 42)}s · 平台: 抖音 / 小红书
+> 北极星: completion_rate + completion_3s · 见 templates/design/completion_rate_north_star.md
+
+## 完播北极星
+
+| 指标 | 本条目标 |
+|------|----------|
+| 3s 完播 | ≥55% |
+| 完播率 | ≥40% |
+
+## 同行前 3 秒拆解
+
+> 详见 insights/hook_benchmark.md（网络调研员 ≥2 条）
+
+| 参考 | 停划手法 | 我们采用 |
+|------|----------|----------|
+| 1 | （待填） | |
+| 2 | （待填） | |
 
 ## 完播与互动目标
 
 - 完播目标: ≥40%
+- 3s 停划目标: ≥55%
 - 互动设计: {session.get('interaction_design', '评论讨论型')}
 - 形式切换: 全片 ≥3 种 evidence 体裁
 
@@ -277,12 +295,19 @@ def md_retention(session: dict, ins: dict) -> str:
 |--------|----------|---------|----------------|---------------|
 {rows}
 
+## 0–3s 镜头清单
+
+| 秒 | 画面 | 字幕 | 预期反应 |
+|----|------|------|----------|
+| 0–3 | （对照 hook_benchmark） | 钩子「{cm['hook']}」 | 停划 |
+
 ## 片内互动 CTA（口播 + 字幕一致）
 
 > {cta}
 
 ## 门禁
 
+- [ ] insights/hook_benchmark.md ≥2 条
 - [x] 每 5–8s 有视觉或信息变化
 - [x] P0 信息全部落入节拍
 - [x] 钩子「{cm['hook']}」落前 3s
