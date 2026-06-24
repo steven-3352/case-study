@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D07 Swim Break</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    :root {
+      --bg-blueprint: #eef6fc;
+      --grid: rgba(74, 130, 180, 0.2);
+      --ink: #1e4d72;
+      --ink-light: #5a8ab5;
+      --lane-pink: #fce4ec;
+      --lane-pink-border: #f48fb1;
+      --lane-green: #e8f5e9;
+      --lane-green-border: #81c784;
+      --lane-amber: #fff8e1;
+      --lane-amber-border: #ffb74d;
+      --sans: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      --mono: "SF Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: var(--bg-blueprint);
+      font-family: var(--sans); color: var(--ink);
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px;
+      background:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+        var(--bg-blueprint);
+      background-size: 48px 48px;
+    }
+    .title-bar {
+      position: absolute; left: 60px; top: 260px;
+      font-family: var(--mono); font-size: 28px;
+      color: var(--ink-light); letter-spacing: 2px; opacity: 0;
+    }
+    .swimlanes {
+      position: absolute; left: 48px; right: 48px; top: 340px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .lane {
+      position: relative; height: 200px; border-radius: 16px;
+      border: 3px dashed; opacity: 0;
+      display: flex; align-items: center; padding: 0 24px;
+    }
+    .lane.pink { background: var(--lane-pink); border-color: var(--lane-pink-border); }
+    .lane.green { background: var(--lane-green); border-color: var(--lane-green-border); }
+    .lane.amber { background: var(--lane-amber); border-color: var(--lane-amber-border); }
+    .lane-label {
+      font-size: 32px; font-weight: 800; width: 140px; flex-shrink: 0;
+    }
+    .lane-nodes {
+      flex: 1; display: flex; align-items: center; gap: 0; position: relative;
+    }
+    .node {
+      width: 88px; height: 88px; border-radius: 12px;
+      background: #fff; border: 2px solid var(--ink-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; opacity: 0; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(30, 77, 114, 0.12);
+    }
+    .connector {
+      flex: 1; height: 4px; background: var(--ink-light);
+      position: relative; opacity: 0; min-width: 40px;
+    }
+    .connector::after {
+      content: ""; position: absolute; right: -6px; top: -6px;
+      border: 8px solid transparent; border-left-color: var(--ink-light);
+    }
+    .connector.break {
+      background: linear-gradient(90deg, var(--ink-light) 40%, transparent 40%, transparent 60%, var(--ink-light) 60%);
+    }
+    .crack {
+      position: absolute; font-size: 64px; opacity: 0; z-index: 10;
+      filter: drop-shadow(0 2px 8px rgba(194, 24, 91, 0.4));
+    }
+    .person {
+      position: absolute; font-size: 72px; opacity: 0; z-index: 20;
+    }
+    .hook {
+      position: absolute; left: 0; right: 0; top: 1080px;
+      text-align: center; font-size: 96px; font-weight: 900;
+      color: #c2185b; opacity: 0; letter-spacing: 4px;
+    }
+    .sub {
+      position: absolute; left: 0; right: 0; top: 1220px;
+      text-align: center; font-size: 48px; font-weight: 700;
+      color: var(--ink-light); opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="title-bar" id="titleBar">流程泳道 · 跨板块</div>
+    <div class="swimlanes">
+      <div class="lane pink" id="lanePink">
+        <div class="lane-label">💅 美甲</div>
+        <div class="lane-nodes">
+          <div class="node" id="n1">📅</div>
+          <div class="connector" id="c1"></div>
+          <div class="node" id="n2">✅</div>
+          <div class="connector" id="c2"></div>
+          <div class="node" id="n3">💬</div>
+        </div>
+      </div>
+      <div class="lane green" id="laneGreen">
+        <div class="lane-label">💊 保健</div>
+        <div class="lane-nodes">
+          <div class="node">🧪</div>
+          <div class="connector"></div>
+          <div class="node">🧠</div>
+          <div class="connector"></div>
+          <div class="node">📝</div>
+        </div>
+      </div>
+      <div class="lane amber" id="laneAmber">
+        <div class="lane-label">📦 贸易</div>
+        <div class="lane-nodes">
+          <div class="node">📄</div>
+          <div class="connector"></div>
+          <div class="node">🔖</div>
+          <div class="connector"></div>
+          <div class="node">📦</div>
+        </div>
+      </div>
+    </div>
+    <div class="person" id="person">🚶‍♀️</div>
+    <div class="crack" id="crack">⚡</div>
+    <div class="hook" id="hook">人走了就断</div>
+    <div class="sub" id="sub">流程在人脑子里</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.hook) document.getElementById("hook").textContent = data.hook;
+    if (data.sub) document.getElementById("sub").textContent = data.sub;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#titleBar", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.3 }, 0);
+    tl.fromTo(".lane", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.12, ease: "power2.out" }, 0.15);
+    tl.fromTo("#lanePink .node", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.25, stagger: 0.1, ease: "back.out(2)" }, 0.45);
+    tl.fromTo("#lanePink .connector", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.2, stagger: 0.08, transformOrigin: "left center" }, 0.55);
+    tl.fromTo("#laneGreen .node, #laneGreen .connector", { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.06 }, 0.7);
+    tl.fromTo("#laneAmber .node, #laneAmber .connector", { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.06 }, 0.85);
+
+    tl.fromTo("#person", { opacity: 1, x: 680, y: 430 }, { x: 520, y: 430, duration: 0.7, ease: "power2.inOut" }, 1.0);
+    tl.to("#person", { x: 920, y: 380, opacity: 0.6, duration: 0.55, ease: "power2.in" }, 1.75);
+    tl.to("#c2", { className: "connector break", duration: 0.01 }, 2.15);
+    tl.fromTo("#crack", { opacity: 0, scale: 0.3, x: 600, y: 400 }, { opacity: 1, scale: 1.5, duration: 0.3, ease: "back.out(3)" }, 2.2);
+    tl.to("#n3", { x: 30, rotation: 8, opacity: 0.5, duration: 0.35, ease: "power2.out" }, 2.25);
+    tl.to("#lanePink", { x: "+=6", duration: 0.05, repeat: 3, yoyo: true }, 2.3);
+    tl.fromTo("#hook", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.5);
+    tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 2.85);
+    tl.to("#person", { opacity: 0, duration: 0.2 }, 2.3);
+    tl.to({}, { duration: 0.75 }, 3.25);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

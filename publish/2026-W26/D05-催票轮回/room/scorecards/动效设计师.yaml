@@ -1,0 +1,38 @@
+# D05 · 动效设计师 · scorecard · v1 Phase B · PASS
+role: 动效设计师
+artifact: design/motion_wow.md
+artifact_version: v1
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 形式选型师
+  review_mode: independent
+  angle: mp4创意兑现
+  score: 94
+  verdict: pass
+  notes: '@1s hook 48→11 ✓；@16s wechat_type ghost ✓；@42s compare三行变红 ✓。
+
+    扣(-3)：55.5s略长但CTA完整 worth it。
+
+    扣(-3)：silent_row略静，情绪OK。
+
+    v1 mp4 7/7 CREATIVE 兑现 pass。
+
+    '
+- reviewer_id: 留存与互动设计师
+  review_mode: independent
+  angle: 停驻复验
+  score: 92
+  verdict: pass
+  notes: '关声3s数字punch停划；@16s unexpected打又删。
+
+    扣(-4)：55s超50s目标，完播仍优于v1 catalog拖感。
+
+    扣(-4)：compare 12s略长可接受。
+
+    92 pass Phase B v1。
+
+    '
+avg_score: 93.0
+pass: true
+optimization_round: 8

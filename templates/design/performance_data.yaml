@@ -1,0 +1,26 @@
+# 投后表现数据 · 结构化输入（L3 进化源）
+# 用法：发布后从抖音/小红书创作者中心填入 actual · 再跑 evolution_apply.py
+
+week_id: "2026-W26"
+updated_at: null  # evolution_apply.py 自动写入
+
+# 指标定义（全周统一口径）
+metrics:
+  completion_3s:
+    label: 3s 完播率
+    unit: ratio  # 0.58 = 58%
+  completion_rate:
+    label: 完播率
+    unit: ratio
+  interaction_rate:
+    label: 互动率（评+赞+藏/播放）
+    unit: ratio
+  avg_watch_s:
+    label: 平均观看时长
+    unit: seconds
+  collect_rate:
+    label: 收藏率（小红书）
+    unit: ratio
+
+entries: []
+# 示例见 publish/2026-W26/performance_data.yaml

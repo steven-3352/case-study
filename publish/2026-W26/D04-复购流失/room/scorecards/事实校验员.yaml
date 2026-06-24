@@ -1,0 +1,37 @@
+# D04 · 事实校验员 · scorecard · Round 1 · v10 · PASS
+# 独立互评 · review_mode: independent
+role: 事实校验员
+artifact: insights/fact_check.md
+artifact_version: v1-insights
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 内核提炼师
+  review_mode: independent
+  angle: 红区清零
+  score: 93
+  verdict: pass
+  notes: '红区疗效/承诺复购清零；312/48/11区间化口径在脚本「约312」。
+
+    扣(-4)：黄区表空，可补「48/11为合成走访数字」一句——脚本已口语化。
+
+    扣(-3)：合规绿区服务话术OK。
+
+    '
+- reviewer_id: 合规审核
+  review_mode: independent
+  angle: 保健品类
+  score: 92
+  verdict: pass
+  notes: '不讲功效；「快用完了吗」为服务跟进。
+
+    扣(-5)：compare段「一行看清」无疗效暗示。
+
+    扣(-3)：CTA讨论型无导流。
+
+    insights层pass。
+
+    '
+avg_score: 92.5
+pass: true
+optimization_round: 1

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D04 Excel Dread</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .win {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      top: 380px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,.7);
+      transform-origin: center center;
+    }
+    .toolbar {
+      height: 70px;
+      background: #217346;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .sheet {
+      background: #fff;
+      color: #333;
+      font-family: var(--mono);
+      font-size: 26px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1.2fr;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .cell {
+      padding: 18px 14px;
+      border-right: 1px solid #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .head { background: #f3f3f3; font-weight: 800; }
+    .head.missing {
+      background: #ffebee;
+      color: var(--red);
+      animation: none;
+    }
+    .head.missing .q { font-size: 22px; display: block; margin-top: 4px; }
+    .cell.bad { color: #999; font-style: italic; }
+    .cursor-hand {
+      position: absolute;
+      font-size: 80px;
+      opacity: 0;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.5));
+      z-index: 10;
+    }
+    .quote {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 260px;
+      text-align: center;
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--orange);
+      opacity: 0;
+      padding: 0 50px;
+    }
+    .quote sub {
+      display: block;
+      font-size: 32px;
+      color: var(--gray-3);
+      margin-top: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="quote" id="quote">「Excel打开都怕」<sub>销售原话</sub></div>
+    <div class="cursor-hand" id="hand">👆</div>
+    <div class="win mac-window" id="win">
+      <div class="toolbar">📊 复购提醒.xlsx</div>
+      <div class="sheet">
+        <div class="row head">
+          <div class="cell">客户</div>
+          <div class="cell">购买日</div>
+          <div class="cell">发货</div>
+          <div class="cell missing">下次触达日<span class="q">❓ 缺列</span></div>
+        </div>
+        <div class="row" id="rows"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const data = window.getData();
+    const names = data.names || ["张阿姨","李叔","王姐","赵伯","陈阿姨","刘哥"];
+    const rows = document.getElementById("rows");
+    names.forEach((n, i) => {
+      const r = document.createElement("div");
+      r.className = "row";
+      r.style.opacity = 0;
+      r.innerHTML = `<div class="cell">${n}</div><div class="cell">3/${10+i}</div><div class="cell">✓</div><div class="cell bad">靠小刘记</div>`;
+      rows.appendChild(r);
+    });
+
+    const tl = gsap.timeline();
+    tl.to("#quote", { opacity: 1, duration: 0.35 }, 0);
+    tl.fromTo("#hand", { x: 700, y: 900, opacity: 0 }, { x: 520, y: 720, opacity: 1, duration: 0.5, ease: "power2.out" }, 0.3);
+    tl.to("#hand", { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1 }, 0.85);
+    tl.fromTo("#win", { opacity: 0, scale: 0.7, y: 80 }, { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.95);
+    tl.to("#hand", { opacity: 0, duration: 0.2 }, 1.0);
+    tl.to(".row", { opacity: 1, duration: 0.2, stagger: 0.08 }, 1.2);
+    tl.to("#win", { x: "+=8", duration: 0.06, repeat: 5, yoyo: true, ease: "rough({ strength: 2 })" }, 2.0);
+    tl.fromTo(".missing", { backgroundColor: "#ffcdd2" }, { backgroundColor: "#ff5252", color: "#fff", duration: 0.3, yoyo: true, repeat: 3 }, 2.1);
+    tl.to({}, { duration: 0.8 }, 3.2);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

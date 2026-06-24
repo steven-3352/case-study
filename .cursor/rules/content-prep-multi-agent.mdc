@@ -13,20 +13,62 @@ alwaysApply: true
 
 用户愿意在前期花时间；**宁可多一轮讨论，不可跳过调研**。
 
-## 标准流程
+## 双人互评 · 90 分门禁（铁律 · 严格执行）
+
+与 `content-outcome-accountability.mdc`「双人互评铁律」同级。
+
+| 要求 | 说明 |
+|------|------|
+| 每工种 ≥2 人 | 各写 `room/scorecards/{工种}.yaml` |
+| 不同角度 | 两位 reviewer 的 `angle` 不得相同 |
+| 禁止自评 | 产出者不得评自己的工种 |
+| **≥ 90 才 pass** | 每位 score ≥ 90 且 avg ≥ 90；否则迭代至 90+ |
+| 分阶段 | Phase A 立项 scorecard + Phase B 复验 scorecard |
+
+详规：`templates/design/scorecard_enforcement.md` · `templates/agent_room/scorecard.yaml` · `anti_perfunctory_gates.md`
+
+**真实互评：** 每位 reviewer 必填 `review_mode: independent`；缺则 `gate_check` FAIL。须 **独立 Task readonly** 打分，禁止同 session 自填 90+。
+
+## 多 Agent 审核（铁律 · 不可跳过）
+
+与 `.cursor/rules/content-outcome-accountability.mdc`「多 Agent 审核铁律」同级。
+
+```bash
+python3 pipeline/week_room.py      # 展开讨论室产物 · 缺 Round 则 blocked
+python3 pipeline/gate_check.py --all --phase approve   # 铁律 fail-closed
+python3 pipeline/evolution_apply.py --week publish/2026-W26   # 投后（fetch 后自动触发）
+python3 pipeline/fetch_platform_metrics.py --login douyin   # 首次扫码
+python3 pipeline/fetch_platform_metrics.py --sync --id W26D04 # 自动拉账号数据
+python3 pipeline/evolution_apply.py --id W26D05 --check        # 下条开工前
+python3 pipeline/week_build.py     # 仅 gate_check PASS 的 approved 天
+python3 pipeline/week_build.py --render
+```
+
+**`--force`：** 登记 `GATE_BYPASS_LOG.md`；**禁止**外发。
+
+## 标准流程（顺序不可颠倒 · 内容/形式两道门）
 
 ```
 选题输入
-  → 网络调研员（拉公开参考：小红书/知乎/行业文/案例）
-  → 记者 + 选题深挖师（痛点、钉子场景、≥5 条原话/转述）
-  → 洞察包四件套（topic_brief / core_message / domain_notes / fact_check）
-  → 编剧 v0/vA/vB + 留存设计师 + 运营 选稿
-  → 视觉/导演对齐形式
-  → room/verdict.yaml status=approved
-  → week_build.py → render
+  → 洞察包 + 各工种 Phase A scorecard 90+（内容门）
+  → 编剧 v0/vA/vB + script_review pass
+  → 形式选型：视觉 diff 审计（专属≥3 · catalog≤35% · 无重复 template）
+  → storyboard + motion_wow（≥3 CREATIVE · 每条写「为何唯一」）
+  → gate_check(pre_render) PASS → TTS / render（有成本工序）
+  → Phase B：听 mp4 + 平台表现分析师 pre_publish_forecast
+  → gate_check(approve) PASS（形式门 + 视觉审计 + forecast）
+  → **发布 → 48–72h 填 performance.yaml actual**
+  → **evolution_apply.py → evolution_brief.yaml**
+  → **下一条读 evolution_overlay.md · 形式按数据进化**
+  → approved · 可外发
 ```
 
-## 必跑工种（可增不可减）
+**D04 起：** 内容 pass 形式 fail → `approved_content_blocked_form`，不得外发。  
+详规：`templates/design/content_form_split_gates.md` · `templates/design/system_evolution.md`
+
+**变更触发：** storyboard/动效大版本变更 → Round 4b + 编剧 scorecard 重评。
+
+## 必跑工种（可增不可减 · 各 ≥2 人互评 90+）
 
 | 工种 | 职责 |
 |------|------|
@@ -40,22 +82,38 @@ alwaysApply: true
 | **平台原生策划** | 抖音/小红书/视频号 **不同 delivery**（短视频 vs 纯轮播 vs 对比动效） |
 | **纪录片导演** | 故事弧线（**非默认改造实录模板**）；改造前后情绪锚点 |
 | **动效分镜师** | 视频走 P004/P005 时：`projects/{id}/storyboard.yaml` |
+| **动效设计师** | **`motion_wow`（≥3 CREATIVE · catalog≤35%）**；禁 catalog 三连；render 后复验 mp4 |
 | **漫画分镜师** | 轮播走 P007/P002 时：`projects/{id}/storyboard_carousel.yaml` |
-| **编剧** | 三版脚本，只引用洞察卡 |
+| **编剧** | 三版脚本（**结构须不同**）；场景+对话；`design/script_review.md`；**禁念 PPT / 禁克隆上条模板** · 见 `templates/design/script_standards.md` |
 | **留存与互动设计师** | 节拍表；讨论型 CTA（非扣1）；**单模板 ≤40% 时长** |
 | **运营** | 定时发布、标签、收藏动机 |
 | **编导** | 立项、形式分工、最终签字 |
+| **平台表现分析师** | render 后：`design/pre_publish_forecast.md` · 三平台未发布预估 · **形式 go/no-go**（fail=blocked） |
 
-**扩展工种**（按需激活）：合规审核（保健/带货）、消费者声音研究员（Agent-Reach）、选品分析师。
+**扩展工种**（按需激活）：合规审核、消费者声音研究员、选品分析师。
 
-## 渲染路由（禁止全周 render.py）
+## 形式层必跑（D04 起 · 与内容门并列）
+
+| 步骤 | 产出 | gate |
+|------|------|------|
+| 形式 diff 审计 | motion_wow + storyboard | pre_render |
+| 视觉多样性 | 专属≥3 · catalog≤35% · 无重复 | approve |
+| 分析师预估 | `pre_publish_forecast.md` | approve |
+| 诚实 fail 归档 | `room/form_audit_{v}.yaml` | 纸面/效果差>5 |
+| 投后 actual | `design/performance.yaml` | **`fetch_platform_metrics.py --sync`** |
+| 进化简报 | `publish/{week}/evolution_brief.yaml` | **D05+ 开工前** |
+| 下条 overlay | `design/evolution_overlay.md` | 数据驱动形式指令 |
+
+## 渲染路由（禁止全周 render.py · 禁止静态冒充动效）
 
 | render_route | pipeline | 适用 |
 |--------------|----------|------|
-| `render_evidence` | `pipeline/render.py` | 仿真卡片风；**每周最多 2 天** |
-| `p004_gsap` | `pipeline/p004_video/build.py` | chaos/punch/pain/compare 动效 |
-| `p007_comic` | `p007_xhs_engine_comic/capture_carousel.py` | 漫画轮播 |
-| `p002_newspaper_gpt` | `p002_carousel_gen.py` | GPT 报纸风插画轮播 |
+| `render_evidence` | `pipeline/render.py` | Ken Burns 证据卡 · **每周最多 1 天** · **禁相邻** |
+| `p004_gsap` | `pipeline/p004_video/build.py` | punch/pain/compare 等 **GSAP 动效视频** |
+| `p007_comic` | `p007_xhs_engine_comic/capture_carousel.py` | **漫画 GSAP 轮播**（非静态排版） |
+| `p002_newspaper_gpt` | `p002_carousel_gen.py` | 仅当需插画且仍走 GSAP/动效验收 |
+
+**动效铁律：** 抖音必须 `video.mp4`；小红书轮播须 P007 漫画 GSAP 或等价动效 pipeline；**禁 PPT 分屏、禁纯静态报纸风、禁 light_split 抖音封面**。
 
 **反例：** 讨论室只改文案、全周 `evidence_card` Ken Burns → 观众审美疲劳、完播/收藏数据差。
 
@@ -65,6 +123,12 @@ alwaysApply: true
 - 用户原话 ≥5 条，至少 **2 条来自网络公开内容**（转述+链接）
 - 网络参考 ≥3 条 URL，写入 `external_references.md`
 - 关键信息 <3 条 P0 → 退回；无场景细节 → 退回记者/网络调研员
+- **≥4 条原话必须进成片**（编剧 scorecard 核验项；**<4 fail**）
+- **动效须有 ≥3 专属创意**（motion_wow CREATIVE-1…N；catalog 标配排列 fail）
+
+## 防应付 · 工具门禁
+
+`week_build.py` 校验 `room/scorecards/` 与 **`pipeline/gate_check.py`（fail-closed）**；未达标拒绝 build。手填 `gates.*=true` 无效。
 
 ## 命令
 

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D05 Compare Deadline</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .split {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 340px;
+      bottom: 420px;
+      display: flex;
+      gap: 8px;
+      padding: 0 24px;
+    }
+    .col {
+      flex: 1;
+      border-radius: 20px;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+    }
+    .col.left {
+      background: linear-gradient(180deg, rgba(255,82,82,0.08), rgba(255,82,82,0.22));
+      border: 2px solid rgba(255,82,82,0.35);
+    }
+    .col.right {
+      background: linear-gradient(180deg, rgba(80,250,123,0.08), rgba(80,250,123,0.22));
+      border: 2px solid rgba(80,250,123,0.35);
+    }
+    .label {
+      font-size: 44px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+    .col.left .label { color: var(--red); }
+    .col.right .label { color: var(--green); }
+    .icon { font-size: 100px; line-height: 1; margin-bottom: 16px; }
+    .detail {
+      font-size: 52px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .col.left .detail { color: var(--red); }
+    .col.right .detail { color: var(--green); }
+    .sub {
+      margin-top: 16px;
+      font-size: 28px;
+      color: var(--gray-3);
+      font-weight: 600;
+      text-align: center;
+    }
+    .stack-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .mini-bubble {
+      align-self: flex-end;
+      background: rgba(149,236,105,0.35);
+      color: var(--gray-1);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 20px;
+      opacity: 0;
+    }
+    .cal {
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      color: #222;
+      font-family: var(--mono);
+      font-size: 20px;
+      overflow: hidden;
+    }
+    .cal-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #ddd;
+    }
+    .cal-cell {
+      padding: 12px 10px;
+      border-right: 1px solid #ddd;
+    }
+    .cal-cell.red { background: #ff5252; color: #fff; font-weight: 800; }
+    .cal-cell.head { background: #f5f5f5; font-weight: 800; }
+    .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 460px;
+      text-align: center;
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--gray-1);
+      opacity: 0;
+      padding: 0 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="split">
+      <div class="col left" id="left">
+        <div class="label" id="llabel">事后追</div>
+        <div class="icon" id="licon">💬</div>
+        <div class="detail" id="ldetail">30 条微信</div>
+        <div class="stack-mini" id="stack">
+          <div class="mini-bubble">张总发票？</div>
+          <div class="mini-bubble">李总章？</div>
+          <div class="mini-bubble">提单？</div>
+          <div class="mini-bubble">再问…</div>
+        </div>
+        <div class="sub" id="lsub">一天问好几遍</div>
+      </div>
+      <div class="col right" id="right">
+        <div class="label" id="rlabel">到期提醒</div>
+        <div class="icon" id="ricon">📅</div>
+        <div class="cal" id="cal">
+          <div class="cal-row"><div class="cal-cell head">节点</div><div class="cal-cell head red">到期</div></div>
+          <div class="cal-row"><div class="cal-cell">开票</div><div class="cal-cell red">明天</div></div>
+          <div class="cal-row"><div class="cal-cell">盖章</div><div class="cal-cell red">明天</div></div>
+        </div>
+        <div class="detail" id="rdetail" style="margin-top:12px;font-size:40px;">提前 1 天变红</div>
+        <div class="sub" id="rsub">表格+日历就行</div>
+      </div>
+    </div>
+    <div class="caption" id="caption">到期提醒比事后追 30 条有用</div>
+  </div>
+  <script>
+    const data = window.getData();
+    const before = data.before || {};
+    const after = data.after || {};
+    if (before.label) document.getElementById("llabel").textContent = before.label;
+    if (before.icon) document.getElementById("licon").textContent = before.icon;
+    if (before.detail) document.getElementById("ldetail").textContent = before.detail;
+    if (before.sub) document.getElementById("lsub").textContent = before.sub;
+    if (after.label) document.getElementById("rlabel").textContent = after.label;
+    if (after.icon) document.getElementById("ricon").textContent = after.icon;
+    if (after.detail) document.getElementById("rdetail").textContent = after.detail;
+    if (after.sub) document.getElementById("rsub").textContent = after.sub;
+    if (data.caption) document.getElementById("caption").textContent = data.caption;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#left", { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }, 0);
+    tl.fromTo("#right", { x: 80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }, 0.15);
+    tl.to(".mini-bubble", { opacity: 1, duration: 0.15, stagger: 0.1 }, 0.5);
+    tl.to(".mini-bubble", { opacity: 0.4, duration: 0.2, stagger: 0.05 }, 1.2);
+    tl.to(".cal-cell.red", { backgroundColor: "#ff5252", color: "#fff", duration: 0.25, stagger: 0.1, yoyo: true, repeat: 1 }, 0.9);
+    tl.fromTo("#caption", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 1.5);
+    tl.to("#right", { scale: 1.04, duration: 0.25, yoyo: true, repeat: 1, ease: "power1.inOut" }, 1.9);
+    tl.to("#left", { filter: "brightness(0.65)", duration: 0.35 }, 2.0);
+    tl.to({}, { duration: 0.9 }, 2.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

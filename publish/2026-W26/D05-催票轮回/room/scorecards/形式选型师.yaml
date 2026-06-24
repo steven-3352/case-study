@@ -1,0 +1,38 @@
+# D05 · 形式选型师 · scorecard · v1 · PASS
+role: 形式选型师
+artifact: design/format_spec.md
+artifact_version: v1
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 平台原生策划
+  review_mode: independent
+  angle: 矩阵差异
+  score: 94
+  verdict: pass
+  notes: 'v1 vs D03：无punch+grid+compare catalog族；首镜312/48/11。
+
+    扣(-3)：与D01仍同属P004但视觉隐喻全换。
+
+    扣(-3)：7专属镜render成本↑，值得。
+
+    format_spec v1 可执行 pass。
+
+    '
+- reviewer_id: 动效设计师
+  review_mode: independent
+  angle: route落地
+  score: 92
+  verdict: pass
+  notes: 'p004_gsap + 5个新d04模板已建；storyboard YAML字段齐。
+
+    扣(-4)：无broll，全html capture OK。
+
+    扣(-4)：封面改@1s hook，render后截帧。
+
+    92 pass。
+
+    '
+avg_score: 93.0
+pass: true
+optimization_round: 8

@@ -1,0 +1,39 @@
+# D05 · 记者 · scorecard · Round 1 · v1 · PASS
+# 独立互评 · review_mode: independent
+role: 记者
+artifact: insights/topic_brief.md
+artifact_version: v1-insights
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 选题深挖师
+  review_mode: independent
+  angle: 场景具体度
+  score: 93
+  verdict: pass
+  notes: '5条原话带来源标注；钉子场景48/11/离职/无模板齐全。
+
+    扣(-4)：销售「小刘」职务可再具体（销售/运营）。
+
+    扣(-3)：改造后四字段在brief为表格式，编剧已口语化消费。
+
+    topic_brief Phase A 可冻结。
+
+    '
+- reviewer_id: 网络调研员
+  review_mode: independent
+  angle: 交叉验证
+  score: 90
+  verdict: pass
+  notes: '原话与external_references无矛盾。
+
+    扣(-6)：第5条「静默流失」缺二手来源链，属走访合成已标注。
+
+    扣(-4)：受众画像「300+」与312一致可写「约」。
+
+    pass线90，insights不重做。
+
+    '
+avg_score: 91.5
+pass: true
+optimization_round: 1

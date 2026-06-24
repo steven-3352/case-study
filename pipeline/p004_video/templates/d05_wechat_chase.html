@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D05 WeChat Chase</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .phone {
+      position: absolute;
+      left: 50px;
+      right: 50px;
+      top: 340px;
+      bottom: 500px;
+      background: #111;
+      border-radius: 36px;
+      border: 4px solid #333;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .wx-header {
+      height: 96px;
+      background: #2e2e2e;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 20px;
+      border-bottom: 1px solid #444;
+    }
+    .avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #8be9fd, #6272a4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+    }
+    .wx-name { font-size: 34px; font-weight: 700; }
+    .composer {
+      margin: 24px;
+      background: #1f1f1f;
+      border-radius: 16px;
+      padding: 20px 24px;
+      min-height: 120px;
+      border: 2px solid #333;
+    }
+    .typed {
+      font-size: 36px;
+      color: var(--gray-1);
+      min-height: 48px;
+    }
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 40px;
+      background: var(--green);
+      vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .ghost {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 220px;
+      text-align: center;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--red);
+      opacity: 0;
+      padding: 0 40px;
+    }
+    .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 440px;
+      text-align: center;
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--gray-2);
+      opacity: 0;
+      padding: 0 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="ghost" id="ghost">不好意思再问</div>
+    <div class="phone" id="phone">
+      <div class="wx-header">
+        <div class="avatar" id="av">张</div>
+        <div class="wx-name" id="name">张总</div>
+      </div>
+      <div class="composer">
+        <div class="typed" id="typed"><span class="cursor"></span></div>
+      </div>
+    </div>
+    <div class="caption" id="caption">漏一次客户就急</div>
+  </div>
+  <script>
+    const data = window.getData();
+    const text = data.typing || "张总，不好意思再问";
+    const contact = data.contact || "张总";
+    document.getElementById("name").textContent = contact;
+    document.getElementById("av").textContent = contact.charAt(0);
+    if (data.ghost) document.getElementById("ghost").textContent = data.ghost;
+    if (data.caption) document.getElementById("caption").textContent = data.caption;
+
+    const typed = document.getElementById("typed");
+    const tl = gsap.timeline();
+
+    let i = 0;
+    tl.call(() => {
+      const tick = () => {
+        if (i < text.length) {
+          typed.innerHTML = text.slice(0, i + 1) + '<span class="cursor"></span>';
+          i++;
+          gsap.delayedCall(0.09, tick);
+        }
+      };
+      tick();
+    }, null, 0.2);
+
+    tl.to("#typed", { opacity: 0.35, duration: 0.12, repeat: 3, yoyo: true }, 1.8);
+    tl.call(() => { typed.innerHTML = '<span class="cursor"></span>'; }, null, 2.2);
+    tl.fromTo("#ghost", { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.35, ease: "power3.out" }, 2.3);
+    tl.to("#phone", { filter: "brightness(0.55)", duration: 0.4 }, 2.6);
+    tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, 2.8);
+    tl.to({}, { duration: 0.5 }, 3.4);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

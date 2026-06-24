@@ -1,4 +1,7 @@
 status: approved
+content_version: v1
+form_version: v2
+form_publish_pass: true
 topic_id: T014
 project_id: W26D06
 week_id: 2026-W26
@@ -18,10 +21,12 @@ decisions:
   script_choice: vA
   douyin:
     format: F1
+    render_route: p004_gsap
     title: 3人电商，退货对账对到差800块找不到
   xhs:
-    format: F4
-    title: 小电商退货一张表：平台+微信+仓库对齐
+    format: video_reuse
+    delivery: video_reuse
+    title: 3人电商，退货对账对到差800块找不到
 revisions:
 - CTA 改讨论型
 - 803→差800口语

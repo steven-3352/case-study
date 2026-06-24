@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D04 Silent Row</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .list {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      top: 360px;
+      background: #111;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid #333;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 80px 1fr 120px;
+      align-items: center;
+      padding: 28px 24px;
+      border-bottom: 1px solid #2a2a2a;
+      opacity: 0;
+    }
+    .av {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .av.off { filter: grayscale(1); opacity: 0.35; }
+    .name { font-size: 34px; font-weight: 700; color: var(--gray-1); }
+    .status { font-size: 28px; color: var(--gray-4); text-align: right; }
+    .status.silent { color: var(--red); letter-spacing: 6px; }
+    .quote {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 260px;
+      text-align: center;
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--orange);
+      opacity: 0;
+      padding: 0 50px;
+    }
+    .sub {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 480px;
+      text-align: center;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--gray-3);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="quote" id="quote">静默流失最心疼</div>
+    <div class="list" id="list">
+      <div class="row" id="r1"><div class="av">张</div><div class="name">张阿姨</div><div class="status silent">···</div></div>
+      <div class="row" id="r2"><div class="av off">李</div><div class="name">李叔</div><div class="status silent">···</div></div>
+      <div class="row" id="r3"><div class="av off">王</div><div class="name">王姐</div><div class="status silent">···</div></div>
+    </div>
+    <div class="sub" id="sub">人还在列表里 · 对话停了</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.pain_lead) document.getElementById("quote").textContent = data.pain_lead;
+    if (data.pain_extra) document.getElementById("sub").textContent = data.pain_extra;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#quote", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
+    tl.to(".row", { opacity: 1, duration: 0.25, stagger: 0.12 }, 0.3);
+    tl.to("#r1 .status", { letterSpacing: "12px", duration: 0.4, repeat: 2, yoyo: true }, 0.8);
+    tl.to(["#r2", "#r3"], { opacity: 0.45, duration: 0.35 }, 1.2);
+    tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 1.5);
+    tl.to("#list", { filter: "brightness(0.75)", duration: 0.4 }, 1.8);
+    tl.to({}, { duration: 0.5 }, 2.4);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

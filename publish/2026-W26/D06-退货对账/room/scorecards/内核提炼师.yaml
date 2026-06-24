@@ -1,0 +1,39 @@
+# D06 · 内核提炼师 · scorecard · Round 1 · v1 · PASS
+# 独立互评 · review_mode: independent
+role: 内核提炼师
+artifact: insights/core_message.md
+artifact_version: v1-insights
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 事实校验员
+  review_mode: independent
+  angle: 边界与P0
+  score: 91
+  verdict: pass
+  notes: '钩子「复购靠Excel」与v1首句呼应；价值锚1次。
+
+    扣(-5)：core_message节拍表仍写18-28s四字段，v1改「一行看清」须在beat sheet对齐——已对齐v1。
+
+    扣(-4)：P0「服务触达」在core未单列，靠脚本示例承载。
+
+    insights+beat v1一致后pass。
+
+    '
+- reviewer_id: 编剧
+  review_mode: independent
+  angle: 可引用性
+  score: 90
+  verdict: pass
+  notes: '编剧仅引用本表，无自增卖点；v1价值锚位置合规。
+
+    扣(-6)：编剧scorecard独立91.5，内核不参与自评——本评只验core_message文件。
+
+    扣(-4)：禁用表述与fact_check衔接清晰。
+
+    90 pass。
+
+    '
+avg_score: 90.5
+pass: true
+optimization_round: 1

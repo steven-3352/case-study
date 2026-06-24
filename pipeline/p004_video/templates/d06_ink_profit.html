@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D06 Ink Profit</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #f4efe6;
+      font-family: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      color: #2c2416;
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: #f4efe6;
+    }
+    .paper {
+      position: absolute; left: 100px; right: 100px; top: 420px; bottom: 520px;
+      background: #faf7f2;
+      border: 1px solid #d4cfc4;
+      box-shadow: 0 6px 24px rgba(44,36,22,0.1);
+      border-radius: 2px;
+      opacity: 0;
+    }
+    .paper::before {
+      content: ""; position: absolute; left: 60px; top: 0; bottom: 0; width: 2px;
+      background: #ffcdd2; opacity: 0.5;
+    }
+    .ruled {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(transparent 0 47px, #e8e0d4 47px 48px);
+    }
+    .sketch-wrap {
+      position: absolute; left: 50%; top: 580px; transform: translateX(-50%);
+      width: 600px; height: 400px;
+    }
+    .ink-main {
+      font-family: "Kaiti SC", "STKaiti", "PingFang SC", cursive;
+      font-size: 180px; font-weight: 900; color: #1a1a1a;
+      text-align: center; line-height: 1;
+      opacity: 0;
+    }
+    .ink-main .q {
+      color: #c62828; display: inline-block;
+      transform-origin: bottom center;
+    }
+    .ink-underline {
+      position: absolute; left: 80px; right: 80px; bottom: 120px; height: 6px;
+      background: #c62828; border-radius: 3px;
+      transform: scaleX(0); transform-origin: left center;
+    }
+    .ink-scribble {
+      position: absolute; right: 40px; top: 60px;
+      width: 120px; height: 80px; opacity: 0;
+    }
+    .sub {
+      position: absolute; left: 0; right: 0; top: 980px;
+      text-align: center; font-size: 52px; font-weight: 700; color: #6b6355;
+      opacity: 0; font-family: "Kaiti SC", cursive;
+    }
+    .sub .emph { color: #c62828; font-weight: 900; }
+    .smudge {
+      position: absolute; width: 80px; height: 40px;
+      background: radial-gradient(ellipse, rgba(26,26,26,0.08) 0%, transparent 70%);
+      opacity: 0;
+    }
+    .smudge.s1 { left: 200px; top: 700px; }
+    .smudge.s2 { right: 180px; top: 760px; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="paper" id="paper"><div class="ruled"></div></div>
+    <div class="sketch-wrap">
+      <div class="ink-main" id="main"><span id="line">利润</span><span class="q" id="qmark">？</span></div>
+      <div class="ink-underline" id="underline"></div>
+      <svg class="ink-scribble" id="scribble" viewBox="0 0 120 80">
+        <path d="M10,60 Q40,10 70,50 T110,30" fill="none" stroke="#c62828" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="200" stroke-dashoffset="200"/>
+      </svg>
+    </div>
+    <div class="smudge s1" id="sm1"></div>
+    <div class="smudge s2" id="sm2"></div>
+    <div class="sub" id="sub"><span class="emph">月底</span>靠猜</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.line) {
+      const txt = data.line.replace("?", "");
+      document.getElementById("line").textContent = txt;
+    }
+    if (data.sub) {
+      const parts = data.sub.split("靠猜");
+      document.getElementById("sub").innerHTML =
+        `<span class="emph">${parts[0] || "月底"}</span>靠猜`;
+    }
+
+    const tl = gsap.timeline();
+    tl.fromTo("#paper", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 0);
+    tl.fromTo("#main", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, 0.2);
+    tl.fromTo("#qmark", { opacity: 0, scale: 0, rotation: -30 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.35, ease: "back.out(3)" }, 0.5);
+    tl.to("#underline", { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, 0.7);
+    tl.to("#scribble path", { strokeDashoffset: 0, duration: 0.5, ease: "power1.inOut" }, 0.8);
+    tl.to("#scribble", { opacity: 0.7, duration: 0.2 }, 0.8);
+    tl.to("#sm1, #sm2", { opacity: 1, duration: 0.25 }, 1.0);
+    tl.fromTo("#sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35 }, 1.3);
+    tl.to("#qmark", { scale: 1.15, duration: 0.15, yoyo: true, repeat: 2 }, 1.5);
+    tl.to({}, { duration: 0.8 }, 2.2);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

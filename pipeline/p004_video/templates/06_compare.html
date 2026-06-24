@@ -113,6 +113,7 @@
 
   <script>
     const data = window.getData();
+    const mode = data.mode || "price";
     const out = data.outsource || { price: 500, time: "5 天", label: "外包" };
     const agt = data.agent || { price: 2, time: "10 分钟", label: "Agent" };
 
@@ -120,6 +121,13 @@
     document.getElementById("l-time").textContent = out.time;
     document.getElementById("r-label").textContent = agt.label;
     document.getElementById("r-time").textContent = agt.time;
+
+    const lPriceEl = document.querySelector("#col-left .price");
+    const rPriceEl = document.querySelector("#col-right .price");
+    if (mode === "reach") {
+      lPriceEl.innerHTML = `<span id="l-price">${out.price}</span><span style="font-size:0.45em;color:var(--gray-2)">${out.unit || ""}</span>`;
+      rPriceEl.innerHTML = `<span id="r-price">${agt.price}</span>`;
+    }
 
     const tl = gsap.timeline();
 
@@ -131,8 +139,13 @@
     tl.fromTo("#vs", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 0.5);
 
     // 0.8s · 数字滚出
-    tl.add(window.countUp("#l-price", 0, out.price, { duration: 0.8 }), 0.8);
-    tl.add(window.countUp("#r-price", 0, agt.price, { duration: 0.8 }), 0.8);
+    if (mode === "reach") {
+      tl.fromTo("#l-price", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 0.8);
+      tl.fromTo("#r-price", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 1.0);
+    } else {
+      tl.add(window.countUp("#l-price", 0, out.price, { duration: 0.8 }), 0.8);
+      tl.add(window.countUp("#r-price", 0, agt.price, { duration: 0.8 }), 0.8);
+    }
 
     // 2.0s · 外包数字打叉
     tl.to(".col.left .price::after", {}, 2.0); // placeholder

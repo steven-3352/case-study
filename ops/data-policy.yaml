@@ -33,7 +33,7 @@ forbidden:
 
 project_vs_content:
   project: "页面、表单、邮件、内容产出 → 必须能录屏展示"
-  content_metrics: "发布后的曝光/赞/藏/评 → 发布后填 metrics.csv"
+  content_metrics: "发布后的曝光/赞/藏/评 → fetch_platform_metrics.py 或 metrics.csv"
   project_effects: "留资、转化 → A或B层，无则C层叙事"
 
 review_checklist:

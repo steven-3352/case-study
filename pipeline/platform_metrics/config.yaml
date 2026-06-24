@@ -1,0 +1,58 @@
+# 平台数据拉取配置 · 勿提交 session 文件（已在 .gitignore）
+
+# 账号标识（仅用于日志，不含密钥）
+accounts:
+  douyin:
+    label: "抖音创作者中心"
+    login_url: "https://creator.douyin.com/"
+    content_url: "https://creator.douyin.com/creator-micro/content/manage"
+    session_file: "ops/platform_sessions/douyin_state.json"
+  xhs:
+    label: "小红书创作服务平台"
+    login_url: "https://creator.xiaohongshu.com/login"
+    content_url: "https://creator.xiaohongshu.com/new/note-manager"
+    session_file: "ops/platform_sessions/xhs_state.json"
+
+# 匹配发布条目：按标题/hook 关键词在列表页找行
+match:
+  title_fields: ["title", "hook"]  # 从 projects/*/content.yaml 读取
+  fallback: project_id             # 匹配失败时用 publish.md 首行
+
+# 拉取字段映射 → performance.yaml / metrics.csv
+field_map:
+  douyin:
+    views: ["播放量", "播放", "views"]
+    likes: ["点赞", "likes"]
+    comments: ["评论", "comments"]
+    shares: ["分享", "shares"]
+    completion_rate: ["完播率", "completion"]
+    completion_3s: ["3s完播", "3秒完播", "3s"]
+    avg_watch_s: ["平均播放时长", "均播", "avg"]
+  xhs:
+    views: ["观看量", "浏览", "曝光"]
+    likes: ["点赞", "likes"]
+    comments: ["评论", "comments"]
+    collects: ["收藏", "collects"]
+
+# 可选：第三方 / 官方 API（有 key 时启用，优先于 Playwright）
+api:
+  douyin:
+    enabled: false
+    # 抖音开放平台 / 巨量 · 需企业资质 · 文档见 platform_metrics_fetch.md
+    app_id: ""
+    app_secret: ""
+  xhs:
+    enabled: false
+
+fetch:
+  headless: true
+  timeout_ms: 30000
+  wait_after_nav_ms: 2000
+
+# 定时任务 · 默认关闭（改用手动 48h 导入 · import_metrics_48h.py）
+scheduler:
+  enabled: false
+  times: ["09:00", "21:00"]
+  platforms: [douyin, xhs]
+  week_dir: publish/2026-W26
+  on_session_expired: dialog_login

@@ -1,0 +1,38 @@
+# D04 · 编导 · scorecard · Round 7 Phase B · v10 · PASS
+role: 编导
+artifact: douyin/video.mp4
+artifact_version: v11
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 制片-质控
+  review_mode: independent
+  angle: 外发包
+  score: 91
+  verdict: pass
+  notes: 'v10全链路：脚本91.5+动效CREATIVE+48s mp4+cover。
+
+    扣(-5)：VO尾裁切；MiniMax→Edge回落已记。
+
+    扣(-4)：Phase B 5工种复评完成，非手填gates。
+
+    91 pass approve候选。
+
+    '
+- reviewer_id: 留存与互动设计师
+  review_mode: independent
+  angle: 账号敢发
+  score: 90
+  verdict: pass
+  notes: '敢代表账号发；Excel/wechat两镜有辨识度。
+
+    扣(-6)：CTA口播不全，评论区钩子弱半拍。
+
+    扣(-4)：下批修duration后更稳。
+
+    90 pass。
+
+    '
+avg_score: 90.5
+pass: true
+optimization_round: 7

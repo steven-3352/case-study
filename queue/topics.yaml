@@ -212,7 +212,7 @@ topics:
     platforms: [抖音, 小红书]
     priority: P0
     status: in_production
-    note: "F2 抖音 / F1 小红书"
+    note: "F2 抖音 / F1 小红书 · evolution_required · 见 publish/2026-W26/D05-催票轮回/design/evolution_overlay.md"
     source: publish/2026-W26/D05-催票轮回/
 
   - id: T014
@@ -297,7 +297,7 @@ topics:
     platforms: [抖音, 小红书]
     priority: P0
     status: in_production
-    note: "F2 抖音 / F1 小红书"
+    note: "F2 抖音 / F1 小红书 · evolution_required · 见 publish/2026-W26/D05-催票轮回/design/evolution_overlay.md"
     source: publish/2026-W26/D05-催票轮回/
 
   - id: T014

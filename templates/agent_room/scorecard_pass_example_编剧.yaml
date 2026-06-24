@@ -1,0 +1,36 @@
+# pass 参考 · 编剧 · 90+ 真实互评长什么样（对照用，不参与 gate）
+
+role: 编剧
+artifact: scripts/vD.md
+artifact_version: v6
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 纪录片导演
+    review_mode: independent
+    angle: 叙事与场景
+    score: 93
+    verdict: pass
+    notes: |
+      场景入戏 23/25：周三到场 + 开表鼠标停顿 + 翻通讯录动作完整。
+      原话 5/5 嵌入自然；「打姐又删」落地触达无模板 P0。
+      扣(-7)：改法段「表变红」仍略 lecture，建议改成老板次日截图一句。
+      改法：删抽象总结，加可见结果句后再 render。
+
+  - reviewer_id: 内核提炼师
+    review_mode: independent
+    angle: P0与原话消费
+    score: 91
+    verdict: pass
+    notes: |
+      P0 四条全有叙事落点；无购买日/周期字段连读（script_standards ✓）。
+      三版 v0走访/vA数字/vB单原话 结构互异，非 stub。
+      扣(-9)：312 未加「约」与 fact_check 区间化对齐。
+      改法：口播加「约312」或「三百出头」半句。
+
+avg_score: 92.0
+pass: true
+optimization_round: 3
+
+# 本文件仅作 rubric 对照，不参与 week_build 校验

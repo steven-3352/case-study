@@ -1,0 +1,29 @@
+# 工种双人互评打分卡 · 单工种模板
+# 复制到 publish/{week}/Dxx-*/room/scorecards/{工种}.yaml
+# 铁律：≥2 独立 Agent · review_mode: independent · avg ≥90
+# 详规：templates/design/scorecard_enforcement.md
+
+role: 编剧
+artifact: scripts/vD.md
+artifact_version: v6          # 产出层须与 verdict.content_version 一致
+invalidated_by: ""            # 变更后填 content_version，pass 须 false 直至重评
+
+pass_threshold: 90
+
+reviewers:                    # 必须 ≥2 · 独立 Agent 填写 · 禁止产出者自评
+  - reviewer_id: 纪录片导演
+    review_mode: independent  # 必填 · gate_check 验
+    angle: 叙事与场景
+    score: 0
+    verdict: pending          # pass | fail（须与 score 一致）
+    notes: ""                 # pass 时 ≥40 字 + 扣分项 + 可改动作
+  - reviewer_id: 留存与互动设计师
+    review_mode: independent
+    angle: 节奏与 P0 覆盖
+    score: 0
+    verdict: pending
+    notes: ""
+
+avg_score: 0
+pass: false                   # 产出者写完 artifact 后保持 false，直至 2 位独立评审 ≥90
+optimization_round: 0

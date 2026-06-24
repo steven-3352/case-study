@@ -1,0 +1,13 @@
+# D06 · 形式层 v1 诚实审计（作废 · 换皮不换骨）
+# 2026-06-24 · 用户指认 weekly 同质
+content_version: v1
+form_version: v1
+status: form_fail
+
+form_layer_honest_avg: 72
+fail_reasons:
+  - 与 D04/D05 共用 dark P004 族（style.css #0a0e14）
+  - 首镜大红数字 punch + 暗色微信 + 对比卡 · 换 d06_ 前缀
+  - 纸面 scorecard 从 D04 复制 · 非独立互评
+
+verdict: 内容/TTS 保留 · 形式 v1 fail · v2 纸质账本重做

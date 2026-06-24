@@ -1,0 +1,30 @@
+# D06 · 形式选型师 · form v2 · PASS
+role: 形式选型师
+artifact: design/format_spec.md
+artifact_version: v1·form-v2
+invalidated_by: ""
+pass_threshold: 90
+reviewers:
+- reviewer_id: 动效设计师
+  review_mode: independent
+  angle: brief兑现
+  score: 93
+  verdict: pass
+  notes: 'brief 纸账本 vs D05暗色微信 · 一眼不同。
+
+    扣(-4)：四摞纸与ledger衔接可更紧。
+
+    93 pass。'
+- reviewer_id: 平台表现分析师
+  review_mode: independent
+  angle: 同质审计
+  score: 91
+  verdict: pass
+  notes: '无style.css · 无bg-deep · form_audit_v1归档。
+
+    扣(-5)：仍用p004 pipeline但视觉族换新。
+
+    91 pass。'
+avg_score: 92.0
+pass: true
+optimization_round: 1

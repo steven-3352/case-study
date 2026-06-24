@@ -34,6 +34,7 @@ publish/2026-W26/
 ```bash
 python3 pipeline/week_build.py              # 文案 + content.yaml
 python3 pipeline/week_build.py --render     # 并渲染视频
+python3 pipeline/gate_check.py --all      # 铁律门禁（fail-closed）
 ```
 
 ## 形式说明

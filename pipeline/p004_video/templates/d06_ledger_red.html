@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D06 Ledger Red</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #f4efe6;
+      font-family: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      color: #2c2416;
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: #f4efe6;
+    }
+    .paper-edge {
+      position: absolute; left: 32px; right: 32px; top: 240px; bottom: 420px;
+      background: #faf7f2; border: 1px solid #d4cfc4;
+      box-shadow: 0 4px 20px rgba(44,36,22,0.08);
+      border-radius: 4px;
+    }
+    .title {
+      position: absolute; left: 0; right: 0; top: 270px;
+      text-align: center; font-size: 34px; font-weight: 800; color: #217346;
+      opacity: 0; z-index: 2;
+    }
+    .excel-win {
+      position: absolute; left: 48px; right: 48px; top: 340px;
+      border-radius: 6px; overflow: hidden;
+      border: 2px solid #b8b8b8;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(44,36,22,0.1);
+      opacity: 0; z-index: 2;
+    }
+    .excel-bar {
+      height: 56px; background: #217346;
+      display: flex; align-items: center; padding: 0 20px;
+      color: #fff; font-size: 26px; font-weight: 700; gap: 12px;
+    }
+    .excel-bar .dots { display: flex; gap: 6px; margin-right: 12px; }
+    .excel-bar .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+    .toolbar {
+      height: 40px; background: #f3f3f3; border-bottom: 1px solid #ddd;
+      display: flex; align-items: center; padding: 0 16px; gap: 20px;
+      font-size: 20px; color: #666;
+    }
+    .trow {
+      display: grid; grid-template-columns: 0.9fr 0.7fr 0.9fr 0.9fr 0.7fr;
+      font-family: "Segoe UI", "PingFang SC", sans-serif;
+      font-size: 24px; border-bottom: 1px solid #e8e8e8;
+      min-height: 56px; align-items: center; opacity: 0;
+    }
+    .trow.head {
+      background: #e8f5e9; font-weight: 800; font-size: 22px;
+      color: #1b5e20; opacity: 1;
+    }
+    .cell { padding: 12px 10px; border-right: 1px solid #eee; text-align: center; color: #333; }
+    .cell.ok { color: #2e7d32; font-weight: 700; }
+    .cell.bad { color: #c62828; font-weight: 700; }
+    .trow.mismatch { background: #ffebee; }
+    .trow.mismatch .cell { color: #b71c1c; font-weight: 800; }
+    .trow.mismatch .cell.status { background: #ffcdd2; animation: pulseRed 0.6s infinite alternate; }
+    @keyframes pulseRed { from { background: #ffcdd2; } to { background: #ef9a9a; } }
+    .trow.aligned { background: #f1f8e9; }
+    .trow.aligned .cell.status { color: #2e7d32; font-weight: 800; }
+    .red-pen {
+      position: absolute; right: 80px; top: 700px; z-index: 5;
+      font-size: 28px; color: #c62828; font-weight: 900;
+      opacity: 0; transform: rotate(-12deg);
+      font-family: "Kaiti SC", cursive;
+    }
+    .red-pen::before { content: "✎ "; }
+    .anchor {
+      position: absolute; left: 0; right: 0; bottom: 480px;
+      text-align: center; font-size: 44px; font-weight: 800; color: #c62828;
+      opacity: 0; padding: 0 50px; line-height: 1.35; z-index: 2;
+    }
+    .stamp-red {
+      position: absolute; right: 70px; top: 880px; z-index: 6;
+      border: 6px solid #c62828; color: #c62828;
+      font-size: 56px; font-weight: 900; padding: 10px 22px;
+      transform: rotate(-14deg) scale(2); opacity: 0;
+      mix-blend-mode: multiply; background: rgba(198,40,40,0.05);
+    }
+    .highlight-bar {
+      position: absolute; left: 48px; right: 48px; height: 56px;
+      background: rgba(198,40,40,0.12); border-left: 4px solid #c62828;
+      opacity: 0; pointer-events: none; z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="paper-edge"></div>
+    <div class="title" id="title">退货对账 · 一表对齐</div>
+    <div class="excel-win" id="wrap">
+      <div class="excel-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        📊 退货对账总表.xlsx
+      </div>
+      <div class="toolbar">文件 · 编辑 · 视图 · 筛选 ▾</div>
+      <div id="sheet">
+        <div class="trow head">
+          <div class="cell">订单</div><div class="cell">平台</div>
+          <div class="cell">支付宝</div><div class="cell">仓库</div><div class="cell">状态</div>
+        </div>
+      </div>
+    </div>
+    <div class="highlight-bar" id="hbar"></div>
+    <div class="red-pen" id="pen">标红差异行</div>
+    <div class="stamp-red" id="stamp">标红</div>
+    <div class="anchor" id="anchor">差异行标红 · 月底不用猜利润</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.title) document.getElementById("title").textContent = data.title;
+    if (data.value_anchor) document.getElementById("anchor").textContent = data.value_anchor;
+    const rows = data.rows || [
+      ["#1047", "平台✓", "支付宝✗", "仓库✗", "标红"],
+      ["#1052", "平台✓", "支付宝✓", "仓库✗", "标红"],
+      ["#1061", "平台✓", "支付宝✓", "仓库✓", "对齐"]
+    ];
+    const sheet = document.getElementById("sheet");
+    const bodyRows = [];
+    rows.forEach(r => {
+      const row = document.createElement("div");
+      const isRed = r[4] === "标红";
+      row.className = "trow body" + (isRed ? " mismatch" : " aligned");
+      row.innerHTML = r.map((c, i) => {
+        let cls = "cell";
+        if (i === 4) cls += " status";
+        if (c.includes("✓")) cls += " ok";
+        if (c.includes("✗")) cls += " bad";
+        return `<div class="${cls}">${c}</div>`;
+      }).join("");
+      sheet.appendChild(row);
+      bodyRows.push(row);
+    });
+
+    const tl = gsap.timeline();
+    tl.to("#title", { opacity: 1, duration: 0.3 }, 0);
+    tl.fromTo("#wrap", { opacity: 0, y: 40, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power2.out" }, 0.2);
+    tl.fromTo(bodyRows, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.5 }, 0.6);
+
+    bodyRows.forEach((row, i) => {
+      if (row.classList.contains("mismatch")) {
+        const t = 2.0 + i * 1.8;
+        tl.to("#hbar", { opacity: 1, top: 340 + 96 + 40 + i * 56, duration: 0.25 }, t);
+        tl.to(row, { backgroundColor: "#ffcdd2", duration: 0.3 }, t + 0.1);
+        tl.to(row.querySelector(".status"), { scale: 1.1, duration: 0.15, yoyo: true, repeat: 2 }, t + 0.3);
+      }
+    });
+
+    tl.fromTo("#pen", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4 }, 3.5);
+    tl.to("#pen", { x: -200, y: 120, duration: 1.2, ease: "power1.inOut" }, 4.0);
+    tl.fromTo("#stamp", { opacity: 0, scale: 3, rotation: -25 }, { opacity: 0.88, scale: 1, rotation: -14, duration: 0.4, ease: "back.out(2)" }, 5.5);
+    tl.to("#wrap", { x: "+=3", duration: 0.04, repeat: 2, yoyo: true }, 5.55);
+    tl.fromTo("#anchor", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 7.0);
+    tl.to(".mismatch", { boxShadow: "inset 0 0 0 3px #c62828", duration: 0.3, stagger: 0.15 }, 8.0);
+    tl.to("#hbar", { opacity: 0, duration: 0.3 }, 9.0);
+    tl.to({}, { duration: 1.5 }, 9.5);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

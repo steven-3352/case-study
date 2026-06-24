@@ -14,6 +14,7 @@
 | 可读性 | 小屏缩略 1:1 仍可读；对比度 ≥4.5:1 | 暗底 + 细金边 kicker 糊成一团 |
 | 形式对齐 | F2 强钩子 ≠ 纯 typography；宜叠 chat/metric 角标 | F2 却用默认 `cover_png` 无图回落 |
 | **抖音原生** | **成片定格 `video_frame` 或全屏 `douyin_punch`** | **light_split / phone_ui 分屏+桌面窗口 mock** |
+| **动效** | 抖音 video.mp4 · 小红书 P007 GSAP 漫画帧 | **静态 PNG / PPT 分屏 / Ken Burns slideshow** |
 
 ## 抖音封面专用（平台原生策划签字）
 

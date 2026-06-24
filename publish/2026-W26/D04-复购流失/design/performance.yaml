@@ -1,0 +1,54 @@
+project_id: W26D04
+content_version: v11
+form_version: v11
+topic_id: T012
+published_at: null
+retro_status: pending_actual
+platforms:
+  douyin:
+    mp4_s: 55.5
+    vo_s: 50.54
+    cover_at_s: 1.0
+    forecast:
+      completion_3s:
+      - 0.58
+      - 0.68
+      completion_rate:
+      - 0.18
+      - 0.24
+      interaction_rate:
+      - 0.022
+      - 0.035
+      avg_watch_s:
+      - 12
+      - 18
+      grade: B
+    actual:
+      completion_3s: null
+      completion_rate: null
+      interaction_rate: null
+      avg_watch_s: null
+      views: null
+      likes: null
+      comments: null
+      shares: null
+      profile_visits: null
+  xhs:
+    delivery: carousel_p007
+    forecast:
+      collect_rate:
+      - 0.04
+      - 0.08
+    actual:
+      views: null
+      likes: null
+      collects: null
+form_audit:
+  v10_honest_avg: 81
+  v11_exclusive: 7
+  v11_catalog_ratio: 0.0
+variance: {}
+learnings: []
+evolution_actions: []
+fetched_at: null
+fetch_source: null

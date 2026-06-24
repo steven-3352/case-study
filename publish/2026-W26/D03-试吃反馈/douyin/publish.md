@@ -30,8 +30,8 @@
 发过试吃/体验装的，反馈现在记在哪？评论区说说。
 
 ## 封面
-成片定格 @1.2s：反馈17份 / 试吃不是发货就完事
-封面图：`publish/2026-W26/D03-试吃反馈/douyin/cover.png`（video_frame，与视频首镜一致）
+大字钩子：
+封面图：`publish/2026-W26/D03-试吃反馈/douyin/cover.png`
 
 ## 素材
 - 视频：`publish/2026-W26/D03-试吃反馈/douyin/video.mp4`

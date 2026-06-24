@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -230,7 +231,24 @@ def main() -> None:
     ap.add_argument("--no-subtitle", action="store_true")
     args = ap.parse_args()
 
-    video_cfg, scenes = load_storyboard(args.storyboard.resolve())
+    sb = args.storyboard.resolve()
+    m = re.search(r"W26D0([4-7])", str(sb))
+    if m:
+        day_map = {
+            "4": "D04-复购流失",
+            "5": "D05-催票轮回",
+            "6": "D06-退货对账",
+            "7": "D07-流程断档",
+        }
+        day_name = day_map.get(m.group(1))
+        if day_name:
+            day_dir = PROJECT_ROOT / "publish" / "2026-W26" / day_name
+            if day_dir.exists():
+                sys.path.insert(0, str(PROJECT_ROOT))
+                from pipeline.gate_check import assert_paid_work_allowed
+                assert_paid_work_allowed(day_dir, operation="P004 build")
+
+    video_cfg, scenes = load_storyboard(sb)
     fps = int(video_cfg.get("fps", 30))
     width = int(video_cfg.get("width", 1080))
     height = int(video_cfg.get("height", 1920))
@@ -242,7 +260,7 @@ def main() -> None:
     if not args.skip_capture:
         print("Phase 1 · 截帧 (scene + subtitles)")
         cmd = [sys.executable, str(ROOT / "capture_frames.py"), "--all",
-               "--storyboard", str(args.storyboard)]
+               "--storyboard", str(sb)]
         res = subprocess.run(cmd, cwd=str(PROJECT_ROOT))
         if res.returncode != 0:
             sys.exit("scene 截帧失败")

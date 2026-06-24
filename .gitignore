@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+ops/logs/
+ops/platform_sessions/
 out/_seg/
 out/_*.png
 *.mp3

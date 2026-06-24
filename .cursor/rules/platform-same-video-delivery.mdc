@@ -1,0 +1,34 @@
+---
+description: 小红书默认复用抖音成片，除非用户明确要求出图文
+alwaysApply: true
+---
+
+# 平台交付 · 同素材策略
+
+## 默认规则（2026-06-24 起 · W26D05+）
+
+1. **抖音与小红书使用相同视频素材**（`douyin/video.mp4` + `cover.png`）
+2. **禁止**为小红书额外产出 P007 轮播 / 报纸图文 / carousel，除非用户**明确要求**「出图文」
+3. 小红书 `publish.md` 标注 `delivery: video_reuse` · 素材路径指向 `../douyin/video.mp4`
+4. `content.yaml` 中 `xhs.segments: []` · `xhs.delivery: video_reuse`
+
+## meta.yaml 写法
+
+```yaml
+formats:
+  douyin: F2
+  xhs: video_reuse   # 或保留 F 编号但 delivery 为 video_reuse
+delivery:
+  xhs: video_reuse
+  note: 与抖音同 mp4，用户未要求不出图文
+```
+
+## 禁止
+
+- ❌ 自动创建 `xhs/carousel/` 或 `storyboard_carousel.yaml`
+- ❌ 平台原生策划为 xhs 单独选 F4 报纸风（无用户指令时）
+- ❌ week_build 为 xhs 生成与抖音不同的 segments
+
+## 例外
+
+用户消息含「出图文」「做轮播」「小红书单独」→ 才走 P007 / F4 carousel 流程。

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D06 Paper Receipt</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #f4efe6;
+      font-family: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      color: #2c2416;
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: linear-gradient(180deg, #ebe4d8 0%, #f4efe6 40%, #f4efe6 100%);
+    }
+    .desk-shadow {
+      position: absolute; left: 80px; right: 80px; top: 280px; height: 1200px;
+      background: radial-gradient(ellipse at center, rgba(44,36,22,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .receipt-wrap {
+      position: absolute; left: 120px; right: 120px; top: 320px;
+      transform-origin: top center; overflow: hidden;
+    }
+    .receipt {
+      background: #faf7f2;
+      border: 1px solid #d4cfc4;
+      box-shadow: 0 8px 32px rgba(44,36,22,0.12), 0 2px 8px rgba(44,36,22,0.06);
+      padding: 36px 32px 48px;
+      font-family: "Courier New", "SF Mono", Menlo, monospace;
+      position: relative;
+    }
+    .receipt::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 24px;
+      background: repeating-linear-gradient(90deg, transparent 0 8px, #faf7f2 8px 16px);
+      mask: radial-gradient(circle at 8px 12px, transparent 8px, #000 8px);
+      -webkit-mask: radial-gradient(circle at 8px 12px, transparent 8px, #000 8px);
+      mask-size: 16px 24px; -webkit-mask-size: 16px 24px;
+    }
+    .receipt-head {
+      text-align: center; font-size: 28px; color: #6b6355;
+      letter-spacing: 6px; border-bottom: 2px dashed #c4bdb0;
+      padding-bottom: 20px; margin-bottom: 24px;
+    }
+    .receipt-head .shop { font-size: 34px; font-weight: 800; color: #2c2416; letter-spacing: 2px; margin-bottom: 8px; }
+    .line {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 26px; color: #3d3528; padding: 10px 0;
+      border-bottom: 1px dotted #ddd8cc; opacity: 0;
+    }
+    .line .amt { font-weight: 700; }
+    .line.warn .amt { color: #c62828; }
+    .total-row {
+      margin-top: 28px; padding-top: 20px; border-top: 2px solid #2c2416;
+      display: flex; justify-content: space-between; font-size: 32px; font-weight: 900;
+      opacity: 0;
+    }
+    .total-row .gap { color: #c62828; font-size: 40px; }
+    .kicker {
+      position: absolute; left: 0; right: 0; bottom: 480px;
+      text-align: center; font-size: 40px; font-weight: 700; color: #6b6355;
+      opacity: 0; padding: 0 60px;
+    }
+    .stamp {
+      position: absolute; left: 50%; top: 920px;
+      transform: translateX(-50%) rotate(-8deg) scale(2.5);
+      border: 8px solid #c62828; color: #c62828;
+      font-size: 52px; font-weight: 900; letter-spacing: 4px;
+      padding: 16px 28px; border-radius: 8px;
+      font-family: "PingFang SC", sans-serif;
+      opacity: 0;
+      mix-blend-mode: multiply;
+      background: rgba(198,40,40,0.06);
+    }
+    .stamp .yen { font-size: 44px; }
+    .returns-tag {
+      position: absolute; left: 0; right: 0; top: 1180px;
+      text-align: center; font-size: 36px; color: #8b7355;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="desk-shadow"></div>
+    <div class="receipt-wrap" id="wrap">
+      <div class="receipt" id="receipt">
+        <div class="receipt-head">
+          <div class="shop">退货对账小票</div>
+          <div>THERMAL RECEIPT · 2026-06</div>
+        </div>
+        <div class="line" id="l1"><span>退单 #1047</span><span class="amt">-¥128.00</span></div>
+        <div class="line" id="l2"><span>退单 #1052</span><span class="amt">-¥256.00</span></div>
+        <div class="line warn" id="l3"><span>退单 #1061 · 未对齐</span><span class="amt">-¥419.00</span></div>
+        <div class="line" id="l4"><span>已核对笔数</span><span class="amt" id="returns">47 笔</span></div>
+        <div class="total-row" id="total">
+          <span>差额</span>
+          <span class="gap">¥<span id="gap">803</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="stamp" id="stamp"><span class="yen">¥</span><span id="stampAmt">803</span> MISSING</div>
+    <div class="returns-tag" id="meta"><span id="retCount">47</span>笔退 · 对完还差</div>
+    <div class="kicker" id="kicker">三人电商 · 对完找不到</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.gap) {
+      document.getElementById("gap").textContent = data.gap;
+      document.getElementById("stampAmt").textContent = data.gap;
+    }
+    if (data.returns) {
+      document.getElementById("returns").textContent = data.returns + " 笔";
+      document.getElementById("retCount").textContent = data.returns;
+    }
+    if (data.kicker) document.getElementById("kicker").textContent = data.kicker;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#wrap", { scaleY: 0, opacity: 0.6 }, { scaleY: 1, opacity: 1, duration: 0.7, ease: "power2.out" }, 0);
+    tl.fromTo("#receipt", { y: -40 }, { y: 0, duration: 0.5, ease: "power1.out" }, 0.1);
+    tl.to(".line", { opacity: 1, duration: 0.18, stagger: 0.15, ease: "power1.out" }, 0.5);
+    tl.to("#total", { opacity: 1, duration: 0.25 }, 1.1);
+    tl.to("#total .gap", { scale: 1.12, duration: 0.2, yoyo: true, repeat: 2, transformOrigin: "right center" }, 1.3);
+    tl.fromTo("#stamp", { opacity: 0, scale: 3, rotation: -20 }, { opacity: 0.92, scale: 1, rotation: -8, duration: 0.35, ease: "back.out(2.5)" }, 1.6);
+    tl.to("#wrap", { x: "+=4", duration: 0.04, repeat: 3, yoyo: true }, 1.65);
+    tl.to("#meta", { opacity: 1, duration: 0.3 }, 2.0);
+    tl.fromTo("#kicker", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35 }, 2.3);
+    tl.to({}, { duration: 0.5 }, 3.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

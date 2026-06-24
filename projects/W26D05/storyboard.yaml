@@ -1,0 +1,80 @@
+# W26D05 · 催票轮回 · P004 · v1
+# 全专属 d05_* · 0% catalog · 无 template 重复 · VO ~50s
+# 口播锚点见 publish/2026-W26/D05-催票轮回/retention_beat_sheet.md
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.12
+
+scenes:
+  - id: "01_hook_count"
+    template: "d05_hook_count.html"
+    duration: 2.5
+    data:
+      total: "30"
+      chased: "7"
+      kicker: "三十个节点 · 今天只追了 7 个"
+
+  - id: "02_wechat_stack"
+    template: "d05_wechat_stack.html"
+    duration: 11.0
+    data:
+      messages:
+        - "张总，发票开了吗"
+        - "李总，章盖了吗"
+        - "货代，提单有了吗"
+        - "张总，不好意思再问"
+        - "李总，章盖了吗"
+        - "付款节点催一下"
+      stack_count: "30"
+      caption: "一天发 30 条 · 还是常漏"
+
+  - id: "03_node_list"
+    template: "d05_node_list.html"
+    duration: 11.0
+    data:
+      nodes:
+        - { name: "开票", owner: "张总", due: "3/18", status: "待办" }
+        - { name: "盖章", owner: "李总", due: "3/19", status: "已催" }
+        - { name: "提单", owner: "货代", due: "3/20", status: "待办" }
+        - { name: "付款", owner: "财务", due: "3/21", status: "待办" }
+      missing_col: "到期日"
+      caption: "节点散聊天 · 无统一到期"
+
+  - id: "04_wechat_chase"
+    template: "d05_wechat_chase.html"
+    duration: 8.5
+    data:
+      contact: "张总"
+      typing: "张总，不好意思再问"
+      ghost: "打了一半又删"
+      caption: "漏一次客户就急"
+
+  - id: "05_compare_deadline"
+    template: "d05_compare_deadline.html"
+    duration: 12.0
+    data:
+      before:
+        label: "事后追"
+        icon: "💬"
+        detail: "30 条微信"
+        sub: "一天问好几遍"
+      after:
+        label: "到期提醒"
+        icon: "📅"
+        detail: "提前 1 天变红"
+        sub: "表格+日历就行"
+      caption: "到期提醒比事后追 30 条有用"
+
+  - id: "06_cta_confirm"
+    template: "d05_cta_confirm.html"
+    duration: 7.0
+    data:
+      remind_line: "开票节点 · 明天到期"
+      confirm_line: "收到，今天开 👌"
+      cta_main: "催进度还在微信里？"
+      cta_sub: "评论区说说你们怎么盯节点"

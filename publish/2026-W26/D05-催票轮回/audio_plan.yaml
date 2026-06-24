@@ -1,0 +1,16 @@
+# 配音计划 · D05 · v1
+
+> 项目 W26D05 · P004 整段 VO · **已 TTS**
+
+tts:
+  provider: edge
+  source: projects/W26D05/script_vo.md
+  path: projects/W26D05/vo.mp3
+  duration_s: null
+  status: completed
+  completed_at: "2026-06-24"
+
+render:
+  video: publish/2026-W26/D05-催票轮回/douyin/video.mp4
+  duration_s: 52.0
+  storyboard: projects/W26D05/storyboard.yaml

@@ -1,0 +1,70 @@
+# W26D06 · 退货对账 · P004 · form v2
+# 形式重做 · TTS 保留 · 视觉：纸质账本/热敏小票/浅色 Excel
+# 禁止 dark P004 族 · VO ~37.3s · 片长 ~38s
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.10
+  form_version: v2
+  visual_brief: paper_ledger_light
+
+scenes:
+  - id: "01_receipt"
+    template: "d06_paper_receipt.html"
+    duration: 3.5
+    data:
+      gap: "803"
+      returns: "47"
+      kicker: "差八百 · 找不到"
+
+  - id: "02_channels"
+    template: "d06_channel_piles.html"
+    duration: 7.0
+    data:
+      sources:
+        - { name: "平台", status: "已退", color: "blue" }
+        - { name: "支付宝", status: "未到账", color: "orange" }
+        - { name: "微信", status: "截图", color: "green" }
+        - { name: "仓库", status: "未签收", color: "red" }
+      caption: "四套记录 · 对不上是常态"
+
+  - id: "03_cork"
+    template: "d06_cork_blame.html"
+    duration: 6.5
+    data:
+      lines:
+        - { who: "运营", text: "这笔退了，支付宝还没到账" }
+        - { who: "仓库", text: "货没收到啊" }
+        - { who: "客服", text: "截图算一笔账" }
+        - { who: "老板", text: "钱到底漏在哪？" }
+      caption: "对账耗两天"
+
+  - id: "04_ledger"
+    template: "d06_ledger_red.html"
+    duration: 11.0
+    data:
+      title: "退货对账 · 三端对齐"
+      rows:
+        - ["#1047", "平台✓", "支付宝✗", "仓库✗", "标红"]
+        - ["#1052", "平台✓", "支付宝✓", "仓库✗", "标红"]
+        - ["#1061", "平台✓", "支付宝✓", "仓库✓", "对齐"]
+      value_anchor: "差异行标红 · 半天对完"
+
+  - id: "05_ink"
+    template: "d06_ink_profit.html"
+    duration: 3.0
+    data:
+      line: "利润?"
+      sub: "月底靠猜"
+
+  - id: "06_stamp"
+    template: "d06_stamp_cta.html"
+    duration: 7.0
+    data:
+      stat_line: "47笔退 · 3笔差异"
+      cta_main: "差过多少钱找不到？"
+      cta_sub: "评论区说说你们的对账噩梦"

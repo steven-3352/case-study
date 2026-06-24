@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D07 Lane Health</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    :root {
+      --bg-blueprint: #eef6fc;
+      --grid: rgba(74, 130, 180, 0.2);
+      --ink: #1e4d72;
+      --ink-light: #5a8ab5;
+      --lane-green: #e8f5e9;
+      --lane-green-border: #81c784;
+      --lane-green-accent: #2e7d32;
+      --sans: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      --mono: "SF Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: var(--bg-blueprint);
+      font-family: var(--sans); color: var(--ink);
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px;
+      background:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+        var(--bg-blueprint);
+      background-size: 48px 48px;
+    }
+    .lane-header {
+      position: absolute; left: 48px; right: 48px; top: 260px;
+      background: var(--lane-green); border: 3px dashed var(--lane-green-border);
+      border-radius: 20px; padding: 28px 36px; opacity: 0;
+    }
+    .lane-header .tag {
+      font-family: var(--mono); font-size: 24px; color: var(--lane-green-accent);
+      letter-spacing: 3px; margin-bottom: 8px;
+    }
+    .lane-header .name { font-size: 52px; font-weight: 900; }
+    .lane-header .pain { font-size: 32px; color: var(--ink-light); margin-top: 8px; }
+    .brain-wrap {
+      position: absolute; left: 50%; top: 560px;
+      transform: translateX(-50%); width: 720px; height: 560px;
+      opacity: 0;
+    }
+    .brain-svg { width: 100%; height: 100%; }
+    .brain-outline {
+      fill: none; stroke: var(--lane-green-border); stroke-width: 4;
+      stroke-dasharray: 12 8;
+    }
+    .bubble {
+      position: absolute; background: #fff;
+      border: 2px solid var(--lane-green-border);
+      border-radius: 20px; padding: 16px 22px;
+      font-size: 28px; font-weight: 700; max-width: 240px;
+      opacity: 0; box-shadow: 0 4px 16px rgba(46, 125, 50, 0.12);
+    }
+    .bubble::before {
+      content: ""; position: absolute; bottom: -12px; left: 30px;
+      border: 10px solid transparent; border-top-color: var(--lane-green-border);
+    }
+    .bubble::after {
+      content: ""; position: absolute; bottom: -8px; left: 32px;
+      border: 8px solid transparent; border-top-color: #fff;
+    }
+    .b1 { left: 80px; top: 40px; }
+    .b2 { right: 60px; top: 80px; }
+    .b3 { left: 120px; top: 220px; }
+    .b4 { right: 80px; top: 260px; }
+    .b5 { left: 50%; top: 380px; transform: translateX(-50%); }
+    .staff {
+      position: absolute; left: 80px; bottom: 520px;
+      font-size: 80px; opacity: 0;
+    }
+    .staff-label {
+      position: absolute; left: 80px; bottom: 460px;
+      font-family: var(--mono); font-size: 26px; color: var(--ink-light); opacity: 0;
+    }
+    .echo {
+      position: absolute; left: 0; right: 0; bottom: 340px;
+      text-align: center; font-size: 56px; font-weight: 900;
+      color: var(--lane-green-accent); opacity: 0;
+    }
+    .caption {
+      position: absolute; left: 0; right: 0; bottom: 260px;
+      text-align: center; font-size: 40px; color: var(--ink-light); opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="lane-header" id="header">
+      <div class="tag">SWIMLANE · GREEN</div>
+      <div class="name" id="name">💊 保健品</div>
+      <div class="pain" id="pain">试吃反馈在脑子里</div>
+    </div>
+    <div class="brain-wrap" id="brain">
+      <svg class="brain-svg" viewBox="0 0 720 560">
+        <path class="brain-outline" id="brainPath"
+          d="M360,40 C480,40 580,120 600,240 C620,360 540,480 360,520 C180,480 100,360 120,240 C140,120 240,40 360,40 Z
+             M280,180 C260,220 270,280 300,300 M440,180 C460,220 450,280 420,300
+             M360,120 L360,200 M200,280 C240,300 280,320 360,340 C440,320 480,300 520,280"/>
+      </svg>
+      <div class="bubble b1" id="b1">口感偏甜</div>
+      <div class="bubble b2" id="b2">包装太大</div>
+      <div class="bubble b3" id="b3">老人不会开</div>
+      <div class="bubble b4" id="b4">想试小包装</div>
+      <div class="bubble b5" id="b5">回购意愿高</div>
+    </div>
+    <div class="staff" id="staff">🧑‍🔬</div>
+    <div class="staff-label" id="staffLabel">试吃专员 · 反馈全在脑里</div>
+    <div class="echo" id="echo">「离职就断档」</div>
+    <div class="caption" id="caption">没人记得谁说了什么</div>
+  </div>
+  <script>
+    const data = window.getData();
+    const feedbacks = data.feedbacks || ["口感偏甜", "包装太大", "老人不会开", "想试小包装", "回购意愿高"];
+    ["b1","b2","b3","b4","b5"].forEach((id, i) => {
+      if (feedbacks[i]) document.getElementById(id).textContent = feedbacks[i];
+    });
+    if (data.name) document.getElementById("name").textContent = data.name;
+    if (data.pain) document.getElementById("pain").textContent = data.pain;
+    if (data.echo) document.getElementById("echo").textContent = `「${data.echo.replace(/[「」]/g, "")}」`;
+    if (data.caption) document.getElementById("caption").textContent = data.caption;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#header", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
+    tl.fromTo("#brain", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 0.25);
+    tl.fromTo("#brainPath", { strokeDashoffset: 800 }, { strokeDashoffset: 0, duration: 1.0, ease: "power1.inOut" }, 0.4);
+    tl.fromTo(".bubble", { opacity: 0, scale: 0.5, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.35, stagger: 0.18, ease: "back.out(2)" }, 0.9);
+    tl.to(".bubble", { y: "-=6", duration: 0.8, stagger: 0.1, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.0);
+    tl.fromTo("#staff, #staffLabel", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35 }, 1.5);
+
+    tl.to("#staff", { x: 200, opacity: 0, duration: 0.55, ease: "power2.in" }, 3.2);
+    tl.to("#staffLabel", { opacity: 0, duration: 0.3 }, 3.4);
+    tl.to(".bubble", {
+      x: () => gsap.utils.random(-120, 120),
+      y: () => gsap.utils.random(-60, 120),
+      rotation: () => gsap.utils.random(-20, 20),
+      opacity: 0.2,
+      duration: 0.6,
+      stagger: 0.07,
+      ease: "power2.out"
+    }, 3.5);
+    tl.to("#brainPath", { stroke: "#ef5350", strokeDasharray: "6 6", duration: 0.3 }, 3.6);
+    tl.fromTo("#echo", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 4.2);
+    tl.fromTo("#caption", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 4.7);
+    tl.to("#echo", { color: "#c62828", duration: 0.2, yoyo: true, repeat: 2 }, 5.2);
+    tl.to({}, { duration: 1.0 }, 6.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

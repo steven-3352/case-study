@@ -1,0 +1,39 @@
+# D07 · 网络调研员 · scorecard · Round 1 · v1 · PASS
+# 独立互评 · review_mode: independent
+role: 网络调研员
+artifact: insights/external_references.md
+artifact_version: v1-insights
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 记者
+  review_mode: independent
+  angle: 来源可信度
+  score: 91
+  verdict: pass
+  notes: '外部参考≥3条URL，网络原话≥2与topic_brief互证。
+
+    扣(-6)：一条行业报告偏2023，建议标注「背景参考」。
+
+    扣(-3)：与P0映射表可再显式链到48/11案例。
+
+    改法：fact_check已区间化，insights层可冻结。
+
+    '
+- reviewer_id: 内核提炼师
+  review_mode: independent
+  angle: P0映射
+  score: 92
+  verdict: pass
+  notes: '参考支撑「复购靠人记/Excel」钉子，非自造场景。
+
+    扣(-5)：缺一条「触达无模板」的公开案例链（可接受合成场景标注）。
+
+    扣(-3)：URL摘要略短。
+
+    insights层v1冻结，不随script v1重跑。
+
+    '
+avg_score: 91.5
+pass: true
+optimization_round: 1

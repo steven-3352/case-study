@@ -1,0 +1,73 @@
+# W26D04 · 复购流失 · P004 · v11
+# 全专属 d04_* · 0% catalog · 无 template 重复 · VO ~50.5s
+# 口播锚点见 retention_beat_sheet.md v11
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.12
+
+scenes:
+  - id: "01_hook_count"
+    template: "d04_hook_count.html"
+    duration: 2.5
+    data:
+      total: "312"
+      target: "48"
+      sent: "11"
+      kicker: "今天该触达 · 只发出 11 条"
+
+  - id: "02_excel_dread"
+    template: "d04_excel_dread.html"
+    duration: 11.0
+    data:
+      names: ["张阿姨", "李叔", "王姐", "赵伯", "陈阿姨", "刘哥"]
+      punch_line: "48人该触达 · 只发出11条"
+      caption: "Excel打开都怕"
+
+  - id: "03_wechat_type"
+    template: "d04_wechat_type.html"
+    duration: 8.0
+    data:
+      typing: "张阿姨，第25"
+      caption: "不好意思老发消息"
+
+  - id: "04_wechat_drop"
+    template: "d04_wechat_drop.html"
+    duration: 11.0
+    data:
+      mode: resign_silent
+      group_line: "怎么没人说了？"
+      caption: "人走了，客户跟丢了"
+
+  - id: "05_silent_row"
+    template: "d04_silent_row.html"
+    duration: 5.0
+    data:
+      pain_lead: "静默流失最心疼"
+      pain_extra: "人还在列表里 · 对话停了"
+
+  - id: "06_compare_reach"
+    template: "d04_compare_reach.html"
+    duration: 12.0
+    data:
+      outsource:
+        time: "靠脑子对"
+        label: "改造前"
+      agent:
+        price: "一行看清"
+        time: "三行变红"
+        label: "改造后"
+      caption: "第25天该触达 · 三行变红"
+
+  - id: "07_cta_send"
+    template: "d04_cta_send.html"
+    duration: 6.0
+    data:
+      send_line: "快用完了吗，需不需要补一份？"
+      reply_line: "还是老规矩 👌"
+      cta_main: "靠人记还是靠表算？"
+      cta_sub: "评论区说说你们怎么跟老客"

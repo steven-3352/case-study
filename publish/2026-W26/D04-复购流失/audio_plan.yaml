@@ -1,0 +1,17 @@
+# 配音计划 · D04 · v10
+
+> 项目 W26D04 · P004 整段 VO · **已 TTS**
+
+tts:
+  provider: edge
+  fallback_from: minimax
+  source: projects/W26D04/script_vo.md
+  path: projects/W26D04/vo.mp3
+  duration_s: 50.54
+  status: completed
+  completed_at: "2026-06-24"
+
+render:
+  video: publish/2026-W26/D04-复购流失/douyin/video.mp4
+  duration_s: 48.0
+  note: VO 50.5s vs 成片 48s · 尾部 CTA 约 2.5s 被裁 · 下批可加长 compare/cta 镜

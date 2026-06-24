@@ -1,0 +1,73 @@
+# P007 · W26D04 · 复购流失 · 漫画轮播（GSAP 动效渲帧）
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+
+slides:
+  - id: slide_01
+    template: d04_comic_slide.html
+    duration: 2.5
+    data:
+      title: "312个老客"
+      title_em: "复购靠Excel？"
+      sfx: "漏了!"
+      expression: pained
+      lines: ["第25天该提醒", "全在销售脑子里"]
+      footer: "不讲功效 · 只讲跟进"
+
+  - id: slide_02
+    template: d04_comic_slide.html
+    duration: 2.4
+    data:
+      title: "应提醒48"
+      title_em: "实际11"
+      expression: shocked
+      lines: ["静默流失最心疼", "Excel打开都怕"]
+      footer: "数据区间 · 非承诺"
+
+  - id: slide_03
+    template: d04_comic_slide.html
+    duration: 2.5
+    data:
+      title: "销售一走"
+      title_em: "跟进断档"
+      sfx: "断了!"
+      expression: pained
+      lines: ["节奏在微信里", "人走了客户跟丢了"]
+      footer: "团队表 · 不在个人"
+
+  - id: slide_04
+    template: d04_comic_slide.html
+    duration: 2.6
+    data:
+      title: "四字段"
+      title_em: "先跑这个"
+      expression: happy
+      lines:
+        - "购买日 · 周期天数"
+        - "下次触达日 · 沉默标记"
+      footer: "表只是载体"
+
+  - id: slide_05
+    template: d04_comic_slide.html
+    duration: 2.5
+    data:
+      title: "服务触达"
+      title_em: "非功效"
+      expression: serious
+      lines:
+        - "「快用完了吗，需不需要补一份」"
+        - "模板固定 · 不承诺疗效"
+      footer: "合规 · 跟进话术"
+
+  - id: slide_06
+    template: d04_comic_slide.html
+    duration: 2.4
+    data:
+      title: "收藏备用"
+      title_em: "你们怎么跟？"
+      expression: curious
+      lines: ["复购提醒靠人记的", "评论区说说"]
+      footer: "非教程非广告"

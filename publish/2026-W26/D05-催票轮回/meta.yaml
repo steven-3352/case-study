@@ -4,10 +4,12 @@ slug: 催票轮回
 vertical: 小公司自动化
 project_id: W26D05
 topic_id: T013
-status: approved
+status: evolution_required
 formats:
   douyin: F2
-  xhs: F1
+  xhs: video_reuse
+delivery:
+  xhs: video_reuse
 schedule:
   douyin: 2026-06-26 19:30
   xhs: 2026-06-26 20:00

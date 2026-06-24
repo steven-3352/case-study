@@ -1,0 +1,38 @@
+# D07 · 视觉设计 · scorecard · v1 Phase B · PASS
+role: 视觉设计
+artifact: douyin/cover.png
+artifact_version: v1
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 平台原生策划
+  review_mode: independent
+  angle: 缩略图
+  score: 93
+  verdict: pass
+  notes: 'cover@1s 312/48→11 与mp4像素一致；数字hook比Excel冷开更停划。
+
+    扣(-4)：红字略小仍可读。
+
+    扣(-3)：xhs carousel未重渲（无增量）。
+
+    93 pass v1。
+
+    '
+- reviewer_id: 形式选型师
+  review_mode: independent
+  angle: 与首镜一致
+  score: 92
+  verdict: pass
+  notes: '封面=CREATIVE-1 hook同帧；与D03/D10 v1 Excel封面异族。
+
+    扣(-4)：@1s非Excel段，但数字落差更强钩子。
+
+    扣(-4)：cover_review mtime ≥ video OK。
+
+    92 pass。
+
+    '
+avg_score: 92.5
+pass: true
+optimization_round: 8

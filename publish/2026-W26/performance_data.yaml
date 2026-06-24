@@ -1,0 +1,113 @@
+week_id: 2026-W26
+updated_at: '2026-06-24T13:07:31'
+metrics:
+  completion_3s:
+    label: 3s 完播率
+    unit: ratio
+  completion_rate:
+    label: 完播率
+    unit: ratio
+  interaction_rate:
+    label: 互动率
+    unit: ratio
+  avg_watch_s:
+    label: 平均观看时长
+    unit: seconds
+  collect_rate:
+    label: 收藏率
+    unit: ratio
+entries:
+- project_id: W26D04
+  day: D04
+  slug: 复购流失
+  topic_id: T012
+  content_version: v11
+  form_version: v11
+  published_at: null
+  status: pending_actual
+  platforms:
+    douyin:
+      video_s: 55.5
+      forecast:
+        completion_3s: [0.58, 0.68]
+        completion_rate: [0.18, 0.24]
+        interaction_rate: [0.022, 0.035]
+        avg_watch_s: [12, 18]
+      actual:
+        completion_3s: null
+        completion_rate: null
+        interaction_rate: null
+        avg_watch_s: null
+        views: null
+        likes: null
+        comments: null
+        shares: null
+    xhs:
+      delivery: carousel_only
+      forecast:
+        collect_rate:
+        - 0.04
+        - 0.08
+        note: 勿直投抖音 mp4
+      actual:
+        collect_rate: null
+        views: null
+        likes: null
+        collects: null
+  form_signals:
+    hook_type: number_punch
+    exclusive_templates: 7
+    catalog_ratio: 0.0
+    cta_complete: true
+    vs_v10:
+      completion_rate_delta_forecast: +6~8pp
+  learnings: []
+- project_id: W26D03
+  day: D03
+  slug: 试吃反馈
+  topic_id: T011
+  content_version: v2
+  published_at: '2026-06-24'
+  status: pending_actual
+  platforms:
+    douyin:
+      forecast: null
+      actual:
+        views: null
+        likes: null
+        comments: null
+        shares: null
+        collects: null
+  learnings: []
+- project_id: W26D01
+  day: D01
+  slug: 美甲撞档
+  topic_id: T009
+  content_version: null
+  published_at: '2026-06-24'
+  status: pending_actual
+  platforms:
+    douyin:
+      actual:
+        views: null
+        likes: null
+        comments: null
+        shares: null
+        collects: null
+  learnings: []
+- project_id: W26D02
+  day: D02
+  slug: 团购回访
+  topic_id: T010
+  content_version: null
+  published_at: '2026-06-24'
+  status: pending_actual
+  platforms:
+    douyin:
+      actual:
+        views: null
+        likes: null
+        comments: null
+        shares: null
+        collects: null
+  learnings: []

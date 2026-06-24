@@ -11,11 +11,238 @@ alwaysApply: true
    禁止用「仓库里有某 pipeline / 某模板 / 某工种」当作完成标准。  
    唯一标准是：**观众/读者划到这条内容时，会不会停、会不会懂、会不会想互动或收藏；发布包能不能直接外发且不虚。**
 
-2. **专家对最终结果负责，不是对交差文件负责**  
+2. **内容门与形式门分开 · 永不合并**（D04 v10→v11 沉淀 · 全系统适用）  
+   - **内容门：** 脚本、原话、P0、合规 — pass 才允许 TTS  
+   - **形式门：** 分镜像素、视觉同质、平台预估 — pass 才允许外发  
+   - 脚本 90+ 而 catalog 拼盘仍 **approved** = **blocked**（见 `templates/design/content_form_split_gates.md`）
+
+3. **专家对最终结果负责，不是对交差文件负责**  
    每个工种对整条链的**最终成片/成图/成文**负连带责任——上游不能只写 markdown 说「形式 F3」却产出与 F1 同质的 slideshow。
 
-3. **尽一切可能让内容更好**  
-   默认动作是：多一轮讨论、换 pipeline、重写分镜、重出封面、压时长、删模板段——而不是「能 render 就行」。
+4. **尽一切可能让内容更好**  
+   默认动作是：多一轮讨论、换 pipeline、重写分镜、重出封面、**重写口播**、双人互评迭代——而不是「能 render 就行」。
+
+## 双人互评铁律 · 每工种 ≥2 人 · 90 分门禁（2026-06-24 · 最高优先级）
+
+> **应付 = 未达 90 分仍 pass。** 与动效铁律、脚本铁律、多 Agent 铁律同级，**严格执行**。
+
+### 硬性规则
+
+| 规则 | 说明 | 不满足则 |
+|------|------|----------|
+| **≥2 名评审** | 每个工种至少 2 个 Agent 独立打分 | blocked |
+| **不同角度** | 两位 `angle` 不得相同（如叙事 vs 节奏） | 评分无效 |
+| **禁止自评** | 产出者不得评自己的工种 | 评分无效 |
+| **通过线 90** | 每位 reviewer **score ≥ 90**，**avg ≥ 90**；**89 = fail** | 继续改，不得下一阶段 |
+| **迭代至 90+** | 未达标须写扣分项 → 改产出 → 重评，留痕 `discussion.md` | 禁止 render / 禁止 approved |
+| **分阶段** | Phase A 立项 scorecard + Phase B 复验 scorecard | 缺任一 = blocked |
+
+### 产出物
+
+```
+publish/{week}/Dxx-*/room/
+├── scorecards/
+│   ├── 编剧.yaml
+│   ├── 动效设计师.yaml
+│   └── …（必跑工种各一份）
+├── scorecards_index.yaml
+├── discussion.md          # 每轮优化记录 optimization_round
+└── verdict.yaml           # gates.scorecards_all_pass: true
+```
+
+模板：`templates/agent_room/scorecard.yaml` · `scorecards_index.yaml`
+
+### 工具 enforcement（fail-closed · 2026-06-24 升级）
+
+```bash
+python3 pipeline/gate_check.py --id W26D04 --phase approve   # 外发前全量
+python3 pipeline/gate_check.py --all --phase approve         # 整周
+python3 pipeline/week_build.py                             # approved 时自动跑 gate_check
+```
+
+| 规则 | 说明 |
+|------|------|
+| **永远跑 gate_check** | `verdict.gates.*=true` **不能**跳过工具；手填绕过 = blocked |
+| **三阶段** | `pre_render`（render 前）→ `post_render`（有 mp4）→ `approve`（外发） |
+| **形式硬门禁** | `approve` 阶段：`check_visual_diversity` + `pre_publish_forecast` + 形式层 scorecard |
+| **证据物** | Phase B 必填 `design/vo_listen_notes.md` · `design/pre_publish_forecast.md`；cover_review 须晚于 video mtime |
+| **Phase B 工种** | 硬编码 5 项：动效设计师、编剧、**视觉设计**、留存、编导 |
+| **scorecard** | `pass: true` + `artifact_version` 须含 `content_version` |
+| **`--force`** | 仅调试；登记 `docs/design/GATE_BYPASS_LOG.md`，**不可外发** |
+
+详规：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md` · `templates/design/content_form_split_gates.md`
+
+### 合规分 vs 效果分（D04 教训 · 铁律）
+
+| 类型 | 说明 |
+|------|------|
+| **合规分** | 文件齐、互评格式对 — 易 90+ |
+| **效果分** | 像素、同质、分析师 forecast — **外发以此为准** |
+
+- 纸面 90+ 与效果分差 **>5** → 必填 `room/form_audit_{v}.yaml` · 登记 `docs/design/FORM_FAIL_LOG.md`
+- 形式 forecast **fail** → `gate_check(approve)` 硬失败，不论 scorecard 纸面分
+
+### 自我进化（标准持续抬高）
+
+详规：`templates/design/system_evolution.md` — 触发器 · 三级标准 L1/L2/L3 · **topic_evolution_from_data.md**
+
+### 禁止偷工（Agent 行为铁律）
+
+| 禁止 | 说明 |
+|------|------|
+| **同 Agent 自评 pass** | 产出 `scripts/` + 写 `scorecards/编剧.yaml` pass → 无效；须 **独立 Agent/Task** 打分 |
+| **假分身 reviewer** | `编剧审校-A`、`子 Agent`、`-甲/-乙` → gate_check FAIL |
+| **形式互评** | 缺 `review_mode: independent`、notes<40 字、无扣分项、两 notes 相同 → FAIL |
+| **手填 gates** | `gates.scorecards_all_pass: true` 但 gate_check FAIL → 编导退稿 |
+| **跳 Phase** | 无 mp4 不得 `approve`；无 vo_listen_notes 不得 Phase B pass |
+| **过期 scorecard** | 大版本变更后 `artifact_version` 不匹配 → 级联作废重评 |
+
+**真实互评流程：** `templates/design/scorecard_enforcement.md` · `gate_check.py` enforcement
+
+### 变更级联作废（改 A 必重评 B）
+
+| 变更 | 作废 scorecard / 文档 |
+|------|------------------------|
+| 口播 / script | 编剧、留存、编导、script_review、vo_listen_notes |
+| storyboard | 动效分镜师、动效设计师、留存 |
+| render 新 mp4 | 动效设计师、视觉设计、编剧、编导、motion_wow Phase B、cover_review |
+| cover `at` 变 | 视觉设计、cover_review |
+
+作废后 `verdict.status` 不得为 approved，直至 gate_check PASS。
+
+### 有成本工序铁律（2026-06-16 · TTS · gpt-image）
+
+> **全 Phase A 工种 scorecard ≥90 + script_review pass → `gate_check(pre_render) PASS` → 才允许 TTS / gpt-image / P004 build / render。**
+
+| 禁止 | 说明 |
+|------|------|
+| **提前 TTS** | `audio_plan.status: not_started` 直至 pre_render PASS |
+| **提前 render** | `week_build.py --render` / `p004_video/build.py` 自动验 pre_render |
+| **--force 绕过** | 登记 `GATE_BYPASS_LOG.md`，不可外发 |
+
+Phase B（听 mp4、cover 像素）在 **render 后** 再评，不影响 TTS 开工门禁。
+
+## 防应付机制铁律（2026-06-24 · 严格执行）
+
+> 详单：`templates/design/anti_perfunctory_gates.md` · 以下任一项不满足 = **blocked**。
+
+### 优化目标
+
+- **唯一标准：** 观众会不会停、懂、互动；不是「有 markdown / 能 render」。
+- **脚本与动效同权：** 口播是主交付物，分镜服务叙事，**禁止**为卡时长把故事削成 bullet。
+
+### 固定产出顺序（禁止颠倒）
+
+```
+洞察包 → 编剧三版(互异) + 90+ → script_review pass → 留存估 VO
+  → storyboard + motion_wow(标注对应口播句) → 各工种 scorecard 90+
+  → render → Phase B 听 mp4/看 PNG + scorecard 复评 90+ → approved
+```
+
+### 三版脚本（禁止 stub）
+
+- **v0** 故事/场景向 · **vA** 数据/反差向 · **vB** 单场景/单原话深挖
+- vB/v0 一行占位 = **直接 reject**
+- 与上条 approved 口播 **≥3 处同序同句式** = reject
+
+### 洞察包消费（编剧下限）
+
+- ≥**4** 条 `topic_brief` 原话进片（**铁律：少于 4 条直接 fail**）
+- 钉子场景五要素齐全
+- 每个 P0 对应一镜/一节拍，非旁白堆叠
+
+### 创意铁律（多 Agent 的核心目的 · 2026-06-24）
+
+> **专业 Agent 不是为了填表，是为了产出创意。** 模板式动效/口播 = 与「尽一切可能让内容更好」冲突。
+
+| 禁止 | 说明 | 负责工种 |
+|------|------|----------|
+| **catalog 标配交差** | 仅排列 punch+reveal+pain+compare 等换皮组合 | 动效设计师 + 形式选型师 |
+| **无本条专属创意** | motion_wow 写不出「为何只有这条适合、观众为何会 unexpected 停」 | 动效设计师 |
+| **预期内动效** | 高潮在 D01–D03 已见过，无新 metaphor/镜头 | 动效设计师 + 留存 |
+| **为时长删叙事** | 口播/场景被削到 bullet | 编剧 + 编导 |
+
+**必须：** motion_wow 含 **≥3 专属创意点**（不同视觉隐喻；非同一 HTML 换 data）+ **创意说明**；catalog **≤35%** · 同 template **≤1 镜**；scorecard 创意维度 **<90 → fail**。
+
+### 变更触发重评
+
+- storyboard / 动效 **大版本变更** → 强制 **Round 4b** + **编剧 scorecard 重评**
+- `script_review` reject → **禁止 TTS / 禁止 P004 build**
+
+### 讨论室与反模式
+
+- 假讨论（摘要冒充 Round、无交锋）→ 编导退稿
+- 反例登记：`SCRIPT_REJECT_LOG.md` · `COVER_REJECT_LOG.md`
+
+## 动效铁律 · 禁 PPT / 幻灯片 / 静态图（2026-06-22）
+
+> **画面必须动起来。** 交付物是动效视频或 GSAP 时间轴产物，不是静态排版 PNG 冒充成片。
+
+| 禁止 | 说明 | 负责工种 |
+|------|------|----------|
+| **PPT 风 / 幻灯片风** | 分屏提案页、黑金渐变堆字、左文右窗 mock、flow→terminal→metric 三连 | 形式选型师 + 视觉设计 |
+| **静态图片风** | Ken Burns 证据卡 slideshow、纯报纸排版轮播、无时间轴的「设计稿 PNG」 | 平台原生策划 + 动效分镜师 |
+| **静态封面冒充原生** | 抖音 `light_split` / 独立排版 cover 与成片脱节 | 视觉设计 |
+
+| 必须 | 说明 |
+|------|------|
+| **抖音** | 出 `video.mp4`（`p004_gsap` / `p005` 等）；封面 `video_frame` 成片定格 |
+| **小红书** | 轮播走 **P007 漫画 GSAP**（动效渲帧）；**禁**纯静态报纸风作为主形态 |
+| **全片** | ≥3 种 P004 模板；单模板 ≤40% 时长；5–8s 有视觉变化 |
+| **render_evidence** | 每周 **≤1 天**，且不得与相邻天同 route |
+
+**验收问句（动效）：** 把声音关掉划 3 秒，画面还在动吗？封面点开和视频是同一套视觉吗？  
+**惊艳问句（动效设计师）：** 全片至少 **2 处** 让人「停一下」，且 **≥1 处 unexpected**（非 catalog 标配预期内）？  
+**创意问句：** 关掉声音看画面，像不像「又一套模板排列」？若是 → **动效设计师 fail**。
+
+## 口播脚本铁律 · 禁念 PPT / 禁模板克隆（2026-06-24）
+
+> **这种水平的脚本直接 pass 不允许产出。** 与动效铁律、多 Agent 铁律同级。
+
+| 禁止通过 | 说明 | 负责工种 |
+|----------|------|----------|
+| **念 PPT 式口播** | 数字→痛点→字段连读→CTA，无场景无对话 | 编剧 |
+| **模板克隆上条** | 与上一条同骨架（如「不是让你多买系统」+ 四字段 + 讨论 CTA） | 编剧 + 编导 |
+| **三版造假** | vB/v0 一行 stub，discussion 却写「三版讨论」 | 编剧 |
+| **无 script_review** | 未 `design/script_review.md` pass 即 TTS / build | 编剧 + 编导 |
+| **编剧自批 pass** | 须留存设计师（节奏）+ 内核提炼师（P0）联签 | 编剧 |
+
+**必过项：** 前 5s 有场景；**≥4 句**对话/原话；P0 融叙事（**禁止字段名连读**）；v0/vA/vB 结构明显不同。
+
+**禁过骨架（≥3 处同序同句式即 reject）：** 数字钩子 → 痛点排比 →「不是多买系统」→ 字段连读 → 服务触达 → 讨论 CTA。
+
+详规：`templates/design/script_standards.md` · 反例：`docs/design/SCRIPT_REJECT_LOG.md`
+
+## 多 Agent 审核铁律（与结果负责制同级 · 2026-06-24）
+
+> **未走多 Agent 审核 = 不可 approved，不可外发。** 与「动效铁律」同级，不是建议。
+
+### 为什么必须多 Agent
+
+- 单一 Agent 代写 `discussion.md` + 填 `verdict.yaml` = **假讨论室**，与铁律「专家对最终结果负责」冲突。
+- `week_build --force` **不得**替代讨论室；仅调试，不可作外发依据。
+
+### 两阶段门禁（缺一不可）
+
+| 阶段 | Round | 必参与工种 | 产出 |
+|------|-------|------------|------|
+| **A · 立项** | 1–5 | 网络调研、记者、形式选型、平台策划、导演、**编剧**、留存、**动效设计师**、合规 | `format_spec.md` · storyboard · `design/motion_wow.md` · **`design/script_review.md`** |
+| **B · 复验** | 6–8 | 形式选型、留存、**动效设计师**、**编剧（听 mp4 口播）**、视觉设计、编导 | 对 **mp4/PNG 像素 + VO 听感** 发言；`cover_review.md` |
+
+### 合格讨论室最低标准
+
+- 每 Round **≥2 工种** 有**具名发言**（非 bullet 摘要）
+- 至少 **1 处交锋或取舍**（A 选 B 不选 C，及理由）
+- `verdict.participants` 与 `discussion.md` 发言工种 **一致**
+- **Render 后** 必须有 Round 6+；未看成片/成图不得 pass
+- ❌ 禁止：5 行摘要冒充 Round 1–5 后直接 approved
+- **每工种 scorecard avg ≥ 90** 方可进入 approved（见「双人互评铁律」）
+
+### 动效设计师（必激活 · P004/P007 路线）
+
+- 立项阶段产出 `design/motion_wow.md`：**≥2 个惊艳点**（时间点 + 模板 + 观众预期反应）
+- 分镜阶段与动效分镜师 **联合**改 `storyboard.yaml`（设计师定高潮，分镜师落 YAML）
+- 复验阶段对照 mp4：**惊艳点是否兑现**；未兑现 → 改分镜重 render，不得推给编导
 
 ## 各工种对「最终结果」负责什么
 
@@ -28,8 +255,10 @@ alwaysApply: true
 | **平台原生策划** | **抖音/小红书 delivery 真正不同** | 一稿多平台、F4 却留 video |
 | **纪录片导演** | **有故事弧，非改造实录模板** | flow→terminal→metric 三连套 |
 | **留存与互动设计师** | **5–8s 有变化、完播/收藏有设计** | 56s 单调节奏、无节拍表 |
-| 编剧 | 钩子、口播可听、CTA 讨论型 | 念 PPT、扣1导流 |
-| **动效/漫画分镜师** | **分镜可渲染、有动效/漫画感** | 只有 vo 列表无 storyboard |
+| 编剧 | 场景+对话口播、CTA 讨论型、**script_review pass** | 念 PPT、模板克隆上条、stub 三版、扣1导流 |
+| **动效/漫画分镜师** | **分镜可渲染、YAML 可 build** | 只有 vo 列表无 storyboard |
+| **动效设计师** | **≥3 专属创意 + catalog≤35% + 无 template 重复**；非 catalog 标配排列 | 模板平铺、catalog 三连、同 HTML 播两次 |
+| **平台表现分析师** | **发布前预估 + 形式 go/no-go**；视觉审计客观计数 | 无 forecast 仍外发、纸面 90 效果 81 |
 | **视觉设计** | **封面/轮播像素 pass、可外发** | 黑金回落、**cover_review 未看 PNG 即 pass** |
 | 导演 / 剪辑 | 时长、信息密度、规格 | 超时长、前 3s 无钩子 |
 | 声音设计师 | 音画三件套、情绪对齐 | 无 BGM/无字幕/干口播 |
@@ -43,10 +272,26 @@ alwaysApply: true
 - ❌ 「有 cover_review.md」但未看 PNG → **视觉设计** 退稿
 - ❌ 「有 retention 表」但单模板超 40% → **留存设计师** 退稿
 - ❌ 用 `--force` 跳过门禁当常态 → 仅调试，不可外发
+- ❌ **静态 PNG / PPT 分屏 / 证据卡 slideshow 冒充动效成片** → **形式选型师 + 动效分镜师** 退稿
+- ❌ 小红书主形态为纯静态报纸轮播（无 GSAP 漫画）→ **平台原生策划** 退稿
+- ❌ **未走 Phase A+B 多 Agent 讨论即 approved / 外发** → **编导** 退稿
+- ❌ **无 motion_wow.md 或全片无惊艳点** → **动效设计师** 退稿
+- ❌ **script_review reject 或念 PPT 式口播仍 TTS/build** → **编剧 + 编导** 退稿
+- ❌ **vA/vB/v0 占位 stub 冒充三版讨论** → **编剧** 退稿
+- ❌ **任一工种 scorecard avg < 90 仍 pass / render** → **编导** 退稿
+- ❌ **单人代评、同角互评、产出者自评** → 该 scorecard 无效，工种重评
+- ❌ **先分镜后挤口播 / 为时长删叙事** → **编剧 + 动效分镜师** 退稿
+- ❌ **洞察原话 <4 进片仍 TTS** → **编剧 + 内核提炼师** 退稿
+- ❌ **动效仅 catalog 标配组合、专属创意 <3** → **动效设计师 + 形式选型师** 退稿
+- ❌ **无 pre_publish_forecast 或形式 forecast fail 仍 approve** → **平台表现分析师 + 编导** 退稿
+- ❌ **纸面 90+ 效果分 fail 未归档 form_audit** → **编导** 退稿
+- ❌ **scorecard 任一 reviewer < 90 仍 pass** → **编导** 退稿
 
 ## 验收问句（任何工种交稿前自问）
 
 > 如果我是观众，划到这条会不会觉得「又是同一个模板」？  
+> **形式门：** catalog 三连？同 HTML 播两次？CTA 口播进片了吗？  
+> **分析师：** 完播/互动预估敢写「可外发」吗？  
 > 如果我是老板，看完会不会想评论或收藏？  
 > 如果现在要发，我敢不敢用这条代表账号？
 
@@ -56,4 +301,4 @@ alwaysApply: true
 
 - 洞察包、讨论室、verdict 是**手段**，不是目的。
 - `pipeline/` 是**工具箱**；形式选型师选工具，专家对**产出物**签字。
-- 详规：`CLAUDE.md` · `templates/agent_room/README.md`
+- 详规：`CLAUDE.md` · `templates/agent_room/README.md` · `templates/design/anti_perfunctory_gates.md` · `templates/design/content_form_split_gates.md` · `templates/design/system_evolution.md`

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D05 WeChat Stack</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .counter {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 260px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 120px;
+      font-weight: 900;
+      color: var(--orange);
+      opacity: 0;
+    }
+    .counter sub {
+      display: block;
+      font-size: 36px;
+      color: var(--gray-3);
+      margin-top: 8px;
+      font-weight: 700;
+    }
+    .phone {
+      position: absolute;
+      left: 50px;
+      right: 50px;
+      top: 480px;
+      bottom: 460px;
+      background: #111;
+      border-radius: 36px;
+      border: 4px solid #333;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .wx-header {
+      height: 88px;
+      background: #2e2e2e;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 16px;
+      border-bottom: 1px solid #444;
+      flex-shrink: 0;
+    }
+    .wx-title { font-size: 32px; font-weight: 700; color: var(--gray-2); }
+    .feed {
+      flex: 1;
+      overflow: hidden;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .bubble {
+      align-self: flex-end;
+      background: #95ec69;
+      color: #111;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 28px;
+      font-weight: 600;
+      max-width: 92%;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 420px;
+      text-align: center;
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--red);
+      opacity: 0;
+      padding: 0 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="counter" id="counter">0<sub>条催进度</sub></div>
+    <div class="phone" id="phone">
+      <div class="wx-header">
+        <div class="wx-title">工作群 · 催办记录</div>
+      </div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <div class="caption" id="caption">一天发 30 条 · 还是常漏</div>
+  </div>
+  <script>
+    const data = window.getData();
+    const msgs = data.messages || [
+      "张总，发票开了吗",
+      "李总，章盖了吗",
+      "货代，提单有了吗",
+      "张总，不好意思再问",
+      "李总，章盖了吗",
+      "付款节点催一下"
+    ];
+    const target = parseInt(data.stack_count || "30", 10);
+    const feed = document.getElementById("feed");
+    const counterEl = document.getElementById("counter");
+    if (data.caption) document.getElementById("caption").textContent = data.caption;
+
+    const bubbles = [];
+    for (let i = 0; i < 8; i++) {
+      const b = document.createElement("div");
+      b.className = "bubble";
+      b.textContent = msgs[i % msgs.length];
+      feed.appendChild(b);
+      bubbles.push(b);
+    }
+
+    const tl = gsap.timeline();
+    tl.fromTo("#counter", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.35 }, 0);
+
+    const countObj = { v: 0 };
+    tl.to(countObj, {
+      v: target,
+      duration: 2.2,
+      ease: "power2.out",
+      onUpdate: () => {
+        counterEl.innerHTML = Math.round(countObj.v) + '<sub>条催进度</sub>';
+      }
+    }, 0.2);
+
+    tl.fromTo("#phone", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.4)" }, 0.5);
+    tl.to(bubbles, {
+      opacity: 1,
+      y: 0,
+      duration: 0.25,
+      stagger: 0.18,
+      ease: "power2.out"
+    }, 0.8);
+
+    tl.to("#feed", { y: -120, duration: 1.2, ease: "power1.inOut" }, 2.0);
+    tl.to(bubbles, {
+      opacity: 0.5,
+      duration: 0.3,
+      stagger: 0.05
+    }, 2.4);
+    tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, 2.8);
+    tl.to("#phone", { filter: "brightness(0.6)", duration: 0.35 }, 3.0);
+    tl.to({}, { duration: 0.6 }, 3.5);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

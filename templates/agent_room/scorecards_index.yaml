@@ -1,0 +1,45 @@
+# 讨论室 · 全工种打分汇总（每条约一份）
+# 路径: publish/{week}/Dxx-*/room/scorecards_index.yaml
+
+version: 1
+project_id: W26D__
+pass_threshold: 90
+
+# Phase A 立项 · 以下工种必须各有一份 scorecards/{工种}.yaml 且 pass: true
+required_roles_phase_a:
+  - 网络调研员
+  - 记者
+  - 选题深挖师
+  - 内核提炼师
+  - 事实校验员
+  - 形式选型师
+  - 平台原生策划
+  - 纪录片导演
+  - 编剧
+  - 留存与互动设计师
+  - 动效设计师
+  - 动效分镜师
+  - 编导
+
+# Phase B 复验 · render 后追加（视频路线）
+required_roles_phase_b:
+  - 动效设计师
+  - 编剧
+  - 视觉设计
+  - 留存与互动设计师
+  - 编导
+
+# 按需激活（激活则同样 ≥2 人互评 ≥90）
+conditional_roles:
+  - 漫画分镜师      # P007 轮播路线
+  - 合规审核
+  - 视觉设计        # Phase A 若已出 cover 草案
+  - 声音设计师
+  - 运营
+
+summary:
+  phase_a_pass: false
+  phase_b_pass: false
+  all_required_pass: false
+  failing_roles: []           # 未达 90 或缺 scorecard 的工种
+  total_optimization_rounds: 0

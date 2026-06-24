@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D04 CTA Send</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .phone {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 380px;
+      bottom: 520px;
+      background: #111;
+      border-radius: 32px;
+      border: 3px solid #333;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .bubble {
+      align-self: flex-end;
+      background: #95ec69;
+      color: #111;
+      padding: 22px 28px;
+      border-radius: 16px;
+      font-size: 34px;
+      font-weight: 700;
+      max-width: 85%;
+      opacity: 0;
+    }
+    .reply {
+      align-self: flex-start;
+      background: #2a2a2a;
+      color: var(--gray-1);
+      padding: 20px 24px;
+      border-radius: 16px;
+      font-size: 32px;
+      opacity: 0;
+    }
+    .cta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 420px;
+      text-align: center;
+      padding: 0 50px;
+    }
+    .cta-main {
+      font-size: 72px;
+      font-weight: 900;
+      color: var(--gray-1);
+      opacity: 0;
+      line-height: 1.2;
+    }
+    .cta-main .accent { color: var(--orange); }
+    .cta-sub {
+      margin-top: 28px;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--green);
+      opacity: 0;
+    }
+    .arrow {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 320px;
+      text-align: center;
+      font-size: 120px;
+      color: var(--green);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="phone">
+      <div class="bubble" id="send">快用完了吗，需不需要补一份？</div>
+      <div class="reply" id="reply">还是老规矩 👌</div>
+    </div>
+    <div class="cta">
+      <div class="cta-main" id="main">靠人记还是<span class="accent">靠表算</span>？</div>
+      <div class="cta-sub" id="sub">评论区说说你们怎么跟老客</div>
+    </div>
+    <div class="arrow" id="arrow">↓</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.send_line) document.getElementById("send").textContent = data.send_line;
+    if (data.reply_line) document.getElementById("reply").textContent = data.reply_line;
+    if (data.cta_main) document.getElementById("main").innerHTML = data.cta_main.replace(/靠表/g, '<span class="accent">靠表</span>');
+    if (data.cta_sub) document.getElementById("sub").textContent = data.cta_sub;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#send", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.35, ease: "back.out(1.6)" }, 0.2);
+    tl.fromTo("#reply", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 0.7);
+    tl.fromTo("#main", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 1.2);
+    tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 1.6);
+    tl.fromTo("#arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.35, ease: "bounce.out" }, 1.9);
+    tl.to("#arrow", { y: 20, duration: 0.5, repeat: -1, yoyo: true, ease: "sine.inOut" }, 2.3);
+    tl.to({}, { duration: 1.2 }, 2.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

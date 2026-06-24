@@ -1,0 +1,38 @@
+# D06 · 编剧 · scorecard · v1 Phase B · PASS
+role: 编剧
+artifact: scripts/vD.md
+artifact_version: v1
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 纪录片导演
+  review_mode: independent
+  angle: 听mp4
+  score: 94
+  verdict: pass
+  notes: '55.5s全口播进片；CTA「靠人记还是靠表算」@52s cta_send画面同步。
+
+    扣(-3)：compare段VO略密，字幕+三行变红分担。
+
+    扣(-3)：口播v1未改，形式v1补画面兑现。
+
+    94 pass Phase B v1。
+
+    '
+- reviewer_id: 内核提炼师
+  review_mode: independent
+  angle: P0听感
+  score: 92
+  verdict: pass
+  notes: '5/5原话全听到；价值锚@compare_reach同步。
+
+    扣(-4)：服务非功效靠示例，无显式边界半句。
+
+    扣(-4)：55s略长但信息密度支撑。
+
+    92 pass。
+
+    '
+avg_score: 93.0
+pass: true
+optimization_round: 8

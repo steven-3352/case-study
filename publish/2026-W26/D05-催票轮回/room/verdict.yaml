@@ -2,6 +2,9 @@ status: approved
 topic_id: T013
 project_id: W26D05
 week_id: 2026-W26
+content_version: v1
+form_version: v1
+form_publish_pass: true
 approved_at: '2026-06-16'
 participants:
   required:
@@ -19,13 +22,21 @@ decisions:
   script_choice: vA
   douyin:
     format: F2
+    render_route: p004_gsap
     title: 5人小公司，行政每天发30条催进度
   xhs:
-    format: F1
-    title: 贸易公司不用上ERP，催票催章节点做成提醒表
+    format: video_reuse
+    delivery: video_reuse
+    title: 5人小公司，行政每天发30条催进度
+delivery:
+  xhs: video_reuse
+  note: 与抖音同 mp4，用户未要求不出图文
 revisions:
 - CTA 去扣1
+- D04 数据进化 · 形式层须按 evolution_overlay 重做（content vA 保留）
 gates:
+  evolution_overlay: true
+  evolution_brief_read: pending
   insights_complete: true
   p0_count: 4
   fact_check_clear: true

@@ -1,0 +1,38 @@
+# D05 · 动效分镜师 · scorecard · v1 · PASS
+role: 动效分镜师
+artifact: projects/W26D05/storyboard.yaml
+artifact_version: v1
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 动效设计师
+  review_mode: independent
+  angle: motion_wow一致
+  score: 92
+  verdict: pass
+  notes: 'v1 YAML 7镜7 template · sum 55.5s · 与motion_wow CREATIVE 1-7 对齐。
+
+    扣(-4)：duration微调待TTS后±1s。
+
+    扣(-4)：新模板首build风险。
+
+    92 pass。
+
+    '
+- reviewer_id: 形式选型师
+  review_mode: independent
+  angle: gate门槛
+  score: 91
+  verdict: pass
+  notes: 'gate_check视觉：专属7种 catalog0% 重复0 · 全过。
+
+    扣(-5)：55.5s>50s目标，为VO对齐。
+
+    扣(-4)：6种门槛用7种专属 exceed OK。
+
+    91 pass。
+
+    '
+avg_score: 91.5
+pass: true
+optimization_round: 8

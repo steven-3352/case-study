@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D04 Excel Gap</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .title-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 260px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 34px;
+      color: var(--gray-3);
+      letter-spacing: 4px;
+      opacity: 0;
+    }
+    .excel-win {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      top: 340px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 2px solid var(--gray-4);
+      background: #fff;
+      transform-origin: center center;
+    }
+    .excel-bar {
+      height: 64px;
+      background: #217346;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .sheet {
+      padding: 0;
+      font-family: var(--mono);
+      font-size: 26px;
+      color: #1a1a1a;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 0.8fr 1.2fr 1fr;
+      border-bottom: 1px solid #e0e0e0;
+      min-height: 52px;
+      align-items: center;
+    }
+    .row.head {
+      background: #f3f3f3;
+      font-weight: 800;
+      font-size: 24px;
+    }
+    .row.head .missing {
+      background: var(--red-soft);
+      color: var(--red);
+      animation: blink 0.6s infinite alternate;
+      text-align: center;
+      padding: 8px 4px;
+      font-weight: 900;
+    }
+    @keyframes blink { from { opacity: 1; } to { opacity: 0.45; } }
+    .cell { padding: 10px 12px; border-right: 1px solid #eee; }
+    .cell.warn { color: var(--red); font-weight: 700; }
+    .cell.dim { color: #999; }
+    .quote {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      bottom: 480px;
+      text-align: center;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 52px;
+      color: var(--orange);
+      opacity: 0;
+      line-height: 1.35;
+    }
+    .stat {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 1180px;
+      text-align: center;
+      opacity: 0;
+    }
+    .stat .big {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 160px;
+      color: var(--red);
+      letter-spacing: -4px;
+    }
+    .stat .sub {
+      font-size: 40px;
+      color: var(--gray-2);
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="title-bar" id="title">复购提醒 · 当场对表</div>
+    <div class="excel-win" id="win">
+      <div class="excel-bar">📊 老客跟进.xlsx</div>
+      <div class="sheet" id="sheet">
+        <div class="row head">
+          <div class="cell">客户</div>
+          <div class="cell">购买日</div>
+          <div class="cell">周期</div>
+          <div class="cell missing" id="miss">下次触达日?</div>
+          <div class="cell">谁记</div>
+        </div>
+      </div>
+    </div>
+    <div class="quote" id="quote">「Excel打开都怕」</div>
+    <div class="stat" id="stat">
+      <div class="big"><span id="cnt">0</span></div>
+      <div class="sub">行 · 没有触达日</div>
+    </div>
+  </div>
+  <script>
+    const data = window.getData();
+    const rows = data.rows || [
+      ["张阿姨", "3/1", "30天", "—", "小刘脑子里"],
+      ["李叔", "3/5", "30天", "—", "小刘脑子里"],
+      ["王姐", "3/8", "30天", "—", "小刘脑子里"],
+      ["陈伯", "3/12", "30天", "—", "小刘脑子里"],
+      ["赵阿姨", "3/15", "30天", "—", "小刘脑子里"],
+    ];
+    const sheet = document.getElementById("sheet");
+    rows.forEach(r => {
+      const row = document.createElement("div");
+      row.className = "row body";
+      row.innerHTML = r.map((c, i) => {
+        const cls = i === 3 ? "cell warn" : i === 4 ? "cell dim" : "cell";
+        return `<div class="${cls}">${c}</div>`;
+      }).join("");
+      sheet.appendChild(row);
+    });
+
+    const tl = gsap.timeline();
+    tl.to("#title", { opacity: 1, duration: 0.3 }, 0);
+    tl.fromTo("#win", { opacity: 0, y: 40, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "power2.out" }, 0.15);
+    tl.fromTo(".row.body", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.2, stagger: 0.08 }, 0.5);
+    tl.to("#miss", { scale: 1.08, duration: 0.25, yoyo: true, repeat: 3, transformOrigin: "center" }, 1.0);
+    tl.to("#win", { x: "+=6", duration: 0.06, repeat: 5, yoyo: true, ease: "power1.inOut" }, 1.6);
+    tl.fromTo("#quote", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.5)" }, 1.8);
+    tl.to("#stat", { opacity: 1, duration: 0.25 }, 2.3);
+    tl.add(window.countUp("#cnt", 0, data.row_count || 312, { duration: 0.7 }), 2.35);
+    tl.to({}, { duration: 0.5 }, 3.2);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

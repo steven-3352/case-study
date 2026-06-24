@@ -181,13 +181,21 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - 每个工种产出独立、可审阅的段落，不合并成"四不像"
 - Phase 0 全人工串行；Phase 2+ 半自动后 Agent 并行
 
-### 铁律 · 结果负责制（2026-06 起）
+### 铁律 · 结果负责制（2026-06 起 · D04 升级）
 
 1. **不看系统有什么，只看能做到什么** — pipeline/模板/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
-2. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质或封面不可用；负责工种退稿重做。
-3. **尽一切可能让内容更好** — 宁可多一轮讨论、换 route、重写 storyboard、重出封面，不可「能出片就行」。
+2. **内容门与形式门分开** — 脚本 90+ 允许 TTS；**形式**（视觉同质、分析师 forecast、CTA 完整）pass 才允许外发。禁止 catalog 拼盘假 approved。
+3. **合规分 vs 效果分** — scorecard 纸面 90+ ≠ 能投；外发以像素 + `pre_publish_forecast` 为准。差距 >5 归档 `form_audit`。
+4. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质。
+5. **尽一切可能让内容更好** — 宁可多一轮讨论、换 route、重写 storyboard，不可「能出片就行」。
+6. **自我进化** — 提高标准 → 多轮测试 → 更新 Rubric + `gate_check` + REJECT_LOG。详规：`templates/design/system_evolution.md`
 
-责权表与验收问句：`.cursor/rules/content-outcome-accountability.mdc` · `templates/agent_room/README.md`
+**核心文档：**
+- 铁律：`.cursor/rules/content-outcome-accountability.mdc` · `.cursor/rules/content-prep-multi-agent.mdc`
+- 两道门：`templates/design/content_form_split_gates.md`
+- 门禁：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md`
+- fail 登记：`docs/design/FORM_FAIL_LOG.md` · `docs/design/SCRIPT_REJECT_LOG.md`
+- 投后进化：`pipeline/fetch_platform_metrics.py` · `pipeline/evolution_apply.py`
 
 ### 反例（不要这么做）
 
@@ -201,7 +209,8 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - ❌ 工种产出混成一份不可分辨的文档
 - ❌ 带货选题跳过合规审核 → 一夜封号
 - ❌ 把「选品分析」塞给编剧/记者糊弄过去 → 不懂 SKU 的卖点提炼是假卖点
-- ❌ 出镜型用全屏演示分镜直接拍真人 → 机位/构图错位
+- ❌ 脚本 90+ 但形式 catalog 拼盘仍外发 → **平台表现分析师 + 编导** 退稿（D04 v10 教训）
+- ❌ 无 `pre_publish_forecast` 或形式 forecast fail 仍 approve
 
 ---
 

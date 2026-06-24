@@ -1,5 +1,5 @@
 # Agent 讨论室 · 定稿决议
-# status: draft | in_review | approved | rejected
+# status: draft | in_review | approved | rejected | blocked_gate_check
 
 status: draft
 topic_id: T___
@@ -40,3 +40,19 @@ gates:
   p0_count: 0
   fact_check_clear: false
   retention_aligned: false
+  script_review_pass: false
+  scorecards_phase_a_pass: false   # Phase A 必跑工种 avg 均 ≥90
+  scorecards_phase_b_pass: false   # render 后复评 ≥90
+  scorecards_all_pass: false       # 由 gate_check.py 写入，禁止手填 true
+  gate_check_pre_render: false
+  gate_check_post_render: false
+  gate_check_approve: false
+  multi_agent_phase_a: false
+  multi_agent_phase_b: false
+
+# 变更 → 级联作废 scorecard（见 pipeline/gate_check.py INVALIDATE_MAP）
+invalidates_on:
+  script: [编剧, 留存与互动设计师, 编导]
+  storyboard: [动效分镜师, 动效设计师, 留存与互动设计师]
+  render: [动效设计师, 视觉设计, 编剧, 编导, 留存与互动设计师]
+  cover: [视觉设计, 编导]

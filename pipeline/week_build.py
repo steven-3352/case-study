@@ -28,6 +28,22 @@ SPEC = {
 }
 NAME = {"douyin": "抖音", "xhs": "小红书"}
 
+SCORECARD_PASS = 90
+
+
+def _run_gate(day_dir: pathlib.Path, phase: str, label: str) -> bool:
+    from pipeline.gate_check import gate_check
+
+    r = gate_check(day_dir, phase=phase)
+    if r.ok:
+        return True
+    print(f"  ✗ {label} gate_check({phase}) FAIL — 铁律 blocked")
+    for e in r.errors[:12]:
+        print(f"      · {e}")
+    if len(r.errors) > 12:
+        print(f"      · …共 {len(r.errors)} 项 · python3 pipeline/gate_check.py --day {day_dir.name}")
+    return False
+
 
 def publish_md(
     *,
@@ -137,6 +153,9 @@ def build_one(day_cfg: dict, topics: dict, week_id: str, *, force: bool = False)
             return
         if verdict.get("status") != "approved":
             print(f"  ⚠ {day_cfg['day']}-{day_cfg['slug']} 讨论室未 approved，跳过")
+            return
+        # 铁律：永远跑 gate_check，不因 gates.*=true 跳过（防手填绕过）
+        if not _run_gate(day_dir, "approve", f"{day_cfg['day']}-{day_cfg['slug']}"):
             return
     day_dir.mkdir(parents=True, exist_ok=True)
     proj_dir = ROOT / "projects" / pid
@@ -270,6 +289,7 @@ def write_week_readme(week: dict) -> None:
         "```bash",
         "python3 pipeline/week_build.py              # 文案 + content.yaml",
         "python3 pipeline/week_build.py --render     # 并渲染视频",
+        "python3 pipeline/gate_check.py --all      # 铁律门禁（fail-closed）",
         "```",
         "",
         "## 形式说明",
@@ -303,6 +323,12 @@ def main() -> None:
             days = [d for d in days if d["project_id"] == args.id]
         for day_cfg in days:
             pid = day_cfg["project_id"]
+            day_dir = WEEK_DIR / f"{day_cfg['day']}-{day_cfg['slug']}"
+            if not args.force:
+                # 铁律：TTS/render 有成本 · 须 pre_render 全工种 90+（不论 verdict status）
+                if not _run_gate(day_dir, "pre_render", f"{pid} pre_render"):
+                    print(f"  ⛔ {pid} 跳过 TTS/render — 先 gate_check(pre_render) PASS")
+                    continue
             print(f"\n渲染 {pid} …")
             run_render(pid)
             sync_assets(pid, day_cfg)

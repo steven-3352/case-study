@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D05 CTA Confirm</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    .phone {
+      position: absolute;
+      left: 60px;
+      right: 60px;
+      top: 380px;
+      bottom: 520px;
+      background: #111;
+      border-radius: 32px;
+      border: 3px solid #333;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .remind {
+      align-self: center;
+      background: rgba(255,82,82,0.2);
+      border: 2px solid rgba(255,82,82,0.5);
+      color: var(--orange);
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 30px;
+      font-weight: 700;
+      opacity: 0;
+    }
+    .bubble {
+      align-self: flex-end;
+      background: #95ec69;
+      color: #111;
+      padding: 22px 28px;
+      border-radius: 16px;
+      font-size: 34px;
+      font-weight: 700;
+      max-width: 85%;
+      opacity: 0;
+    }
+    .reply {
+      align-self: flex-start;
+      background: #2a2a2a;
+      color: var(--gray-1);
+      padding: 20px 24px;
+      border-radius: 16px;
+      font-size: 32px;
+      opacity: 0;
+    }
+    .cta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 420px;
+      text-align: center;
+      padding: 0 50px;
+    }
+    .cta-main {
+      font-size: 64px;
+      font-weight: 900;
+      color: var(--gray-1);
+      opacity: 0;
+      line-height: 1.2;
+    }
+    .cta-main .accent { color: var(--orange); }
+    .cta-sub {
+      margin-top: 28px;
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--green);
+      opacity: 0;
+    }
+    .arrow {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 320px;
+      text-align: center;
+      font-size: 120px;
+      color: var(--green);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="phone">
+      <div class="remind" id="remind">开票节点 · 明天到期</div>
+      <div class="bubble" id="send">张总，今天能开吗？</div>
+      <div class="reply" id="reply">收到，今天开 👌</div>
+    </div>
+    <div class="cta">
+      <div class="cta-main" id="main">催进度还在<span class="accent">微信里</span>？</div>
+      <div class="cta-sub" id="sub">评论区说说你们怎么盯节点</div>
+    </div>
+    <div class="arrow" id="arrow">↓</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.remind_line) document.getElementById("remind").textContent = data.remind_line;
+    if (data.confirm_line) document.getElementById("reply").textContent = data.confirm_line;
+    if (data.cta_main) {
+      document.getElementById("main").innerHTML = data.cta_main.replace(/微信里/g, '<span class="accent">微信里</span>');
+    }
+    if (data.cta_sub) document.getElementById("sub").textContent = data.cta_sub;
+
+    const tl = gsap.timeline();
+    tl.fromTo("#remind", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.1);
+    tl.fromTo("#send", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.35, ease: "back.out(1.6)" }, 0.4);
+    tl.fromTo("#reply", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 0.9);
+    tl.fromTo("#main", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 1.4);
+    tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 1.8);
+    tl.fromTo("#arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.35, ease: "bounce.out" }, 2.1);
+    tl.to("#arrow", { y: 20, duration: 0.5, repeat: -1, yoyo: true, ease: "sine.inOut" }, 2.5);
+    tl.to({}, { duration: 1.0 }, 2.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

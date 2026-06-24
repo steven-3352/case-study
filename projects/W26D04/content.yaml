@@ -7,77 +7,54 @@ topic:
 shots: []
 douyin:
   title: 300个老客户，复购全靠Excel记
-  body: 获客贵，复购靠脑子记和Excel，第25天该提醒了没人触达，客户悄悄流失。
+  body: '不是卖课，是我帮一个小团队改复购提醒的过程。**不讲功效**，只讲第25天该触达别靠人记。
+
+
+    312个老客，本应在第25天提醒48个，实际触达11个。销售一走，一半客户跟进节奏断档。
+
+
+    购买日、周期、下次触达日、沉默标记——四个字段先跑起来。触达是服务跟进，不是功效承诺。
+
+
+    复购提醒靠人记的，你们怎么跟？评论区说说。
+
+    '
   tags:
   - 私域运营
   - 复购
   - 小团队
   - 客户管理
   - 创业
-  duration_s: 40
-  interaction: 复购提醒靠人记的，评论区说说你们怎么跟。
+  duration_s: 55.5
+  interaction: 靠人记还是靠表算？评论区说说你们怎么跟老客。
   cover:
-    hook: '300老客户
-
-      复购靠Excel'
-    kicker: 营养品 · 复购
-    sub: 第25天该提醒了
-    mark: 靠Excel
-  segments:
-  - source: evidence
-    ref: d04-1
-    evidence_kind: metric
-    detail: '老客户 312
-
-      本应在第25天提醒 48
-
-      实际触达 11'
-    vo: 300多个老客户，复购提醒全靠Excel和销售脑子记。
-    sub: 复购靠Excel
-    emotion: surprised
-  - source: evidence
-    ref: d04-2
-    evidence_kind: note
-    detail: '销售离职
-
-      一半客户跟进节奏
-
-      存在她微信里 → 断档'
-    vo: 销售一走，一半老客户的跟进节奏直接断档。
-    sub: 人走就断
-    emotion: sad
-  - source: evidence
-    ref: d04-3
-    evidence_kind: note
-    detail: 字段：购买日 / 周期天数 / 下次触达日 / 状态
-    vo: 购买日、周期、下次触达日、沉默标记，四个字段先跑起来。
-    sub: 四个字段先跑
-    emotion: happy
-  - source: evidence
-    ref: d04-4
-    evidence_kind: note
-    detail: '触达模板
-
-      「快用完了吗，需不需要补一份」
-
-      （服务跟进，非功效承诺）'
-    vo: 触达是服务跟进，不是功效承诺，模板先固定。
-    sub: 服务跟进非功效
-    emotion: neutral
+    style: video_frame
+    at: 1.0
+  segments: []
 xhs:
   title: 小团队卖营养品，复购提醒表比投流重要
-  body: '不讲吃什么的功效，只讲跟进节奏。
+  body: '不是教程，只讲跟进节奏，**不讲功效**。
 
 
-    30天装客户，第25天该触达。靠人记必漏。
+    **原来断在哪**
+
+    · 312老客，第25天应提醒48，实际触达约11
+
+    · 销售离职 → 跟进节奏断档
+
+    · 触达无模板，不好意思老发消息
 
 
-    复购提醒表字段：
+    **四字段表**
 
-    · 购买日 · 周期 · 下次触达日 · 触达状态 · 沉默天数
+    1. 购买日 · 周期天数
+
+    2. 下次触达日 · 触达状态
+
+    3. 沉默标记 · 唤醒节点
 
 
-    销售离职也不应带走整条跟进链。
+    收藏备用。复购提醒靠人记的，评论区说说你们怎么跟。
 
     '
   tags:
@@ -87,12 +64,11 @@ xhs:
   - 小团队
   - 创业干货
   duration_s: 0
-  interaction: 需要表模板扣「复购」。
+  interaction: 复购提醒靠人记的，说说你们怎么跟。
   cover:
-    hook: '复购在漏
-
-      你知道吗'
-    kicker: 营养品 · 提醒表
-    sub: 第25天该触达了
-    mark: 在漏
+    style: comic_frame
+    ref: carousel/01.png
   segments: []
+  carousel:
+    route: p007_comic
+    slides: 6
