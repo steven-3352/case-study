@@ -41,7 +41,8 @@ python3 pipeline/tts/gen_speech.py \
 - **复用**: 现有 `build_shots.py` 渲染真实页面帧（legacy）
 
 ### 4. 视频生产
-- **剪辑**: 剪映专业版（字幕、比例、三平台导出）
+- **画面**：9:16 全屏演示为主；出镜按四形态（`docs/DECISIONS.md` Q8）— 演示/知识默认不出镜，带货/出镜可真人；**数字人暂停**
+- **剪辑**：剪映专业版（字幕、比例、三平台导出）或 `pipeline/render.py` / `p004_video/build.py`
 - **规格**:
   - 抖音/小红书: 1080×1920, H.264
   - 抖音: 45–60s
@@ -50,9 +51,9 @@ python3 pipeline/tts/gen_speech.py \
 - **Phase 2 可选**: `ffmpeg` 批量裁切（已有 `build_video.py` 经验）
 
 ### 5. 图文生产
-- **禁止默认**: `build_slides.py` 黑金 11 张架构体
-- **推荐**: 备忘录风 + 真实截图 + 数字人封面
-- **可选工具**: `build_shots.py`、Canva、Figma
+- **禁止默认**: `build_slides.py` 黑金 11 张架构体（见 DECISIONS Q9）
+- **推荐**: 真实截图 + 备忘录/浏览器等体裁混搭（≥3 种）
+- **可选工具**: `build_shots.py`、`gen_evidence.py`、P002 GPT 图、Canva
 
 ### 6. 选题与指标
 - **选题**: `queue/topics.yaml`（Git 跟踪）
@@ -72,14 +73,20 @@ python3 pipeline/tts/gen_speech.py \
 - Google Chrome（build_shots）
 - ffmpeg
 - 剪映
-- 数字人 SaaS（待定）
+- 数字人 SaaS（**暂停**，资产备查）
+
+## 调研与数据
+
+- **公开社交调研**：Agent-Reach（小红书/B站/Reddit）— 消费者声音研究员用
+- **禁止**：爬淘宝/京东/拼多多/抖店商品详情页
+- **指标**：`ops/metrics.csv` + `pipeline/fetch_platform_metrics.py`（48h 回填）
 
 ## 刻意不做的（Phase 0–1）
 
 - ❌ 自动发布到三平台（API 不稳定、风控）
 - ❌ 复杂 CMS / 数据库
-- ❌ 全自动数字人 API（先人工跑通再对接）
-- ❌ 爬虫抓平台数据（手工记录更可靠）
+- ❌ 全自动数字人 API（真人出镜已按形态解锁，数字人仍暂停）
+- ❌ 爬电商商品详情（公开社交内容调研除外，见上）
 
 ## Phase 2 最小脚本清单（届时再写）
 

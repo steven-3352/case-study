@@ -2,7 +2,7 @@
 
 > **任何模型接入本仓库，先读本文。** 执行细则见 `CLAUDE.md`；辩论锁定见 `docs/DECISIONS.md`。
 >
-> 最后同步：**2026-06-21** · 维护规则见 [§7 文档维护](#7-文档维护)
+> 最后同步：**2026-06-24** · 维护规则见 [§7 文档维护](#7-文档维护)
 
 ---
 
@@ -97,6 +97,23 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 
 - **唯一工作分支 `main`** — 克隆后 `git checkout main && git pull origin main`
 
+### 2.6 周发布包流程（`publish/2026-W26/` 等）
+
+单选题走 §2.2；**周批**叠加讨论室与 gate（**禁止直接 render**）：
+
+```
+立项（week.yaml / topics_content.yaml）
+  → 讨论室 room/ + discussion.md
+  → scorecard Phase A（每工种 ≥2 人、≥90 分）
+  → gate_check.py --phase approve（内容门）
+  → render / week_build.py --render
+  → cover_review pass + pre_publish_forecast
+  → scorecard Phase B + gate_check 形式门
+  → 人工发布 → fetch_platform_metrics → evolution_apply
+```
+
+命令链：`.cursor/rules/content-prep-multi-agent.mdc`。`--force` 须登记 `docs/design/GATE_BYPASS_LOG.md`，**禁止外发**。
+
 ---
 
 ## 3. 执行铁律
@@ -113,19 +130,62 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 5 | **尽一切让内容更好** — 不可「能出片就行」 |
 | 6 | **自我进化** — 提标准 → 测 → 更新 Rubric + gate + REJECT_LOG |
 
+### 3.1a 双人互评（90 分门禁 · 与上表同级）
+
+> 详规：`.cursor/rules/content-outcome-accountability.mdc` · `templates/design/scorecard_enforcement.md`
+
+| 规则 | 说明 |
+|------|------|
+| 每工种 ≥2 评审 | 不同 `angle`，禁止自评 |
+| **≥90 才 pass** | 每位 score ≥90 且 avg ≥90；**89=fail** |
+| Phase A + B | 立项 scorecard + 出片前复验 |
+| 独立打分 | `review_mode: independent`；禁止同 session 自填 90+ |
+
+未达标：**禁止 render / 禁止 approved**。
+
 ### 3.2 留存铁律（音画图文）
 
 1. **清晰直给** — 极短时间内语音+文字+图像抓住眼球；一屏一主信息
 2. **图像清晰** — 语义无歧义、画面美观；可识别角色/物件，非抽象圆点
 3. **文字可读** — 标题/拟声/CTA 互斥布局；出图后逐张检查遮挡
 
+### 3.2a 视觉路线 · 证据优先（DECISIONS Q9）
+
+- **80% 画面** = 真实截屏/录屏（保留 URL 栏、状态栏等使用痕迹）
+- **体裁混搭** — 同一套图文 ≥3 种体裁；禁止多张同一 HTML 结构批量出图
+- **禁作主视觉** — 黑金 `build_slides` 直出、统一备忘录 HTML 模版、精美包装帧整段停住
+- **AI 生图** — 本路线不作主视觉；chaos 钩子 **必须真实 B-roll**，禁止 AI 替代手机场景
+- 无实拍可用 `gen_evidence.py` 仿真体裁（仍须混搭、禁模版感）
+
+### 3.2b 数据叙事（DECISIONS Q4 · `ops/data-policy.yaml`）
+
+| 层 | 用法 |
+|----|------|
+| **A 真实** | 真实私信/后台/录屏/发布后数据 — 优先 |
+| **B 项目真实+区间** | 系统确有其物，效果用区间（「留资个位数」） |
+| **C 叙事修饰** | 无精确数时的合理表述，禁可验证假里程碑 |
+
+**项目画面必须真实**；效果数字按 A/B/C，禁止 P 图假后台。
+
+### 3.2c 成功标准（DECISIONS Q6）
+
+- **无硬性 KPI** — `ops/rules.yaml` 阈值为复盘参考，不是过关门槛
+- **最强正向信号** — 主动私信；有私信记入 `metrics.notes`
+
 ### 3.3 内容硬约束
 
 - 画布 **9:16 · 1080×1920**（`pipeline/screen_dims.py`）
 - 视频 **音画三件套**：配音 + BGM + 字幕；外发默认 `*_with_bgm.mp4`
-- 前 **3s 冲突钩子**：大字 + 演示画面（或真人表情）
+- 前 **3s 冲突钩子**：大字 + 演示画面（或真人冲突表情）
 - 项目结果先于方法论；业务问题先于技术栈
-- 演示/知识型默认全屏演示不出镜（真人出镜已解锁，见 DECISIONS Q8）
+- **出镜（DECISIONS Q8）** — 数字人仍暂停；真人按形态：
+
+| 形态 | 出镜 |
+|------|------|
+| 演示型（默认） | ❌ 全屏演示，不出镜 |
+| 知识型 | ❌ 默认不出镜；可画中角上半身 |
+| 带货型 | ✅ 真人（脸/手/产品）可作主画面 |
+| 出镜型 | ✅ 真人为主，演示为辅 |
 
 ### 3.4 拒稿级反例（摘要）
 
@@ -163,7 +223,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | **投后指标** | `pipeline/fetch_platform_metrics.py` · `import_metrics_48h.py` | 48h 回填 |
 | **标准进化** | `pipeline/evolution_apply.py` | 数据驱动 Rubric/gate 更新 |
 | **消费者调研** | Agent-Reach CLI | 小红书/B站/Reddit 公开内容 |
-| **发布输出** | `publish/` | 成品+文案（git 忽略媒体） |
+| **发布输出** | `publish/` | 文案+清单（`*.png`/`*.mp4` 不入库） |
 | **验收** | `pipeline/CHECKLIST.md` | 发布前清单 |
 
 ### 4.2 怎么组织使用（决策树）
@@ -202,7 +262,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 
 | 项 | 值 |
 |----|-----|
-| 阶段 | **Phase 0** — 备齐 pipeline，Project-001 / W26 周包验证 |
+| 阶段 | **Phase 0–1** — pipeline 已跑通；**W26 周包** + gate/evolution 在实战 |
 | 工作分支 | `main` |
 | 内容皮肤 | 小老板 + 小系统（获客向） |
 | 每日执行 | `docs/TODO.md` |
@@ -215,6 +275,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 文档 | 读何时 |
 |------|--------|
 | **本文 `docs/SYSTEM.md`** | 首次接入 / 大改后对齐全貌 |
+| **`.cursor/rules/*.mdc`** | Cursor 自动加载铁律（90 分互评、讨论室、结果负责制） |
 | `CLAUDE.md` | Agent 执行：工种、11 步、反例、环境 |
 | `docs/DECISIONS.md` | 皮肤层策略辩论结论（Q1–Q8） |
 | `templates/README.md` | 产出格式 vs 渲染场景 vs 形式词汇 |
@@ -226,6 +287,10 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | `docs/design/*_REJECT_LOG.md` | 拒稿案例与进化依据 |
 | `templates/design/completion_rate_north_star.md` | 完播北极星细则 |
 | `templates/design/content_form_split_gates.md` | 两道门 |
+| `templates/design/scorecard_enforcement.md` | 90 分互评门禁 |
+| `ops/data-policy.yaml` | 数据叙事 A/B/C |
+| `ops/rules.yaml` | 复盘参考阈值（非硬 KPI） |
+| `persona/persona.yaml` | 口吻、禁词、视频布局 |
 | `legacy/README.md` | 旧案例素材包（降级，非首发默认） |
 
 **已废弃仅留跳转：** `PROJECT.md` · `docs/BLUEPRINT.md` → 指向本文。
@@ -240,7 +305,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 |----------|----------|
 | 宗旨 / 阶段 / 皮肤定位 | 本文 §1、§5 · `docs/DECISIONS.md`（若战略变） |
 | 工作流程 / 门禁 | 本文 §2 · `CLAUDE.md` · 相关 `templates/design/*` |
-| 铁律 / 验收标准 | 本文 §3 · `CLAUDE.md` · `pipeline/CHECKLIST.md` |
+| 铁律 / 验收标准 | 本文 §3 · `CLAUDE.md` · `pipeline/CHECKLIST.md` · `.cursor/rules/` |
 | 新增/废弃 pipeline | 本文 §4 · `pipeline/README.md` |
 | 形式词汇 | `assets/formats/catalog.yaml` · 本文 §4.1 |
 | 拒稿教训 | `docs/design/*_REJECT_LOG.md` · 必要时回写 §3 |
