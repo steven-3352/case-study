@@ -1,6 +1,6 @@
 # templates/ · 工种产出格式（不是成片套路）
 
-> **本目录没有「标准内容模板」可每条套用。**
+> 系统全貌：[docs/SYSTEM.md](../docs/SYSTEM.md) · Agent 执行：[CLAUDE.md](../CLAUDE.md)
 > 每条选题必须基于自己的洞察包、节拍表、分镜单独定表达；禁止克隆上一条的骨架、画面或 catalog 拼盘。
 
 ## 三类东西，别混

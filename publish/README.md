@@ -1,6 +1,7 @@
 # 待发布成品
 
-> 引擎最终输出层：讨论定稿 → pipeline 生产 → 可直接发布的文案 + 素材。
+> 引擎最终输出层（SYSTEM §2 Layer 3 下游）：讨论定稿 → pipeline 生产 → 文案 + 素材。
+> 系统说明：[docs/SYSTEM.md](../docs/SYSTEM.md)
 
 ## 目录一览
 

@@ -18,10 +18,10 @@ python3 build_video.py
 
 ## 参考文案（勿直接复制发布）
 
+旧版 `article.md` / `article_c.md` / `voiceover.md` 已删除；口吻与发布结构见 `publish/` 与 `templates/publish_三平台.md`。
+
 | 路径 | 说明 |
 |------|------|
-| `article.md` / `article_c.md` | 旧版长文口吻 |
-| `voiceover.md` | Edge TTS 口播稿说明 |
 | `发布/` | Project-001 三形态图文/视频文案（A/B/C） |
 | `voice-clone/` | GPT-SoVITS 声音克隆（已放弃，2026-06-16） |
 

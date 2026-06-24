@@ -8,7 +8,7 @@
 ## W1 · IP 资产
 
 ### D1 · 项目对齐
-- [ ] 读 `docs/BLUEPRINT.md` 和 `docs/TECH_STACK.md`
+- [ ] 读 `docs/SYSTEM.md` 和 `docs/TECH_STACK.md`
 - [ ] 填 `persona/persona.yaml` 的 name、handle
 - [ ] 复制 `ops/metrics.template.csv` → `ops/metrics.csv`
 - [ ] 确认 `queue/topics.yaml` T001 为 approved
