@@ -1,6 +1,6 @@
 # CLAUDE.md — AI 小系统获客引擎 · 项目规则
 
-> **首读：** [docs/SYSTEM.md](docs/SYSTEM.md)（宗旨 · 工作方式 · 铁律 · 能力全景 · 文档维护）
+> **首读：** [docs/SYSTEM.md](docs/SYSTEM.md)（§1.0 北极星 · 宗旨 · 工作方式 · 铁律 · 能力全景 · 文档维护）
 >
 > 本文：Agent **执行细则**（工种、11 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
 
@@ -195,9 +195,9 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 铁律 · 结果负责制（2026-06 起 · D04 升级）
 
-0. **完播率北极星** — `completion_rate` + `completion_3s` 贯穿全链路；前 3 秒须拆解同行业热门的人设/镜头/音乐，结合自身特点设计停划。详规：`templates/design/completion_rate_north_star.md`
+0. **北极星** — 做出用户愿意看完、且互动高的内容；视频看 `completion_3s` + `completion_rate` + 评论/收藏；图文看划完 + 收藏/评论。前 3s 须拆同行热门设计停划。详规：`docs/SYSTEM.md` §1.0 · `templates/design/completion_rate_north_star.md`
 
-1. **不看系统有什么，只看能做到什么** — pipeline/仓库里的场景文件/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
+1. **不看仓库有什么，只看哪条实现更强** — pipeline/场景文件/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。实现选型：`docs/SYSTEM.md` §4.2
 2. **内容门与形式门分开** — 脚本 90+ 允许 TTS；**形式**（视觉同质、分析师 forecast、CTA 完整）pass 才允许外发。禁止 catalog 拼盘假 approved。
 3. **合规分 vs 效果分** — scorecard 纸面 90+ ≠ 能投；外发以像素 + `pre_publish_forecast` 为准。差距 >5 归档 `form_audit`。
 4. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质。
@@ -228,6 +228,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - ❌ 把「选品分析」塞给编剧/记者糊弄过去 → 不懂 SKU 的卖点提炼是假卖点
 - ❌ 脚本 90+ 但形式 catalog 拼盘仍外发 → **平台表现分析师 + 编导** 退稿（D04 v10 教训）
 - ❌ 无 `pre_publish_forecast` 或形式 forecast fail 仍 approve
+- ❌ 因「P004 是默认视频线」或「Three 更酷」选实现 → 须按 SYSTEM §4.2 对每一镜打分
 
 ---
 
