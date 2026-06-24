@@ -26,6 +26,16 @@
 
 换一批选题（行业、形态、平台），**同一套引擎仍应能跑**；垂直方向是可替换的「内容皮肤」，不是引擎定义本身。
 
+## 无标准内容模板
+
+引擎**没有**可套用的「标准成片模板」。每条内容：
+
+- 从 `queue/topics.yaml` 选题出发，跑完洞察包与节拍表
+- 分镜为本条单独定钩子、隐喻、形式组合（≥3 种观感）
+- `pipeline/*/templates/*.html` 是**渲染场景**（技术壳），不是默认抄用的内容套路
+
+用语与门禁见 [templates/README.md](templates/README.md)。
+
 ## 当前内容皮肤（账号）
 
 现阶段用「小老板 + 小系统」验证流水线，并顺带获客。这是**当前选题与人设**，不是项目边界。
@@ -62,7 +72,7 @@
 ```
 persona/          IP 配置（persona.yaml）· 当前内容皮肤的人设
 queue/            指定选题队列（你主要输入）· 见 topics.yaml
-templates/        脚本/发布模板
+templates/        工种产出格式（见 templates/README.md，非成片套路）
 assets/           B-roll / 项目截图录屏
 pipeline/         生产流水线（渲染组装层）
 publish/          可发布成品 + 三平台文案

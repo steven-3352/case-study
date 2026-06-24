@@ -4,6 +4,8 @@
 >
 > 本目录是引擎的**渲染与组装层**（BLUEPRINT Layer 3）。上游为 `queue/topics.yaml` 选题 + `CLAUDE.md` 多 Agent 工种编排（采料、脚本、分镜、合规、文案）；下游为 `publish/` 发布包。
 
+**用语：** `pipeline/*/templates/*.html` 是**渲染场景**（截帧画布），不是可套用的标准内容模板。每条选题单独分镜；可新建场景或重写，禁止克隆上一条。见 [templates/README.md](../templates/README.md)。
+
 ## 通用产线（新）：输入任意项目 → 三平台短视频
 
 一条命令，从 GitHub 仓库（demo 可选）自动产出抖音/小红书/视频号的

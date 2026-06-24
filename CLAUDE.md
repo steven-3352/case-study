@@ -47,7 +47,7 @@ pip install openai pillow python-dotenv edge-tts requests
 | P001 真实截图风 | `pipeline/render_p001.py --all` | 仿真 B-roll + 三平台视频/图文 |
 | P001 仿真素材 | `pipeline/gen_evidence.py` | Chrome 渲 HTML 出 9:16 满铺帧 |
 | P002 报纸风出图 | `pipeline/p002_carousel_gen.py` | GPT-image-2 整版报纸风轮播 |
-| P004 视频总编排 | `pipeline/p004_video/build.py` | HTML+GSAP 模板 → PNG → mp4 + VO + BGM + 字幕 |
+| P004 视频总编排 | `pipeline/p004_video/build.py` | HTML+GSAP 渲染场景 → PNG → mp4 + VO + BGM + 字幕 |
 | TTS 配音 | `pipeline/tts/gen_speech.py --script <path>` | `config.yaml` provider: edge / minimax / volcengine |
 | 调研工具 | `agent-reach`(独立 CLI) | 小红书/B站/Reddit 公开内容拉取(消费者声音研究员用) |
 
@@ -69,7 +69,15 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - 项目演示落地页 / 长滚动案例页
 - 交互式作品集 / Before-After 对比
 - 网页动效 → 录屏当 B-roll
-- 报纸风不适合时 HTML+GSAP 拼版面再截图
+- 报纸风不适合时 HTML+GSAP 拼版面再截图（**为本条写场景**，非套旧文件）
+
+## 无标准内容模板（用语）
+
+- **工种产出格式** → `templates/`（洞察、节拍、音画等文档结构）
+- **渲染场景** → `pipeline/*/templates/*.html`（截帧用画布；每条可新建或重写）
+- **形式词汇** → `assets/formats/catalog.yaml`（观感类型，不是指定 `.html` 文件名）
+
+**禁止**：从上一条克隆分镜/画面、catalog 标配三连、同场景占全片大部分时长。详见 `templates/README.md`。
 
 ---
 
@@ -92,7 +100,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **领域专家** | 项目：业务逻辑/流程；带货：品类决策链、竞品差异 | `insights/domain_notes.md` |
 | **事实校验员** | 核对数据、SKU、引用；标红不可写 | `insights/fact_check.md` |
 
-模板见 `templates/insights/`。**门禁：** 洞察包未完成 → 禁止编剧写稿。
+产出格式见 `templates/insights/`。**门禁：** 洞察包未完成 → 禁止编剧写稿。
 
 #### 网络调研层（所有选题必跑 · 2026-06 起）
 
@@ -123,7 +131,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **留存与互动设计师** | 完播节拍、形式切换、互动 CTA | `retention_beat_sheet.md` |
 | **声音设计师** | 配音、BGM 情绪、字幕方案 | `audio_plan.yaml` |
 
-模板见 `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`。**门禁：** 无留存节拍表 → 禁止出分镜；无音画方案 → 禁止进 publish。
+产出格式见 `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`。**门禁：** 无留存节拍表 → 禁止出分镜；无音画方案 → 禁止进 publish。
 
 #### 带货扩展 4 工种（带货型选题激活）
 
@@ -191,7 +199,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 0. **完播率北极星** — `completion_rate` + `completion_3s` 贯穿全链路；前 3 秒须拆解同行业热门的人设/镜头/音乐，结合自身特点设计停划。详规：`templates/design/completion_rate_north_star.md`
 
-1. **不看系统有什么，只看能做到什么** — pipeline/模板/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
+1. **不看系统有什么，只看能做到什么** — pipeline/仓库里的场景文件/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。
 2. **内容门与形式门分开** — 脚本 90+ 允许 TTS；**形式**（视觉同质、分析师 forecast、CTA 完整）pass 才允许外发。禁止 catalog 拼盘假 approved。
 3. **合规分 vs 效果分** — scorecard 纸面 90+ ≠ 能投；外发以像素 + `pre_publish_forecast` 为准。差距 >5 归档 `form_audit`。
 4. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质。
@@ -214,7 +222,9 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - ❌ 无留存节拍表就出分镜 → 中段拖沓、完播差
 - ❌ 发裸片（无 BGM / 无字幕）→ 违反音画硬门槛
 - ❌ 跳过视觉设计 → 所有选题都出报纸风
-- ❌ 全片单一 HTML 模板 → 观赏性差、用户划走
+- ❌ 全片单一渲染场景或同质画面 → 观赏性差、用户划走
+- ❌ 从上一条克隆分镜/画面（模板克隆）→ 见 `SCRIPT_REJECT_LOG.md`
+- ❌ 用形式库 catalog 拼盘代替本条分镜设计 → 平台表现分析师退稿
 - ❌ 工种产出混成一份不可分辨的文档
 - ❌ 带货选题跳过合规审核 → 一夜封号
 - ❌ 把「选品分析」塞给编剧/记者糊弄过去 → 不懂 SKU 的卖点提炼是假卖点

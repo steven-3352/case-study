@@ -1,7 +1,8 @@
 # P004 · K1 视频 · 分镜参数 · v2 定稿(实体店老板版)
 #
-# 编辑此文件 → 不改 HTML/CSS 就能调时长、文字、数字
-# 改 HTML 模板 → 视觉风格升级
+# 编辑此文件 → 调时长、口播字、注入 data
+# 改 HTML → 为本条新建/调整渲染场景（非默认套用上一条画面）
+# 用语见 templates/README.md · 形式词汇见 assets/formats/catalog.yaml
 #
 # 受众: 实体店老板(餐饮/美容/教培/母婴/零售)
 # 钩子结构: chaos(broll 1.0s) → punch1(0.6s "又是这个") → punch2(1.4s "问八百遍")

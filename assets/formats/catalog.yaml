@@ -1,38 +1,42 @@
-# 表现形式库 · 分镜选型用
-# 导演分镜须从本表选 ≥3 种形式；同一 HTML 模板不超过全片 40% 时长
+# 表现形式词汇表 · 分镜选型用
+#
+# 本文件是「观感类型」词汇，不是「选哪个 HTML 文件套用」。
+# 导演分镜：为本条选题定 ≥3 种不同观感；可新建渲染场景，勿克隆上一条。
+# pipeline/*/templates/*.html 仅是历史渲染实现示例；同场景全片 ≤40% 时长、同场景 ≤1 镜。
+# 用语见 templates/README.md
 
 formats:
   - id: chaos_broll
     name: Chaos B-roll
     use: 前 3s 钩子，真实手机/场景素材
     pipeline: P004 type=broll
-    example: pipeline/p004_video/storyboard.yaml · 01a_chaos
+    example: storyboard 01a_chaos · 须真实素材
 
   - id: punch_black
     name: 黑底大字 Punch
     use: 钩子砸字、CTA 收束
-    pipeline: P004 templates/01b_punch.html
-    example: 又是这个 / 问八百遍
+    pipeline: P004 黑底大字渲染场景
+    example: 又是这个 / 问八百遍（每条自拟文案与版式）
 
   - id: pain_stack
     name: 痛点堆叠
     use: 具体问题罗列、重复强调
-    pipeline: P004 templates/02_pain.html
+    pipeline: P004 痛点堆叠类渲染场景
 
   - id: agent_grid
     name: 多角色/多系统网格
     use: 展示分工、系统能力
-    pipeline: P004 templates/03_agent_grid.html
+    pipeline: P004 网格类渲染场景
 
   - id: before_after
     name: 改造前后对比
     use: 反转、信任建立
-    pipeline: P004 templates/06_compare.html
+    pipeline: P004 对比类渲染场景
 
   - id: meta_reveal
     name: 元层自指
     use: 「这条就是它做的」类证明
-    pipeline: P004 templates/07_meta_broll.html
+    pipeline: P004 元层揭示类渲染场景
 
   - id: broll_demo
     name: 录屏/后台演示
@@ -42,18 +46,18 @@ formats:
   - id: price_split
     name: 价位锚点分屏
     use: 带货比价、价值感
-    pipeline: P005 templates/05_price_split.html
+    pipeline: P005 价位分屏类渲染场景
 
   - id: ingredients_grid
     name: 成分/卖点网格
     use: 带货成分拆解
-    pipeline: P005 templates/04_ingredients_grid.html
+    pipeline: P005 成分网格类渲染场景
 
   - id: comic_4panel
     name: 漫画分镜
     use: 故事化、轻幽默、小红书轮播
-    pipeline: P006 templates/*_comic.html · P007 xhs_engine_comic
-    example: pipeline/p007_xhs_engine_comic/capture_carousel.py
+    pipeline: P006/P007 漫画渲染场景
+    example: capture_carousel.py · 每条单独分镜
 
   - id: newspaper_carousel
     name: 报纸风轮播
@@ -66,6 +70,7 @@ formats:
     pipeline: 手工 / P002 混合
 
 rules:
-  min_distinct_formats: 3
-  max_single_template_ratio: 0.40
-  chaos_must_be_real_footage: true  # 反 AI 味：钩子 chaos 禁止 AI 出图
+  min_distinct_formats: 3          # 本条片内 ≥3 种观感，非拼 catalog ID
+  max_single_scene_ratio: 0.40     # 同一渲染场景时长占比上限（旧名 max_single_template_ratio）
+  no_clone_previous_topic: true    # 禁止克隆上一条分镜/画面
+  chaos_must_be_real_footage: true # 钩子 chaos 禁止 AI 出图

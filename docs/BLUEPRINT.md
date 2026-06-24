@@ -64,12 +64,12 @@ Layer 5  反馈修正     rules.yaml → 周度报告 → 下批方向
 | 模块 | 路径 | 职责 | 自动化阶段 |
 |------|------|------|-----------|
 | **编排规则** | `CLAUDE.md` | 多 Agent 工种清单与协作流程 v2（Layer 2） | Phase 0 人工串行 → Phase 2+ Agent 并行 |
-| **洞察模板** | `templates/insights/` | topic_brief · core_message · domain_notes · fact_check | 每条选题必产出 |
-| **留存/音画模板** | `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml` | 完播节拍 + 配音/BGM/字幕方案 | 视频必跑 |
-| **形式库** | `assets/formats/catalog.yaml` | 分镜可选表现形式（≥3 种） | Phase 0 登记 → 分镜引用 |
+| **洞察产出格式** | `templates/insights/` | topic_brief · core_message · domain_notes · fact_check | 每条选题必产出 |
+| **留存/音画产出格式** | `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml` | 完播节拍 + 配音/BGM/字幕方案 | 视频必跑 |
+| **形式词汇** | `assets/formats/catalog.yaml` | 分镜用观感类型（≥3 种），非 HTML 文件套用 | Phase 0 登记 → 分镜引用 |
 | **IP 配置** | `persona/` | 人设、禁用词、标签策略（随内容皮肤） | Phase 0 定稿 |
 | **选题队列** | `queue/` | **引擎输入**：指定选题、形态、状态 | Phase 0 人工 → Phase 3 半自动 |
-| **内容模板** | `templates/` | 脚本/发布模板；工种产出格式 | Phase 0 人工填 → Phase 1 AI 辅助 |
+| **工种产出格式** | `templates/` | 各工种文档结构；**非成片套路**（见 `templates/README.md`） | Phase 0 人工填 → Phase 1 AI 辅助 |
 | **素材库** | `assets/` | 项目截图、录屏、B-roll | Phase 0 人工拍 → 持续积累 |
 | **生产流水线** | `pipeline/` | 脚本→画面→配音→导出（Layer 3） | Phase 0 全人工 → Phase 1 半自动 |
 | **运营反馈** | `ops/` | 指标、规则、数据规范 | Phase 1 人工填表 → Phase 2 脚本 |
