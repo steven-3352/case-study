@@ -56,6 +56,10 @@ cp .env.example .env
 | 火山 TTS | `VOLC_TTS_APPID` + `VOLC_TTS_TOKEN` | `VOLC_TTS_BASE_URL` |
 | OpenAI 图像 | `OPENAI_API_KEY` | `OPENAI_BASE_URL` |
 
+## Git
+
+唯一工作分支 **`main`**。克隆后 `git checkout main && git pull origin main`，日常提交推送均在 `main` 完成（见 `CLAUDE.md`）。
+
 ## 旧版说明（案例素材包）
 
 本 repo 最初是半匿名自动化案例素材包，现升级为内容增长引擎。

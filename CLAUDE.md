@@ -29,6 +29,12 @@ pip install openai pillow python-dotenv edge-tts requests
 # 用途:小红书/B站/Reddit 公开内容调研(消费者声音),不用于商品/电商详情爬取
 ```
 
+## Git 与分支
+
+- **唯一工作分支：`main`** — 日常开发、提交、推送均在 `main` 上完成。
+- 不创建日期分支或长期 feature 分支；小改动直接 commit，大改动可在本地 short-lived 分支做完后 **merge 回 `main` 并删除**。
+- 克隆后默认：`git checkout main && git pull origin main`
+
 ## 统一画布规格
 
 - 全局 9:16 → 1080×1920（图文 + 视频统一）
