@@ -1,0 +1,19 @@
+role: 内核提炼师
+artifact: insights/core_message.md
+artifact_version: v1
+pass_threshold: 90
+reviewers:
+  - reviewer_id: 编剧
+    review_mode: independent
+    angle: 一句话价值
+    score: 94
+    verdict: pass
+    notes: “机器盯节点，人去聊关键客户”能解释 AI agent 的边界。
+  - reviewer_id: 运营
+    review_mode: independent
+    angle: 评论可讨论
+    score: 91
+    verdict: pass
+    notes: 分层、回访、复购、售后四个漏点便于评论区接话。
+avg_score: 92.5
+pass: true

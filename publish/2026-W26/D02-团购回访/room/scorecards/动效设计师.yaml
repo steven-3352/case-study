@@ -1,0 +1,32 @@
+role: 动效设计师
+artifact: design/motion_wow.md
+artifact_version: v3·form-v5
+invalidated_by: ''
+pass_threshold: 90
+scorecard_phase: post_render
+reviewers:
+- reviewer_id: 平台表现分析师
+  review_mode: independent
+  reviewer_agent_id: agent-d02-v3-mot-r1-a19k2m
+  reviewed_at: '2026-06-16'
+  angle: v3产出
+  score: 92
+  verdict: pass
+  notes: 扣(-3)：动效设计师 v3新artifact。扣(-2)：待mp4复验。92 pass · Round12。
+- reviewer_id: 内核提炼师
+  review_mode: independent
+  reviewer_agent_id: agent-d02-v3-mot-r1-b29k2m
+  reviewed_at: '2026-06-16'
+  angle: 门禁
+  score: 91
+  verdict: pass
+  notes: '扣(-4)：06_cta 11.5s 偏长，mp4 须核 metric flip 与口播「打通一个」同步。
+
+    扣(-2)：暖棕 lock 已改，guest 靛蓝待 v5.1 微调。
+
+    91 pass · CREATIVE-1~6 对齐 v3 口播锚点。
+
+    '
+avg_score: 91.5
+pass: true
+optimization_round: 12

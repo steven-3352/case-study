@@ -1,0 +1,94 @@
+# W26D08 · 电商私域 Agent · 抖音重做版
+# 形式原则：先服务停留/看懂/互动，不设固定技术优先级。
+# 本版兑现：真实 Pexels 竖屏 b-roll + D08 专属运营中控台/消息瀑布/风险雷达模板。
+# 禁止：复用旧的通用卡片/轮播视觉作为本条外发成品。
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+  form_version: d08_douyin_rebuild_v2
+  content_version: v1
+  visual_brief: ecommerce_private_domain_ops_room
+
+scenes:
+  - id: "01_chaos_broll"
+    template: "d08_broll_hook.html"
+    duration: 4.0
+    intent: 停划
+    data:
+      image: "../../../assets/broll/d08_private_domain_chaos_cover.png"
+      pexels_source: "Mizuno K · Pexels id 13736678"
+      headline: "私域不是多发消息"
+      sub: "是每天有客户节点会漏"
+
+  - id: "02_chat_mess"
+    template: "d08_chat_stack.html"
+    duration: 7.0
+    intent: 看懂
+    data:
+      title: "客户全混在一起"
+      caption: "老板不知道今天先跟谁"
+      messages:
+        - ["新客", "刚下单，问尺码", "09:18"]
+        - ["老客", "上次买的快用完了", "10:42"]
+        - ["售后", "申请退货", "11:05"]
+        - ["沉默", "7天没回", "13:26"]
+        - ["复购", "到周期了", "15:40"]
+
+  - id: "03_agent_split"
+    template: "d08_agent_split.html"
+    duration: 8.0
+    intent: 看懂
+    data:
+      headline: "Agent 先接 3 件事"
+      agents:
+        - { name: "分层", text: "新客 / 复购 / 沉默 / 售后风险" }
+        - { name: "提醒", text: "回访 / 复购 / 售后到点" }
+        - { name: "预警", text: "退款集中 / 差评苗头" }
+
+  - id: "04_customer_board"
+    template: "d08_customer_board.html"
+    duration: 9.0
+    intent: 证据感
+    data:
+      title: "今日待跟进"
+      highlight: "人工只看关键客户"
+      rows:
+        - ["新客", "18", "发货后回访"]
+        - ["复购提醒", "23", "到周期"]
+        - ["售后风险", "8", "人工优先"]
+        - ["沉默7天", "41", "轻唤醒"]
+
+  - id: "05_risk_alarm"
+    template: "d08_risk_alarm.html"
+    duration: 7.0
+    intent: 停留
+    data:
+      caption: "机器盯节点"
+      alarms:
+        - "退款突然集中"
+        - "差评苗头"
+        - "高价值客户不回"
+
+  - id: "06_human_focus"
+    type: broll
+    source: "assets/broll/d08_private_domain_chaos.mp4"
+    source_in: 5.2
+    duration: 5.0
+    intent: 情绪
+    data:
+      headline: "人去聊关键客户"
+      sub: "不是让机器尬聊"
+
+  - id: "07_cta"
+    template: "d08_cta_cards.html"
+    duration: 5.0
+    intent: 互动
+    data:
+      cta_main: "你做私域最容易漏哪一步？"
+      cta_sub: "分层 / 回访 / 复购 / 售后"
+      action: "评论区说说"

@@ -1,47 +1,46 @@
 status: approved
+content_version: v3
+form_version: v5
+form_publish_pass: true
 topic_id: T010
 project_id: W26D02
 week_id: 2026-W26
-approved_at: '2026-06-22'
-content_version: v2
+approved_at: '2026-06-16'
 participants:
   required:
   - 编导
   - 网络调研员
   - 记者
-  - 选题深挖师
   - 内核提炼师
-  - 领域专家
-  - 事实校验员
   - 编剧
   - 留存与互动设计师
   - 运营
   activated:
-  - 视觉设计
-  - 导演
+  - 形式选型师
+  - 动效设计师
+  - 动效分镜师
+  - 平台原生策划
+  - 平台表现分析师
 decisions:
   hook: 流量来了留不下
   value_anchor: 三条线在谁脑子里？
-  script_choice: vC
+  script_choice: vD
+  narrative: 单场景周五收银台 + 原话三连 + 按提醒打通一个
   douyin:
     format: F3
-    title: 帮20桌小馆改团购跟进：218单卖了，回访还是0
-    cover_style: phone_ui
+    render_route: p004_gsap
+    title: 周五晚高峰：约200单团购，回访还是0条
   xhs:
     format: F4
-    title: 小餐馆团购复盘清单：核销·差评·留微三条线（可收藏）
-    cover_style: newspaper
-    delivery: carousel_only
+    delivery: video_reuse
+    title: 小餐馆团购复盘：核销·差评·留微三条线
 revisions:
-- v2 深度讨论对标 D01 v3 标准
-- 形态与 D01 完全错开（F3 UI / F4 报纸轮播）
-- CTA 去扣「清单」
-- 218→区间化；差评 2–3 天
-- 新增 notify/tally/profile/terminal 体裁
+- content v3 全链路重做 · vD 选用 · 原话进片
+- form v5 · 45s · 暖色锁屏 · d02_* data 对齐 v3
+- form v4/v2 脚本 lecture 债务关闭
 gates:
   insights_complete: true
   p0_count: 5
   fact_check_clear: true
   retention_aligned: true
-  format_diff_vs_d01: true
-  web_refs_count: 6
+  script_review_pass: true

@@ -1,0 +1,19 @@
+role: 平台表现分析师
+artifact: design/pre_publish_forecast.md
+artifact_version: v1
+pass_threshold: 90
+reviewers:
+  - reviewer_id: 运营
+    review_mode: independent
+    angle: 抖音发布
+    score: 91
+    verdict: pass
+    notes: 标题、首镜、CTA 均面向抖音停留和评论。
+  - reviewer_id: 留存与互动设计师
+    review_mode: independent
+    angle: 完播预估
+    score: 92
+    verdict: pass
+    notes: 45s 结构紧凑，核心信息不依赖长铺垫。
+avg_score: 91.5
+pass: true

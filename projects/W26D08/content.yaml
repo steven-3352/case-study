@@ -1,0 +1,132 @@
+topic:
+  id: W26D08
+  pain: 电商老板想做私域，但客户进群、下单、退款、沉默都散在订单表、微信和客服聊天里；每天都有人漏跟。
+  solves: AI agent 先接三件重复活：客户分层、节点提醒、风险预警；让人工只处理该聊的人。
+  hook: 私域不是多发消息
+  angle: 电商私域 · Agent 最小改造
+shots: []
+douyin:
+  title: 电商老板做私域，AI agent先接这3件事
+  body: 私域最耗人的，不是发朋友圈，是每天要盯、但一忙就漏的客户节点。
+  tags:
+  - 电商运营
+  - 私域运营
+  - AI工具
+  - 客户管理
+  - 小老板
+  duration_s: 48
+  interaction: 你做私域最容易漏哪一步？评论区说说。
+  cover:
+    style: douyin_punch
+    hook: '私域不是
+
+      多发消息'
+    kicker: 电商老板 · AI agent
+    sub: 先接3件重复活
+    mark: 3件事
+  segments:
+  - source: web
+    ref: pexels-chaos-phone
+    evidence_kind: note
+    detail: 'Pexels B-roll 搜索建议
+
+      ecommerce owner phone notifications / small business owner laptop / customer service chat'
+    vo: 私域最耗人的，不是多发朋友圈。
+    sub: 不是多发消息
+    emotion: surprised
+  - source: evidence
+    ref: d08-1
+    evidence_kind: chat
+    detail: '微信客户：
+
+      刚下单
+      问尺码
+      申请退货
+      7天没回'
+    vo: 真正麻烦的是，新客、老客、退款、沉默客户，全混在聊天和订单里。
+    sub: 客户全混在一起
+    emotion: sad
+  - source: evidence
+    ref: d08-2
+    evidence_kind: note
+    detail: 'Agent 1：自动分层
+
+      新客 / 复购客 / 高退款风险 / 7天沉默'
+    vo: 第一件，agent 先帮你分层：谁是新客，谁买过两次，谁正在沉默，谁有退款风险。
+    sub: 1 自动分层
+    emotion: neutral
+  - source: evidence
+    ref: d08-3
+    evidence_kind: metric
+    detail: '今日待跟进
+
+      售后风险 8
+      复购提醒 23
+      沉默唤醒 41'
+    vo: 第二件，节点提醒。到了回访、复购、售后跟进时间，自动拉出今天该处理的人。
+    sub: 2 节点提醒
+    emotion: happy
+  - source: evidence
+    ref: d08-4
+    evidence_kind: note
+    detail: 'Agent 3：预警
+
+      差评苗头 / 退款集中 / 高价值客户沉默'
+    vo: 第三件，风险预警。差评苗头、退款集中、高价值客户突然不回，先提醒人工看。
+    sub: 3 风险预警
+    emotion: neutral
+  - source: evidence
+    ref: d08-5
+    evidence_kind: note
+    detail: '原则
+
+      机器盯节点
+      人去聊关键客户'
+    vo: 所以不是让 agent 替你尬聊，是让它盯节点，把该人工跟的人挑出来。
+    sub: 人只聊关键客户
+    emotion: happy
+  - source: evidence
+    ref: d08-6
+    evidence_kind: note
+    detail: '评论区
+
+      你最想先自动化哪一步？'
+    vo: 你做私域最容易漏哪一步？评论区说说。
+    sub: 你最容易漏哪步？
+    emotion: neutral
+xhs:
+  title: 电商老板做私域，AI agent不是替你聊天
+  body: '我会先让 agent 接 3 件重复活：
+
+
+    1. **客户分层**：新客、复购客、沉默客、售后风险客先分出来。
+
+    2. **节点提醒**：回访、复购、售后跟进，到点自动列今日清单。
+
+    3. **风险预警**：退款集中、差评苗头、高价值客户沉默，先提醒人工。
+
+
+    私域不是群发更多消息。
+
+    更像是：机器盯节点，人去聊关键客户。
+
+
+    你做私域最容易漏哪一步？'
+  tags:
+  - 电商运营
+  - 私域运营
+  - AI工具
+  - 客户分层
+  - 创业干货
+  duration_s: 0
+  interaction: 你做私域最容易漏哪一步？
+  cover:
+    style: xhs_clean
+    hook: 'AI agent
+
+      不是替你聊天'
+    kicker: 电商私域 · 可收藏
+    sub: 先接3件重复活
+    mark: Agent
+  segments: []
+  carousel: null

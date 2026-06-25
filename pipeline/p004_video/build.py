@@ -232,9 +232,10 @@ def main() -> None:
     args = ap.parse_args()
 
     sb = args.storyboard.resolve()
-    m = re.search(r"W26D0([4-7])", str(sb))
+    m = re.search(r"W26D0(2|[4-7])", str(sb))
     if m:
         day_map = {
+            "2": "D02-团购回访",
             "4": "D04-复购流失",
             "5": "D05-催票轮回",
             "6": "D06-退货对账",

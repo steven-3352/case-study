@@ -1,0 +1,30 @@
+# D02 · 声音方案 · content v3 · form v5
+
+voice:
+  engine: edge
+  script_path: projects/W26D02/script_vo.md
+  speed: 1.0
+  pitch: 0
+
+bgm:
+  mood: tension
+  source: 我曾经的丫头.mp3
+  volume: 0.11
+  fade_in_s: 1.5
+  fade_out_s: 2.0
+  loop: true
+  benchmark_ref: hook_benchmark 参考1·紧张铺底
+  hook_0_3s: 0–3s 人声先入 · BGM 11% 不盖钩子
+  notes: 对齐 retention 0–3s · lock 镜 tension → lanes 略 release → cta neutral
+
+subtitles:
+  burn: true
+  style: 主画面叠字 · 前 3s 大字钩子
+  hook_first_3s: true
+
+qc:
+  - VO 清晰 · BGM 不盖人声
+  - 前 3s 与 hook_benchmark 停划一致
+  - 外发 video_publish
+
+status: ready

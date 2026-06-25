@@ -1,27 +1,14 @@
-# 封面验收 · v2
+# 封面 · D02 · content v3 · form v5
 
-> status: **pass**（2026-06-22 · D02 v2 render 像素验收）
+> video_frame @1.0s · content_version: **v3** · 暖棕锁屏 · ~200/0 · 周五晚高峰
 
-## 抖音 · phone_ui
+## 验收
 
-- style: `phone_ui` ✓ 深色底 + 手机通知栈
-- 主钩子：218单卖了 / 回访0条（橙红强调）
-- 内嵌 notify 面板 ✓
-- 与 D01 light_split 明显不同 ✓
+- [x] cover.png mtime 新于 video.mp4
+- [x] 与 mp4@1.0s 像素一致（锁屏通知栈）
+- [x] 钩子可读：约200单 / 0回访
 
-## 小红书 · newspaper
+## 备注
 
-- style: `newspaper` ✓ 报头 + 号外 stamp
-- 轮播 6 张：01–06.png ✓
-- 无视频（F4 清单向）✓
-- CTA 讨论型，无扣1 ✓
-
-## 视频
-
-- 抖音 F3：56.2s · 8 段 · notify/tally/profile/flow/terminal
-- 体裁 ≥5 种 ✓
-
-## 签字
-
-- [x] 视觉设计（v2 render）
-- [x] 编导
+- 扣(-2)：hook 红字「周五晚高峰」在 1.0s 半入态，可接受
+- v3 首镜场景停划 · 非 v2 冷蓝锁屏

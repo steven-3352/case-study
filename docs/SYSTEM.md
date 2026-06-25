@@ -155,6 +155,41 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 4 | **各环节对最终结果负责** — 禁止讨论室 approved 但成片同质 |
 | 5 | **尽一切让内容更好** — 不可「能出片就行」 |
 | 6 | **自我进化** — 提标准 → 测 → 更新 Rubric + gate + REJECT_LOG |
+| 7 | **形式重做 ≠ 脚本可静默复用** — `form_version` 升版时，须同步评估脚本/叙事；见 [§3.1b](#31b-形式重做时脚本门禁-d02-沉淀) |
+| 8 | **形式承诺必须兑现到像素** — format/storyboard 写了 Pexels、B-roll、custom、专属看板等，最终视频里必须真实出现对应素材/模板；禁止用通用 `pipeline/render.py` evidence/newsprint 产物冒充新形式 |
+
+### 3.1b 形式重做时 · 脚本门禁（D02 沉淀）
+
+> 详规：`templates/design/content_form_split_gates.md` §9 · `gate_check.check_form_redo_content_gate()`
+
+**问题：** 用户抱怨「形式千篇一律」时，执行易窄化为只换模板；`script_review` 旧 pass 被当作永久免死金牌，完播主杠杆被边缘化。
+
+| # | 铁律 | 执行 |
+|---|------|------|
+| 1 | **触发词分流** | 「形式/同质/模板」类抱怨 → discussion **两列**：形式问题 + 叙事/脚本问题；不得只开 form 工单 |
+| 2 | **叙事骨架同质 → 双升** | Round 记录「叙事骨架/改造实录模板/近 D{NN}」→ **须 `content_version` +1** 并重写 `script_vo`，不能只升 `form_version` |
+| 3 | **数据症状分流** | 7139 播/2 评等 → forecast/discussion **拆列**：3s/视觉 vs 评论/CTA/原话（脚本）；禁止全归因首镜 |
+| 4 | **form 领先须声明** | `form_version` 数字 **>** `content_version` 时 → `script_review` 须 `content_redo: true` **或** `content_ab_frozen: true` + 理由；否则 `gate_check` FAIL |
+| 5 | **形式 A/B 后第二轮** | W26 等「固定脚本测形式」实验结束后 → 同选题 **允许固定形式、改脚本** 做 content vN+1 |
+
+**验收问句（内容层 · 形式重做时必问）：**
+
+> 关掉声音，中段还像不像 lecture？原话进片了吗？CTA 能勾评论吗？  
+> 若形式已换、脚本仍是 vC 压缩版 → **内容门未真正重验**。
+
+### 3.1c 形式承诺兑现门禁（D08 沉淀）
+
+> 详规：`templates/design/content_form_split_gates.md` §11 · `gate_check.check_custom_form_fulfillment()`
+
+**问题：** D08 文档写了 “Pexels B-roll + 私域客户看板 + Agent 分工卡”，但实际用通用 `pipeline/render.py` 输出旧 evidence 窗口卡片和 newspaper 轮播，仍被误标 `ready_to_publish`。
+
+| # | 铁律 | 执行 |
+|---|------|------|
+| 1 | **不看 format_spec 写了什么，只看最终像素** | render 后须抽关键帧复验；画面不像承诺形式 → `approved_content_blocked_form` |
+| 2 | **承诺 Pexels/B-roll 必须真进画面** | storyboard 须引用已下载本地素材；只写搜索词/说明不算 |
+| 3 | **承诺 custom/专属看板须有专属模板** | storyboard 至少包含 `dNN_` / `pexels_` / `custom_` 级模板或真实素材 |
+| 4 | **通用 evidence/newsprint 不得冒充新形式** | `pipeline/render.py` evidence 卡片、`render_carousel()` newspaper 只能做内部草稿；不得作为形式承诺成品 |
+| 5 | **像素失败不得 ready** | `pre_publish_forecast` 标 D/C、blocked_form、通用模板吞掉等 → `gate_check(approve)` FAIL |
 
 ### 3.1a 双人互评（90 分门禁 · 与上表同级）
 
@@ -218,6 +253,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 - 跳过洞察包写稿 · 无节拍表出分镜 · 发裸片
 - 克隆上一条分镜/画面 · catalog 标配三连
 - 全片单一渲染场景 · 脚本 90+ 但形式 fail 仍外发
+- **形式 vN 重做但 `content_version` 不动、无 `script_review` 声明**（D02 form v4 / content v2）
 - 因「默认 pipeline」或「技术更酷」选实现，未按 §4.2 对每镜打分
 - 带货跳过合规 · 正文私信导流
 

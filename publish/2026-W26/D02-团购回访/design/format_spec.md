@@ -1,57 +1,29 @@
-# 形式规格 · D02 v3
+# 形式规格 · D02 · content v3 · form v5
 
-> status: **specced** · 待 render（2026-06-22）
-> 工种: 形式选型师 + 动效分镜师 + 漫画分镜师 + 平台原生策划
+> status: **specced** · 2026-06-16 · 全链路重做
 
-## 问题诊断（v2 为何像 D01）
+## v5 重做原因（content + form）
 
-| 问题 | 根因 |
-|------|------|
-| 观众审美疲劳 | 全周走同一 `render.py` evidence slideshow |
-| 数据预期偏低 | 单模板 HTML 卡片 + Ken Burns，无动效层次、无故事 |
-| 专家未生效 | 纪录片导演/动效分镜师/形式选型师未产出；讨论室只改文案未改 pipeline |
-
-## v3 选型（与 D01 彻底错开）
-
-### 抖音 · `p004_gsap`
-
-- **catalog:** chaos_broll → punch_black ×2 → pain_stack ×3 → before_after → cta
-- **禁止:** chat, table, flow pill, terminal「团购助手」, metric 卡片
-- **storyboard:** `projects/W26D02/storyboard.yaml`
-- **第一感:** 真实 busy 镜头 → 黑底砸字 → 灯泡痛点堆叠 → 红绿对比改造
-
-### 小红书 · `p007_comic`（待建 storyboard_carousel）
-
-- **delivery:** 仅轮播 6–8 张，**删除 video.mp4**
-- **catalog:** comic_4panel — 老板/前台/团购客四格故事 + 字段清单
-- **第一感:** 漫画叙事，不是报纸纯文字也不是口播短视频
-
-## 需激活的专家（v2 未跑）
-
-| 工种 | v3 产出 |
+| 问题 | v5 改法 |
 |------|---------|
-| **形式选型师** | 本文件 + `assets/formats/week_W26_matrix.yaml` |
-| **平台原生策划** | 抖音/channels 用 GSAP；小红书纯漫画轮播 |
-| **动效分镜师** | `projects/W26D02/storyboard.yaml` |
-| **漫画分镜师** | `projects/W26D02/storyboard_carousel.yaml`（待写） |
-| **纪录片导演** | 故事线：晚高峰 chaos → 三连断点 → 对比反转（非改造实录口播） |
-| **声音设计师** | `audio_plan.yaml` 按 scene start_at 对齐 |
+| v2/vC 脚本 lecture · 原话未进片 | **content v3 · vD** 单场景+原话三连 |
+| form v4 仅换皮 | 保留 6× d02_* · 调 data/时长/暖色首镜 |
+| 7139播/2评 | 互动风险行 + CTA「打通了一个」 |
+| 40s 偏紧 | **45s** · cta 镜 +3s |
 
-## 渲染命令（v3）
+## 抖音 · p004_gsap · 6 镜
 
-```bash
-# 抖音 P004
-python3 pipeline/p004_video/build.py --storyboard projects/W26D02/storyboard.yaml
+| 镜 | 模板 | v3 意图 |
+|----|------|---------|
+| 01 | d02_lock_notify | 周五场景停划 · ~200/0 |
+| 02 | d02_tally_sticker | 原话#1 |
+| 03 | d02_review_late | 原话#2 |
+| 04 | d02_guest_card | 原话#3 |
+| 05 | d02_three_lanes | 价值锚 |
+| 06 | d02_week_cta | 打通一个 + CTA |
 
-# 小红书漫画（storyboard 就绪后）
-python3 pipeline/p007_xhs_engine_comic/capture_carousel.py --storyboard projects/W26D02/storyboard_carousel.yaml
+- catalog: 0% · storyboard: `projects/W26D02/storyboard.yaml`
 
-# 同步到 publish 周目录
-```
+## 小红书
 
-## 签字
-
-- [x] 形式选型师（v3 spec）
-- [ ] 动效分镜师（P004 render pass）
-- [ ] 漫画分镜师（P007 render pass）
-- [ ] 视觉设计（封面跟 pipeline 重出）
+- delivery: **video_reuse**（同 douyin mp4）· 待 sync publish.md

@@ -27,14 +27,27 @@ import re
 import sys
 from typing import Any
 
-import requests
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # Keep Pexels fetch usable without installing python-dotenv.
+    load_dotenv = None
+try:
+    import requests
+except ModuleNotFoundError:  # Homebrew Python may be externally managed; keep script usable.
+    requests = None
+    import urllib.error
+    import urllib.parse
+    import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 RAW_DIR = PROJECT_ROOT / "assets" / "broll" / "raw"
 
 PEXELS_ENDPOINT = "https://api.pexels.com/videos/search"
+PEXELS_HEADERS = {
+    "User-Agent": "case-study-video-pipeline/1.0",
+    "Accept": "application/json",
+}
 
 
 def slugify(text: str) -> str:
@@ -58,36 +71,78 @@ def pick_file(video: dict[str, Any], min_h: int = 1080) -> dict[str, Any] | None
 
 
 def search(api_key: str, query: str, per_page: int, page: int = 1) -> dict[str, Any]:
-    r = requests.get(
-        PEXELS_ENDPOINT,
-        headers={"Authorization": api_key},
-        params={
-            "query": query,
-            "orientation": "portrait",
-            "per_page": per_page,
-            "page": page,
-            "size": "medium",
-        },
-        timeout=20,
-    )
-    if r.status_code == 401:
-        sys.exit("PEXELS_API_KEY 无效或未设置 (.env)")
-    r.raise_for_status()
-    return r.json()
-
-
-def download(url: str, out: pathlib.Path) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, stream=True, timeout=60) as r:
+    params = {
+        "query": query,
+        "orientation": "portrait",
+        "per_page": per_page,
+        "page": page,
+        "size": "medium",
+    }
+    if requests:
+        r = requests.get(
+            PEXELS_ENDPOINT,
+            headers={**PEXELS_HEADERS, "Authorization": api_key},
+            params=params,
+            timeout=20,
+        )
+        if r.status_code == 401:
+            sys.exit("PEXELS_API_KEY 无效或未设置 (.env)")
         r.raise_for_status()
-        with out.open("wb") as f:
-            for chunk in r.iter_content(chunk_size=1 << 16):
-                if chunk:
-                    f.write(chunk)
+        return r.json()
+
+    url = PEXELS_ENDPOINT + "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={**PEXELS_HEADERS, "Authorization": api_key})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as res:
+            return json.loads(res.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            sys.exit("PEXELS_API_KEY 无效或未设置 (.env)")
+        raise
+
+
+def download(url: str, out: pathlib.Path, referer: str | None = None) -> None:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    headers = dict(PEXELS_HEADERS)
+    if referer:
+        headers["Referer"] = referer
+    if requests:
+        with requests.get(url, stream=True, timeout=60, headers=headers) as r:
+            r.raise_for_status()
+            with out.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=1 << 16):
+                    if chunk:
+                        f.write(chunk)
+        return
+
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=60) as res, out.open("wb") as f:
+        while True:
+            chunk = res.read(1 << 16)
+            if not chunk:
+                break
+            f.write(chunk)
+
+
+def load_env_file(path: pathlib.Path) -> None:
+    if load_dotenv:
+        load_dotenv(path)
+        return
+    if not path.exists():
+        return
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
 
 
 def main() -> None:
-    load_dotenv(PROJECT_ROOT / ".env")
+    load_env_file(PROJECT_ROOT / ".env")
     ap = argparse.ArgumentParser()
     ap.add_argument("--q", required=True, help="搜索关键词,英文最佳")
     ap.add_argument("--count", type=int, default=5, help="目标条数")
@@ -131,7 +186,7 @@ def main() -> None:
             if args.dry_run:
                 saved.append(mp4_path)
             else:
-                download(f["link"], mp4_path)
+                download(f["link"], mp4_path, referer=v.get("url"))
                 meta_path.write_text(json.dumps({
                     "pexels_id": vid,
                     "url": v["url"],

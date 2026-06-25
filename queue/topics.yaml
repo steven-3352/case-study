@@ -323,3 +323,15 @@ topics:
     status: in_production
     note: "F2 抖音 / F1 小红书"
     source: publish/2026-W26/D07-流程断档/
+
+  - id: T016
+    project: W26D08
+    series: S1
+    title: "电商老板做私域，AI agent先接这3件事"
+    angle: 电商私域 · Agent 最小改造
+    format: [video, carousel]
+    platforms: [抖音, 小红书]
+    priority: P0
+    status: in_production
+    note: "内容 pass；形式 blocked。禁止通用 evidence/newsprint 产物外发，需专属视觉重做"
+    source: publish/2026-W26/D08-电商私域Agent/

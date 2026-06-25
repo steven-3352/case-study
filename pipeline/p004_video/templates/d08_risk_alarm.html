@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D08 Risk Alarm</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    :root { --bg:#120b12; --ink:#fff7ed; --muted:#fecdd3; --red2:#fb2c36; --amber:#f59e0b; --green2:#34d399; }
+    html, body { background: var(--bg); color: var(--ink); }
+    .canvas { background: radial-gradient(circle at 50% 45%, rgba(251,44,54,.22), transparent 38%), linear-gradient(180deg, #1f1118, var(--bg)); }
+    .radar {
+      position: absolute; left: 100px; top: 310px; width: 880px; height: 880px;
+      border-radius: 50%; border: 3px solid rgba(255,247,237,.18);
+      background:
+        radial-gradient(circle, transparent 0 22%, rgba(255,247,237,.10) 22.3% 22.8%, transparent 23% 45%, rgba(255,247,237,.10) 45.3% 45.8%, transparent 46%),
+        conic-gradient(from 0deg, rgba(52,211,153,.0), rgba(52,211,153,.34), rgba(52,211,153,.0) 72deg);
+      overflow: hidden;
+    }
+    .sweep {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(52,211,153,.0), rgba(52,211,153,.38), rgba(52,211,153,.0) 38deg);
+      transform-origin: center;
+    }
+    .cross-x, .cross-y { position: absolute; background: rgba(255,247,237,.12); }
+    .cross-x { left: 0; right: 0; top: 50%; height: 2px; }
+    .cross-y { top: 0; bottom: 0; left: 50%; width: 2px; }
+    .alarm {
+      position: absolute; min-width: 320px; height: 92px; border-radius: 999px;
+      background: #fff7ed; color: #7f1d1d; display: flex; align-items: center; justify-content: center;
+      padding: 0 28px; font-size: 34px; font-weight: 900; opacity: 0; transform: scale(.7);
+      box-shadow: 0 0 45px rgba(251,44,54,.42);
+    }
+    .a0 { left: 260px; top: 210px; }
+    .a1 { left: 500px; top: 510px; }
+    .a2 { left: 120px; top: 590px; }
+    .title {
+      position: absolute; left: 64px; right: 64px; top: 208px;
+      font-family: var(--mono); font-size: 30px; color: var(--muted); letter-spacing: 6px; text-align: center;
+    }
+    .caption {
+      position: absolute; left: 70px; right: 70px; top: 1280px;
+      font-size: 104px; line-height: 1.06; font-weight: 950; text-align: center; opacity: 0;
+    }
+    .caption span { color: var(--amber); }
+    .sub {
+      position: absolute; left: 90px; right: 90px; top: 1530px; text-align: center;
+      font-size: 42px; font-weight: 800; color: var(--muted); opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="title">RISK WATCH / 24H</div>
+    <div class="radar" id="radar">
+      <div class="sweep" id="sweep"></div>
+      <div class="cross-x"></div><div class="cross-y"></div>
+      <div class="alarm a0" id="a0">退款突然集中</div>
+      <div class="alarm a1" id="a1">差评苗头</div>
+      <div class="alarm a2" id="a2">高价值客户不回</div>
+    </div>
+    <div class="caption" id="caption">机器盯<span>节点</span></div>
+    <div class="sub" id="sub">异常先亮灯，人工再介入</div>
+  </div>
+  <script>
+    const data = window.getData();
+    (data.alarms || []).forEach((t, i) => {
+      const el = document.getElementById(`a${i}`);
+      if (el) el.textContent = t;
+    });
+    if (data.caption) document.getElementById("caption").innerHTML = data.caption.replace("节点", "<span>节点</span>");
+    const tl = gsap.timeline();
+    tl.fromTo("#radar", { opacity: 0, scale: .82 }, { opacity: 1, scale: 1, duration: .45, ease: "power2.out" }, 0);
+    tl.to("#sweep", { rotation: 360, duration: 3.2, ease: "none" }, .1);
+    tl.to("#a0", { opacity: 1, scale: 1, duration: .28, ease: "back.out(2)" }, .9);
+    tl.to("#a1", { opacity: 1, scale: 1, duration: .28, ease: "back.out(2)" }, 1.55);
+    tl.to("#a2", { opacity: 1, scale: 1, duration: .28, ease: "back.out(2)" }, 2.15);
+    tl.to(["#a0", "#a1", "#a2"], { y: -8, duration: .16, repeat: 3, yoyo: true }, 2.55);
+    tl.fromTo("#caption", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .45, ease: "power3.out" }, 3.05);
+    tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: .35 }, 3.45);
+    tl.to({}, { duration: 3.2 }, 3.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

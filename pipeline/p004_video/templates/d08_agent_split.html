@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D08 Agent Split</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    :root { --bg:#0d1117; --panel:#f8fafc; --ink:#0f172a; --muted:#64748b; --green2:#22c55e; --yellow:#facc15; --red2:#fb7185; --blue2:#38bdf8; }
+    html, body { background: var(--bg); color: var(--panel); }
+    .canvas { background: radial-gradient(circle at 50% 20%, rgba(56,189,248,.18), transparent 34%), var(--bg); }
+    .headline {
+      position: absolute; left: 70px; right: 70px; top: 235px;
+      font-size: 82px; font-weight: 900; line-height: 1.12; letter-spacing: 0;
+    }
+    .headline span { color: var(--blue2); }
+    .belt {
+      position: absolute; left: 64px; right: 64px; top: 500px; height: 250px;
+      border: 2px solid rgba(248,250,252,.22); border-radius: 28px; overflow: hidden;
+      background: rgba(15,23,42,.78);
+    }
+    .belt-label { position: absolute; left: 28px; top: 24px; font-family: var(--mono); font-size: 26px; color: #94a3b8; }
+    .chips { position: absolute; left: 28px; right: 28px; top: 92px; display: flex; gap: 18px; flex-wrap: wrap; }
+    .chip {
+      padding: 18px 24px; border-radius: 999px; background: #1f2937; border: 1px solid #334155;
+      font-size: 30px; font-weight: 800; opacity: 0;
+    }
+    .arrow {
+      position: absolute; left: 0; right: 0; top: 808px; text-align: center;
+      font-size: 72px; color: var(--yellow); opacity: 0;
+    }
+    .agents {
+      position: absolute; left: 62px; right: 62px; top: 920px; display: grid;
+      grid-template-columns: 1fr; gap: 22px;
+    }
+    .agent {
+      position: relative; min-height: 170px; border-radius: 28px; background: var(--panel);
+      color: var(--ink); padding: 26px 32px 24px 150px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.26); opacity: 0; transform: translateX(-50px);
+    }
+    .num {
+      position: absolute; left: 28px; top: 28px; width: 88px; height: 88px; border-radius: 26px;
+      display: grid; place-items: center; color: #fff; font-family: var(--mono); font-size: 40px; font-weight: 900;
+    }
+    .agent:nth-child(1) .num { background: var(--green2); }
+    .agent:nth-child(2) .num { background: var(--blue2); color: #082f49; }
+    .agent:nth-child(3) .num { background: var(--red2); }
+    .name { font-size: 54px; font-weight: 900; line-height: 1; }
+    .text { margin-top: 18px; font-size: 34px; color: var(--muted); font-weight: 700; line-height: 1.25; }
+    .route {
+      position: absolute; right: 36px; top: 45px; font-family: var(--mono); font-size: 26px; color: #94a3b8;
+    }
+    .bottom {
+      position: absolute; left: 70px; right: 70px; bottom: 255px; font-size: 44px; color: #cbd5e1;
+      font-weight: 800; text-align: center; opacity: 0;
+    }
+    .bottom b { color: var(--yellow); }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="headline" id="headline">Agent 先接 <span>3 件事</span></div>
+    <div class="belt">
+      <div class="belt-label">raw customer events</div>
+      <div class="chips">
+        <div class="chip">新订单</div><div class="chip">7天未回</div><div class="chip">退款</div>
+        <div class="chip">问尺码</div><div class="chip">复购周期</div><div class="chip">差评苗头</div>
+      </div>
+    </div>
+    <div class="arrow" id="arrow">↓ 自动归拢</div>
+    <div class="agents" id="agents"></div>
+    <div class="bottom" id="bottom">先做<b>分工</b>，再让人去聊</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.headline) document.getElementById("headline").innerHTML = data.headline.replace("3 件事", "<span>3 件事</span>");
+    const agents = data.agents || [];
+    const root = document.getElementById("agents");
+    agents.forEach((a, i) => {
+      const el = document.createElement("div");
+      el.className = "agent";
+      el.id = `agent-${i}`;
+      el.innerHTML = `<div class="num">0${i + 1}</div><div class="route">agent.${a.name}</div><div class="name">${a.name}</div><div class="text">${a.text}</div>`;
+      root.appendChild(el);
+    });
+    const tl = gsap.timeline();
+    tl.fromTo("#headline", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: .4, ease: "power3.out" }, 0);
+    tl.to(".chip", { opacity: 1, y: 0, duration: .22, stagger: .08, ease: "back.out(1.6)" }, .45);
+    tl.fromTo("#arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: .28 }, 1.25);
+    tl.to(".chip", { y: 28, opacity: .48, duration: .35, stagger: .04 }, 1.35);
+    agents.forEach((_, i) => {
+      tl.to(`#agent-${i}`, { opacity: 1, x: 0, duration: .42, ease: "power3.out" }, 1.75 + i * .75);
+    });
+    tl.fromTo("#bottom", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .35 }, 4.5);
+    tl.to({}, { duration: 3.0 }, 5.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

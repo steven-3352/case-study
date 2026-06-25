@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D02 Week CTA</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: linear-gradient(180deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%);
+      font-family: "PingFang SC", sans-serif; color: #3e2723;
+    }
+    .metrics {
+      position: absolute; left: 80px; right: 80px; top: 400px;
+      display: flex; flex-direction: column; gap: 28px;
+    }
+    .metric {
+      background: #fff; border-radius: 20px; padding: 32px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 8px 24px rgba(62,39,35,0.1); opacity: 0; transform: translateY(24px);
+    }
+    .metric .label { font-size: 32px; color: #6d4c41; }
+    .metric .before { font-size: 36px; color: #9e9e9e; text-decoration: line-through; }
+    .metric .arrow { font-size: 36px; color: #ff9800; margin: 0 16px; }
+    .metric .after { font-size: 40px; font-weight: 900; color: #2e7d32; }
+    .cta-box {
+      position: absolute; left: 60px; right: 60px; bottom: 420px;
+      background: #3e2723; color: #fff; border-radius: 28px;
+      padding: 48px 40px; text-align: center; opacity: 0; transform: scale(0.92);
+    }
+    .cta-main { font-size: 44px; font-weight: 800; line-height: 1.4; }
+    .cta-sub { font-size: 32px; margin-top: 20px; opacity: 0.85; }
+    .accent { color: #ffca28; }
+  </style>
+</head>
+<body>
+  <div class="metrics">
+    <div class="metric" id="m1">
+      <span class="label">回访记录</span>
+      <span><span class="before">0</span><span class="arrow">→</span><span class="after">有记录</span></span>
+    </div>
+    <div class="metric" id="m2">
+      <span class="label">差评看到</span>
+      <span><span class="before">2–3天</span><span class="arrow">→</span><span class="after">24h内</span></span>
+    </div>
+    <div class="metric" id="m3">
+      <span class="label">核销漏记</span>
+      <span class="after">明显减少</span>
+    </div>
+  </div>
+  <div class="cta-box" id="cta">
+    <div class="cta-main">做团购的，<span class="accent">三条线</span>靠人盯还是靠提醒？</div>
+    <div class="cta-sub">评论区说说</div>
+  </div>
+  <script>
+    const d = window.getData();
+    if (d.cta_main) document.querySelector(".cta-main").innerHTML = d.cta_main;
+    if (d.cta_sub) document.querySelector(".cta-sub").textContent = d.cta_sub;
+    const tl = gsap.timeline();
+    tl.to(".metric", { opacity: 1, y: 0, duration: 0.35, stagger: 0.4, ease: "power2.out" }, 0.3);
+    tl.fromTo("#m1 .after", { scale: 1.3 }, { scale: 1, duration: 0.25, ease: "elastic.out(1,0.5)" }, 0.8);
+    tl.to("#cta", { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.3)" }, 2.0);
+    tl.to({}, { duration: 3.0 }, 2.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -7,7 +7,12 @@ topic_id: T010
 status: approved
 formats:
   douyin: F3
-  xhs: F4
+  xhs: video_reuse
+form_version: v5
+content_version: v3
+visual_brief: restaurant_native_ui_warm
+delivery:
+  xhs: video_reuse
 schedule:
   douyin: 2026-06-23 19:30
   xhs: 2026-06-23 20:00

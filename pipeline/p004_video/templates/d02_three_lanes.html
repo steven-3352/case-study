@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D02 Three Lanes</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #faf8f5; font-family: "PingFang SC", sans-serif; color: #2c2416;
+    }
+    .title {
+      position: absolute; top: 280px; left: 0; right: 0; text-align: center;
+      font-size: 48px; font-weight: 800; opacity: 0;
+    }
+    .lane {
+      position: absolute; left: 60px; right: 60px; height: 280px;
+      border-radius: 24px; padding: 36px 40px; opacity: 0; transform: translateX(-80px);
+    }
+    .lane:nth-child(2) { top: 520px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-left: 8px solid #ff9800; }
+    .lane:nth-child(3) { top: 840px; background: linear-gradient(135deg, #ffebee, #ffcdd2); border-left: 8px solid #ef5350; }
+    .lane:nth-child(4) { top: 1160px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-left: 8px solid #66bb6a; }
+    .lane .num { font-size: 28px; font-weight: 700; opacity: 0.7; margin-bottom: 12px; }
+    .lane .name { font-size: 42px; font-weight: 800; }
+    .lane .desc { font-size: 30px; margin-top: 12px; opacity: 0.85; }
+    .anchor {
+      position: absolute; left: 0; right: 0; bottom: 380px; text-align: center;
+      font-size: 40px; font-weight: 700; color: #5d4037; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="title" id="title">三条线在谁脑子里？</div>
+  <div class="lane" id="l1"><div class="num">①</div><div class="name">核销打勾</div><div class="desc">日结提醒 · 不漏单</div></div>
+  <div class="lane" id="l2"><div class="num">②</div><div class="name">差评即时提醒</div><div class="desc">24h 内看到</div></div>
+  <div class="lane" id="l3"><div class="num">③</div><div class="name">留微回访</div><div class="desc">团购客别来一次就没</div></div>
+  <div class="anchor" id="anchor">先跑最小版 · 不是上大 SaaS</div>
+  <script>
+    const d = window.getData();
+    if (d.title) document.getElementById("title").textContent = d.title;
+    if (d.anchor) document.getElementById("anchor").textContent = d.anchor;
+    const tl = gsap.timeline();
+    tl.to("#title", { opacity: 1, duration: 0.35 }, 0.2);
+    tl.to(".lane", { opacity: 1, x: 0, duration: 0.4, stagger: 0.45, ease: "power2.out" }, 0.5);
+    tl.to("#anchor", { opacity: 1, duration: 0.35 }, 2.2);
+    tl.to({}, { duration: 2.5 }, 2.8);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

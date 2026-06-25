@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D02 Tally Sticker</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: linear-gradient(180deg, #8b6914 0%, #6b4423 30%, #4a3728 100%);
+      font-family: "PingFang SC", "Kaiti SC", cursive, sans-serif;
+    }
+    .counter {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(255,220,180,0.15) 0%, transparent 60%);
+    }
+    .wood { position: absolute; left: 60px; right: 60px; top: 400px; height: 900px;
+      background: linear-gradient(90deg, #5c4033 0%, #7a5230 50%, #5c4033 100%);
+      border-radius: 12px; box-shadow: inset 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .sticker {
+      position: absolute; left: 140px; top: 480px; width: 800px;
+      background: #fff9c4; padding: 48px 40px;
+      box-shadow: 4px 8px 24px rgba(0,0,0,0.25), 0 0 0 2px #f0e68c;
+      transform: rotate(-2deg); transform-origin: top left; opacity: 0;
+    }
+    .sticker h2 { font-size: 42px; color: #5d4037; margin-bottom: 28px; border-bottom: 3px dashed #bcaaa4; padding-bottom: 16px; }
+    .row { font-size: 36px; color: #4e342e; padding: 14px 0; opacity: 0; display: flex; gap: 16px; }
+    .row .box { width: 36px; height: 36px; border: 3px solid #8d6e63; flex-shrink: 0; margin-top: 4px; }
+    .row.warn { color: #c62828; font-weight: 700; }
+    .caption { position: absolute; left: 0; right: 0; bottom: 420px; text-align: center;
+      font-size: 44px; font-weight: 700; color: #fff8e1; opacity: 0; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="counter">
+    <div class="wood"></div>
+    <div class="sticker" id="sticker">
+      <h2>周五 · 收银台 tally</h2>
+      <div class="row" id="r1"><span class="box"></span><span>17:30 2号桌 核销</span></div>
+      <div class="row" id="r2"><span class="box"></span><span>17:45 5号桌 核销</span></div>
+      <div class="row warn" id="r3"><span class="box"></span><span>18:10 外卖券 · 漏记？</span></div>
+      <div class="row" id="r4"><span class="box"></span><span>口头报数 → 月底对不上</span></div>
+    </div>
+    <div class="caption" id="cap">核销靠口头</div>
+  </div>
+  <script>
+    const d = window.getData();
+    if (d.caption) document.getElementById("cap").textContent = d.caption;
+    const tl = gsap.timeline();
+    tl.fromTo("#sticker", { opacity: 0, y: -60, rotation: -8 }, { opacity: 1, y: 0, rotation: -2, duration: 0.5, ease: "back.out(1.2)" }, 0.2);
+    tl.to(".row", { opacity: 1, duration: 0.2, stagger: 0.35 }, 0.6);
+    tl.to("#r3", { x: "+=6", duration: 0.06, repeat: 5, yoyo: true }, 1.8);
+    tl.fromTo("#cap", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35 }, 2.2);
+    tl.to({}, { duration: 2.5 }, 3.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

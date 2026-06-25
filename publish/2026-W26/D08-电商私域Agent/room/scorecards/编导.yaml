@@ -1,0 +1,19 @@
+role: 编导
+artifact: scripts/chosen.md
+artifact_version: v1
+pass_threshold: 90
+reviewers:
+  - reviewer_id: 留存与互动设计师
+    review_mode: independent
+    angle: 45s主线
+    score: 93
+    verdict: pass
+    notes: 混乱、分工、清单、预警、互动的顺序完整，口播没有偏题。
+  - reviewer_id: 平台表现分析师
+    review_mode: independent
+    angle: 抖音可看懂
+    score: 91
+    verdict: pass
+    notes: 首句反常识明确，后续三件事有具体场景承接。
+avg_score: 92.0
+pass: true

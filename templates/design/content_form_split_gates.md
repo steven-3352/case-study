@@ -59,7 +59,8 @@
 
 ## 5. 形式设计原则（可复用）
 
-1. **内容可复用，形式不可复用** — 口播 v10 保留；分镜须 v11 级重做，非换皮
+1. **内容可复用，形式不可复用** — 口播 v10 保留；分镜须 v11 级重做，非换皮  
+   **例外（须显式声明）：** 周形式 A/B 实验可 `content_ab_frozen: true`；**叙事骨架被 Round 标同质时不得引用本例外**（须 content +1）
 2. **专属镜 ≥3，catalog 作过渡或不用** — 禁止 pain+compare+cta 三连
 3. **时长为完整表达服务** — 宁可 55s 专属镜，不压 48s 裁 CTA
 4. **首镜一眼不同** — 数字 punch / 新 metaphor，非 Excel 冷开换 data
@@ -69,7 +70,9 @@
 
 | 变更 | 动作 |
 |------|------|
-| storyboard 形式大改 | `content_version` +1 · 形式 scorecard 全作废重评 |
+| storyboard 形式大改 | `form_version` +1 · 形式 scorecard 全作废重评 |
+| **form 升版且讨论标叙事同质** | **`content_version` +1** · 编剧三版 · `script_review` 重验 · 禁止只换 HTML |
+| **form 数字 > content 数字** | `script_review` 须 `content_redo: true` 或 `content_ab_frozen: true` + 理由 |
 | 分析师 forecast fail | `form_publish_pass: false` · 禁止 approve |
 | 纸面 90+ / 效果 fail | 写 `form_audit_*.yaml` · discussion Round 记录 |
 
@@ -90,3 +93,125 @@
 > 分析师敢写「可外发」吗？
 
 任一答「否」→ **形式门 blocked**，不得推 approved。
+
+## 9. 形式重做时 · 脚本不可静默复用（D02 沉淀 · 2026-06-25）
+
+> **从 D02 教训归纳：** form v4 换了 6 镜 UI，但口播仍是 vC 压缩版；7139 播/2 评被全归因首镜；Round 7 已标「叙事骨架近 D01」却未升 content。  
+> 脚本对完播/互动权重 **高于** 动画库/模板换皮；形式重做 **默认须重验内容门**，而非继承旧 `script_review` pass。
+
+### 9.1 五条铁律（与 `docs/SYSTEM.md` §3.1b 一一对应）
+
+#### ① 重做触发词分流
+
+用户或 Round 抱怨含 **形式/同质/模板/千篇一律/太简单** 等词时，discussion **须分两列**，不得只开 form 工单：
+
+| 列 | 须回答 |
+|----|--------|
+| **形式** | 模板/c catalog/route/首镜像素/关声 3s |
+| **内容** | 叙事弧/原话/场景句/CTA/中段 lecture/评论低 |
+
+**决议模板：** 「形式：…；内容：…；本轮动：form only / content only / 双升」
+
+#### ② 叙事骨架同质 → 强制 content +1
+
+discussion 任一 Round 出现以下表述时，**禁止**仅升 `form_version`：
+
+- 「叙事骨架与 D{NN} 相同 / 近 …」
+- 「改造实录模板 / flow→terminal→metric→CTA」
+- 「第三人称 lecture / 口令解法 / 原话未进片」（作为 **同质结论** 而非待办）
+
+**必做：** `content_version` +1 · 编剧 v0/vA/vB · `script_vo` 重写 · 编剧/纪录片导演 scorecard 作废重评 · `script_review` 重走 Phase A/B。
+
+#### ③ 数据症状分流（播/评/完播）
+
+| 症状 | 形式归因 | 脚本归因 |
+|------|----------|----------|
+| 3s 低 / 划走快 | 首镜停划、hook 体 | 首句信息密度、钩子句 |
+| 完播低、均播短 | 中段切镜、单镜过长 | 痛点平铺、缺呼吸、lecture |
+| **播尚可、评论 0–2** | CTA 字幕是否进片 | **讨论型 CTA 弱、缺共鸣原话、场景虚** |
+
+`pre_publish_forecast.md` 须含 **「互动/评论风险」** 一行；禁止把「2 评」只写进形式改首镜。
+
+#### ④ form 领先 content → script_review 须声明
+
+当 `verdict.yaml` 中 **form 版本数字 > content 版本数字**（如 form v4 / content v2）：
+
+`design/script_review.md` **必须**包含以下 **二选一**（`gate_check` 硬验）：
+
+```yaml
+# 路径 A · 内容同步重做（推荐，叙事同质时强制）
+content_redo: true
+content_version: v3   # 与 verdict 一致
+```
+
+```yaml
+# 路径 B · 周形式 A/B 实验冻结脚本（叙事未标同质时才允许）
+content_ab_frozen: true
+content_ab_rationale: |
+  W26 固定 vC 测 F3 原生 UI；discussion Round N 记录。
+  已知风险：…；content vN+1 计划：…
+```
+
+**禁止：** form 大改后 `script_review` 仍仅标旧 content pass、无上述字段。
+
+#### ⑤ 形式 A/B 周 · 第二轮实验
+
+`week.yaml` 目标含「测 F1–F4 / 固定脚本」时：
+
+- **第一轮（形式轮）：** 允许 `content_ab_frozen: true`
+- **第二轮（内容轮）：** 同选题 **固定胜出形式**，**改脚本** → content vN+1；discussion 须写「形式轮结论 + 内容轮假设」
+
+禁止形式轮结束后仍 indefinitely 沿用 frozen 脚本外发而不做 content 轮。
+
+### 9.2 script_review 必填字段（form 领先时）
+
+```markdown
+> status: pass | blocked
+> content_version: v3
+> content_redo: true          # 或 content_ab_frozen: true
+> content_ab_rationale: |     # frozen 时必填 ≥40 字
+>   …
+```
+
+### 9.3 工具 enforcement
+
+- `pipeline/gate_check.py` → `check_form_redo_content_gate()`（`pre_render` + `approve`）
+- 讨论标叙事同质 + form 升版 + 无 `content_redo` → FAIL
+- 案例：`docs/design/FORM_FAIL_LOG.md` · W26D02 · `room/discussion.md` Round 7–9
+
+## 10. 验收问句（内容层 · 形式重做时追加）
+
+> 关掉声音，11–23s 还像不像连续旁白 lecture？  
+> topic_brief 原话有几句进了口播？  
+> 「7139 播 2 评」——评论低是 CTA 问题还是首镜问题，写清了吗？  
+> form 升了、content 没升——`script_review` 里声明了吗？
+
+任一答「否」或「没写」→ **内容门未重验**，禁止仅凭形式 gate PASS 外发。
+
+## 11. 形式承诺必须兑现到像素（D08 沉淀 · 2026-06-25）
+
+> **从 D08 教训归纳：** format_spec 写 “Pexels B-roll + 私域客户看板 + Agent 分工卡”，storyboard 也写了 `pexels_broll_cut.html` 等专属意图；但实际执行走通用 `pipeline/render.py`，最终画面仍是旧 evidence 窗口卡片 / newspaper 轮播。文档创新没有进入像素，结果必然模板化。
+
+### 11.1 硬门禁
+
+| 检查 | 通过标准 | 失败动作 |
+|------|----------|----------|
+| Pexels / B-roll 承诺 | storyboard 引用已下载本地素材，或最终 mp4 关键帧可见真实 B-roll | `approved_content_blocked_form` |
+| custom / 专属看板承诺 | storyboard 使用 `dNN_` / `pexels_` / `custom_` 专属模板，且关键帧可见 | 形式重做 |
+| 通用 evidence | 仅允许内部草稿，不得当作承诺成品 | 删除成品，禁止 ready |
+| newspaper 轮播 | 仅当本条明确报纸风且与选题强相关才允许 | 否则 blocked |
+| 像素复验 | 抽 5–7 张关键帧，和 format_spec 逐条对照 | 任一核心承诺未兑现即 fail |
+
+### 11.2 gate enforcement
+
+`pipeline/gate_check.py` 的 `check_custom_form_fulfillment()` 在 `approve` 阶段 fail-closed：
+
+- 文档含 `pipeline/render.py` / 通用 evidence / newsprint / newspaper 阻塞信号 → FAIL
+- 文档承诺 Pexels/B-roll 但 storyboard 未引用本地素材 → FAIL
+- 文档承诺 custom/专属视觉但 storyboard 无 `dNN_` / `pexels_` / `custom_` 模板 → FAIL
+- `content.yaml` 仍以 evidence/web 段为主体，且缺少 ≥3 个专属模板或真实素材 → FAIL
+
+### 11.3 交付语句
+
+> 这条不是 “是否能 render”，而是 “format_spec 承诺的形式有没有进入最终像素”。  
+> 没进入，就不是新版，只是旧模板换文案。

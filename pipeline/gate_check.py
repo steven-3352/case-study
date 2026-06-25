@@ -47,6 +47,10 @@ FAKE_REVIEWER_ID_RE = re.compile(
 NOTES_MIN_LEN = 40
 NOTES_DEDUCTION_RE = re.compile(r"扣|\(-?\d+\)|-\d{1,2}(?:\s|$|：)|−\d")
 
+# 真实互评 · 2026-06-25 升级：须独立 Task 留痕
+REVIEWER_AGENT_ID_RE = re.compile(r"^(task-|agent-|subagent-)[a-zA-Z0-9_-]{8,}$")
+BATCH_AGENT_ID_BLOCKLIST = frozenset({"batch", "script", "auto", "self", "same-session"})
+
 SCORECARD_ROLES_PHASE_A = [
     "网络调研员", "记者", "选题深挖师", "内核提炼师", "事实校验员",
     "形式选型师", "平台原生策划", "纪录片导演", "编剧", "留存与互动设计师",
@@ -56,6 +60,8 @@ SCORECARD_ROLES_PHASE_A = [
 SCORECARD_ROLES_PHASE_B = [
     "动效设计师", "编剧", "视觉设计", "留存与互动设计师", "编导",
 ]
+
+PLATFORM_ANALYST_ROLE = "平台表现分析师"
 
 # 表现形式层 · catalog 模板（pain/compare/cta 等通用镜）
 CATALOG_TEMPLATE_RE = re.compile(
@@ -72,6 +78,20 @@ FORM_EXCLUSIVE_MIN = 3          # 至少 3 种不同专属视觉隐喻
 FORM_CATALOG_RATIO_MAX = 0.35   # catalog 模板时长占比上限
 FORM_TEMPLATE_MAX_REPEAT = 1    # 同一 template 最多 1 镜
 FORM_MIN_DISTINCT_SCENES = 6    # 48s 视频至少 6 种不同画面节奏
+
+# D08 教训：写了 Pexels/custom/专属看板，但实际 render 被通用 evidence/newsprint 吞掉。
+# 外发前必须校验“形式承诺已兑现”，禁止重复造旧轮子。
+GENERIC_RENDER_BLOCK_RE = re.compile(
+    r"pipeline/render\.py|通用\s*evidence|newsprint|newspaper|render_carousel|"
+    r"blocked_old_evidence_render",
+    re.I,
+)
+CUSTOM_FORM_PROMISE_RE = re.compile(
+    r"Pexels|b-roll|B-roll|custom|专属|客户看板|私域看板|agent\s*分拣|"
+    r"分工卡|mixed_broll|custom_visual",
+    re.I,
+)
+CUSTOM_TEMPLATE_RE = re.compile(r"^(?:d\d{2}_|pexels_|custom_)", re.I)
 
 SCRIPT_REVIEW_REQUIRED_SIGNERS = ("内核提炼师", "留存设计师", "留存与互动设计师")
 SCRIPT_REVIEW_POST_RENDER_SIGNERS = ("编导",)
@@ -140,6 +160,8 @@ def _validate_reviewer_authenticity(
     reviewers: list[dict],
     threshold: int,
     errors: list[str],
+    *,
+    require_agent_id: bool = False,
 ) -> None:
     """真实互评：非形式盖章."""
     role_name = str(card.get("role", role))
@@ -152,6 +174,7 @@ def _validate_reviewer_authenticity(
         verdict = str(r.get("verdict", "")).strip().lower()
         notes = str(r.get("notes") or "").strip()
         review_mode = str(r.get("review_mode", "")).strip().lower()
+        agent_id = str(r.get("reviewer_agent_id") or "").strip()
 
         if not rid:
             errors.append(f"{role}: reviewer_id 为空")
@@ -164,6 +187,16 @@ def _validate_reviewer_authenticity(
             errors.append(
                 f"{role}: {rid} 缺少 review_mode: independent（须独立 Agent/Task readonly 打分）"
             )
+
+        if require_agent_id:
+            if not agent_id:
+                errors.append(
+                    f"{role}: {rid} 缺少 reviewer_agent_id（须独立 Task，格式 task-xxx）"
+                )
+            elif agent_id.lower() in BATCH_AGENT_ID_BLOCKLIST or not REVIEWER_AGENT_ID_RE.match(agent_id):
+                errors.append(
+                    f"{role}: {rid} reviewer_agent_id={agent_id!r} 无效"
+                )
 
         if verdict not in ("pass", "fail"):
             errors.append(f"{role}: {rid} verdict 须为 pass|fail，不得 pending/空")
@@ -191,6 +224,64 @@ def _validate_reviewer_authenticity(
 
     if len(notes_bodies) == 2 and notes_bodies[0] and notes_bodies[0] == notes_bodies[1]:
         errors.append(f"{role}: 两位 reviewer notes 完全相同（疑似同 Agent 复制）")
+
+
+def _collect_reviewer_agent_ids(day_dir: pathlib.Path) -> list[str]:
+    ids: list[str] = []
+    sc_dir = day_dir / "room" / "scorecards"
+    if not sc_dir.exists():
+        return ids
+    for path in sc_dir.glob("*.yaml"):
+        card = _read_yaml(path)
+        for r in card.get("reviewers") or []:
+            aid = str(r.get("reviewer_agent_id") or "").strip()
+            if aid:
+                ids.append(aid)
+    return ids
+
+
+def check_reviewer_agent_isolation(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """同一 reviewer_agent_id 不得评超过 3 个工种（疑似单 session 批量打分）."""
+    from collections import Counter
+
+    ids = _collect_reviewer_agent_ids(day_dir)
+    if not ids:
+        return
+    counts = Counter(ids)
+    for aid, n in counts.items():
+        if n > 3:
+            errors.append(
+                f"reviewer_agent_id={aid!r} 出现在 {n} 个评审位（>3 疑似批量互评，须独立 Task）"
+            )
+
+
+def check_scorecard_phase_b(day_dir: pathlib.Path, *, phase: str, errors: list[str]) -> None:
+    """Phase B 工种 scorecard 须 post_render 复验."""
+    if phase not in ("post_render", "approve"):
+        return
+    sc_dir = day_dir / "room" / "scorecards"
+    for role in SCORECARD_ROLES_PHASE_B:
+        path = sc_dir / f"{role}.yaml"
+        if not path.exists():
+            continue
+        card = _read_yaml(path)
+        sc_phase = str(card.get("scorecard_phase") or "")
+        if sc_phase != "post_render":
+            errors.append(
+                f"{role}: scorecard_phase 须为 post_render（render 后独立 Task 复验）"
+            )
+
+
+def check_platform_analyst_scorecard(day_dir: pathlib.Path, errors: list[str]) -> None:
+    if not _has_douyin_video(day_dir):
+        return
+    path = day_dir / "room" / "scorecards" / f"{PLATFORM_ANALYST_ROLE}.yaml"
+    if not path.exists():
+        errors.append(f"外发前缺少 scorecard: {PLATFORM_ANALYST_ROLE}.yaml")
+        return
+    card = _read_yaml(path)
+    if not card.get("pass"):
+        errors.append(f"{PLATFORM_ANALYST_ROLE}: pass 须为 true")
 
 
 def validate_scorecards(
@@ -249,7 +340,10 @@ def validate_scorecards(
         if len(set(angles)) < 2:
             errors.append(f"{role}: angle 相同")
 
-        _validate_reviewer_authenticity(role, card, reviewers, threshold, errors)
+        _validate_reviewer_authenticity(
+            role, card, reviewers, threshold, errors,
+            require_agent_id=phase in ("post_render", "approve"),
+        )
 
         scores = [int(r.get("score", 0)) for r in reviewers]
         for s, r in zip(scores, reviewers, strict=False):
@@ -273,6 +367,10 @@ def validate_scorecards(
             if inv and content_version in inv and card.get("pass"):
                 errors.append(f"{role}: invalidated_by={inv} 但未重评，不得 pass")
 
+    if phase in ("post_render", "approve"):
+        check_scorecard_phase_b(day_dir, phase=phase, errors=errors)
+        check_reviewer_agent_isolation(day_dir, errors=errors)
+
 
 def check_script_review(day_dir: pathlib.Path, *, phase: str, errors: list[str]) -> None:
     path = day_dir / "design" / "script_review.md"
@@ -291,6 +389,72 @@ def check_script_review(day_dir: pathlib.Path, *, phase: str, errors: list[str])
         for signer in SCRIPT_REVIEW_POST_RENDER_SIGNERS:
             if re.search(rf"\[ \].*{re.escape(signer)}", text):
                 errors.append(f"script_review Phase B: {signer} 须听 mp4 后联签")
+
+
+_VERSION_NUM_RE = re.compile(r"v(\d+)", re.I)
+NARRATIVE_HOMOGENITY_RE = re.compile(
+    r"叙事骨架|改造实录|flow→terminal|flow->terminal|近\s*D\d{2}|"
+    r"叙事.*同质|lecture\s*感|口令感",
+    re.I,
+)
+
+
+def _version_number(label: str) -> int | None:
+    m = _VERSION_NUM_RE.search(str(label or ""))
+    return int(m.group(1)) if m else None
+
+
+def check_form_redo_content_gate(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """形式升版时禁止静默复用旧脚本 pass（D02 · content_form_split_gates §9）."""
+    verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
+    form_v = str(verdict.get("form_version") or "").strip()
+    content_v = str(verdict.get("content_version") or "").strip()
+    if not form_v or not content_v:
+        return
+
+    form_n = _version_number(form_v)
+    content_n = _version_number(content_v)
+    if form_n is None or content_n is None or form_n <= content_n:
+        return
+
+    sr_text = _read_text(day_dir / "design" / "script_review.md")
+    if not sr_text.strip():
+        errors.append("form 升版但缺少 design/script_review.md")
+        return
+
+    discussion = _read_text(day_dir / "room" / "discussion.md")
+    narrative_flagged = bool(NARRATIVE_HOMOGENITY_RE.search(discussion))
+    has_content_redo = bool(re.search(r"content_redo:\s*(?:\*\*)?true(?:\*\*)?", sr_text, re.I))
+    has_ab_frozen = bool(re.search(r"content_ab_frozen:\s*(?:\*\*)?true(?:\*\*)?", sr_text, re.I))
+
+    if has_content_redo:
+        m = re.search(r"content_redo_target:\s*(?:\*\*)?(v\d+)(?:\*\*)?", sr_text, re.I)
+        if m and narrative_flagged:
+            target_n = _version_number(m.group(1))
+            if target_n is not None and target_n <= content_n:
+                errors.append(
+                    f"discussion 标叙事同质，content_redo_target 须 > {content_v}（见 content_form_split_gates §9.2）"
+                )
+        return
+
+    if has_ab_frozen:
+        if narrative_flagged:
+            errors.append(
+                f"discussion 标叙事同质（{form_v} vs {content_v}），禁止 content_ab_frozen；须 content_redo: true"
+            )
+        else:
+            rat = re.search(r"content_ab_rationale:\s*\|?\s*\n([\s\S]+?)(?:\n\S|\Z)", sr_text)
+            rat_body = (rat.group(1) if rat else "").strip()
+            if len(rat_body) < 40:
+                errors.append("content_ab_frozen: true 但 content_ab_rationale 不足 40 字")
+            elif not re.search(r"Round|A/B|固定脚本|content_ab|形式.*实验", discussion, re.I):
+                errors.append("content_ab_frozen 须在 discussion 记录形式实验 Round/理由")
+        return
+
+    errors.append(
+        f"form_version={form_v} 高于 content_version={content_v}："
+        "script_review 须 content_redo: true 或 content_ab_frozen: true（§9 content_form_split_gates）"
+    )
 
 
 def check_cover_review(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -324,6 +488,13 @@ def check_cover_review(day_dir: pathlib.Path, errors: list[str]) -> None:
 
     if cover.exists() and cr_path.stat().st_mtime < video.stat().st_mtime - 1:
         errors.append("cover_review 早于 video.mp4 修改时间（render 后须复验封面）")
+
+    if cover.exists() and cover.stat().st_mtime < video.stat().st_mtime - 1:
+        errors.append(
+            "cover.png 早于 video.mp4（须从 v4 首镜重导封面，不得沿用旧 cover）"
+        )
+    elif not cover.exists():
+        errors.append("有 video.mp4 但缺少 douyin/cover.png")
 
 
 def check_motion_wow(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -478,6 +649,11 @@ def check_hook_benchmark(day_dir: pathlib.Path, errors: list[str]) -> None:
     for label in ("人设", "镜头", "音乐"):
         if label not in text:
             errors.append(f"hook_benchmark 须拆解：{label}")
+    urls = re.findall(r"https?://[^\s\)|\]>]+", text)
+    if len(urls) < 2:
+        errors.append(
+            "hook_benchmark 须含 ≥2 条可核验 URL（https://…，禁止「抖音搜…」占位）"
+        )
     if retention.exists():
         rt = _read_text(retention)
         if "0–3s" not in rt and "0-3s" not in rt:
@@ -515,6 +691,83 @@ def check_pre_publish_forecast(day_dir: pathlib.Path, errors: list[str]) -> None
         errors.append("pre_publish_forecast：表现形式层 fail — 须 v11+ 形式重做后再 approve")
     elif re.search(r"不建议.*外发|blocked_form|形式.*不可", text, re.I):
         errors.append("pre_publish_forecast 结论：现成片不建议外发（形式层未过关）")
+
+
+def check_custom_form_fulfillment(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """D08 硬门禁：形式承诺必须在像素/素材/模板中兑现.
+
+    目的不是偏好某个技术，而是阻断：
+      format_spec 写 Pexels/custom/专属看板 → 实际用通用 evidence/newsprint 出片 → ready_to_publish
+    """
+    verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
+    meta = _read_yaml(day_dir / "meta.yaml")
+    project_id = str(meta.get("project_id") or verdict.get("project_id") or "")
+    content = _read_yaml(ROOT / "projects" / project_id / "content.yaml") if project_id else {}
+    storyboard_text = ""
+    sb_path = _storyboard_path(day_dir)
+    if sb_path and sb_path.exists():
+        storyboard_text = _read_text(sb_path)
+
+    format_text = _read_text(day_dir / "design" / "format_spec.md")
+    forecast_text = _read_text(day_dir / "design" / "pre_publish_forecast.md")
+    verdict_text = (day_dir / "room" / "verdict.yaml").read_text(encoding="utf-8") if (day_dir / "room" / "verdict.yaml").exists() else ""
+
+    combined = "\n".join([format_text, forecast_text, verdict_text, storyboard_text])
+
+    if GENERIC_RENDER_BLOCK_RE.search(combined):
+        errors.append(
+            "形式层：文档/决议含通用 evidence/newsprint/render.py 阻塞或禁用信号，"
+            "不得 approve；须专属视觉重做后删除阻塞结论"
+        )
+
+    promises_custom_form = bool(CUSTOM_FORM_PROMISE_RE.search(combined))
+    if not promises_custom_form:
+        return
+
+    scenes = _load_storyboard_scenes(day_dir)
+    templates = [str(s.get("template") or "") for s in scenes]
+    custom_templates = [t for t in templates if CUSTOM_TEMPLATE_RE.match(t)]
+
+    # 通用 render.py 的 content segments 会把 web/evidence 渲成窗口卡片；若仍有 web/evidence 且无专属模板/素材，直接 fail。
+    douyin_segments = (content.get("douyin") or {}).get("segments") or []
+    segment_sources = {str(s.get("source") or "") for s in douyin_segments if isinstance(s, dict)}
+    has_generic_segments = bool(segment_sources & {"evidence", "web"})
+
+    broll_paths = []
+    for sc in scenes:
+        data = sc.get("data") or {}
+        if isinstance(data, dict):
+            for key in ("source", "broll", "video", "asset"):
+                val = data.get(key)
+                if isinstance(val, str):
+                    broll_paths.append(val)
+        src = sc.get("source")
+        if isinstance(src, str):
+            broll_paths.append(src)
+
+    real_broll_exists = any(
+        (ROOT / p).exists() if not pathlib.Path(p).is_absolute() else pathlib.Path(p).exists()
+        for p in broll_paths
+        if p.endswith((".mp4", ".mov", ".webm", ".png", ".jpg", ".jpeg"))
+    )
+
+    if not custom_templates and not real_broll_exists:
+        errors.append(
+            "形式层：承诺了 Pexels/custom/专属视觉，但 storyboard 未使用 dNN_/pexels_/custom_ 模板，"
+            "也未引用真实本地素材；禁止用通用 evidence 卡片兑现"
+        )
+
+    if has_generic_segments and not real_broll_exists and len(custom_templates) < FORM_EXCLUSIVE_MIN:
+        errors.append(
+            "形式层：content.yaml 仍以 evidence/web 段为主体，且缺少 ≥3 个专属模板或真实素材；"
+            "会复现 D08 模板化结果，禁止外发"
+        )
+
+    if re.search(r"Pexels|b-roll|B-roll", combined) and not real_broll_exists:
+        errors.append(
+            "形式层：承诺使用 Pexels/B-roll，但未在 storyboard 引用已下载本地素材；"
+            "不得只把 Pexels 写进说明"
+        )
 
 
 def check_form_layer_scorecards(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -591,6 +844,8 @@ def gate_check(
     if phase == "pre_render":
         validate_scorecards(day_dir, phase="pre_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="pre_render", errors=errors)
+        check_form_redo_content_gate(day_dir, errors=errors)
+        check_custom_form_fulfillment(day_dir, errors=errors)
         check_hook_benchmark(day_dir, errors=errors)
         mw = day_dir / "design" / "motion_wow.md"
         if not mw.exists():
@@ -610,8 +865,11 @@ def gate_check(
         check_evidence(day_dir, errors=errors)
         check_discussion_phase_b(day_dir, errors=errors)
         check_visual_diversity(day_dir, errors=errors)
+        check_custom_form_fulfillment(day_dir, errors=errors)
         check_pre_publish_forecast(day_dir, errors=errors)
         check_form_layer_scorecards(day_dir, errors=errors)
+        check_platform_analyst_scorecard(day_dir, errors=errors)
+        check_form_redo_content_gate(day_dir, errors=errors)
 
     else:
         errors.append(f"未知 phase: {phase}")

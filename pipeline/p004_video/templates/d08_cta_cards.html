@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D08 CTA Cards</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    :root { --bg:#fff7ed; --ink:#1c1917; --muted:#78716c; --line:#d6d3d1; --green2:#16a34a; --red2:#dc2626; --blue2:#2563eb; --amber:#d97706; }
+    html, body { background: var(--bg); color: var(--ink); }
+    .canvas { background: linear-gradient(180deg, #fffaf3, var(--bg)); }
+    .question {
+      position: absolute; left: 70px; right: 70px; top: 250px;
+      font-size: 86px; line-height: 1.14; font-weight: 950; letter-spacing: 0;
+      opacity: 0;
+    }
+    .options {
+      position: absolute; left: 70px; right: 70px; top: 610px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
+    }
+    .opt {
+      height: 210px; border: 4px solid var(--ink); border-radius: 30px; background: white;
+      box-shadow: 10px 10px 0 rgba(28,25,23,.13); display: flex; flex-direction: column;
+      justify-content: center; padding: 28px; opacity: 0; transform: translateY(35px);
+    }
+    .letter { font-family: var(--mono); font-size: 30px; color: var(--muted); font-weight: 900; }
+    .label { margin-top: 12px; font-size: 50px; font-weight: 950; }
+    .opt:nth-child(1) { border-color: var(--green2); }
+    .opt:nth-child(2) { border-color: var(--blue2); }
+    .opt:nth-child(3) { border-color: var(--amber); }
+    .opt:nth-child(4) { border-color: var(--red2); }
+    .comment {
+      position: absolute; left: 76px; right: 76px; bottom: 320px; min-height: 210px;
+      border-radius: 36px; background: var(--ink); color: white; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 46px; opacity: 0; transform: scale(.96);
+    }
+    .comment .text { font-size: 56px; font-weight: 950; }
+    .comment .arrow { font-size: 104px; color: #facc15; }
+    .ticker {
+      position: absolute; left: 0; right: 0; bottom: 205px; font-family: var(--mono);
+      font-size: 27px; color: var(--muted); text-align: center; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="question" id="question">你做私域最容易漏哪一步？</div>
+    <div class="options" id="options">
+      <div class="opt"><div class="letter">A</div><div class="label">分层</div></div>
+      <div class="opt"><div class="letter">B</div><div class="label">回访</div></div>
+      <div class="opt"><div class="letter">C</div><div class="label">复购</div></div>
+      <div class="opt"><div class="letter">D</div><div class="label">售后</div></div>
+    </div>
+    <div class="comment" id="comment"><div class="text">评论区说说</div><div class="arrow">↓</div></div>
+    <div class="ticker" id="ticker">PRIVATE DOMAIN AGENT / COMMENT TO CONTINUE</div>
+  </div>
+  <script>
+    const data = window.getData();
+    if (data.cta_main) document.getElementById("question").textContent = data.cta_main;
+    if (data.action) document.querySelector("#comment .text").textContent = data.action;
+    const labels = (data.cta_sub || "分层 / 回访 / 复购 / 售后").split("/").map(s => s.trim()).filter(Boolean);
+    document.querySelectorAll(".label").forEach((el, i) => { if (labels[i]) el.textContent = labels[i]; });
+    const tl = gsap.timeline();
+    tl.fromTo("#question", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .45, ease: "power3.out" }, 0);
+    tl.to(".opt", { opacity: 1, y: 0, duration: .34, stagger: .14, ease: "back.out(1.7)" }, .55);
+    tl.to(".opt", { rotation: (i) => [-1.5, 1.2, 1.4, -1.1][i], duration: .2 }, 1.45);
+    tl.fromTo("#comment", { opacity: 0, scale: .96 }, { opacity: 1, scale: 1, duration: .42, ease: "back.out(1.5)" }, 2.05);
+    tl.to("#comment .arrow", { y: 22, duration: .45, repeat: -1, yoyo: true, ease: "sine.inOut" }, 2.55);
+    tl.fromTo("#ticker", { opacity: 0 }, { opacity: 1, duration: .3 }, 2.7);
+    tl.to({}, { duration: 2.0 }, 3.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

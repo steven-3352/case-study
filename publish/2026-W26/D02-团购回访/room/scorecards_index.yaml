@@ -1,0 +1,33 @@
+version: 5
+project_id: W26D02
+pass_threshold: 90
+required_roles_phase_a:
+- 网络调研员
+- 记者
+- 选题深挖师
+- 内核提炼师
+- 事实校验员
+- 形式选型师
+- 平台原生策划
+- 纪录片导演
+- 编剧
+- 留存与互动设计师
+- 动效设计师
+- 动效分镜师
+- 编导
+required_roles_phase_b:
+- 动效设计师
+- 编剧
+- 视觉设计
+- 留存与互动设计师
+- 编导
+- 平台表现分析师
+summary:
+  phase_a_pass: true
+  phase_b_pass: true
+  all_required_pass: true
+  content_version: v3
+  form_version: v5
+  gate_check_pre_render: true
+  spirit_review_round: 12
+  gate_check_approve: true

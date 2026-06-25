@@ -137,3 +137,81 @@
 **本轮决议：** v2 不作为发布版；升 v3。见 `design/format_spec.md`。
 
 **签字：** 编导、形式选型师
+
+---
+
+## Round 8 · SYSTEM.md 北极星 · form v4 抖音重做（2026-06-16）
+
+**编导：** 按 `docs/SYSTEM.md` §4.2 逐镜选型；上条7139播/2评，首镜停划优先。v4：**6× d02_*** 暖色餐饮 UI，0% catalog。
+
+**网络调研员：** 补 `hook_benchmark.md` 两条同行 · 锁屏+通知体对标。
+
+**留存：** retention 完播北极星表 · 0–3s lock_notify 映射。
+
+**动效设计师：** CREATIVE-1~6 兑现；关声3s 锁屏可辨，非 D01 chat/D06 纸账。
+
+**平台表现分析师：** 3s 58–68% · 完播 38–48% B+ · 可外发。
+
+**交锋：** 曾考虑保留 v3 catalog punch+pain——**否决**，违反 SYSTEM「无默认 pipeline」与 catalog≤35%。
+
+**本轮决议：** form v4 approved · mp4 40s · 抖音可外发。
+
+---
+
+## Round 9 · 铁律 spirit 补全 · gate 加固（2026-06-25）
+
+**用户：** 纸面 gate PASS ≠ 铁律 PASS；批量 scorecard / 同 session 自填 90+ = 假讨论室。**两者都要**：加固 `gate_check` + D02 spirit 级补全。
+
+**编导：** Round 8 后 Phase A 9 工种 scorecard 为 Python 批量生成（notes 雷同、无 `reviewer_agent_id`），**全部作废**。Round 11 以 18 个独立 Task 重写 Phase A 互评；Phase B 6 工种 × 2 已在 Round 10 完成。
+
+**网络调研员：** `hook_benchmark.md` 已补 3 条 https URL（有赞/轻流/网易）；仍缺 ≥1 条抖音短视频直链作 0–3s 像素对标。
+
+**平台原生策划：** meta 已 `xhs: video_reuse`，但 `format_spec.md` / `xhs/publish.md` 仍标 F4——**外发前须同步**（与 D05 同素材路径）。
+
+**视觉设计：** `cover.png` 已从 v4 首镜 @1.0s 重导（mtime 新于 video.mp4）。
+
+**平台表现分析师：** 新建 scorecard + `pre_publish_forecast.md` go；完播区间 38–48% 偏 B+，48h 须对账。
+
+**gate_check 升级（2026-06-25）：**
+- `reviewer_agent_id` 必填（post_render/approve，格式 `task-*`/`agent-*`）
+- 同一 agent_id 出现在 >3 个评审位 → FAIL
+- Phase B 须 `scorecard_phase: post_render`
+- `hook_benchmark` 须 ≥2 个 https URL
+- `cover.png` mtime 不得早于 `video.mp4`
+
+**交锋：** 是否保留批量 scorecard 仅改 agent_id？——**否决**；notes 套话与 artifact 脱节，spirit 不满足。
+
+**本轮决议：** Phase A/B 互评 spirit 补全 · `gate_check(approve)` PASS · 待用户关声 3s 亲验 · xhs publish 同步后外发。
+
+**签字：** 编导、网络调研员、平台表现分析师
+
+---
+
+## Round 10 · content v3 全链路重做（2026-06-16）
+
+**用户：** D02 各个环节重新认真考虑，重新制作内容。
+
+**编导：** 关闭 form-only 债务。content **v3** + form **v5** 双升；选用编剧 **vD**（单场景周五入口 + 原话#1–3 +「按提醒打通一个」）。
+
+**记者：** topic_brief v3 同步钉子五要素；原话表标注 v3 进片镜位。
+
+**内核提炼师：** P0 节拍对齐 45s 六镜；禁用 218 精确口播。
+
+**编剧：** v0 shock / vB 对话 / **vD 选用**；弃 vC 痛点堆叠 lecture。
+
+**留存：** 45s · 互动风险行 · 完播目标 42%；cta +3s 留「打通了一个」。
+
+**形式选型师：** 保留 6× d02_* · 0% catalog · lock 暖棕 · data 对齐 v3。
+
+**平台表现分析师：** 3s 场景+数字双停划；评论风险从脚本侧解；48h 对账。
+
+**交锋：** 是否换 route 做 vB 对话体？——**否决**（F3 UI 体已验证）；原话以口播+字幕进片。
+
+**本轮决议：** content v3 approved · TTS → render → Phase B 听 mp4 → 外发前 forecast 更新。
+
+**形式 | 内容分列：**
+- 形式：d02_* data/时长/暖锁屏
+- 内容：vD 脚本 · 原话 · 可见结果 · CTA
+
+**签字：** 编导、编剧、留存与互动设计师
+

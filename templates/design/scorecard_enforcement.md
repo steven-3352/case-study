@@ -18,6 +18,8 @@
 reviewers:
   - reviewer_id: 纪录片导演      # 真实工种名，禁止「编剧审校-A」「子 Agent」
     review_mode: independent      # 必填，缺则 gate FAIL
+    reviewer_agent_id: task-abc12345  # post_render/approve 必填 · 独立 Task 会话 ID
+    reviewed_at: "2026-06-25"
     angle: 叙事与场景
     score: 93
     verdict: pass                 # 须与 score 一致：≥90→pass，<90→fail
@@ -25,6 +27,7 @@ reviewers:
       场景入戏 22/25：有开表停顿 +1。
       扣(-7)：改法段仍 lecture 感 → 改成「表标红三行」可见结果。
       改法：删「做了件很笨的事」，换一行结果句。
+scorecard_phase: pre_render       # Phase B 工种须 post_render
 ```
 
 ## 3. gate_check 验什么（假互评直接 FAIL）
@@ -32,6 +35,9 @@ reviewers:
 | 检查 | 说明 |
 |------|------|
 | `review_mode: independent` | 缺 = 未隔离 |
+| `reviewer_agent_id` | post_render/approve 必填；格式 `task-*`/`agent-*`/`subagent-*`（≥8 字符） |
+| 批量互评检测 | 同一 `reviewer_agent_id` 出现在 >3 个评审位 → FAIL |
+| `scorecard_phase` | Phase B 工种（动效/编剧/视觉/留存/编导）须 `post_render` |
 | 禁止假分身 | `审校` / `子 Agent` / `-甲` / 工种名出现在 reviewer_id |
 | notes ≥40 字 | pass 时每位 reviewer |
 | 扣分项 | score<100 须含 `扣(-N)` 或 `-N` |
@@ -53,6 +59,7 @@ reviewers:
 |------|------|
 | D04 v5 假 92.5 | 独立 Agent readonly · notes 实质 |
 | D04 v10 形式纸面 92 / 效果 ~81 | 内容/形式两道门 · 分析师 · visual gate |
+| D02 v4 批量 scorecard ~92 / spirit fail | agent_id 硬校验 · 独立 Task 重写 · cover mtime |
 
 ## 6. 合规分 vs 效果分
 

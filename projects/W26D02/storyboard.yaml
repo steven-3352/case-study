@@ -1,8 +1,5 @@
-# W26D02 · 团购回访 · P004 GSAP 分镜 · v3
-# 工种: 动效分镜师 · 形式选型师定稿
-# 与 D01 差异: 无 chat/table/terminal/flow；用 chaos+punch+pain×3+before_after
-#
-# 渲染: python3 pipeline/p004_video/build.py --storyboard projects/W26D02/storyboard.yaml
+# W26D02 · 团购回访 · P004 · content v3 · form v5
+# 单场景入口 + 原话进片 · 6× d02_* · 0% catalog
 
 video:
   width: 1080
@@ -10,84 +7,52 @@ video:
   fps: 30
   output_name: video.mp4
   voice_volume: 1.0
-  music_volume: 0.12
+  music_volume: 0.11
+  content_version: v3
+  form_version: v5
+  visual_brief: restaurant_native_ui_warm
 
 scenes:
-  - id: "01a_chaos"
-    type: broll
-    source: "assets/broll/k1_chaos.mp4"
-    source_in: 2.0
-    duration: 1.2
-    start_at: 0.0
-    data:
-      caption: "周五晚高峰 · 收银台"
-
-  - id: "01b_punch1"
-    template: "01b_punch.html"
-    duration: 0.8
-    start_at: 1.2
-    data:
-      big: "218单卖了"
-      sub: ""
-
-  - id: "01c_punch2"
-    template: "01b_punch.html"
-    duration: 1.2
-    start_at: 2.0
-    data:
-      big: "回访0条"
-      sub: "流量来了留不下"
-
-  - id: "02_pain_verify"
-    template: "02_pain.html"
-    duration: 2.8
-    start_at: 3.2
-    data:
-      pain_lead: "核销靠口头 tally"
-      pain_kicker: "忙时漏记"
-      pain_extra: "月底对账对不上"
-      caption: "断点①"
-
-  - id: "03_pain_review"
-    template: "02_pain.html"
-    duration: 2.6
-    start_at: 6.0
-    data:
-      pain_lead: "差评两天后才看到"
-      pain_kicker: "客人早走了"
-      pain_extra: ""
-      caption: "断点②"
-
-  - id: "04_pain_guest"
-    template: "02_pain.html"
-    duration: 2.6
-    start_at: 8.6
-    data:
-      pain_lead: "团购客没留微"
-      pain_kicker: "来一次就没了"
-      pain_extra: ""
-      caption: "断点③"
-
-  - id: "05_before_after"
-    template: "06_compare.html"
+  - id: "01_lock"
+    template: "d02_lock_notify.html"
     duration: 4.0
-    start_at: 11.2
     data:
-      outsource:
-        price: "0"
-        time: "回访记录"
-        label: "改造前"
-      agent:
-        price: "有"
-        time: "24h 看到差评"
-        label: "改造后"
-      caption: "三条线跑起来 · 不是买系统"
+      sold: "~200"
+      follow: "0"
+      hook: "周五晚高峰"
+
+  - id: "02_tally"
+    template: "d02_tally_sticker.html"
+    duration: 7.5
+    data:
+      caption: "谁来过说不清"
+
+  - id: "03_review"
+    template: "d02_review_late.html"
+    duration: 6.5
+    data:
+      quote: "「上菜慢，等了40分钟」"
+      kicker: "两天前的差评"
+
+  - id: "04_guest"
+    template: "d02_guest_card.html"
+    duration: 6.5
+    data:
+      kicker: "回访？哪有时间"
+      quote: "前台"
+
+  - id: "05_lanes"
+    template: "d02_three_lanes.html"
+    duration: 9.0
+    data:
+      title: "三条线在谁脑子里？"
+      anchor: "重复规则 → 提醒 · 不是上大 SaaS"
 
   - id: "06_cta"
-    template: "08_cta.html"
-    duration: 5.0
-    start_at: 15.2
+    template: "d02_week_cta.html"
+    duration: 16.5
     data:
-      cta_main: "做团购的，三条线靠人盯还是靠提醒?"
-      cta_sub: "评论区说说"
-      accent_word: "三条线"
+      cta_main: '按提醒，<span class="accent">真的打通了一个</span>'
+      cta_sub: "靠人盯还是靠提醒？评论区说说"
+      metric_from: "0"
+      metric_to: "有记录"

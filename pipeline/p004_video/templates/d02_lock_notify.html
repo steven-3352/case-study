@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D02 Lock Notify</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: linear-gradient(160deg, #3d2914 0%, #5c4033 40%, #2d3436 100%);
+      font-family: -apple-system, "PingFang SC", sans-serif; color: #fff;
+    }
+    .phone {
+      position: absolute; left: 90px; top: 180px; width: 900px; height: 1560px;
+      background: #000; border-radius: 48px; padding: 16px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    }
+    .screen {
+      width: 100%; height: 100%; border-radius: 36px; overflow: hidden;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="868" height="1528"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%232d3436"/><stop offset="100%" stop-color="%231a1a2e"/></linearGradient></defs><rect fill="url(%23g)" width="868" height="1528"/></svg>') center/cover;
+      position: relative;
+    }
+    .time { position: absolute; top: 120px; left: 0; right: 0; text-align: center; font-size: 88px; font-weight: 200; opacity: 0.9; }
+    .date { position: absolute; top: 230px; left: 0; right: 0; text-align: center; font-size: 32px; opacity: 0.6; }
+    .notif-stack { position: absolute; top: 340px; left: 40px; right: 40px; }
+    .notif {
+      background: rgba(255,255,255,0.12); backdrop-filter: blur(20px);
+      border-radius: 24px; padding: 28px 32px; margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.15); opacity: 0; transform: translateY(-30px);
+    }
+    .notif.main { background: rgba(255,59,48,0.25); border-color: rgba(255,59,48,0.4); }
+    .notif .app { font-size: 24px; opacity: 0.7; margin-bottom: 8px; }
+    .notif .title { font-size: 34px; font-weight: 700; line-height: 1.3; }
+    .notif .sub { font-size: 28px; opacity: 0.85; margin-top: 8px; }
+    .hook {
+      position: absolute; left: 0; right: 0; bottom: 200px;
+      text-align: center; font-size: 52px; font-weight: 900; color: #ff6b6b;
+      text-shadow: 0 4px 24px rgba(255,107,107,0.5); opacity: 0; padding: 0 48px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" id="phone">
+    <div class="screen">
+      <div class="time">17:32</div>
+      <div class="date">周五 · 晚高峰</div>
+      <div class="notif-stack">
+        <div class="notif main" id="n1">
+          <div class="app">团购助手</div>
+          <div class="title">本月售出 <span id="sold">218</span> 单</div>
+          <div class="sub">回访记录 <span id="follow">0</span> 条</div>
+        </div>
+        <div class="notif" id="n2">
+          <div class="app">商家通知</div>
+          <div class="title">新差评 · 2天前</div>
+        </div>
+        <div class="notif" id="n3">
+          <div class="app">核销 tally</div>
+          <div class="title">手工记录 · 待日结</div>
+        </div>
+      </div>
+      <div class="hook" id="hook">流量来了留不下</div>
+    </div>
+  </div>
+  <script>
+    const d = window.getData();
+    if (d.sold) document.getElementById("sold").textContent = d.sold;
+    if (d.follow) document.getElementById("follow").textContent = d.follow;
+    if (d.hook) document.getElementById("hook").textContent = d.hook;
+    if (d.hook && d.hook.includes("高峰")) {
+      document.querySelector(".date").textContent = "周五 · 晚高峰";
+    }
+    const tl = gsap.timeline();
+    tl.fromTo("#phone", { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }, 0);
+    tl.to("#n1", { opacity: 1, y: 0, duration: 0.35, ease: "back.out(1.4)" }, 0.3);
+    tl.fromTo("#n1 .title", { scale: 1.15 }, { scale: 1, duration: 0.25, ease: "elastic.out(1,0.5)" }, 0.5);
+    tl.to("#n2", { opacity: 1, y: 0, duration: 0.25 }, 0.9);
+    tl.to("#n3", { opacity: 1, y: 0, duration: 0.25 }, 1.1);
+    tl.fromTo("#hook", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "power2.out" }, 1.4);
+    tl.to("#follow", { color: "#ff3b30", duration: 0.15, repeat: 3, yoyo: true }, 1.6);
+    tl.to({}, { duration: 1.5 }, 2.0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

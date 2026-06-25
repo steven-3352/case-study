@@ -1,0 +1,10 @@
+provider: edge
+voice: zh-CN-YunxiNeural
+rate: "+0%"
+pitch: "+0Hz"
+script: projects/W26D08/script_vo.md
+output: projects/W26D08/speech.mp3
+notes:
+  - 0-3s “私域不是多发消息”须留停顿。
+  - “第一 / 第二 / 第三”之间稍微断开，方便剪辑卡点。
+  - 末尾 CTA 不得裁切。

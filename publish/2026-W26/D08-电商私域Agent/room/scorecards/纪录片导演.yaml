@@ -1,0 +1,19 @@
+role: 纪录片导演
+artifact: projects/W26D08/storyboard.yaml
+artifact_version: v1
+pass_threshold: 90
+reviewers:
+  - reviewer_id: 形式选型师
+    review_mode: independent
+    angle: 真实感
+    score: 92
+    verdict: pass
+    notes: 首镜和中段实拍素材提供真实场景锚点，仿真看板承担解释。
+  - reviewer_id: 视觉设计
+    review_mode: independent
+    angle: 镜头差异
+    score: 91
+    verdict: pass
+    notes: 实拍、消息瀑布、流程分拣、看板、雷达和 CTA 的视觉语法不同。
+avg_score: 91.5
+pass: true
