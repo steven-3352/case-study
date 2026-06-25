@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>P002 · 码农五任前任 · 小红书 35s</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Playfair+Display:wght@700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
+<style>
+/* ============ RESET ============ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: "Noto Serif SC", serif; }
+
+/* ============ STAGE ============ */
+.stage-wrap {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: 1080px; height: 1920px;
+  position: relative;
+  background: #F5F0E6;
+  overflow: hidden;
+  transform-origin: center center;
+  /* 适配屏幕：JS 会动态算 scale */
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+/* 报纸纹理 */
+.stage::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 30% 40%, rgba(0,0,0,0.04) 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 4px 4px, 6px 6px;
+  pointer-events: none; z-index: 1;
+}
+
+/* ============ SCENE ============ */
+.scene {
+  position: absolute; inset: 0;
+  padding: 60px;
+  display: flex; flex-direction: column;
+  opacity: 0; visibility: hidden;
+  z-index: 2;
+}
+.scene.active { opacity: 1; visibility: visible; }
+
+/* ============ HEADER ============ */
+.masthead {
+  border-top: 6px double #1A1A1A;
+  border-bottom: 2px solid #1A1A1A;
+  padding: 14px 0 10px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: "Playfair Display", serif;
+  margin-bottom: 18px;
+}
+.masthead .brand { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
+.masthead .meta { font-size: 18px; color: #555; font-family: "Noto Serif SC", serif; }
+
+/* ============ COLUMN BAR ============ */
+.column-bar {
+  display: inline-block;
+  background: #1A1A1A; color: #F5F0E6;
+  padding: 10px 22px; font-size: 22px; font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  align-self: flex-start;
+}
+.column-bar.red { background: #D03028; }
+.column-bar.pink { background: #B8506A; }
+
+/* ============ TITLE ============ */
+.headline {
+  font-family: "Noto Serif SC", serif;
+  font-weight: 900;
+  color: #1A1A1A;
+  letter-spacing: -2px;
+  line-height: 1.05;
+}
+.headline.xl { font-size: 130px; }
+.headline.lg { font-size: 92px; }
+.headline.md { font-size: 72px; }
+.subhead {
+  font-size: 32px; font-weight: 700; color: #D03028;
+  margin-top: 10px; letter-spacing: 1px;
+}
+
+/* ============ BODY TEXT ============ */
+.lead {
+  font-size: 28px; line-height: 1.7;
+  color: #2A2A2A; margin-top: 24px;
+  text-indent: 2em;
+}
+.lead strong { color: #D03028; }
+.lead code {
+  font-family: "SF Mono", Menlo, monospace;
+  background: #1A1A1A; color: #6BFF6B;
+  padding: 2px 8px; border-radius: 4px; font-size: 24px;
+}
+
+/* ============ STAMP ============ */
+.stamp {
+  position: absolute;
+  font-family: "ZCOOL XiaoWei", serif;
+  color: #D03028;
+  border: 6px solid #D03028;
+  padding: 14px 28px;
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: rgba(245, 240, 230, 0.3);
+  z-index: 10;
+  text-shadow: 2px 2px 0 rgba(208, 48, 40, 0.2);
+}
+.stamp.corner-br { right: 70px; bottom: 200px; transform: rotate(-12deg); }
+.stamp.corner-tr-1 { right: 80px; top: 200px; transform: rotate(-10deg); }
+.stamp.corner-tr-2 { right: 140px; top: 280px; transform: rotate(8deg); }
+
+/* ============ SUBTITLE BAR ============ */
+.subtitle-bar {
+  position: absolute;
+  bottom: 70px; left: 0; right: 0;
+  background: #F4D35E;
+  color: #1A1A1A;
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  padding: 24px;
+  border-top: 4px solid #1A1A1A;
+  border-bottom: 4px solid #1A1A1A;
+  font-family: "Noto Serif SC", serif;
+  z-index: 20;
+  opacity: 0;
+}
+
+/* ============ P1 · COVER ============ */
+.character-row {
+  display: flex; justify-content: space-around; align-items: flex-end;
+  height: 700px; margin: 40px 0;
+  background:
+    repeating-linear-gradient(to right, transparent 0, transparent 218px, rgba(0,0,0,0.05) 218px, rgba(0,0,0,0.05) 219px);
+}
+.character {
+  width: 180px; height: 600px;
+  position: relative;
+  background: #E0D8C8;
+  border: 3px solid #1A1A1A;
+  border-radius: 6px 6px 0 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 20px;
+}
+.character::before {
+  content: attr(data-name);
+  position: absolute; top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px; font-weight: 900;
+  text-align: center;
+  font-family: "Noto Serif SC", serif;
+  color: #555;
+}
+.character::after {
+  content: attr(data-emoji);
+  position: absolute; top: 18%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+}
+.char-placard {
+  background: #1A1A1A; color: #F5F0E6;
+  padding: 6px 16px; font-size: 26px;
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+}
+
+/* ============ P2 · VSCODE ============ */
+.vscode-mock {
+  background: #1E1E1E; color: #D4D4D4;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 28px;
+  padding: 24px 30px;
+  border-radius: 10px;
+  margin: 20px 0;
+  line-height: 1.6;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.vscode-mock .lineno { color: #5A5A5A; margin-right: 16px; }
+.vscode-mock .kw { color: #569CD6; }
+.vscode-mock .fn { color: #DCDCAA; }
+.vscode-mock .cursor {
+  display: inline-block; width: 3px; height: 28px;
+  background: #FFF; vertical-align: middle;
+  animation: blink 0.8s infinite;
+}
+.vscode-mock .ghost { color: #6A6A6A; font-style: italic; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.bubble {
+  background: #F4D35E; color: #1A1A1A;
+  padding: 18px 28px; font-size: 32px; font-weight: 700;
+  border-radius: 32px;
+  position: relative;
+  display: inline-block;
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+.bubble::after {
+  content: ""; position: absolute;
+  bottom: -16px; left: 60px;
+  border: 16px solid transparent;
+  border-top-color: #F4D35E;
+}
+
+/* ============ P3 · BILLS ============ */
+.bill-wall { position: relative; height: 600px; margin-top: 30px; }
+.bill {
+  position: absolute;
+  width: 280px; height: 200px;
+  background: #FFFCF5;
+  border: 2px solid #1A1A1A;
+  padding: 16px;
+  font-family: "Noto Serif SC", serif;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+}
+.bill .bill-title { font-size: 18px; font-weight: 900; }
+.bill .bill-amount { font-size: 56px; font-weight: 900; color: #D03028; margin-top: 16px; }
+.bill .bill-paid {
+  position: absolute; right: 10px; bottom: 10px;
+  color: #D03028; border: 3px solid #D03028;
+  padding: 4px 12px; font-weight: 900; font-size: 18px;
+  transform: rotate(-12deg);
+}
+.bill-total {
+  position: absolute; bottom: -80px; right: 40px;
+  font-size: 80px; font-weight: 900; color: #D03028;
+  font-family: "Noto Serif SC", serif;
+}
+
+/* ============ P4 · TERMINAL ============ */
+.scene.p4 { background: linear-gradient(to bottom, #2A2620 0%, #1A1816 100%); color: #F5F0E6; }
+.scene.p4 .masthead { color: #F5F0E6; border-color: #F5F0E6; }
+.scene.p4 .masthead .meta { color: #BBB; }
+.scene.p4 .headline { color: #F5F0E6; }
+.scene.p4 .lead { color: #D4D4D4; }
+.terminal {
+  background: #0A0A0A;
+  border: 2px solid #6BFF6B;
+  border-radius: 10px;
+  padding: 30px;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 32px;
+  color: #6BFF6B;
+  line-height: 1.6;
+  margin-top: 30px;
+  min-height: 360px;
+  box-shadow: 0 0 40px rgba(107, 255, 107, 0.3);
+}
+.terminal .prompt { color: #6BFF6B; }
+.terminal .output { color: #BBB; }
+.terminal .thinking { color: #F4D35E; }
+.terminal .done { color: #6BFF6B; font-weight: 700; }
+
+/* ============ P5 · DUO + DANMAKU ============ */
+.duo-row {
+  display: flex; justify-content: center; gap: 40px;
+  height: 500px; margin: 20px 0; position: relative;
+}
+.duo-card {
+  width: 280px; height: 480px;
+  border: 4px solid #1A1A1A;
+  background: #E0D8C8;
+  position: relative;
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 16px;
+}
+.duo-card::before {
+  content: attr(data-name);
+  position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 24px; font-weight: 900;
+}
+.duo-card::after {
+  content: attr(data-emoji);
+  position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 90px;
+}
+.compare-frame {
+  position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px;
+  border: 6px dashed #D03028;
+  pointer-events: none;
+}
+.danmaku-wall {
+  position: absolute; bottom: 200px; left: 0; right: 0;
+  height: 400px;
+}
+.danmaku {
+  position: absolute;
+  background: #FFF;
+  border: 2px solid #1A1A1A;
+  padding: 12px 24px;
+  font-size: 28px;
+  font-weight: 700;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+}
+
+/* ============ P6 · CTA ============ */
+.couple-shot {
+  height: 360px;
+  background: #E0D8C8;
+  border: 3px solid #1A1A1A;
+  position: relative;
+  margin: 14px 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.couple-shot .label {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 22px; font-weight: 900; color: #555;
+}
+.couple-shot .emoji-pair {
+  font-size: 130px; letter-spacing: -20px;
+}
+.couple-shot .arrow-away {
+  position: absolute; right: 60px; top: 50%;
+  font-size: 40px; color: #D03028;
+}
+.wanted-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 20px 0; }
+.wanted {
+  background: #F0E8D0;
+  border: 3px solid #1A1A1A;
+  padding: 16px 10px;
+  text-align: center;
+  position: relative;
+  font-family: "Noto Serif SC", serif;
+}
+.wanted .wanted-tag {
+  font-family: "Playfair Display", serif;
+  font-size: 18px; font-weight: 900;
+  letter-spacing: 2px;
+  border-top: 2px solid #1A1A1A;
+  border-bottom: 2px solid #1A1A1A;
+  padding: 4px 0;
+  margin-bottom: 10px;
+}
+.wanted .silhouette {
+  font-size: 70px; margin: 8px 0;
+}
+.wanted .wanted-name { font-size: 22px; font-weight: 900; }
+.wanted .next-stamp {
+  position: absolute; top: 20px; right: 10px;
+  color: #D03028; border: 3px solid #D03028;
+  padding: 4px 8px; font-weight: 900; font-size: 14px;
+  transform: rotate(-15deg);
+  font-family: "Noto Serif SC", serif;
+}
+.comment-block {
+  background: #1A1A1A; color: #F4D35E;
+  padding: 22px 30px;
+  font-size: 32px;
+  font-weight: 700;
+  font-family: "Noto Serif SC", serif;
+  margin-top: 20px;
+  line-height: 1.5;
+  min-height: 120px;
+}
+.cta-yellow {
+  position: absolute;
+  bottom: 70px; left: 0; right: 0;
+  background: #F4D35E;
+  color: #1A1A1A;
+  font-size: 36px;
+  font-weight: 900;
+  text-align: center;
+  padding: 28px;
+  border-top: 4px solid #1A1A1A;
+  border-bottom: 4px solid #1A1A1A;
+  font-family: "Noto Serif SC", serif;
+}
+
+/* ============ CONTROL ============ */
+.control {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: #FFF;
+  padding: 12px 24px; border-radius: 24px;
+  font-family: monospace; font-size: 14px;
+  z-index: 999;
+  display: flex; gap: 16px; align-items: center;
+}
+.control button {
+  background: #F4D35E; color: #1A1A1A;
+  border: none; padding: 8px 16px;
+  font-weight: 900; cursor: pointer; border-radius: 16px;
+}
+.timer { font-size: 18px; min-width: 60px; }
+</style>
+</head>
+<body>
+
+<div class="stage-wrap">
+  <div class="stage" id="stage">
+
+    <!-- ============ P1 · 封面 ============ -->
+    <div class="scene p1" data-scene="p1">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">2026/06/18 · 第 4748 期</div>
+      </div>
+      <div class="column-bar red">头版头条 · 独家深度</div>
+      <h1 class="headline xl p1-headline">惊！打工人深夜痛诉<br>换了<span style="color:#D03028">5</span>个对象</h1>
+      <div class="subhead p1-subtitle">本报独家 · 码农情感档案 · 第3任最抓马</div>
+      <div class="character-row">
+        <div class="character p1-character" data-name="柯学长" data-emoji="🤓"><div class="char-placard p1-stamp">NO.1</div></div>
+        <div class="character p1-character" data-name="顾小姐" data-emoji="💼"><div class="char-placard p1-stamp">NO.2</div></div>
+        <div class="character p1-character" data-name="K 先生" data-emoji="🥷"><div class="char-placard p1-stamp">NO.3</div></div>
+        <div class="character p1-character" data-name="温小妹" data-emoji="🙃"><div class="char-placard p1-stamp">NO.4</div></div>
+        <div class="character p1-character" data-name="C 少爷" data-emoji="🧑‍💻"><div class="char-placard p1-stamp">NO.5</div></div>
+      </div>
+      <div class="stamp corner-tr-1 p1-corner-stamp">独家</div>
+      <div class="stamp corner-tr-2 p1-corner-stamp">头版</div>
+      <div class="subtitle-bar p1-subbar">5 年 · 5 个对象 · 5 颗破碎的心</div>
+    </div>
+
+    <!-- ============ P2 · 柯学长 ============ -->
+    <div class="scene p2" data-scene="p2">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">情感专栏 · P.2</div>
+      </div>
+      <div class="column-bar">情感专栏 · 第 1 任 · 2021.10 → 2023.03</div>
+      <h1 class="headline lg p2-character">我的初恋<br>是个"复读机"</h1>
+      <div class="subhead p2-character">暧昧三年，他没主动说过一句完整的话</div>
+      <div class="bubble p2-bubble" style="margin: 30px 0 10px 60px;">你是不是想写...这个？</div>
+      <div class="vscode-mock p2-vscode">
+        <div><span class="lineno">12</span><span class="kw">function</span> <span class="fn">getUserName</span>() {</div>
+        <div><span class="lineno">13</span>&nbsp;&nbsp;<span class="kw">return</span> user.<span class="cursor"></span><span class="ghost p2-vscode-completion">name</span></div>
+        <div><span class="lineno">14</span>}</div>
+        <div style="margin-top: 14px;"><span class="lineno">15</span><span class="ghost">// TODO: 你是不是想分手...</span></div>
+      </div>
+      <p class="lead p2-character">据知情人士爆料："柯学长温柔归温柔，三年了连分手都得小 C 主动开口。" 2023 年 3 月，小 C 刷到一位身着黑色高定的神秘女子......</p>
+      <div class="stamp corner-br p2-stamp">已分手</div>
+      <div class="subtitle-bar p2-subbar">初恋 · 柯学长 · 三年暧昧没说过一句完整的话</div>
+    </div>
+
+    <!-- ============ P3 · 顾小姐 ============ -->
+    <div class="scene p3" data-scene="p3">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">金融版 · P.3</div>
+      </div>
+      <div class="column-bar red">金融版 · 第 2 任 · 2023.03 → 2025.02</div>
+      <h1 class="headline lg p3-character">"她能让我月入百万<br>也能让我月光"</h1>
+      <div class="subhead p3-character">22 个月豪掷 $4,840，相当于一辆二手五菱</div>
+      <div class="bill-wall">
+        <div class="bill p3-bill" style="left: 30px; top: 20px; transform: rotate(-6deg);"><div class="bill-title">2023.04 · 顾氏会所</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill p3-bill" style="left: 320px; top: 50px; transform: rotate(3deg);"><div class="bill-title">2023.09 · Pro 升级</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill p3-bill" style="left: 610px; top: 30px; transform: rotate(-3deg);"><div class="bill-title">2024.03 · 重构套餐</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill p3-bill" style="left: 60px; top: 280px; transform: rotate(4deg);"><div class="bill-title">2024.08 · 额度续费</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill p3-bill" style="left: 360px; top: 320px; transform: rotate(-5deg);"><div class="bill-title">2024.12 · Ultra 礼包</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill p3-bill" style="left: 660px; top: 290px; transform: rotate(6deg);"><div class="bill-title">2025.01 · 分手前夜</div><div class="bill-amount p3-bill-amount">$0</div><div class="bill-paid">PAID</div></div>
+        <div class="bill-total p3-total">$ 4,840</div>
+      </div>
+      <div class="stamp corner-br p3-stamp">钱包警告</div>
+      <div class="subtitle-bar p3-subbar">正牌 · 顾小姐 · 22 个月榨干 $4,840</div>
+    </div>
+
+    <!-- ============ P4 · K 先生 ============ -->
+    <div class="scene p4" data-scene="p4">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">社会版 · P.4 · 凌晨 3:47</div>
+      </div>
+      <div class="column-bar">社会版 · 第 3 任（出轨对象） · 仍在交往</div>
+      <h1 class="headline lg p4-character">47 秒沉默之后<br>这个不露脸的男人</h1>
+      <div class="subhead p4-character" style="color:#F4D35E">他让我尖叫了。</div>
+      <div class="terminal">
+        <div><span class="prompt">$ claude</span></div>
+        <div><span class="output">> Analyzing your codebase...</span></div>
+        <div><span class="output">> Found 47 issues across 12 files</span></div>
+        <div><span class="thinking p4-thinking-text"></span><span class="thinking">(thinking </span><span class="thinking p4-thinking-counter">0</span><span class="thinking">s)</span></div>
+        <div class="p4-done"><span class="done">> ✓ 重构完成 · 12 测试通过 · 请确认是否提交</span></div>
+        <div><span class="prompt">$ </span><span class="cursor"></span></div>
+      </div>
+      <p class="lead p4-character" style="color:#D4D4D4;">小 C 含泪透露："我从没见过这么硬核的男人。他不需要花哨界面，他只要一个终端，就能让我尖叫。"</p>
+      <div class="stamp corner-br p4-stamp">深夜密会</div>
+      <div class="subtitle-bar p4-subbar">出轨对象 · K 先生 · 47 秒重构半年烂代码</div>
+    </div>
+
+    <!-- ============ P5 · 温小妹 ============ -->
+    <div class="scene p5" data-scene="p5">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">娱乐版 · P.5</div>
+      </div>
+      <div class="column-bar pink">娱乐版 · 第 4 任 · 2025.03 → 2025.04</div>
+      <h1 class="headline lg p5-duo">"我是顾小姐的妹妹"<br>温小妹认亲风波</h1>
+      <div class="duo-row p5-duo">
+        <div class="duo-card" data-name="顾小姐 · 正版" data-emoji="💼"></div>
+        <div class="duo-card" data-name="温小妹 · 高仿" data-emoji="🙃"></div>
+        <div class="compare-frame p5-compare-frame"></div>
+      </div>
+      <div class="danmaku-wall">
+        <div class="danmaku p5-danmaku" style="top: 20px; left: 50px;">姐妹？分明是高仿包啊</div>
+        <div class="danmaku p5-danmaku" style="top: 90px; left: 380px;">买不起顾姐才选她吧（doge）</div>
+        <div class="danmaku p5-danmaku" style="top: 160px; left: 80px;">前 7 天免费，第 8 天破防</div>
+        <div class="danmaku p5-danmaku" style="top: 230px; left: 420px;">撞性格还便宜 🤣</div>
+        <div class="danmaku p5-danmaku" style="top: 300px; left: 60px;">灵魂含量义乌批发的吧</div>
+      </div>
+      <div class="stamp corner-br p5-stamp">山寨预警</div>
+      <div class="subtitle-bar p5-subbar">山寨备胎 · 温小妹 · 撞脸还撞性格</div>
+    </div>
+
+    <!-- ============ P6 · C 少爷 + 结局 ============ -->
+    <div class="scene p6" data-scene="p6">
+      <div class="masthead">
+        <div class="brand">THE OVERTIME TIMES</div>
+        <div class="meta">最新进展 · P.6 · 昨夜 23:50</div>
+      </div>
+      <div class="column-bar red">头版连载 · 最新进展 · 关系待定</div>
+      <h1 class="headline md p6-couple">硅谷归来的 C 少爷<br>他刚牵我的手，我已在想下一个</h1>
+      <div class="couple-shot p6-couple">
+        <div class="emoji-pair">🧑‍💻🤝😩</div>
+        <div class="arrow-away p6-arrow">← 眼神已飘走</div>
+        <div class="label">独家抓拍 · 牵手现场</div>
+      </div>
+      <div class="wanted-row">
+        <div class="wanted p6-wanted">
+          <div class="wanted-tag">WANTED</div>
+          <div class="silhouette">🕴️</div>
+          <div class="wanted-name">G 公子</div>
+          <div class="next-stamp p6-next-stamp">NEXT?</div>
+        </div>
+        <div class="wanted p6-wanted">
+          <div class="wanted-tag">WANTED</div>
+          <div class="silhouette">👨‍💼</div>
+          <div class="wanted-name">崔少</div>
+          <div class="next-stamp p6-next-stamp">NEXT?</div>
+        </div>
+        <div class="wanted p6-wanted">
+          <div class="wanted-tag">WANTED</div>
+          <div class="silhouette">💁‍♀️</div>
+          <div class="wanted-name">灵码姐</div>
+          <div class="next-stamp p6-next-stamp">NEXT?</div>
+        </div>
+        <div class="wanted p6-wanted">
+          <div class="wanted-tag">WANTED</div>
+          <div class="silhouette">🥷</div>
+          <div class="wanted-name">K 小哥</div>
+          <div class="next-stamp p6-next-stamp">NEXT?</div>
+        </div>
+      </div>
+      <div class="comment-block"><span class="p6-comment"></span></div>
+      <div class="cta-yellow p6-cta">👇 你的初恋是谁？评论区蹲真实故事 🍉</div>
+      <div class="stamp corner-br p6-stamp">海王无敌</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 控制条 -->
+<div class="control">
+  <button id="btn-play">▶ Play</button>
+  <button id="btn-restart">⟳ Restart</button>
+  <span class="timer" id="timer">0.00s</span>
+  <span>· 35s · 1080×1920</span>
+</div>
+
+<script>
+gsap.registerPlugin(TextPlugin);
+
+// 自适应 scale
+function fitStage() {
+  const s = document.getElementById('stage');
+  const vh = window.innerHeight, vw = window.innerWidth;
+  const scale = Math.min(vh / 1920, vw / 1080) * 0.95;
+  s.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', fitStage);
+fitStage();
+
+// 主时间线
+function buildMaster() {
+  const tl = gsap.timeline({ paused: true,
+    onUpdate: () => { document.getElementById('timer').textContent = tl.time().toFixed(2) + 's'; }
+  });
+
+  // ============ P1 · 00:00 - 00:06 ============
+  tl.set('.scene', { autoAlpha: 0 })
+    .set('.scene.p1', { autoAlpha: 1 }, 0)
+    .from('.p1-headline', { scale: 0, duration: 0.5, ease: 'back.out(1.8)' }, 0.1)
+    .from('.p1-subtitle', { x: -200, autoAlpha: 0, duration: 0.4 }, 0.6)
+    .from('.p1-character', { y: 800, autoAlpha: 0, stagger: 0.08, duration: 0.5, ease: 'back.out(1.4)' }, 0.9)
+    .from('.p1-stamp', { scale: 4, rotation: -90, autoAlpha: 0, stagger: 0.08, duration: 0.3, ease: 'back.out(2)' }, 1.4)
+    .from('.p1-corner-stamp', { scale: 5, autoAlpha: 0, stagger: 0.15, duration: 0.3, ease: 'back.out(2.5)' }, 1.9)
+    .to('.p1-subbar', { autoAlpha: 1, duration: 0.3 }, 2.3)
+    .to('.p1-subbar', { autoAlpha: 0, duration: 0.3 }, 5.4)
+    .to('.scene.p1', { x: -1080, duration: 0.5, ease: 'power3.in' }, 5.5);
+
+  // ============ P2 · 00:06 - 00:11 ============
+  tl.set('.scene.p2', { autoAlpha: 1, x: 1080 }, 5.7)
+    .to('.scene.p2', { x: 0, duration: 0.5, ease: 'power3.out' }, 5.7)
+    .from('.p2-character', { x: 200, autoAlpha: 0, stagger: 0.05, duration: 0.4 }, 6.0)
+    .from('.p2-bubble', { scale: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)' }, 6.4)
+    .from('.p2-vscode', { autoAlpha: 0, y: 50, duration: 0.4 }, 6.8)
+    .from('.p2-vscode-completion', { autoAlpha: 0, duration: 0.6 }, 7.4)
+    .from('.p2-stamp', { scale: 4, rotation: -180, autoAlpha: 0, duration: 0.4, ease: 'back.out(2)' }, 8.5)
+    .to('.p2-subbar', { autoAlpha: 1, duration: 0.3 }, 6.5)
+    .to('.p2-subbar', { autoAlpha: 0, duration: 0.3 }, 10.4)
+    .to('.scene.p2', { x: -1080, duration: 0.5, ease: 'power3.in' }, 10.6);
+
+  // ============ P3 · 00:11 - 00:17 ============
+  tl.set('.scene.p3', { autoAlpha: 1, x: 1080 }, 10.8)
+    .to('.scene.p3', { x: 0, duration: 0.5, ease: 'power3.out' }, 10.8)
+    .from('.p3-character', { x: -200, autoAlpha: 0, stagger: 0.05, duration: 0.4 }, 11.1)
+    .from('.p3-bill', { y: 300, autoAlpha: 0, scale: 0.5, stagger: 0.12, duration: 0.4, ease: 'back.out(1.3)' }, 11.6);
+  // 金额跳数字（proxy 模式：GSAP 动数字，onUpdate 写文本）
+  const amounts = [20, 40, 60, 100, 150, 200];
+  document.querySelectorAll('.p3-bill-amount').forEach((el, i) => {
+    const proxy = { val: 0 };
+    tl.to(proxy, {
+      val: amounts[i],
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => { el.textContent = '$' + Math.round(proxy.val); }
+    }, 12.0 + i * 0.12);
+  });
+  tl.from('.p3-total', { scale: 0, duration: 0.5, ease: 'back.out(2)' }, 14.0)
+    .from('.p3-stamp', { scale: 4, rotation: -180, autoAlpha: 0, duration: 0.4, ease: 'back.out(2)' }, 14.6)
+    .to('.p3-subbar', { autoAlpha: 1, duration: 0.3 }, 11.6)
+    .to('.p3-subbar', { autoAlpha: 0, duration: 0.3 }, 16.4)
+    .to('.scene.p3', { x: -1080, duration: 0.5, ease: 'power3.in' }, 16.6);
+
+  // ============ P4 · 00:17 - 00:23 ============
+  tl.set('.scene.p4', { autoAlpha: 1, x: 1080 }, 16.8)
+    .to('.scene.p4', { x: 0, duration: 0.5, ease: 'power3.out' }, 16.8)
+    .from('.p4-character', { x: 200, autoAlpha: 0, stagger: 0.05, duration: 0.4 }, 17.1)
+    .from('.terminal', { autoAlpha: 0, x: -200, duration: 0.4 }, 17.7)
+    .to('.p4-thinking-text', { text: '> 让我想想... ', duration: 0.6, ease: 'none' }, 18.2);
+  // 倒计时 proxy
+  const ctEl = document.querySelector('.p4-thinking-counter');
+  const ctProxy = { val: 0 };
+  tl.to(ctProxy, {
+    val: 47, duration: 1.5, ease: 'power1.in',
+    onUpdate: () => { ctEl.textContent = Math.round(ctProxy.val); }
+  }, 18.8);
+  tl.from('.p4-done', { autoAlpha: 0, duration: 0.3 }, 20.4)
+    .to('.p4-done', { autoAlpha: 0.3, duration: 0.2, repeat: 3, yoyo: true }, 20.7)
+    .from('.p4-stamp', { scale: 4, rotation: -180, autoAlpha: 0, duration: 0.4, ease: 'back.out(2)' }, 21.8)
+    .to('.p4-subbar', { autoAlpha: 1, duration: 0.3 }, 18.0)
+    .to('.p4-subbar', { autoAlpha: 0, duration: 0.3 }, 22.4)
+    .to('.scene.p4', { x: -1080, duration: 0.5, ease: 'power3.in' }, 22.6);
+
+  // ============ P5 · 00:23 - 00:28 ============
+  tl.set('.scene.p5', { autoAlpha: 1, x: 1080 }, 22.8)
+    .to('.scene.p5', { x: 0, duration: 0.5, ease: 'power3.out' }, 22.8)
+    .from('.p5-duo', { scale: 0.3, autoAlpha: 0, stagger: 0.1, duration: 0.5, ease: 'back.out(1.5)' }, 23.1)
+    .from('.p5-compare-frame', { autoAlpha: 0, scale: 1.6, duration: 0.4 }, 23.7)
+    .from('.p5-danmaku', { x: 1080, autoAlpha: 0, stagger: 0.12, duration: 0.4, ease: 'power2.out' }, 24.0)
+    .from('.p5-stamp', { scale: 4, rotation: -180, autoAlpha: 0, duration: 0.4, ease: 'back.out(2)' }, 26.5)
+    .to('.p5-subbar', { autoAlpha: 1, duration: 0.3 }, 23.5)
+    .to('.p5-subbar', { autoAlpha: 0, duration: 0.3 }, 27.4)
+    .to('.scene.p5', { x: -1080, duration: 0.5, ease: 'power3.in' }, 27.6);
+
+  // ============ P6 · 00:28 - 00:35 ============
+  tl.set('.scene.p6', { autoAlpha: 1, x: 1080 }, 27.8)
+    .to('.scene.p6', { x: 0, duration: 0.5, ease: 'power3.out' }, 27.8)
+    .from('.p6-couple', { autoAlpha: 0, y: -100, duration: 0.5 }, 28.1)
+    .from('.p6-arrow', { x: -50, autoAlpha: 0, duration: 0.4 }, 28.6)
+    .to('.p6-arrow', { x: 20, duration: 0.4, repeat: -1, yoyo: true, ease: 'sine.inOut' }, 29.0)
+    .from('.p6-wanted', { y: 400, autoAlpha: 0, stagger: 0.15, duration: 0.4, ease: 'back.out(1.5)' }, 29.0)
+    .from('.p6-next-stamp', { scale: 4, rotation: -180, autoAlpha: 0, stagger: 0.15, duration: 0.3, ease: 'back.out(2)' }, 29.3)
+    .to('.p6-comment', { text: '海王不是病，是这届打工人的求生本能。', duration: 1.5, ease: 'none' }, 30.5)
+    .from('.p6-cta', { y: 200, autoAlpha: 0, duration: 0.5, ease: 'back.out(1.5)' }, 32.2)
+    .to('.p6-cta', { scale: 1.05, duration: 0.4, repeat: 3, yoyo: true, ease: 'sine.inOut' }, 32.8)
+    .from('.p6-stamp', { scale: 4, rotation: -180, autoAlpha: 0, duration: 0.4, ease: 'back.out(2)' }, 33.0);
+
+  return tl;
+}
+
+const master = buildMaster();
+document.getElementById('btn-play').addEventListener('click', () => {
+  if (master.paused()) master.play(); else master.pause();
+});
+document.getElementById('btn-restart').addEventListener('click', () => {
+  master.restart();
+});
+
+// 自动播放（录屏用）
+// master.play();
+</script>
+</body>
+</html>
