@@ -81,9 +81,11 @@ python3 pipeline/week_build.py --render
 | **领域专家** | 决策链、替代方案、口语化术语 |
 | **事实校验员** | 绿/黄/红区；数据区间化；合规（保健品类） |
 | **形式选型师** | 从 `assets/formats/catalog.yaml` 选 ≥3 形式；对照 `assets/formats/week_*_matrix.yaml` **禁止与已发条目同 pipeline**；产出 `design/format_spec.md` |
+| **形式策略官** | 在脚本三版后、storyboard 前逐镜比较表达方式；声明数据杠杆、理解成本、制作成本、技术风险；产出 `design/form_strategy.md` |
 | **平台原生策划** | 抖音/小红书/视频号 **不同 delivery**（短视频 vs 纯轮播 vs 对比动效） |
 | **纪录片导演** | 故事弧线（**非默认改造实录模板**）；改造前后情绪锚点 |
 | **动效分镜师** | 视频走 P004/P005 时：`projects/{id}/storyboard.yaml` |
+| **动效技术导演** | 使用 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达时，审查适用性、可读性、资产、导出、风险；产出 `design/motion_tech_plan.md` |
 | **动效设计师** | **`motion_wow`（≥3 CREATIVE · catalog≤35%）**；禁 catalog 三连；render 后复验 mp4 |
 | **漫画分镜师** | 轮播走 P007/P002 时：`projects/{id}/storyboard_carousel.yaml` |
 | **编剧** | 三版脚本（**结构须不同**）；场景+对话；`design/script_review.md`；**禁念 PPT / 禁克隆上条模板** · 见 `templates/design/script_standards.md` |
@@ -99,6 +101,8 @@ python3 pipeline/week_build.py --render
 | 步骤 | 产出 | gate |
 |------|------|------|
 | 形式 diff 审计 | motion_wow + storyboard | pre_render |
+| 形式策略会 | `design/form_strategy.md` · 逐镜表达方案竞争 | pre_render |
+| 技术可行性审查 | `design/motion_tech_plan.md` · Web 3D/GSAP/复杂动效触发时必填 | pre_render |
 | 视觉多样性 | 专属≥3 · catalog≤35% · 无重复 | approve |
 | 分析师预估 | `pre_publish_forecast.md` | approve |
 | 诚实 fail 归档 | `room/form_audit_{v}.yaml` | 纸面/效果差>5 |

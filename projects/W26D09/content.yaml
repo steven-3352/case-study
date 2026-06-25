@@ -1,0 +1,75 @@
+topic:
+  id: W26D09
+  pain: 普通人听说 Codex 很强，但第一次打开容易问“帮我做个系统”，需求太大、流程不清，结果越问越乱。
+  solves: 把 Codex 入门改成“先交给它一件重复事”：说明现在怎么做、哪里重复、想要什么结果，再让 Codex 拆任务、改文件、跑检查。
+  hook: 别先让 Codex 写系统
+  angle: Codex 入门 · 从一件重复事开始
+  official_scope: 使用 OpenAI Codex 官方文档可核验口径；不写死订阅、权限、具体入口细节。
+shots: []
+douyin:
+  title: 普通人第一次用 Codex，别先让它写系统
+  body: 第一次用 Codex，别上来就问“帮我做个系统”。先交给它一件你每天重复的小事。
+  tags:
+    - Codex
+    - AI工具
+    - 普通人用AI
+    - 自动化
+    - 小工具
+  duration_s: 56
+  interaction: 如果只能先交给 Codex 一件事，你会选表格、文案、文件整理，还是小网页？
+  cover:
+    style: codex_task_storm
+    hook: "别先让 Codex\n写系统"
+    kicker: 普通人用 AI
+    sub: 先交给它一件重复事
+    mark: Codex
+  segments:
+    - ref: d09-1
+      source: custom
+      evidence_kind: motion
+      detail: 任务风暴：表格、文案、文件夹、小网页四类卡片砸向屏幕。
+      vo: 很多人第一次打开 Codex，第一句话就问错了。
+      sub: 第一问就错了
+      emotion: surprised
+    - ref: d09-2
+      source: custom
+      evidence_kind: ui
+      detail: 输入框里出现“帮我做个管理系统”，随后需求膨胀成乱线。
+      vo: 他们说：帮我做个系统。可这句话太大了。
+      sub: “做个系统”太大
+      emotion: tense
+    - ref: d09-3
+      source: custom
+      evidence_kind: cards
+      detail: 三张卡片：现在怎么做、哪里重复、想要什么结果。
+      vo: 普通人更好的用法，是先交给它一件重复事。
+      sub: 先讲清一件重复事
+      emotion: neutral
+    - ref: d09-4
+      source: custom
+      evidence_kind: example
+      detail: 客户表格统一格式：原始表格、标准字段、今日跟进名单。
+      vo: 比如每天把客户表格改成统一格式，再拆出今天要跟进的人。
+      sub: 表格先变成清单
+      emotion: neutral
+    - ref: d09-5
+      source: custom
+      evidence_kind: workflow
+      detail: Codex 工作台：读文件、写脚本、跑一下、报错再改、给你确认。
+      vo: 这时候 Codex 才能拆任务：读文件，写脚本，跑一下，报错再改，最后给你一个能试的小工具。
+      sub: 它开始拆任务
+      emotion: happy
+    - ref: d09-6
+      source: custom
+      evidence_kind: result
+      detail: 混乱卡片被分拣成一个可运行的小工具面板。
+      vo: 它不是让你先变成程序员，而是把你说得清楚的重复流程，变成能跑起来的东西。
+      sub: 不是学代码，是跑流程
+      emotion: happy
+    - ref: d09-7
+      source: custom
+      evidence_kind: cta
+      detail: 四选项 CTA：表格 / 文案 / 文件整理 / 小网页。
+      vo: 如果只能先交给 Codex 一件事，你会选表格、文案、文件整理，还是小网页？
+      sub: 你先交给它哪件事？
+      emotion: neutral

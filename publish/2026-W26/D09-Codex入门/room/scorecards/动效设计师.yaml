@@ -1,0 +1,31 @@
+role: 动效设计师
+artifact: design/motion_wow.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 动效分镜师
+    review_mode: independent
+    reviewer_agent_id: agent-D-motou-0001
+    reviewed_at: "2026-06-25"
+    angle: 首镜停划与镜头可读性
+    score: 94
+    verdict: pass
+    notes: |
+      首镜任务风暴和错误 prompt 膨胀都能直接服务“不会代码也能处理重复事”，关声后仍可读。扣(-6)：第 6 镜从混乱收束到小工具的节拍还略保守，变化点可以再早半拍。
+  - reviewer_id: 视觉设计
+    review_mode: independent
+    reviewer_agent_id: agent-D-motou-0002
+    reviewed_at: "2026-06-25"
+    angle: 创意兑现与画面层次
+    score: 92
+    verdict: pass
+    notes: |
+      motion_wow 的四个创意方向都不是 catalog 标配，任务风暴、错误 prompt、三步输入和 CTA 逻辑也连得住。扣(-8)：专属隐喻已经清楚，但个别镜头的口播对位还可更细，避免后段像解释图。
+
+avg_score: 93.0
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0

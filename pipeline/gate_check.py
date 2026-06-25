@@ -54,7 +54,7 @@ BATCH_AGENT_ID_BLOCKLIST = frozenset({"batch", "script", "auto", "self", "same-s
 SCORECARD_ROLES_PHASE_A = [
     "网络调研员", "记者", "选题深挖师", "内核提炼师", "事实校验员",
     "形式选型师", "平台原生策划", "纪录片导演", "编剧", "留存与互动设计师",
-    "动效设计师", "动效分镜师", "编导",
+    "形式策略官", "动效技术导演", "动效设计师", "动效分镜师", "编导",
 ]
 
 SCORECARD_ROLES_PHASE_B = [
@@ -92,6 +92,17 @@ CUSTOM_FORM_PROMISE_RE = re.compile(
     re.I,
 )
 CUSTOM_TEMPLATE_RE = re.compile(r"^(?:d\d{2}_|pexels_|custom_)", re.I)
+ADVANCED_MOTION_RE = re.compile(
+    r"Web\s*3D|Three(?:\.js)?|GSAP|复杂\s*HTML|WebGL|3D\s*消息|3D\s*分拣|"
+    r"风险雷达|HTML\s*截帧|p004|p005|three_|gsap_",
+    re.I,
+)
+DATA_LEVER_RE = re.compile(
+    r"completion_3s|3s|3秒|完播|completion_rate|理解|看懂|收藏|评论|互动|停划",
+    re.I,
+)
+FORM_STRATEGY_REQUIRED_LABELS = ("镜头任务", "候选表达", "数据杠杆", "推荐方案")
+MOTION_TECH_REQUIRED_LABELS = ("适用性", "可读性", "资产", "导出", "风险")
 
 SCRIPT_REVIEW_REQUIRED_SIGNERS = ("内核提炼师", "留存设计师", "留存与互动设计师")
 SCRIPT_REVIEW_POST_RENDER_SIGNERS = ("编导",)
@@ -346,7 +357,7 @@ def validate_scorecards(
         )
 
         scores = [int(r.get("score", 0)) for r in reviewers]
-        for s, r in zip(scores, reviewers, strict=False):
+        for s, r in zip(scores, reviewers):
             if s < threshold:
                 errors.append(f"{role}: {r.get('reviewer_id')} 得分 {s} < {threshold}")
             notes = str(r.get("notes") or "").strip()
@@ -662,6 +673,85 @@ def check_hook_benchmark(day_dir: pathlib.Path, errors: list[str]) -> None:
             errors.append("retention_beat_sheet 缺少完播北极星/完播目标")
 
 
+def _combined_form_context(day_dir: pathlib.Path) -> str:
+    """Collect form-related docs to decide whether advanced motion is promised."""
+    parts: list[str] = []
+    for rel in (
+        "design/form_strategy.md",
+        "design/format_spec.md",
+        "design/motion_wow.md",
+        "design/pre_publish_forecast.md",
+        "room/verdict.yaml",
+        "room/discussion.md",
+    ):
+        parts.append(_read_text(day_dir / rel))
+    sb_path = _storyboard_path(day_dir)
+    if sb_path:
+        parts.append(_read_text(sb_path))
+    meta = _read_yaml(day_dir / "meta.yaml")
+    verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
+    project_id = str(meta.get("project_id") or verdict.get("project_id") or "")
+    if project_id:
+        parts.append(_read_text(ROOT / "projects" / project_id / "content.yaml"))
+    return "\n".join(p for p in parts if p)
+
+
+def check_form_strategy(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """形式策略会硬门禁：逐镜表达方案必须为数据假设服务."""
+    path = day_dir / "design" / "form_strategy.md"
+    if not path.exists():
+        errors.append("缺少 design/form_strategy.md（形式策略官 · 逐镜表达方案竞争）")
+        return
+
+    text = _read_text(path)
+    if len(text.strip()) < 500:
+        errors.append("form_strategy 内容过短（<500 字），疑似用摘要应付；须逐镜比较表达方案")
+
+    for label in FORM_STRATEGY_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"form_strategy 缺少必填字段：{label}")
+
+    if not DATA_LEVER_RE.search(text):
+        errors.append("form_strategy 未声明数据杠杆（3s/完播/理解/收藏/评论/互动/停划）")
+
+    candidates = ("实拍", "B-roll", "2D", "UI", "看板", "消息流", "GSAP", "Three", "Web 3D", "截图", "字幕")
+    candidate_hits = sum(1 for c in candidates if re.search(re.escape(c), text, re.I))
+    if candidate_hits < 3:
+        errors.append("form_strategy 候选表达方式少于 3 类；须比较而不是直接指定方案")
+
+    if re.search(r"默认用|为了快|更酷|沿用上一条|套用", text):
+        errors.append("form_strategy 含非法选型理由（默认/为了快/更酷/沿用/套用）")
+
+    recommendation_blocks = re.findall(r"推荐方案|推荐：|推荐:", text)
+    if len(recommendation_blocks) < 3:
+        errors.append("form_strategy 推荐方案少于 3 处；须覆盖关键镜头而非只给整体路线")
+
+
+def check_motion_tech_plan(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """Web 3D / GSAP / 复杂动效被承诺时，必须有技术可行性审查."""
+    combined = _combined_form_context(day_dir)
+    if not ADVANCED_MOTION_RE.search(combined):
+        return
+
+    path = day_dir / "design" / "motion_tech_plan.md"
+    if not path.exists():
+        errors.append(
+            "承诺/使用 Web 3D、GSAP、复杂 HTML 动效或风险雷达，但缺少 design/motion_tech_plan.md"
+        )
+        return
+
+    text = _read_text(path)
+    if len(text.strip()) < 400:
+        errors.append("motion_tech_plan 内容过短（<400 字），须写清可行性、资产、导出与风险控制")
+    for label in MOTION_TECH_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"motion_tech_plan 缺少必填检查：{label}")
+    if not DATA_LEVER_RE.search(text):
+        errors.append("motion_tech_plan 未说明高级动效服务的数据指标")
+    if re.search(r"更酷|炫酷|先做再说|后面再补", text):
+        errors.append("motion_tech_plan 含非法技术理由（更酷/炫酷/先做再说/后面再补）")
+
+
 def check_pre_publish_forecast(day_dir: pathlib.Path, errors: list[str]) -> None:
     """平台表现分析师 · 未发布数据预估 · 外发前必填."""
     if not _has_douyin_video(day_dir):
@@ -845,6 +935,8 @@ def gate_check(
         validate_scorecards(day_dir, phase="pre_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="pre_render", errors=errors)
         check_form_redo_content_gate(day_dir, errors=errors)
+        check_form_strategy(day_dir, errors=errors)
+        check_motion_tech_plan(day_dir, errors=errors)
         check_custom_form_fulfillment(day_dir, errors=errors)
         check_hook_benchmark(day_dir, errors=errors)
         mw = day_dir / "design" / "motion_wow.md"
@@ -864,6 +956,8 @@ def gate_check(
         check_motion_wow(day_dir, errors=errors)
         check_evidence(day_dir, errors=errors)
         check_discussion_phase_b(day_dir, errors=errors)
+        check_form_strategy(day_dir, errors=errors)
+        check_motion_tech_plan(day_dir, errors=errors)
         check_visual_diversity(day_dir, errors=errors)
         check_custom_form_fulfillment(day_dir, errors=errors)
         check_pre_publish_forecast(day_dir, errors=errors)

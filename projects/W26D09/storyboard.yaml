@@ -1,0 +1,79 @@
+# W26D09 · Codex 入门 · storyboard v1
+# 当前为 Phase A 分镜草案；未通过 scorecard 前不得 render。
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: video.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+  form_version: d09_v1
+  content_version: v1
+  visual_brief: codex_task_to_tool
+
+scenes:
+  - id: "01_task_storm"
+    template: "d09_task_storm.html"
+    duration: 4.0
+    intent: 停划
+    data:
+      headline: "第一句话就问错了"
+      chips: ["客户表格", "文案改格式", "文件归类", "小网页", "报错", "流程"]
+
+  - id: "02_wrong_prompt"
+    template: "d09_wrong_prompt.html"
+    duration: 6.0
+    intent: 好奇
+    data:
+      prompt: "帮我做个管理系统"
+      warning: "太大了"
+      note: "流程没讲清，结果只会更乱"
+
+  - id: "03_three_inputs"
+    template: "d09_three_inputs.html"
+    duration: 9.0
+    intent: 看懂
+    data:
+      title: "先交给它一件重复事"
+      cards:
+        - ["1", "现在怎么做", "手动打开表格，复制字段"]
+        - ["2", "哪里重复", "每天改格式、拆名单"]
+        - ["3", "想要结果", "自动输出今日跟进"]
+
+  - id: "04_table_example"
+    template: "d09_table_example.html"
+    duration: 8.0
+    intent: 证据感
+    data:
+      title: "例子：客户表格"
+      before: ["姓名", "微信", "购买日", "备注乱写"]
+      after: ["客户", "状态", "跟进日", "下一步"]
+
+  - id: "05_codex_workbench"
+    template: "d09_codex_workbench.html"
+    duration: 15.0
+    intent: 看懂方案
+    data:
+      steps:
+        - "读文件"
+        - "写脚本"
+        - "跑一下"
+        - "报错再改"
+        - "给你确认"
+
+  - id: "06_tool_result"
+    template: "d09_tool_result.html"
+    duration: 11.0
+    intent: 高潮
+    data:
+      title: "重复流程变小工具"
+      result: "上传表格 → 自动整理 → 今日跟进名单"
+
+  - id: "07_cta"
+    template: "d09_cta_options.html"
+    duration: 7.0
+    intent: 互动
+    data:
+      question: "你先交给 Codex 哪件事？"
+      options: ["表格", "文案", "文件整理", "小网页"]

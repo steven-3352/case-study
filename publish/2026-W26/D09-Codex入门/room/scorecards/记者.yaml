@@ -1,0 +1,31 @@
+role: 记者
+artifact: insights/domain_notes.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 选题深挖师
+    review_mode: independent
+    reviewer_agent_id: agent-E-jizhe-0001
+    reviewed_at: "2026-06-25"
+    angle: 场景具体度与受众贴合
+    score: 92
+    verdict: pass
+    notes: |
+      领域说明能把 Codex 入门落到普通人的重复流程，表格整理、文案改格式、文件归类、小网页四类任务与 topic_brief 的钉子场景一致，可支撑脚本避免泛泛讲产品。扣(-8)：缺少更像记者采集到的原话或现场细节，客户表格场景还停在归纳层，后续脚本需要用动作和结果镜补真实感。
+  - reviewer_id: 事实校验员
+    review_mode: independent
+    reviewer_agent_id: agent-E-jizhe-0002
+    reviewed_at: "2026-06-25"
+    angle: 官方口径与夸大风险
+    score: 94
+    verdict: pass
+    notes: |
+      产物明确避开安装教程、复杂工程、大型系统、价格权限订阅承诺，并把 Codex 定位为 coding agent，与 external_references 和 fact_check 的红黄区保持一致。扣(-6)：对入口和账号计划的变化提醒没有写进本文件，只能依赖事实校验稿兜底，发布前仍需复核官方页面。
+
+avg_score: 93
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0

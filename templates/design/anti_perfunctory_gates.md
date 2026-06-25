@@ -30,6 +30,8 @@
 |------|------|
 | `design/vo_listen_notes.md` | content_version + mp4 时间戳 |
 | `design/pre_publish_forecast.md` | 平台表现分析师 · 形式 go/no-go · **approve 必填** |
+| `design/form_strategy.md` | 形式策略官 · 逐镜表达方案竞争 · **pre_render/approve 必填** |
+| `design/motion_tech_plan.md` | 动效技术导演 · Web 3D/GSAP/复杂 HTML 动效可行性审查 · 触发时必填 |
 | `design/cover_review.md` | mtime ≥ video.mp4；@ 与 content.yaml 一致 |
 | `design/motion_wow.md` | Phase B **无 `[ ]`** |
 | `room/discussion.md` | Round 6+ · mp4/听/像素 · 有交锋 |
@@ -52,6 +54,17 @@
 | catalog 时长 | ≤35% |
 | 同 template 重复 | ≤1 镜 |
 | 48s+ 不同 template | ≥6 |
+
+## 1f. 形式策略会（gate_check pre_render + approve 验）
+
+| 规则 | 执行 |
+|------|------|
+| `form_strategy.md` 必填 | 缺失 = 禁止 storyboard 定稿 / render |
+| 逐镜字段 | 须含镜头任务、候选表达、数据杠杆、推荐方案 |
+| 候选表达 | 至少比较 3 类能力（如实拍、2D UI、消息流、GSAP、Three/Web 3D、截图、字幕） |
+| 数据杠杆 | 必须声明服务 3s、完播、理解、收藏、评论、互动或停划 |
+| 禁止理由 | “默认用 / 为了快 / 更酷 / 沿用上一条 / 套用” = FAIL |
+| 高级动效 | 出现 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达等，必须有 `motion_tech_plan.md` |
 
 ## 1g. L3 投后进化（数据驱动下一条）
 

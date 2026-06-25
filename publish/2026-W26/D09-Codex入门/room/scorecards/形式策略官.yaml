@@ -1,0 +1,31 @@
+role: 形式策略官
+artifact: design/form_strategy.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 动效技术导演
+    review_mode: independent
+    reviewer_agent_id: agent-B-xingshi-0001
+    reviewed_at: "2026-06-25"
+    angle: 形式可实现性与降级路径
+    score: 92
+    verdict: pass
+    notes: |
+      形式策略没有把 Three 或真实 UI 当成默认答案，而是按镜头任务选择 GSAP、2D 卡片、仿真表格和轻 3D，并给出首镜降级路径。扣(-8)：第 6 镜“轻 3D 卡片分拣”的边界还不够硬，后续 storyboard 需限制时长和信息密度。
+  - reviewer_id: 留存与互动设计师
+    review_mode: independent
+    reviewer_agent_id: agent-B-xingshi-0002
+    reviewed_at: "2026-06-25"
+    angle: 数据假设与观众理解成本
+    score: 93
+    verdict: pass
+    notes: |
+      每个镜头都写了数据杠杆和理解成本，首镜服务停划，中段服务理解和收藏，结尾服务评论，整体能避免为炫技而炫技。扣(-7)：前 3 秒对“不会代码也能处理重复事”的显性文字还可更明确，否则任务风暴可能只表达忙乱，不一定表达 Codex 价值。
+
+avg_score: 92.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0

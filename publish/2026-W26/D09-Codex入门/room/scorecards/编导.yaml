@@ -1,0 +1,31 @@
+role: 编导
+artifact: design/script_review.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 内核提炼师
+    review_mode: independent
+    reviewer_agent_id: agent-B-biandao-0001
+    reviewed_at: "2026-06-25"
+    angle: 内容取舍与主线一致性
+    score: 91
+    verdict: pass
+    notes: |
+      评审明确指出 vA 可进形式策略会但不能直接 render，保留“重复事讲清楚”这条主线，同时规避入口、订阅、权限等未复核内容。扣(-9)：总分 88 与后续选用 90 存在轻微口径差异，建议在进入 pre_render 前说明这是风险分而非否决分。
+  - reviewer_id: 事实校验员
+    review_mode: independent
+    reviewer_agent_id: agent-B-biandao-0002
+    reviewed_at: "2026-06-25"
+    angle: 风险前置与发布约束
+    score: 90
+    verdict: pass
+    notes: |
+      编导评审把官方口径未复核、真实 UI 过时、PPT 化风险都前置出来，能阻止脚本直接进入 render，符合 Phase A 把关职责。扣(-10)：文件内联签的编导项仍未勾选，虽然可解释为 Phase B 复签，但容易让 gate 人工审阅时产生歧义。
+
+avg_score: 90.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0

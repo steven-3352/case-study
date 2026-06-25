@@ -335,3 +335,15 @@ topics:
     status: in_production
     note: "内容 pass；形式 blocked。禁止通用 evidence/newsprint 产物外发，需专属视觉重做"
     source: publish/2026-W26/D08-电商私域Agent/
+
+  - id: T017
+    project: W26D09
+    series: S2
+    title: "普通人第一次用 Codex，别先让它写系统"
+    angle: Codex 入门 · 从一件重复事开始
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: in_production
+    note: "Phase A 开工：先做官方口径核验、脚本三版、形式策略、技术计划；发布前需复核 OpenAI Codex 官方文档"
+    source: publish/2026-W26/D09-Codex入门/

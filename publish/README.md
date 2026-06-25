@@ -2,6 +2,7 @@
 
 > 引擎最终输出层（SYSTEM §2 Layer 3 下游）：讨论定稿 → pipeline 生产 → 文案 + 素材。
 > 系统说明：[docs/SYSTEM.md](../docs/SYSTEM.md)
+> 资产生命周期：[docs/ASSET_LIFECYCLE.md](../docs/ASSET_LIFECYCLE.md)
 
 ## 目录一览
 
@@ -17,8 +18,8 @@ publish/
 
 | 目录 | 用途 | 可否删 |
 |------|------|--------|
-| `2026-W26/` | 本周 7 天发布包 | **保留** |
-| `P001/` `P004/` `P005/` | 队列中引用的单项目成品 | **保留** |
+| `2026-W26/` | 本周 7 天发布包：文档长期保留，媒体可清理 | 文档保留；视频/图片/音频可删 |
+| `P001/` `P004/` `P005/` | 历史单项目包 | 文档保留；视频/图片/音频可删 |
 | `.staging/W26Dxx/` | `render.py` 输出，已同步到周目录 | 可删，下次 render 再生 |
 | `W26Dxx/`（根目录） | 旧版重复目录 | **已清理，勿再出现** |
 | `*/_tmp/` | 渲染段中间文件 | **已清理，render 时临时生成** |
@@ -50,4 +51,7 @@ python3 pipeline/week_build.py --render    # 产出 → .staging/ → 同步到 
 
 - 周项目视频以 **`2026-W26/Dxx-*/`** 为准，不保留根目录 `W26Dxx/` 副本
 - 渲染完并同步后，可 `rm -rf publish/.staging/W26D*`
-- 不提交 `*.mp4` `*.png`、`**/_tmp/`（见根 `.gitignore`）
+- 不提交 `*.mp4`、`*.png`、`*.jpg`、`*.mp3`、`*.wav`、`**/_tmp/`、`pipeline/**/out/`（见根 `.gitignore`）
+- 项目完结后，优先保留 `insights/`、`scripts/`、`design/`、`room/`、`content.yaml`、`storyboard.yaml`、`performance.yaml`
+- `douyin/video.mp4`、`douyin/cover.png`、`xhs/*.png`、TTS 音频、下载 B-roll 属于重资产，可按项目清理
+- 后续补真实数据时，依据保留文档和 `performance.yaml` 做效果评估，不依赖成片文件本身

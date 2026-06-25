@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D09 Task Storm</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    body { margin:0; width:1080px; height:1920px; overflow:hidden; background:#f7f8fb; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+    .bg { position:absolute; inset:0; background:linear-gradient(180deg,#fff 0%,#eef3fb 100%); }
+    .title { position:absolute; top:130px; left:86px; font-size:78px; line-height:1.04; font-weight:950; color:#101828; width:900px; opacity:0; }
+    .sub { position:absolute; top:328px; left:90px; font-size:34px; color:#475467; opacity:0; }
+    .chip { position:absolute; padding:24px 30px; border-radius:24px; background:rgba(255,255,255,.94); border:3px solid #d0d7e7; font-size:32px; font-weight:800; color:#16324f; box-shadow:0 18px 40px rgba(16,24,40,.10); opacity:0; }
+    .a{top:520px;left:90px}.b{top:640px;left:470px}.c{top:810px;left:130px}.d{top:970px;left:570px}.e{top:1160px;left:210px}.f{top:1330px;left:620px}
+    .prompt { position:absolute; left:90px; right:90px; bottom:220px; height:180px; border-radius:30px; background:#101828; color:white; display:flex; align-items:center; padding:0 38px; font-size:42px; font-weight:850; opacity:0; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="title">第一句话<br>就问错了</div>
+  <div class="sub">别先让 Codex 写一个大系统</div>
+  <div class="chip a">客户表格</div><div class="chip b">文案改格式</div><div class="chip c">文件归类</div>
+  <div class="chip d">小网页</div><div class="chip e">报错</div><div class="chip f">流程</div>
+  <div class="prompt">先交给它一件重复事</div>
+  <script>
+    const tl = gsap.timeline();
+    tl.to(".title", {opacity:1, y:0, duration:.45, ease:"power3.out"}, 0);
+    tl.fromTo(".sub", {y:24}, {opacity:1, y:0, duration:.35}, .28);
+    tl.fromTo(".chip", {scale:.78, y:80}, {opacity:1, scale:1, y:0, duration:.42, stagger:.10, ease:"back.out(1.5)"}, .55);
+    tl.to(".chip", {rotation:(i)=>[-5,4,-3,5,-4,3][i], duration:.25}, 1.5);
+    tl.fromTo(".prompt", {y:42}, {opacity:1, y:0, duration:.45, ease:"back.out(1.4)"}, 2.35);
+    tl.to({}, {duration:1.1}, 2.9);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

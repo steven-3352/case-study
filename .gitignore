@@ -8,6 +8,7 @@ out/_seg/
 out/_*.png
 *.mp3
 *.aiff
+*.m4a
 *.wav
 .DS_Store
 __pycache__/
@@ -19,9 +20,19 @@ pipeline/**/*.tts.yaml
 
 # 图片/视频成品不入库(体积大,可由 build_*.py 重新生成)
 *.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
 *.mp4
+*.mov
+*.webm
+*.m4v
 
 # 通用产线工作区：克隆的外部仓库、渲染中间文件不入库
 projects/*/repo/
+projects/*/out/
+projects/*/assets/
+pipeline/**/out/
 publish/.staging/
 **/_tmp/

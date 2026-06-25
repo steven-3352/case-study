@@ -12,6 +12,8 @@
 - [ ] `insights/domain_notes.md` 完成（演示/知识/带货型）或注明跳过原因
 - [ ] `insights/fact_check.md` 完成：无红区表述进入脚本
 - [ ] `retention_beat_sheet.md` 完成（视频/强互动图文）
+- [ ] `design/form_strategy.md` 完成：逐镜比较 ≥3 类表达方式，声明数据杠杆与推荐理由
+- [ ] 若使用 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达：`design/motion_tech_plan.md` 完成
 - [ ] 视频：形式 ≥ 3 种（`assets/formats/catalog.yaml`）
 
 ## IP 与人味

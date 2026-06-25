@@ -2,7 +2,7 @@
 
 > **首读：** [docs/SYSTEM.md](docs/SYSTEM.md)（§1.0 北极星 · 宗旨 · 工作方式 · 铁律 · 能力全景 · 文档维护）
 >
-> 本文：Agent **执行细则**（工种、11 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
+> 本文：Agent **执行细则**（工种、14 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
 
 ## 项目概览（摘要）
 
@@ -87,7 +87,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 工种清单
 
-> **理解层 4**（所有形态必跑）+ **核心 9** + **表达/音画层 2**（视频必跑）+ 扩展工种（按形态激活）
+> **理解层 4**（所有形态必跑）+ **核心 9** + **表达/音画层 4**（视频必跑/按需激活）+ **增长复盘层 1** + 扩展工种（按形态激活）
 
 #### 理解层 4 工种（所有形态必跑 · 洞察包）
 
@@ -122,14 +122,22 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **剪辑** | 时长卡控、三平台规格 | 剪辑说明：抖音 45-60s / 小红书 ≤60s / 视频号 60-90s |
 | **运营/增长** | 分发策略、私信转化承接 | 三平台文案 + 评论区埋点 + 私信路径 |
 
-#### 表达/音画层 2 工种（视频形态必跑）
+#### 表达/音画层 4 工种（视频形态必跑/按需激活）
 
 | 工种 | 职责 | 输出 |
 |------|------|------|
 | **留存与互动设计师** | 完播节拍、形式切换、互动 CTA | `retention_beat_sheet.md` |
+| **形式策略官 / 视觉策略官** | 在脚本期比较每个关键镜头的多种表达方式，按数据杠杆选择实拍、2D UI、GSAP、Three/Web 3D、截图或字幕 | `design/form_strategy.md` |
+| **动效技术导演 / Web 3D 技术导演** | 对高级动效、GSAP、Three/Web 3D、HTML 截帧做可行性、资产、性能、导出风险审查 | `design/motion_tech_plan.md` |
 | **声音设计师** | 配音、BGM 情绪、字幕方案 | `audio_plan.yaml` |
 
-产出格式见 `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`。**门禁：** 无留存节拍表 → 禁止出分镜；无音画方案 → 禁止进 publish。
+产出格式见 `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`。**门禁：** 无留存节拍表 → 禁止出分镜；视频/强互动图文无 `form_strategy` → 禁止定 storyboard；使用 Web 3D/GSAP/复杂 HTML 动效但无 `motion_tech_plan` → 禁止 render；无音画方案 → 禁止进 publish。
+
+#### 增长复盘层 1 工种（发布后必跑）
+
+| 工种 | 职责 | 输出 |
+|------|------|------|
+| **数据复盘官 / 增长复盘官** | 48h/7d 对比 forecast 与 actual，判定问题来自选题、钩子、脚本、形式、CTA、平台文案或发布时间，并反哺下条 | `design/post_publish_retro.md` + `evolution_overlay.md` |
 
 #### 带货扩展 4 工种（带货型选题激活）
 
@@ -153,9 +161,9 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 | 形态 | 激活工种 | 典型选题 |
 |------|----------|-----------|
-| **演示型**（默认） | 理解 4 + 核心 9 + 表达/音画 2（视频） | AI 改造小老板系统、案例复盘 |
-| **知识型** | 理解 4 + 核心 9 + 表达/音画 2（视频） | 拆解、方法论、教程 |
-| **带货型** | 理解 4 + 核心 9 + 表达/音画 2 + 带货 4 | 商品种草、好物分享、对比测评 |
+| **演示型**（默认） | 理解 4 + 核心 9 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | AI 改造小老板系统、案例复盘 |
+| **知识型** | 理解 4 + 核心 9 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | 拆解、方法论、教程 |
+| **带货型** | 理解 4 + 核心 9 + 表达/音画 4 + 带货 4 + 增长复盘 1（发布后） | 商品种草、对比测评 |
 | **出镜型**（可叠加） | 当前形态 + 出镜 2 | 任何形态切真人出镜版本 |
 | **图文轮播** | 理解 4 + 核心 9（无声音设计师；图内大字替代字幕） | 6–8 张小红书轮播 |
 
@@ -167,16 +175,19 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 4. **留存设计** — 留存与互动设计师 → `retention_beat_sheet.md`（视频/强互动图文）
 5. **脚本三版** — 编剧产出 v0/vA/vB（**只能引用洞察卡 P0/P1，不得新增卖点**）
 6. **视觉路线** — 视觉设计定 P001 / P002 / 新路线；形式选型见 `assets/formats/catalog.yaml`（≥3 种）
-7. **分镜 + 画面清单** — 导演 + 摄像对齐节拍表与 `assets/broll/catalog.yaml`
-8. **声音方案** — 声音设计师 → `audio_plan.yaml`（视频必跑）
-9. **剪辑/出图** — 进入对应 `pipeline/` 脚本
-10. **发布包** — 运营三平台文案 + `templates/publish_三平台.md`
-11. **验收** — `pipeline/CHECKLIST.md`，不过回到对应工种返工
+7. **形式策略会** — 形式策略官逐镜比较表达方案，声明数据杠杆、理解成本、制作成本、技术风险 → `design/form_strategy.md`
+8. **技术可行性审查** — 使用 Web 3D / GSAP / 复杂 HTML 动效 / 重资产 B-roll 时，动效技术导演给实现路线 → `design/motion_tech_plan.md`
+9. **分镜 + 画面清单** — 导演 + 摄像对齐节拍表、形式策略与 `assets/broll/catalog.yaml`
+10. **声音方案** — 声音设计师 → `audio_plan.yaml`（视频必跑）
+11. **剪辑/出图** — 进入对应 `pipeline/` 脚本
+12. **发布包** — 运营三平台文案 + `templates/publish_三平台.md`
+13. **验收** — `pipeline/CHECKLIST.md`，不过回到对应工种返工
+14. **投后复盘** — 数据复盘官回填 48h/7d actual，形成 `post_publish_retro` 与下条 `evolution_overlay`
 
 ### 形态分支（在标准动作上插入）
 
 - **带货型** — 步骤 2 后插入选品分析；步骤 3 前合规预审；步骤 5 销售脚本师主导叙事钩子；步骤 10 前再过合规
-- **出镜型** — 步骤 6 后追加演员表演说明 + 造型清单；步骤 7 分镜含机位号；步骤 9 增加录制
+- **出镜型** — 步骤 6 后追加演员表演说明 + 造型清单；步骤 9 分镜含机位号；步骤 11 增加录制
 - **图文轮播** — 跳过步骤 8；步骤 4 留存表改为「每张停留点 + 收藏动机」
 
 ### 洞察包门禁（反敷衍）
@@ -203,6 +214,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 4. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质。
 5. **尽一切可能让内容更好** — 宁可多一轮讨论、换 route、重写 storyboard，不可「能出片就行」。
 6. **自我进化** — 提高标准 → 多轮测试 → 更新 Rubric + `gate_check` + REJECT_LOG。详规：`templates/design/system_evolution.md`
+7. **形式为数据假设服务** — 每个高级视觉镜头必须声明服务 `completion_3s` / `completion_rate` / 理解 / 收藏 / 评论中的哪一项；不能声明数据杠杆的形式，不进入成片。
 
 **核心文档：**
 - 完播北极星：`templates/design/completion_rate_north_star.md` · `templates/insights/hook_benchmark.md`

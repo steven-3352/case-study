@@ -79,7 +79,7 @@ Layer 4  发布采集       人工发布 → 48h/7d 指标
 Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 ```
 
-### 2.2 新选题标准流程（11 步 · v2）
+### 2.2 新选题标准流程（14 步 · v3）
 
 | 步 | 动作 | 产出 | 门禁 |
 |----|------|------|------|
@@ -89,11 +89,14 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 4 | 留存设计 | `retention_beat_sheet.md` | 视频/强互动图文必跑 |
 | 5 | 脚本三版 | v0/vA/vB（仅引用洞察 P0/P1） | — |
 | 6 | 视觉路线 | 形式词汇 ≥3 种观感；封面 brief | 非套旧渲染场景 |
-| 7 | 分镜 + 画面清单 | 对齐节拍表 + B-roll | 无节拍表 → **禁止分镜** |
-| 8 | 声音方案 | `audio_plan.yaml` | 视频必跑；无方案 → **禁止 publish** |
-| 9 | 流水线出片 | `pipeline/*` | — |
-| 10 | 发布包 | 三平台文案 + 成品 | `templates/publish_三平台.md` |
-| 11 | 验收 | `pipeline/CHECKLIST.md` + `gate_check.py` | 不过则退回对应工种 |
+| 7 | 形式策略会 | `design/form_strategy.md` | 无逐镜表达方案竞争 → **禁止 storyboard 定稿** |
+| 8 | 技术可行性审查 | `design/motion_tech_plan.md` | 用 Web 3D/GSAP/复杂 HTML 动效但无审查 → **禁止 render** |
+| 9 | 分镜 + 画面清单 | 对齐节拍表 + 形式策略 + B-roll | 无节拍表/形式策略 → **禁止分镜** |
+| 10 | 声音方案 | `audio_plan.yaml` | 视频必跑；无方案 → **禁止 publish** |
+| 11 | 流水线出片 | `pipeline/*` | — |
+| 12 | 发布包 | 三平台文案 + 成品 | `templates/publish_三平台.md` |
+| 13 | 验收 | `pipeline/CHECKLIST.md` + `gate_check.py` | 不过则退回对应工种 |
+| 14 | 投后复盘 | `post_publish_retro` + `evolution_overlay` | 48h/7d actual 反哺下条 |
 
 带货 / 出镜 / 图文轮播在标准流程上有分支 — 见 `CLAUDE.md` 形态对照。
 
@@ -104,7 +107,8 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 理解 4 | 选题深挖、内核提炼、领域专家、事实校验 | **所有形态** |
 | 网络调研 | 网络调研员 | **所有选题** |
 | 核心 9 | 编导、记者、纪录片导演、导演、摄像、编剧、视觉、剪辑、运营 | **所有形态** |
-| 音画 2 | 留存与互动设计、声音设计 | **视频** |
+| 表达/音画 4 | 留存与互动设计、形式策略、动效技术导演、声音设计 | **视频**；Web 3D/GSAP/复杂动效按需强制 |
+| 增长复盘 1 | 数据复盘官 | **发布后 48h/7d** |
 | 带货 4 | 合规、选品、消费者声音、销售脚本 | 带货型 |
 | 出镜 2 | 表演指导、造型场景 | 出镜型 |
 
@@ -137,6 +141,16 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 ```
 
 命令链：`.cursor/rules/content-prep-multi-agent.mdc`。`--force` 须登记 `docs/design/GATE_BYPASS_LOG.md`，**禁止外发**。
+
+### 2.7 资产生命周期
+
+项目完结后长期保留的是**设计、实现、代码、结构化数据和复盘依据**；视频、图片、素材、音频等重资产必须归属到具体项目目录，允许按项目清理。
+
+| 长期保留 | 可清理 |
+|----------|--------|
+| `insights/`、`scripts/`、`design/`、`room/`、`content.yaml`、`storyboard.yaml`、代码、公共模板、`performance.yaml` | `*.mp4`、`*.png`、`*.jpg`、`*.mp3`、`*.wav`、下载 B-roll、渲染帧、`pipeline/**/out/` |
+
+公共能力抽到 `pipeline/`、`templates/`、`assets/*/catalog.yaml` 等长期目录；单项目素材不长期占用公共目录。详规见 `docs/ASSET_LIFECYCLE.md`。
 
 ---
 
@@ -432,7 +446,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 |------|--------|
 | **本文 `docs/SYSTEM.md`** | 首次接入 / 大改后对齐全貌 |
 | **`.cursor/rules/*.mdc`** | Cursor 自动加载铁律（90 分互评、讨论室、结果负责制） |
-| `CLAUDE.md` | Agent 执行：工种、11 步、反例、环境 |
+| `CLAUDE.md` | Agent 执行：工种、14 步、反例、环境 |
 | `docs/DECISIONS.md` | 皮肤层策略辩论结论（Q1–Q8） |
 | `templates/README.md` | 产出格式 vs 渲染场景 vs 形式词汇 |
 | `pipeline/README.md` | 流水线步骤与 produce.py |

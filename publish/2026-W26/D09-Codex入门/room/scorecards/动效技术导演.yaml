@@ -1,0 +1,31 @@
+role: 动效技术导演
+artifact: design/motion_tech_plan.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 视觉设计
+    review_mode: independent
+    reviewer_agent_id: agent-B-motion-0001
+    reviewed_at: "2026-06-25"
+    angle: 画面可读性与视觉约束
+    score: 91
+    verdict: pass
+    notes: |
+      技术计划明确 9:16、主文字不小于 64px、3D 卡片只承载短词，并坚持中段方法论用 2D 层呈现，这些约束能保护普通人理解。扣(-9)：色彩和排版层级还主要依赖 format_spec，动效技术文件自身对首帧构图验收描述不够细。
+  - reviewer_id: 形式策略官
+    review_mode: independent
+    reviewer_agent_id: agent-B-motion-0002
+    reviewed_at: "2026-06-25"
+    angle: 工程路径与风险控制
+    score: 92
+    verdict: pass
+    notes: |
+      计划把 GSAP 2.5D 作为主路径，Three 只用于首镜尝试，并提前写明可降级方案、模板命名和 HTML 截帧导出路径，工程风险可控。扣(-8)：样帧检查标准还停留在“看不懂就降级”，建议补充具体截图或像素级验收项给 Phase B 使用。
+
+avg_score: 91.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0

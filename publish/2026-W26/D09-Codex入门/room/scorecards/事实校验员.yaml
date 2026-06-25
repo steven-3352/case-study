@@ -1,0 +1,31 @@
+role: 事实校验员
+artifact: insights/fact_check.md
+artifact_version: v1
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 网络调研员
+    review_mode: independent
+    reviewer_agent_id: agent-A-fact-0001
+    reviewed_at: "2026-06-25"
+    angle: 事实边界与风险分层
+    score: 95
+    verdict: pass
+    notes: |
+      绿区、黄区、红区分层有效，尤其对免费可用、入口覆盖、sandbox/approval、联网读盘等高风险说法给出明确禁区，能直接指导脚本避坑。扣(-5)：发布前待核项仍偏概括，未逐条绑定需要复核的官方页面。
+  - reviewer_id: 内核提炼师
+    review_mode: independent
+    reviewer_agent_id: agent-A-fact-0002
+    reviewed_at: "2026-06-25"
+    angle: 内容可用性与表达替换
+    score: 94
+    verdict: pass
+    notes: |
+      校验结果不仅指出不能说什么，也给出可替换口径，如“更适合从这类任务开始试”和“看账号和计划”，对成片表达很有用。扣(-6)：部分示例仍需在脚本阶段标注为示例，避免观众理解成保证产出。
+
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 0
