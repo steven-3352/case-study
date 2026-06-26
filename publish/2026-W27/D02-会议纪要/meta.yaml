@@ -1,0 +1,17 @@
+project_id: W27D02
+day: D02
+slug: 会议纪要
+topic: 开完会就走，纪要和待办AI已发群（职场痛点）
+platform: douyin
+content_version: vA
+form_version: v1-gptimage
+status: rendered_pending_review
+render:
+  output: douyin/video_with_bgm.mp4
+  duration_s: 40
+  assets: GPT-image真插画(meeting_room/tired/relaxed/me_phone/test_worker/female_worker)
+  scenes: [d02_hook, d02_minutes, d02_todo, d02_contrast, d02_cta]
+  vo: MiniMax(5段对齐) · bgm: Pixelland · 字幕overlay
+  known_nits:
+    - "s4分屏右'我'用了女性插画(relaxed.png)，与男性人设不符 → 可重出relaxed为男性"
+    - "s5底部CTA文字与VO字幕略挤 → 可去掉镜内CTA副标，只留VO字幕"

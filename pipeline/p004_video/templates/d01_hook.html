@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>W27D01 · s1 hook v2</title>
+<link rel="stylesheet" href="../shared/d01_char.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<script src="../shared/d01_agents.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;}
+  body{background:radial-gradient(120% 90% at 50% 18%,#2b3f63 0%,#16213a 55%,#0e1626 100%);
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#fff;position:relative;}
+  .chat{position:absolute;left:90px;right:90px;top:210px;background:#1f2c47;border:3px solid #38507f;
+    border-radius:34px;padding:44px 50px;box-shadow:0 24px 60px rgba(0,0,0,.45);opacity:0;}
+  .chat .who{font-size:34px;color:#8fa6cf;margin-bottom:18px;}
+  .chat .msg{font-size:50px;font-weight:700;line-height:1.4;color:#fff;background:#2f7cf6;
+    display:inline-block;padding:22px 32px;border-radius:22px;}
+  .qmark{position:absolute;top:740px;left:50%;transform:translateX(-50%);font-size:120px;font-weight:900;color:#ffd23f;opacity:0;}
+  .hook{position:absolute;left:60px;right:60px;top:1230px;text-align:center;}
+  .hook .l1{font-size:92px;font-weight:900;letter-spacing:2px;opacity:0;text-shadow:0 6px 0 #0a1120,0 14px 30px rgba(0,0,0,.5);}
+  .hook .l1 .hi{color:#ffd23f;}
+</style>
+</head>
+<body>
+  <div class="chat" id="chat">
+    <div class="who">工作群 · 我</div>
+    <div class="msg">「做条视频，讲 AI 替我干活」</div>
+  </div>
+  <div id="cast"></div>
+  <div class="qmark" id="qmark">？！</div>
+  <div class="hook"><div class="l1" id="l1">这条视频，我<span class="hi">一个字没写</span>、<span class="hi">全程没动手</span>。</div></div>
+<script>
+  const chars = window.buildRow(document.getElementById("cast"), [40,240,440,640,840], 760, "surprised");
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#chat",{y:-120,opacity:0,scale:.92},{y:0,opacity:1,scale:1,duration:.6,ease:"back.out(1.7)"},0);
+  tl.fromTo(".char",{y:70,opacity:0,scale:.6},{y:0,opacity:1,scale:1,duration:.5,ease:"back.out(2)",stagger:.12},0.6);
+  // 瞪眼：眼睛猛地一放大
+  tl.fromTo(".char .eye",{scale:.6},{scale:1.15,duration:.22,yoyo:true,repeat:1,ease:"power2.inOut",stagger:.06},1.0);
+  tl.fromTo("#qmark",{opacity:0,scale:.4},{opacity:1,scale:1,duration:.3,ease:"back.out(3)"},1.2);
+  tl.to("#qmark",{opacity:0,duration:.3},1.9);
+  tl.fromTo("#l1",{opacity:0,y:40,scale:.9},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.6)"},1.5);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body>
+</html>

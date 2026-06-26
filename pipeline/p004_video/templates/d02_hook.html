@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .bg{position:absolute;inset:0;background:url(../../../assets/characters/w27d02/meeting_room.png) center/cover no-repeat;}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,38,.15) 0%,rgba(14,22,38,.05) 45%,rgba(14,22,38,.82) 100%);}
+  /* 群叮纪要卡 */
+  .ding{position:absolute;top:120px;right:60px;width:520px;background:#fff;border-radius:24px;padding:28px 30px;
+    box-shadow:0 18px 50px rgba(0,0,0,.45);opacity:0;}
+  .ding .h{display:flex;align-items:center;gap:12px;font-size:30px;color:#2f7cf6;font-weight:800;margin-bottom:12px;}
+  .ding .dot{width:16px;height:16px;border-radius:50%;background:#48c78e;}
+  .ding .t{font-size:34px;font-weight:700;color:#16213a;line-height:1.35;}
+  .ding .s{margin-top:10px;font-size:26px;color:#7a8aa3;}
+  /* hook 大字 */
+  .hook{position:absolute;left:60px;right:60px;bottom:300px;text-align:center;color:#fff;}
+  .hook .l{font-size:80px;font-weight:900;line-height:1.3;opacity:0;text-shadow:0 4px 0 #0a1120,0 12px 28px rgba(0,0,0,.6);}
+  .hook .hi{color:#ffd23f;}
+</style></head>
+<body>
+  <div class="bg"></div><div class="scrim"></div>
+  <div class="ding" id="ding">
+    <div class="h"><span class="dot"></span>工作群 · 系统</div>
+    <div class="t">📋 会议纪要 + 待办已生成</div>
+    <div class="s">散会自动发送 · 点开查看</div>
+  </div>
+  <div class="hook"><div class="l" id="l">同事还在写纪要，<br>我<span class="hi">直接走了</span>。</div></div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#ding",{y:-80,opacity:0,scale:.9},{y:0,opacity:1,scale:1,duration:.5,ease:"back.out(1.7)"},1.4);
+  tl.fromTo("#l",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},1.8);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

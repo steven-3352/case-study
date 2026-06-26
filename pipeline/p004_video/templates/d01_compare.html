@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>W27D01 · s3 compare v2</title>
+<link rel="stylesheet" href="../shared/d01_char.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<script src="../shared/d01_agents.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#fff;position:relative;background:#0e1626;}
+  .title{position:absolute;top:110px;left:0;right:0;text-align:center;font-size:52px;font-weight:900;opacity:0;}
+  .title .hi{color:#ffd23f;}
+  .split{position:absolute;top:280px;bottom:150px;width:50%;padding:46px 38px;}
+  .left{left:0;background:#2a2030;border-right:3px solid #000;}
+  .right{right:0;background:#15302a;}
+  .lab{font-size:46px;font-weight:800;text-align:center;margin-bottom:30px;}
+  .left .lab{color:#ff8a8a;} .right .lab{color:#7CF29B;}
+  /* 外包愁脸 */
+  .sadguy{width:170px;height:170px;border-radius:50%;background:#c97b8e;margin:0 auto 30px;position:relative;}
+  .sadguy .eb{position:absolute;top:54px;width:34px;height:8px;border-radius:4px;background:#3a2530;}
+  .sadguy .eb.l{left:30px;transform:rotate(-20deg);} .sadguy .eb.r{right:30px;transform:rotate(20deg);}
+  .sadguy .ey{position:absolute;top:72px;width:20px;height:20px;background:#3a2530;border-radius:50%;}
+  .sadguy .ey.l{left:42px;} .sadguy .ey.r{right:42px;}
+  .sadguy .mo{position:absolute;bottom:42px;left:50%;transform:translateX(-50%) rotate(180deg);width:48px;height:24px;border:5px solid #3a2530;border-top:none;border-radius:0 0 40px 40px;}
+  .item{font-size:38px;font-weight:600;margin:24px 0;opacity:0;display:flex;align-items:center;gap:14px;}
+  .left .item{color:#ffd0d0;} .right .item{color:#cdf5e4;}
+  .agrow{position:relative;height:150px;margin-bottom:6px;}
+  .vs{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);font-size:88px;font-weight:900;color:#fff;
+    background:#0e1626;border-radius:50%;width:150px;height:150px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 8px #0e1626;opacity:0;z-index:5;}
+</style>
+</head>
+<body>
+  <div class="title" id="title">同样一条，<span class="hi">差在哪</span></div>
+
+  <div class="split left" id="left">
+    <div class="lab">找外包</div>
+    <div class="sadguy"><div class="eb l"></div><div class="eb r"></div><div class="ey l"></div><div class="ey r"></div><div class="mo"></div></div>
+    <div class="item it">💸 动不动好几百起</div>
+    <div class="item it">🗓️ 磨好几天</div>
+    <div class="item it">🔁 还来回改</div>
+  </div>
+
+  <div class="split right" id="right">
+    <div class="lab">这套系统</div>
+    <div class="agrow" id="agrow"></div>
+    <div class="item it">⚡ 一句话扔进去</div>
+    <div class="item it">💧 几块钱</div>
+    <div class="item it">⏱️ 一会儿功夫</div>
+  </div>
+  <div class="vs" id="vs">VS</div>
+
+<script>
+  // 右侧 5 个小号开心角色（覆盖在 right 面板上方）
+  const cast=document.getElementById("cast")||document.body;
+  const wrap=document.createElement("div"); document.body.appendChild(wrap);
+  window.buildRow(wrap,[505,600,695,790,885],330,"happy",{scale:.46,name:false,idprefix:"m"});
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#title",{opacity:0,y:-20},{opacity:1,y:0,duration:.5},0.2);
+  tl.fromTo("#left",{x:-300,opacity:0},{x:0,opacity:1,duration:.6,ease:"power2.out"},0.6);
+  tl.fromTo("#right",{x:300,opacity:0},{x:0,opacity:1,duration:.6,ease:"power2.out"},0.6);
+  tl.fromTo("#vs",{opacity:0,scale:.3},{opacity:1,scale:1,duration:.4,ease:"back.out(3)"},1.2);
+  tl.fromTo("#left .it",{opacity:0,x:-20},{opacity:1,x:0,duration:.5,stagger:.7,ease:"power1.out"},1.6);
+  tl.fromTo(".char",{opacity:0,y:30,scale:.3},{opacity:1,y:0,scale:.46,duration:.4,ease:"back.out(2)",stagger:.08},2.0);
+  tl.fromTo("#right .it",{opacity:0,x:20},{opacity:1,x:0,duration:.4,stagger:.12,ease:"power3.out"},2.5);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body>
+</html>

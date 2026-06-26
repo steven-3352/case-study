@@ -1,0 +1,7 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: w27d02.mp4, voice_volume: 1.0, music_volume: 0.10}
+scenes:
+  - {id: d02_hook,     type: html, template: d02_hook.html,     duration: 3.0,  start_at: 0.0,  data: {}}
+  - {id: d02_minutes,  type: html, template: d02_minutes.html,  duration: 8.0,  start_at: 3.0,  data: {}}
+  - {id: d02_todo,     type: html, template: d02_todo.html,     duration: 11.0, start_at: 11.0, data: {}}
+  - {id: d02_contrast, type: html, template: d02_contrast.html, duration: 8.0,  start_at: 22.0, data: {}}
+  - {id: d02_cta,      type: html, template: d02_cta.html,      duration: 10.0, start_at: 30.0, data: {}}

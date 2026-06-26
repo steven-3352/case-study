@@ -1,0 +1,31 @@
+role: 形式选型师
+artifact: design/form_strategy.md
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 完播评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-形式-01
+    reviewed_at: "2026-06-26"
+    angle: 候选比较·五维
+    score: 91
+    verdict: pass
+    notes: |
+      四镜镜头任务+≥3候选+五维加权+数据杠杆+推荐方案,镜1卡通群瞪眼36分否决自述19.5分有力,承诺可像素复验 扣(-9)。
+  - reviewer_id: 叙事评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-形式-02
+    reviewed_at: "2026-06-26"
+    angle: 形式·防同质
+    score: 91
+    verdict: pass
+    notes: |
+      v2弃录屏→卡通逐镜五维规范,吵架29分>录屏27.5分论证扎实,4语法对标D06区分明确 扣(-9)。
+
+avg_score: 91.0
+pass: true
+scorecard_phase: pre_render
+optimization_round: 3

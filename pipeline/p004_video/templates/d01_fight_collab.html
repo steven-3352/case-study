@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>W27D01 · s2 fight+collab v2</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;}
+  body{background:radial-gradient(120% 90% at 50% 16%,#2b3f63 0%,#16213a 55%,#0e1626 100%);
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#fff;position:relative;}
+  .syslabel{position:absolute;top:110px;left:0;right:0;text-align:center;font-size:42px;font-weight:800;
+    color:#ffd23f;opacity:0;letter-spacing:2px;}
+  .syslabel small{display:block;font-size:28px;color:#9fb2d6;font-weight:500;margin-top:8px;}
+
+  /* ===== 角色（表情 chibi）===== */
+  .char{position:absolute;width:200px;text-align:center;opacity:0;transform-origin:50% 90%;}
+  .body{width:120px;height:110px;border-radius:46px 46px 38px 38px;margin:78px auto 0;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.4);}
+  .head{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:134px;height:128px;border-radius:50%;z-index:3;}
+  .brow{position:absolute;top:40px;width:34px;height:9px;border-radius:6px;background:#2a1c1c;}
+  .brow.l{left:24px;transform:rotate(14deg);}
+  .brow.r{right:24px;transform:rotate(-14deg);}
+  .eye{position:absolute;top:52px;width:30px;height:34px;background:#fff;border-radius:50%;overflow:hidden;}
+  .eye.l{left:26px;} .eye.r{right:26px;}
+  .pupil{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:15px;height:15px;background:#1a1a1a;border-radius:50%;}
+  .mouth{position:absolute;top:90px;left:50%;transform:translateX(-50%);width:30px;height:14px;background:#7a2230;border-radius:0 0 16px 16px;}
+  .mouth.shout{width:40px;height:38px;border-radius:50%;background:#7a2230;}
+  .arm{position:absolute;top:86px;width:26px;height:74px;border-radius:14px;z-index:2;transform-origin:50% 4px;}
+  .arm.l{left:-8px;transform:rotate(28deg);} .arm.r{right:-8px;transform:rotate(-28deg);}
+  .prop{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:40px;z-index:5;}
+  .nm{margin-top:8px;font-size:28px;font-weight:700;color:#dbe6fa;}
+  .anger{position:absolute;top:-14px;right:6px;font-size:48px;opacity:0;z-index:6;}
+
+  /* ===== 吵架团（漫画打架云）===== */
+  .brawl{position:absolute;top:760px;left:50%;transform:translate(-50%,0) scale(0);
+    width:640px;height:480px;opacity:0;z-index:8;}
+  .cloud{position:absolute;inset:0;background:radial-gradient(closest-side,#fdf6e3 0%,#f3e6c4 60%,rgba(243,230,196,0) 72%);
+    border-radius:50%;filter:drop-shadow(0 0 0 #000);}
+  .cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:#fdf6e3;}
+  .cloud::before{width:230px;height:230px;left:-40px;top:120px;}
+  .cloud::after{width:260px;height:260px;right:-50px;top:90px;}
+  .brawl .mk{position:absolute;font-size:70px;font-weight:900;color:#e23b3b;}
+  .brawl .limb{position:absolute;font-size:60px;}
+  .boom{position:absolute;top:760px;left:50%;transform:translate(-50%,140px) scale(0);font-size:150px;opacity:0;z-index:9;}
+
+  /* 吵架气泡（刺角 shout） */
+  .bub{position:absolute;font-size:30px;font-weight:800;color:#16213a;background:#fff;
+    padding:14px 20px;max-width:300px;line-height:1.25;opacity:0;z-index:10;
+    border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.4);
+    clip-path:polygon(0% 12%,5% 0%,12% 10%,22% 0%,32% 9%,44% 0%,56% 10%,68% 0%,80% 9%,90% 0%,97% 11%,100% 20%,96% 32%,100% 46%,95% 60%,100% 74%,93% 86%,100% 100%,84% 92%,70% 100%,56% 91%,42% 100%,28% 92%,14% 100%,4% 90%,0% 78%,4% 60%,0% 46%,5% 32%);}
+
+  /* ===== 协同：进度条 ===== */
+  .done{position:absolute;top:740px;left:0;right:0;text-align:center;font-size:58px;font-weight:900;color:#7CF29B;opacity:0;z-index:11;}
+  .bars{position:absolute;top:1340px;left:90px;right:90px;opacity:0;z-index:11;}
+  .barrow{display:flex;align-items:center;gap:18px;margin-bottom:24px;}
+  .barrow .t{width:110px;font-size:30px;color:#dbe6fa;text-align:right;font-weight:600;}
+  .track{flex:1;height:32px;background:#26344f;border-radius:16px;overflow:hidden;}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,#48c78e,#7CF29B);border-radius:16px;}
+
+  /* 主角去喝水 */
+  .me{position:absolute;top:600px;left:50%;transform:translateX(-50%);text-align:center;z-index:4;}
+  .me .av{width:150px;height:150px;border-radius:50%;background:#5b7cc4;margin:0 auto;position:relative;}
+  .me .av .e{position:absolute;top:60px;width:22px;height:22px;background:#16213a;border-radius:50%;}
+  .me .av .e.l{left:44px;} .me .av .e.r{right:44px;}
+  .me .cup{position:absolute;top:54px;right:-26px;font-size:50px;opacity:0;}
+  .me .say{margin-top:16px;font-size:38px;font-weight:700;color:#cdd9f2;opacity:0;}
+</style>
+</head>
+<body>
+  <div class="syslabel" id="syslabel">我那套系统<small>一句话扔进去，它们自己分工</small></div>
+
+  <div class="me" id="me">
+    <div class="av"><div class="e l"></div><div class="e r"></div><div class="cup" id="cup">🥤</div></div>
+    <div class="say" id="mesay">我发完就去喝了杯水…</div>
+  </div>
+
+  <!-- 5 表情角色 -->
+  <div id="cast"></div>
+
+  <!-- 吵架团 -->
+  <div class="brawl" id="brawl">
+    <div class="cloud"></div>
+    <div class="mk" style="left:30px;top:40px;">？！</div>
+    <div class="mk" style="right:20px;top:30px;">💢</div>
+    <div class="mk" style="left:50%;top:-10px;transform:translateX(-50%);">＃＠！</div>
+    <div class="mk" style="left:60px;bottom:30px;">💢</div>
+    <div class="limb" style="left:-10px;top:200px;">🎬</div>
+    <div class="limb" style="right:-6px;top:150px;">✂️</div>
+    <div class="limb" style="left:50%;bottom:-10px;">✍️</div>
+    <div class="limb" style="right:120px;bottom:20px;">📣</div>
+  </div>
+  <div class="boom" id="boom">💥</div>
+
+  <!-- 吵架刺角气泡 -->
+  <div class="bub" id="b1" style="left:60px;top:560px;">先定选题！没方向干个啥</div>
+  <div class="bub" id="b2" style="right:50px;top:540px;">钩子我来！前3秒不抓人全白做</div>
+  <div class="bub" id="b3" style="left:90px;top:1180px;">数据没核实不能写！</div>
+  <div class="bub" id="b4" style="right:70px;top:1190px;">你们快点！我要卡点</div>
+  <div class="bub" id="b5" style="left:50%;top:520px;transform:translateX(-50%);">标题归我！发三平台</div>
+
+  <!-- 协同 -->
+  <div class="done" id="done">吵完一拍即合，开干 👇</div>
+  <div class="bars" id="bars">
+    <div class="barrow"><div class="t">选题</div><div class="track"><div class="fill" id="f1"></div></div></div>
+    <div class="barrow"><div class="t">脚本</div><div class="track"><div class="fill" id="f2"></div></div></div>
+    <div class="barrow"><div class="t">素材</div><div class="track"><div class="fill" id="f3"></div></div></div>
+    <div class="barrow"><div class="t">剪辑</div><div class="track"><div class="fill" id="f4"></div></div></div>
+    <div class="barrow"><div class="t">文案</div><div class="track"><div class="fill" id="f5"></div></div></div>
+  </div>
+
+<script>
+  // 角色配置：颜色 head/body, 道具, 名字
+  const AG=[
+    {h:"#ff9478",b:"#ff7a59",p:"🎬",n:"编导"},
+    {h:"#6fd6a6",b:"#48c78e",p:"✍️",n:"编剧"},
+    {h:"#6fb0e0",b:"#3e8ed0",p:"📋",n:"记者"},
+    {h:"#f7bd86",b:"#f4a261",p:"✂️",n:"剪辑"},
+    {h:"#c79cff",b:"#b07cff",p:"📣",n:"运营"},
+  ];
+  const xs=[70,266,462,658,854]; // 五个位置（顶 980）
+  const cast=document.getElementById("cast");
+  AG.forEach((a,i)=>{
+    const d=document.createElement("div");
+    d.className="char"; d.id="c"+i; d.style.left=xs[i]+"px"; d.style.top="940px";
+    d.innerHTML=`
+      <div class="arm l" style="background:${a.b}"></div>
+      <div class="arm r" style="background:${a.b}"></div>
+      <div class="body" style="background:${a.b}"></div>
+      <div class="head" style="background:${a.h}">
+        <div class="prop">${a.p}</div>
+        <div class="brow l"></div><div class="brow r"></div>
+        <div class="eye l"><div class="pupil"></div></div>
+        <div class="eye r"><div class="pupil"></div></div>
+        <div class="mouth"></div>
+      </div>
+      <div class="anger">💢</div>
+      <div class="nm">${a.n}</div>`;
+    cast.appendChild(d);
+  });
+
+  const tl=gsap.timeline({paused:true});
+  // 0-3.4 主角说话→举杯→滑出
+  tl.fromTo("#me",{opacity:0,y:30},{opacity:1,y:0,duration:.5},0.2);
+  tl.fromTo("#mesay",{opacity:0},{opacity:1,duration:.4},0.8);
+  tl.fromTo("#cup",{opacity:0,scale:.5},{opacity:1,scale:1,duration:.4,ease:"back.out(2)"},2.0);
+  tl.to("#me",{x:760,opacity:0,duration:1.0,ease:"power1.in"},3.2);
+  // 4.2 五角色登场 + syslabel
+  tl.fromTo(".char",{opacity:0,y:50,scale:.7},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.7)",stagger:.1},4.2);
+  tl.fromTo("#syslabel",{opacity:0,y:-20},{opacity:1,y:0,duration:.5},5.2);
+
+  // ===== 6.4-9.4 起争执：张嘴+怒眉+举手+前倾，气泡刺角弹（可叠） =====
+  const cs=["#c0","#c1","#c2","#c3","#c4"];
+  cs.forEach((c,i)=>{ // 张嘴喊 + 怒
+    tl.to(c+" .mouth",{attr:{class:"mouth shout"},duration:0},6.4);
+    tl.to(c+" .arm.l",{rotation:"-=30",duration:.2,yoyo:true,repeat:5},6.4+i*.05);
+    tl.to(c+" .arm.r",{rotation:"+=30",duration:.2,yoyo:true,repeat:5},6.4+i*.05);
+    tl.to(c+" .anger",{opacity:1,duration:.2},6.6+i*.06);
+    tl.to(c,{x:(i<2?40:i>2?-40:0),duration:.3,yoyo:true,repeat:3,ease:"power1.inOut"},6.6); // 前倾互怼
+  });
+  // 气泡快速叠射
+  [["#b1",6.5],["#b2",6.9],["#b5",7.3],["#b3",7.7],["#b4",8.1]].forEach(([b,t])=>{
+    tl.fromTo(b,{opacity:0,scale:.4,rotation:-6},{opacity:1,scale:1,rotation:0,duration:.18,ease:"back.out(3)"},t);
+    tl.to(b,{opacity:0,duration:.2},t+1.0);
+  });
+
+  // ===== 9.4-13.4 吵成一团（漫画打架团）=====
+  tl.to(".char",{opacity:0,duration:.2},9.3);
+  tl.to(["#b1","#b2","#b3","#b4","#b5"],{opacity:0,duration:.15},9.3);
+  tl.fromTo("#brawl",{opacity:0,scale:0},{opacity:1,scale:1,duration:.3,ease:"back.out(2)"},9.4);
+  // 剧烈抖动 + 标记乱跳
+  tl.to("#brawl",{x:"+=18",duration:.06,yoyo:true,repeat:50,ease:"none"},9.7);
+  tl.to("#brawl",{rotation:"+=3",duration:.08,yoyo:true,repeat:40,ease:"none"},9.7);
+  tl.to("#brawl .mk",{scale:1.25,duration:.18,yoyo:true,repeat:14,stagger:.05},9.7);
+  tl.to("#brawl .limb",{rotation:"+=40",duration:.12,yoyo:true,repeat:24,stagger:.04},9.7);
+  // ===== 13.4 炸开 =====
+  tl.to("#brawl",{scale:1.15,duration:.15},13.2);
+  tl.to("#brawl",{opacity:0,scale:1.4,duration:.25},13.4);
+  tl.fromTo("#boom",{opacity:0,scale:0},{opacity:1,scale:1,duration:.25,ease:"back.out(2)"},13.4);
+  tl.to("#boom",{opacity:0,scale:1.6,duration:.4},13.9);
+
+  // ===== 14-17 一拍即合：角色归位(平静) + 进度条齐满 =====
+  tl.set(cs.map(c=>c+" .mouth"),{attr:{class:"mouth"}},14.0);
+  tl.set(".anger",{opacity:0},14.0);
+  tl.set(".arm.l",{rotation:28}); tl.set(".arm.r",{rotation:-28});
+  tl.to(".char",{x:0,opacity:1,scale:1,duration:.4,ease:"power2.out"},14.0);
+  tl.fromTo("#done",{opacity:0,scale:.7},{opacity:1,scale:1,duration:.4,ease:"back.out(2)"},14.0);
+  tl.fromTo("#bars",{opacity:0,y:20},{opacity:1,y:0,duration:.4},14.4);
+  tl.to(["#f1","#f2","#f3","#f4","#f5"],{width:"100%",duration:2.0,ease:"power3.inOut"},14.8);
+
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body>
+</html>

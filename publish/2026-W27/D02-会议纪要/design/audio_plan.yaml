@@ -1,0 +1,30 @@
+# 声音方案 · audio_plan.yaml · W27D02 · vA
+content_id: W27D02
+topic_id: W27-D02
+voice:
+  engine: minimax
+  model: speech-2.8-turbo
+  voice_id: male-qn-jingying-jingpin
+  speed: 1.0
+  emotion: happy          # 凡尔赛得意/轻快
+  script_path: publish/2026-W27/D02-会议纪要/scripts/script_three_versions.md  # vA段
+bgm:
+  mood: upbeat            # 轻快带凡尔赛感
+  source: bgm/Pixelland_loop.mp3   # 轻快活泼；render前可换
+  volume: 0.10
+  hook_0_3s: "节奏点对齐群'叮'声；不压人声"
+  notes: "情绪：散会爽感→纪要/待办展示稳→反差轻顿→自证CTA上扬"
+sfx:
+  - "1.5s 群消息'叮'"
+  - "s3 到期提醒'铃'"
+subtitles:
+  srt_path: publish/2026-W27/D02-会议纪要/design/sub_va.srt
+  burn: true            # 走 _subtitles HTML帧 overlay（ffmpeg无libass）
+  style: 底部白字黑边，避开纪要/待办卡
+outputs:
+  video_publish: publish/2026-W27/D02-会议纪要/douyin/video_with_bgm.mp4
+qc:
+  - VO清晰，BGM/SFX不盖人声
+  - 前3s钩子字幕可见
+  - 待办卡文字与底部字幕不打架
+  - 外发用 video_with_bgm.mp4

@@ -1,0 +1,31 @@
+role: 平台原生策划
+artifact: design/storyboard.yaml
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 完播评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-平台-01
+    reviewed_at: "2026-06-26"
+    angle: 节拍·0-3s·CTA
+    score: 90
+    verdict: pass
+    notes: |
+      storyboard锁vA-final 4镜HTML模板齐,retention 6段变化P0全入,0-3s秒级详表,评论埋点4类,CTA口播字幕一致 扣(-10)。
+  - reviewer_id: 互动评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-平台-02
+    reviewed_at: "2026-06-26"
+    angle: CTA机制·私域
+    score: 93
+    verdict: pass
+    notes: |
+      CTA补每期≤5个真做上限+扣1自动回复→主页引导闭环私域SOP,留存铁律四项全守,对标1107母题41.4%完播 扣(-7)。
+
+avg_score: 91.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 3

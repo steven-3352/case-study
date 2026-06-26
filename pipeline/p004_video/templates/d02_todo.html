@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(120% 90% at 50% 16%,#22324f 0%,#141d31 60%,#0e1626 100%);color:#fff;}
+  .title{position:absolute;top:110px;left:0;right:0;text-align:center;font-size:46px;font-weight:900;opacity:0;}
+  .title .hi{color:#ffd23f;}
+  .list{position:absolute;top:240px;left:70px;right:70px;}
+  .todo{display:flex;align-items:center;gap:24px;background:#1d2a44;border:2px solid #31456b;border-radius:24px;
+    padding:24px 28px;margin-bottom:26px;opacity:0;box-shadow:0 10px 26px rgba(0,0,0,.35);}
+  .av{width:96px;height:96px;border-radius:50%;background-size:cover;background-position:center top;flex-shrink:0;border:3px solid #4a6699;}
+  .mid{flex:1;}
+  .mid .task{font-size:38px;font-weight:700;}
+  .mid .who{font-size:30px;color:#9fb6dc;margin-top:6px;}
+  .due{font-size:30px;font-weight:800;color:#ffd23f;white-space:nowrap;}
+  .bell{position:absolute;right:18px;top:-16px;font-size:46px;opacity:0;}
+  .foot{position:absolute;bottom:250px;left:0;right:0;text-align:center;font-size:40px;font-weight:800;color:#7CF29B;opacity:0;}
+</style></head>
+<body>
+  <div class="title" id="title">每条待办，<span class="hi">自动 @ 到人 + 到期提醒</span></div>
+  <div class="list" id="list">
+    <div class="todo"><div class="av" style="background-image:url(../../../assets/characters/w27d02/female_worker.png)"></div><div class="mid"><div class="task">出获客方案初稿</div><div class="who">@ 小琳 · 市场</div></div><div class="due">周三</div><div class="bell">🔔</div></div>
+    <div class="todo"><div class="av" style="background-image:url(../../../assets/characters/w27d02/test_worker.png)"></div><div class="mid"><div class="task">对接短视频排期</div><div class="who">@ 阿哲 · 运营</div></div><div class="due">周四</div><div class="bell">🔔</div></div>
+    <div class="todo"><div class="av" style="background-image:url(../../../assets/characters/w27d02/female_worker.png)"></div><div class="mid"><div class="task">私域承接话术</div><div class="who">@ 小琳 · 市场</div></div><div class="due">周五</div><div class="bell">🔔</div></div>
+  </div>
+  <div class="foot" id="foot">不用人记，事事有着落 ✅</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#title",{opacity:0,y:-20},{opacity:1,y:0,duration:.5},0.3);
+  const todos=gsap.utils.toArray(".todo");
+  todos.forEach((el,i)=>{
+    const t=1.2+i*2.6;
+    tl.fromTo(el,{opacity:0,x:-40},{opacity:1,x:0,duration:.45,ease:"back.out(1.4)"},t);
+    tl.fromTo(el.querySelector(".av"),{scale:.6},{scale:1.1,duration:.2,yoyo:true,repeat:1},t+.2); // @亮起
+    tl.fromTo(el.querySelector(".bell"),{opacity:0,rotation:-30},{opacity:1,rotation:0,duration:.3,ease:"back.out(3)"},t+1.4);
+    tl.to(el.querySelector(".bell"),{rotation:18,duration:.1,yoyo:true,repeat:5},t+1.7); // 铃响
+  });
+  tl.fromTo("#foot",{opacity:0,y:20},{opacity:1,y:0,duration:.4,ease:"back.out(2)"},9.6);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

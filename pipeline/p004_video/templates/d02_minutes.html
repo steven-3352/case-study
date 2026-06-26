@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .bg{position:absolute;inset:0;background:url(../../../assets/characters/w27d02/meeting_room.png) center/cover no-repeat;filter:blur(8px) brightness(.5);}
+  .top{position:absolute;top:90px;left:0;right:0;text-align:center;color:#fff;font-size:40px;font-weight:800;opacity:0;}
+  .top .hi{color:#ffd23f;}
+  /* 手机纪要卡 */
+  .phone{position:absolute;top:230px;left:140px;right:140px;background:#f4f7fc;border-radius:36px;padding:40px 40px 50px;
+    box-shadow:0 24px 70px rgba(0,0,0,.5);opacity:0;}
+  .phone .bar{display:flex;align-items:center;gap:12px;font-size:30px;color:#2f7cf6;font-weight:800;margin-bottom:24px;}
+  .phone .dot{width:16px;height:16px;border-radius:50%;background:#48c78e;}
+  .phone h3{font-size:40px;color:#16213a;margin-bottom:24px;}
+  .row{display:flex;gap:16px;font-size:34px;color:#2b3a52;margin:22px 0;opacity:0;line-height:1.4;}
+  .row .k{color:#7a8aa3;white-space:nowrap;font-weight:700;}
+</style></head>
+<body>
+  <div class="bg"></div>
+  <div class="top" id="top">散会就"叮"——<span class="hi">纪要自动发好了</span></div>
+  <div class="phone" id="phone">
+    <div class="bar"><span class="dot"></span>工作群 · 会议纪要</div>
+    <h3>📋 周会纪要</h3>
+    <div class="row r"><span class="k">主题：</span><span>Q3 获客方案对齐</span></div>
+    <div class="row r"><span class="k">决策：</span><span>主推短视频 + 私域承接</span></div>
+    <div class="row r"><span class="k">要点：</span><span>预算、排期、责任人已定</span></div>
+    <div class="row r"><span class="k">待办：</span><span>5 项，已分派到人 ↓</span></div>
+  </div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#phone",{y:60,opacity:0,scale:.94},{y:0,opacity:1,scale:1,duration:.5,ease:"back.out(1.5)"},0.4);
+  tl.fromTo("#top",{opacity:0,y:-20},{opacity:1,y:0,duration:.4},0.6);
+  tl.fromTo(".row",{opacity:0,x:-20},{opacity:1,x:0,duration:.4,stagger:.9,ease:"power2.out"},1.2);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

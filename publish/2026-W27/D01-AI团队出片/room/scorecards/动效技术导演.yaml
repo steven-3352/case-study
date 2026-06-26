@@ -1,0 +1,31 @@
+role: 动效技术导演
+artifact: design/motion_tech_plan.md
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 叙事评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-动效-01
+    reviewed_at: "2026-06-26"
+    angle: 时序·可复现
+    score: 86
+    verdict: fail
+    notes: |
+      3b量化时序表30fps精确可复现+5分;扣分:补seed一致性机制后仍须render SOP确认,角色出图稳定性待验 扣(-14)。
+  - reviewer_id: 互动评审
+    review_mode: independent
+    reviewer_agent_id: task-r3-动效-02
+    reviewed_at: "2026-06-26"
+    angle: 技术落地
+    score: 91
+    verdict: pass
+    notes: |
+      量化时序表+GPT prompt模板+角色QC4条+seed机制+BGM同步gate全补,不引新框架落p004管线,排期2.5天可控 扣(-9)。
+
+avg_score: 88.5
+pass: false
+scorecard_phase: pre_render
+optimization_round: 3

@@ -1,0 +1,13 @@
+# W27D01 · 一句话→AI团队出片 · 卡通动画分镜（截帧用）
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: w27d01.mp4
+  voice_volume: 1.0
+  music_volume: 0.10
+scenes:
+  - { id: "d01_hook",        type: html, template: "d01_hook.html",        duration: 3.0,  start_at: 0.0,  data: {} }
+  - { id: "d01_fight_collab",type: html, template: "d01_fight_collab.html",duration: 17.0, start_at: 3.0,  data: {} }
+  - { id: "d01_compare",     type: html, template: "d01_compare.html",     duration: 7.0,  start_at: 20.0, data: {} }
+  - { id: "d01_proof_cta",   type: html, template: "d01_proof_cta.html",   duration: 13.0, start_at: 27.0, data: {} }

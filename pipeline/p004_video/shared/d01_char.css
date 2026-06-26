@@ -1,0 +1,27 @@
+/* W27D01 · 共享表情角色（hook/compare/proof 复用 · 与 fight 同款）*/
+.char{position:absolute;width:200px;text-align:center;opacity:0;transform-origin:50% 90%;}
+.char .body{width:120px;height:110px;border-radius:46px 46px 38px 38px;margin:78px auto 0;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.4);}
+.char .head{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:134px;height:128px;border-radius:50%;z-index:3;}
+.char .brow{position:absolute;top:40px;width:34px;height:9px;border-radius:6px;background:#2a1c1c;}
+.char .brow.l{left:24px;transform:rotate(6deg);}
+.char .brow.r{right:24px;transform:rotate(-6deg);}
+.char .eye{position:absolute;top:50px;width:30px;height:34px;background:#fff;border-radius:50%;overflow:hidden;}
+.char .eye.l{left:26px;} .char .eye.r{right:26px;}
+.char .pupil{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:15px;height:15px;background:#1a1a1a;border-radius:50%;}
+.char .mouth{position:absolute;top:92px;left:50%;transform:translateX(-50%);width:28px;height:12px;background:#7a2230;border-radius:0 0 16px 16px;}
+.char .arm{position:absolute;top:86px;width:26px;height:74px;border-radius:14px;z-index:2;transform-origin:50% 4px;}
+.char .arm.l{left:-8px;transform:rotate(24deg);} .char .arm.r{right:-8px;transform:rotate(-24deg);}
+.char .prop{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:40px;z-index:5;}
+.char .nm{margin-top:8px;font-size:28px;font-weight:700;color:#dbe6fa;}
+
+/* ===== 表情 ===== */
+/* 惊讶（瞪眼）：眼睛放大、眉上挑、小圆嘴 */
+.char.surprised .eye{top:44px;width:38px;height:42px;}
+.char.surprised .brow.l{top:30px;transform:rotate(-10deg);}
+.char.surprised .brow.r{top:30px;transform:rotate(10deg);}
+.char.surprised .mouth{width:26px;height:26px;border-radius:50%;}
+/* 开心（一拍即合）：弯眼、微笑嘴 */
+.char.happy .eye{height:18px;top:56px;border-radius:0 0 30px 30px;background:#1a1a1a;}
+.char.happy .pupil{display:none;}
+.char.happy .mouth{width:46px;height:24px;border-radius:0 0 30px 30px;background:#7a2230;}
+.char.happy .brow{top:36px;}

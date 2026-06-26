@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>W27D01 · s4 proof+cta v2</title>
+<link rel="stylesheet" href="../shared/d01_char.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<script src="../shared/d01_agents.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#fff;position:relative;
+    background:radial-gradient(120% 90% at 50% 30%,#2b3f63 0%,#16213a 55%,#0e1626 100%);}
+  .anchor{position:absolute;top:230px;left:60px;right:60px;text-align:center;font-size:60px;font-weight:900;line-height:1.4;opacity:0;}
+  .anchor .hi{color:#ffd23f;}
+  .film{position:absolute;top:760px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:#1f2c47;
+    border:5px solid #ffd23f;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0;
+    box-shadow:0 16px 40px rgba(0,0,0,.5);}
+  .proof{position:absolute;top:1120px;left:60px;right:60px;text-align:center;font-size:70px;font-weight:900;opacity:0;}
+  .proof .hi{color:#7CF29B;}
+  .cta{position:absolute;top:1380px;left:70px;right:70px;text-align:center;opacity:0;}
+  .cta .q{font-size:52px;font-weight:800;line-height:1.4;}
+  .cta .q .hi{color:#ffd23f;}
+  .cta .sub{margin-top:22px;font-size:38px;color:#8fa6cf;}
+</style>
+</head>
+<body>
+  <div class="anchor" id="anchor">把<span class="hi">一个团队的活</span>，<br>压进一个人手里。</div>
+  <div id="cast"></div>
+  <div class="film" id="film">🎬</div>
+  <div class="proof" id="proof">你看的<span class="hi">这条</span>，就是它做的</div>
+  <div class="cta" id="cta">
+    <div class="q">你最想把<span class="hi">哪件活</span>甩给 AI？</div>
+    <div class="sub">评论点名 · 下条我真做给你看</div>
+  </div>
+<script>
+  window.buildRow(document.getElementById("cast"),[40,240,440,640,840],560,"happy",{name:false});
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#anchor",{opacity:0,y:30},{opacity:1,y:0,duration:.6,ease:"power2.out"},0.3);
+  tl.fromTo(".char",{opacity:0,y:50,scale:.6},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.7)",stagger:.1},3.0);
+  // 开心蹦跶
+  tl.to(".char",{y:-18,duration:.3,yoyo:true,repeat:3,ease:"power1.inOut",stagger:.06},4.6);
+  tl.to("#anchor",{opacity:0,duration:.4},6.6);
+  tl.fromTo("#film",{opacity:0,scale:.4,y:30},{opacity:1,scale:1,y:0,duration:.5,ease:"back.out(2)"},7.0);
+  tl.fromTo("#proof",{opacity:0,y:20},{opacity:1,y:0,duration:.5},7.8);
+  tl.fromTo("#cta",{opacity:0,y:30},{opacity:1,y:0,duration:.5,ease:"back.out(1.4)"},10.6);
+  tl.to("#cta .q .hi",{scale:1.12,yoyo:true,repeat:3,duration:.3,transformOrigin:"center"},11.4);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body>
+</html>

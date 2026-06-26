@@ -1,0 +1,79 @@
+# 分镜 · storyboard · W27D01（动画版 · 锁 vA-final）
+# 工种: 导演（执行）+ 摄像/视觉 · 依赖 retention_beat_sheet ✓ form_strategy(v2) ✓ motion_tech_plan ✓
+# 互评修订: vB→vA(独立评审 vB 仅79) + 注入信任锚自证 + 外包数字放松
+content_id: W27D01
+topic: 一句话→一支 AI 团队做完一条视频
+platform: douyin
+canvas: 1080x1920
+duration_s: 40
+script_version: vA-final
+render_pipeline: p004_video (HTML+GSAP → capture_frames → build)
+hook: "这条视频，我一个字没写、全程没动手。"
+trust_anchor: "VO 自证『我那套系统…我把它们干活的样子画出来给你看』+ 收尾『这条就是它做的』(弃录屏改卡通后必守)"
+
+shots:
+  - id: s1_hook
+    t: "0-3"
+    intent: 停划
+    form: 卡通角色动画
+    template: d01_hook.html
+    visual: 一行字"啪"砸进办公群聊框 → 一排 5 个工种卡通 Agent 头像齐刷刷瞪眼/弹起反应
+    vo: "这条视频，我一个字没写、全程没动手。"
+    subtitle_big: "我一个字没写、全程没动手"
+    sfx: 字落"啪" + 群体"嗯?"
+    chars: [编导, 编剧, 记者, 剪辑, 运营]
+    qc: 大字不被头像遮挡；BGM 第1节奏点对齐字落
+
+  - id: s2_reveal_fight
+    t: "3-20"
+    intent: 看懂(主体·喜剧高潮)+信任锚
+    form: 卡通角色动画(去喝水悬念→气泡吵架→协同)
+    template: d01_fight_collab.html
+    visual: |
+      3-10s 悬念反差：主角卡通"去喝水"离场(背影/水杯) → 回来桌面活已堆好
+      10-20s 系统还原+吵架抢活：标注"我那套系统"，气泡错峰弹出——
+        编导「先定选题!」编剧「钩子我来,前3秒不抓人全白做」
+        记者「数据没核实不能写」剪辑「你们快点我要卡点」运营「标题留我,发三平台」
+        → 一拍即合,5条进度条 0→100% 齐刷刷跑满
+    vo: "我就发了一句话,然后去喝了杯水。回来一看——活全干完了。我那套系统里,一群AI各管一摊:定选题、写脚本、找素材、剪辑、配文案。我把它们干活的样子画出来给你看——就是这么吵吵闹闹、分工跑完的。"
+    subtitle: 跟读口播 + 角色气泡
+    trust_anchor_beat: "『我那套系统…画出来给你看』必须清晰进VO+字幕(信任锚)"
+    chars: [编导, 编剧, 记者, 剪辑, 运营]
+    qc: 关键气泡停留≥0.8s；吵架台词带真实职责;进度条收束节奏统一;信任锚句不被吞
+
+  - id: s3_compare
+    t: "20-27"
+    intent: 看懂+信任(成本反差)
+    form: 卡通分屏对比
+    template: d01_compare.html
+    visual: 左"外包"打工人愁眉(好几百起/磨好几天/来回改,慢) vs 右 AI 群秒交付
+    vo: "我做的只有最后点个头。换以前找外包,动不动好几百起、磨好几天、还来回改。"
+    subtitle_big: "好几百起·磨好几天 vs 一句话"
+    numbers_policy: 区间口语,禁写死300/2天/2轮(fact_check)
+    qc: 数字无精确假里程碑
+
+  - id: s4_anchor_proof_cta
+    t: "27-40"
+    intent: 价值锚+自证+互动
+    form: 卡通交片 + CTA大字
+    template: d01_proof_cta.html
+    visual: |
+      27-34s 价值锚:角色们围成"一支团队",主角站中间拍板
+      34-40s AI 群把"成品视频"举给镜头 + 大字「这条就是它做的」+ CTA
+    vo: "AI早不只是帮你写两句了,它更像一支替你干活的团队,你是那个拍板的人。你正在看的这条,就是它做的。你手上最烦、最想甩给AI的那件重复活是哪件?评论点名,下条我真做给你看。"
+    subtitle_big: "这条就是它做的 / 你最想把哪件活甩给AI?"
+    cta: 讨论型,口播+字幕一致进片
+    qc: 自证明确;CTA完整进mp4
+
+forms_count: 4   # 去喝水悬念+吵架动画/协同进度/分屏对比/交片自证
+anti_homogeneity:
+  - 不沿用 D06 真人vlog语法
+  - 不沿用旧 newsprint/evidence 卡片
+  - 卡通统一基底但每镜画面任务不同(悬念/吵架/对比/交片)
+
+gates:
+  - retention_beat_sheet: ok
+  - form_strategy_v2: ok(待同步vA)
+  - motion_tech_plan: ok
+  - script_review: 待独立互评重评(vA)
+  - render_then_抽帧复验: pending   # 6关键帧

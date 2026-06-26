@@ -1,0 +1,25 @@
+content_id: W27D01
+platform: douyin
+duration_s: 40
+script_version: vA-final
+scenes:
+  - id: s1_hook
+    template: d01_hook.html
+    duration: 3
+    intent: 停划
+    visual: 一行字砸进群聊框→5个卡通Agent头像齐瞪眼
+  - id: s2_reveal_fight
+    template: d01_fight_collab.html
+    duration: 17
+    intent: 看懂+信任锚
+    visual: 去喝水悬念→吵架抢活(带真实职责)→协同进度条齐满；信任锚VO「我那套系统…画出来给你看」
+  - id: s3_compare
+    template: d01_compare.html
+    duration: 7
+    intent: 看懂+信任
+    visual: 卡通分屏 外包(好几百起/磨好几天/来回改) vs AI群秒交付
+  - id: s4_anchor_proof_cta
+    template: d01_proof_cta.html
+    duration: 13
+    intent: 价值锚+自证+互动
+    visual: 围成一支团队→群举成品片+「这条就是它做的」+CTA
