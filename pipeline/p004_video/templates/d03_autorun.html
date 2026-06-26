@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(120% 90% at 50% 18%,#13203a,#080e1a);color:#e7f0ff;}
+  .stage{position:absolute;inset:0;}
+  /* 仿真区标签 + 水印 */
+  .simlab{position:absolute;top:70px;left:60px;font-size:24px;font-weight:800;color:#0c1322;
+    background:#7aa7e0;padding:7px 16px;border-radius:8px;letter-spacing:1px;}
+  .wm{position:absolute;top:70px;right:60px;font-size:24px;font-weight:800;color:#0c1322;
+    background:rgba(255,209,63,.92);padding:7px 16px;border-radius:8px;letter-spacing:2px;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);}
+  /* 角标「我不在·照发」退角落 */
+  .badge{position:absolute;top:150px;right:60px;font-size:30px;font-weight:900;color:#9fb8dc;
+    border:2px solid #33507e;border-radius:14px;padding:12px 22px;opacity:0;
+    background:rgba(14,26,48,.6);letter-spacing:1px;}
+  .badge .on{display:inline-block;width:14px;height:14px;border-radius:50%;background:#36d399;
+    box-shadow:0 0 12px #36d399;margin-right:10px;vertical-align:1px;}
+
+  /* 邮件飞出区（中部） */
+  .mailzone{position:absolute;top:360px;left:0;right:0;height:760px;}
+  .mailcard{position:absolute;width:520px;left:50%;margin-left:-260px;
+    background:#fff;color:#16213a;border-radius:22px;box-shadow:0 22px 60px rgba(0,0,0,.55);
+    overflow:hidden;opacity:0;}
+  .mailcard .mh{background:#f2f6fc;padding:20px 26px;font-size:28px;font-weight:800;color:#2f6df0;
+    display:flex;align-items:center;gap:12px;border-bottom:2px solid #e6ecf5;}
+  .mailcard .mh .ic{width:18px;height:18px;border-radius:50%;background:#36d399;}
+  .mailcard .mb{padding:24px 26px;font-size:30px;color:#3a4760;line-height:1.4;}
+  .mailcard .mb .to{font-size:24px;color:#9aa6b8;font-weight:700;}
+
+  /* Day 时间轴（底部） */
+  .axis{position:absolute;left:50px;right:50px;bottom:300px;}
+  .axis .line{position:absolute;left:5%;right:5%;top:54px;height:6px;background:#26405f;border-radius:999px;}
+  .axis .line .lit{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;
+    background:linear-gradient(90deg,#36d399,#7aa7e0);box-shadow:0 0 16px rgba(54,211,153,.6);}
+  .cells{position:relative;display:flex;justify-content:space-between;}
+  .cell{width:150px;text-align:center;}
+  .cell .node{width:96px;height:96px;margin:8px auto 0;border-radius:24px;
+    background:#16243c;border:3px solid #2c486f;
+    display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:#5d7aa5;
+    transition:none;filter:saturate(.5) brightness(.7);}
+  .cell .cap{margin-top:14px;font-size:26px;color:#5d7aa5;font-weight:800;}
+  .cell.lit .node{background:linear-gradient(160deg,#1d6b4f,#36d399);border-color:#9bf7cf;color:#06281c;
+    box-shadow:0 0 0 6px rgba(54,211,153,.22),0 0 30px rgba(54,211,153,.5);filter:none;
+    transform:scale(1.16);}
+  .cell.lit .cap{color:#9bf7cf;}
+  .cell.past .node{filter:saturate(.45) brightness(.62);transform:scale(1);}
+  .cell.past .cap{color:#46607f;}
+</style></head>
+<body>
+  <div class="stage">
+    <div class="simlab">仿真演示 · 自动跟进</div>
+    <div class="wm">示意数据</div>
+    <div class="badge" id="badge"><span class="on"></span>我不在 · 照发</div>
+
+    <div class="mailzone" id="mailzone"></div>
+
+    <div class="axis">
+      <div class="line"><div class="lit" id="lit"></div></div>
+      <div class="cells" id="cells">
+        <div class="cell" data-i="0"><div class="node">D0</div><div class="cap">Day 0</div></div>
+        <div class="cell" data-i="1"><div class="node">D2</div><div class="cap">Day 2</div></div>
+        <div class="cell" data-i="2"><div class="node">D4</div><div class="cap">Day 4</div></div>
+        <div class="cell" data-i="3"><div class="node">D6</div><div class="cap">Day 6</div></div>
+        <div class="cell" data-i="4"><div class="node">D8</div><div class="cap">Day 8</div></div>
+        <div class="cell" data-i="5"><div class="node">D10</div><div class="cap">Day 10</div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const cells=[...document.querySelectorAll('.cell')];
+  const subjects=[
+    {h:"Welcome — your lookbook",b:"Hi! Thanks for stopping by — here's your lookbook."},
+    {h:"A peek behind the studio",b:"How each piece is made by hand…"},
+    {h:"Most-loved gift picks",b:"5 favorites our customers keep coming back to."},
+    {h:"A little gift for you",b:"Here's 10% off your first order."},
+    {h:"Still thinking it over?",b:"Your lookbook is right here when you're ready."},
+    {h:"From our studio to you",b:"New arrivals just dropped this week."},
+  ];
+  function makeMail(i){
+    const el=document.createElement('div');el.className='mailcard';el.id='mail'+i;
+    el.innerHTML=`<div class="mh"><span class="ic"></span>✉ ${subjects[i].h}</div>
+      <div class="mb"><div class="to">→ to a new subscriber</div>${subjects[i].b}</div>`;
+    document.getElementById('mailzone').appendChild(el);
+    return el;
+  }
+  const tl=gsap.timeline({paused:true});
+  const DUR=(window.getData().dur)||9.0;     // 窗口时长（build 注入），动效铺满
+  // 角标先入（退角落、压低）
+  tl.fromTo("#badge",{opacity:0,x:30},{opacity:.85,x:0,duration:.5},.2);
+
+  // 6 格在窗口内逐格点亮，铺满全程（最长一段·过程感）
+  const litPcts=[5,24,43,62,81,95];
+  const lead=0.7, tail=0.8;
+  const span=(DUR-lead-tail)/cells.length;
+  cells.forEach((cell,i)=>{
+    const at=lead + i*span;
+    // 当前格点亮、放大；前一格转 past（压灰）
+    tl.call(()=>{
+      cells.forEach((c,j)=>{c.classList.remove('lit');if(j<i)c.classList.add('past');});
+      cell.classList.add('lit');cell.classList.remove('past');
+    },[],at);
+    // 时间轴亮条推进
+    tl.to("#lit",{width:litPcts[i]+"%",duration:Math.min(.5,span*.6),ease:"power2.out"},at);
+    // 从该亮格位置发一封邮件飞出（单焦点：视线随亮格）
+    const m=makeMail(i);
+    tl.fromTo(m,
+      {opacity:0,scale:.5,y:300},
+      {opacity:1,scale:1,y:0,duration:Math.min(.5,span*.5),ease:"back.out(1.5)"},at+.12);
+    tl.to(m,{opacity:0,scale:.8,y:-60,duration:Math.min(.45,span*.45),ease:"power2.in"},at+span*.72);
+  });
+  tl.to({},{duration:.2},DUR-.2);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

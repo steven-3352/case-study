@@ -1,0 +1,26 @@
+role: 平台表现分析师
+artifact: design/pre_publish_forecast.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 像素评审
+  review_mode: independent
+  reviewer_agent_id: task-pb1-analyst
+  reviewed_at: '2026-06-26'
+  angle: 北极星·完播forecast口径
+  score: 91
+  verdict: pass
+  notes: forecast用北极星口径(completion_3s/completion_rate/avg_watch_s)给区间+依据，账号母题基线明确标历史实测、不混参考线，表现形式层判pass。扣(-9)：55s>45s会拉低完播率(片越长越难看完)，forecast已下调完播区间并注明；首帧停划力中-高(真界面反差，非人脸/爆梗)。
+- reviewer_id: 北极星评审
+  review_mode: independent
+  reviewer_agent_id: task-pb2-analyst
+  reviewed_at: '2026-06-26'
+  angle: 互动/评论风险评估
+  score: 92
+  verdict: pass
+  notes: forecast含互动/评论风险行：CTA求助钩+'谁都忘过跟进'通感可引共鸣评论，但讨论型钩强度中等。扣(-8)：评论低时勿只归因首镜、须查CTA具体度(已写入)；通用品牌弱化'真实项目'信任、可能影响'这真能做到吗'类追问转化。
+avg_score: 91.5
+pass: true
+scorecard_phase: post_render
+optimization_round: 2

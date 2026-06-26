@@ -1,0 +1,26 @@
+role: 平台原生策划
+artifact: retention_beat_sheet.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 完播评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p1-platnative
+  reviewed_at: '2026-06-26'
+  angle: 铁律①流行梗落位是否真做到抓人不抢焦
+  score: 90
+  verdict: pass
+  notes: 上轮'全片冷数据无流行梗89/fail'已修：镜4翻车叠'裂开/傻眼'热点梗+音效梗，呼应母题、压灰虚化退余光当背景层、不做第二赢家，form/storyboard/audio/motion四处口径一致。扣(-10)：全片6镜仅镜4一个流行元素且严格限死背景层，镜1停划纯靠冷数据界面、无当下平台语汇助推第一帧原生感，原生密度刚过线；建议镜1或镜3再补一个不抢焦的平台原生节奏点。
+- reviewer_id: 真实评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p2-platnative
+  reviewed_at: '2026-06-26'
+  angle: CTA合规·不导私信·真做上限
+  score: 93
+  verdict: pass
+  notes: CTA走评论讨论型、扣【出海】→自动回复→主页置顶，正文不导流；'真做上限每期≤5'防虚假承诺；评论埋点'质疑能赚钱吗'回复明确'变现还没上、画面都是真后台'守降级。扣(-7)：'下条把这套自动跟进拆给你'是连环钩、需后续真兑现否则透支信任，属运营履约风险非红线。
+avg_score: 91.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 2

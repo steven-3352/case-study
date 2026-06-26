@@ -1,0 +1,20 @@
+# P004 storyboard · W27D03 · 渲染用（演示型 · 真实界面/真实数据 · 锁 vA）
+# 窗口时长由 gen_vo_d03.py 实测 VO + 尾静音回填（保证口播完整不截断）：
+#   s1=3.65 s2=8.01 s3=12.18 s4=8.05 s5=12.38 s6=10.89 → 合计 55.16s
+# 说明：脚本设计目标 45s，但 vA 自然语速口播约 55s；为守"CTA 完整进 mp4 / 末段语速不赶"，
+#       按实测 VO 拉伸窗口而非截断口播（铁律：尽一切可能让内容更好 > 卡死 45s 切口播）。
+#       s3/s5 为全片最长两段（过程感 + 对比），动效已 window-aware 铺满，非冻屏。
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: w27d03.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+scenes:
+  - {id: s1_hook,       type: html, template: d03_hook.html,       duration: 3.65,  data: {dur: 3.65}}
+  - {id: s2_buildday,   type: html, template: d03_buildday.html,   duration: 8.01,  data: {dur: 8.01}}
+  - {id: s3_autorun,    type: html, template: d03_autorun.html,    duration: 12.18, data: {dur: 12.18}}
+  - {id: s4_crash,      type: html, template: d03_crash.html,      duration: 8.05,  data: {dur: 8.05}}
+  - {id: s5_compare,    type: html, template: d03_compare.html,    duration: 12.38, data: {dur: 12.38}}
+  - {id: s6_anchor_cta, type: html, template: d03_anchor_cta.html, duration: 10.89, data: {dur: 10.89}}

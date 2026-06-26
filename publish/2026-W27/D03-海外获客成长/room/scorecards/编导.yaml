@@ -1,0 +1,26 @@
+role: 编导
+artifact: design/script_review.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 像素评审
+  review_mode: independent
+  reviewer_agent_id: task-pb1-director
+  reviewed_at: '2026-06-26'
+  angle: 外发放行·两道门+像素兑现
+  score: 92
+  verdict: pass
+  notes: 内容门(script_review pass)+形式门(注意力硬门/visual_diversity 6专属模板/forecast)双过，抽帧确认form承诺兑现到像素(真界面/示意水印/单焦点/镜4梗仅背景层)，非catalog拼盘假approved。扣(-8)：55s超45s上限+通用品牌替代真实项目均为已知取舍(用户拍板)，已在meta/forecast如实登记，非隐藏。
+- reviewer_id: 北极星评审
+  review_mode: independent
+  reviewer_agent_id: task-pb2-director
+  reviewed_at: '2026-06-26'
+  angle: 红线统辖·降级口径一致
+  score: 93
+  verdict: pass
+  notes: 全片红线四条(赚钱降级/留资区间/禁P图假后台/玄学合规)统辖、与fact_check/洞察包口径一致，成片无金额/转化率上屏、留资仅示意。扣(-7)：'赚钱'标题擦边=用户拍板保留(非隐藏放水)；洞察包个别联签框形式上未闭环，口径实质一致。
+avg_score: 92.5
+pass: true
+scorecard_phase: post_render
+optimization_round: 2

@@ -1,0 +1,26 @@
+role: 形式策略官
+artifact: design/form_strategy.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 完播评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p1-formstrat
+  reviewed_at: '2026-06-26'
+  angle: 每镜数据杠杆声明+加料不加赢家
+  score: 92
+  verdict: pass
+  notes: 6镜逐镜声明服务completion_3s/rate/看懂/收藏/评论中具体一项，'加料不加赢家'每镜把流行元素降为容器或背景层，镜4热点梗'若变亮变大即压灰砍掉'自我约束专业，铁律⑦落实到位。扣(-8)：镜3标'最抓完播一段'但11-20s是全片最长17s最易掉人的中段，未对'这17s如何防completion_rate断崖'给二级停留设计，中段防流失杠杆论证略薄。
+- reviewer_id: 真实评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p2-formstrat
+  reviewed_at: '2026-06-26'
+  angle: 真实性硬规格·明确反对P图混帧
+  score: 93
+  verdict: pass
+  notes: 总基调'真实性硬规格'三条(①示意水印常驻②真假视觉分界③留资示意轻入禁伪造改善证据)直接回应上轮灰线；信任锚明写'仿真但结构可解释、不冒充真实后台精确数字'。扣(-7)：镜5右侧留资'示意性轻入'与'禁伪造改善证据'是同画面张力、靠'带示意标注'划界，临界点仍在render把关，文档已尽力。
+avg_score: 92.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 2

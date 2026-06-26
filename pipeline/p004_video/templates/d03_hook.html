@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#0c1322;}
+  .stage{position:absolute;inset:0;}
+  /* 整屏取景：上=仿真曝光看板，下=真实落地页（结构真实可解释），用边框+标签分界 */
+  .scene{position:absolute;inset:0;transform-origin:50% 64%;}
+
+  /* ===== 仿真区：曝光曲线看板（上 38%）===== */
+  .sim{position:absolute;top:70px;left:46px;right:46px;height:600px;
+    background:linear-gradient(180deg,#101a2e,#0b1322);border:3px solid #233a5c;border-radius:28px;
+    box-shadow:0 16px 50px rgba(0,0,0,.5);overflow:hidden;}
+  .sim .bar{height:74px;display:flex;align-items:center;gap:14px;padding:0 30px;
+    background:#0e1a30;border-bottom:2px solid #1d3050;}
+  .sim .bar .d{width:16px;height:16px;border-radius:50%;background:#36d399;box-shadow:0 0 14px #36d399;}
+  .sim .bar .t{font-size:30px;font-weight:800;color:#9fc1ec;letter-spacing:1px;}
+  .sim .bar .tag{margin-left:auto;font-size:23px;font-weight:800;color:#0c1322;background:#7aa7e0;
+    padding:6px 16px;border-radius:999px;letter-spacing:1px;}
+  .chart{position:absolute;top:74px;left:0;right:0;bottom:0;padding:26px 30px 24px;}
+  .chart .lab{font-size:26px;color:#7e9bc4;font-weight:700;}
+  .chart .big{font-size:30px;color:#cfe0f7;font-weight:800;margin-top:4px;}
+  svg{position:absolute;left:18px;right:18px;bottom:18px;width:calc(100% - 36px);height:300px;}
+  .curve{fill:none;stroke:#36d399;stroke-width:7;filter:drop-shadow(0 0 10px rgba(54,211,153,.55));
+    stroke-dasharray:1400;stroke-dashoffset:1400;}
+  .area{fill:url(#g);opacity:0;}
+  .arrow{font-size:46px;fill:#36d399;font-weight:900;}
+  /* 仿真水印角标（常驻可读） */
+  .wm{position:absolute;top:88px;right:62px;font-size:24px;font-weight:800;color:#0c1322;
+    background:rgba(255,209,63,.92);padding:7px 16px;border-radius:8px;letter-spacing:2px;z-index:6;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);}
+
+  /* ===== 真实区：落地页 + 留资名单（下）===== */
+  .real{position:absolute;top:700px;left:46px;right:46px;bottom:60px;
+    background:#fff;border:3px solid #d6deea;border-radius:28px;overflow:hidden;
+    box-shadow:0 16px 50px rgba(0,0,0,.5);}
+  .real .reallab{position:absolute;top:18px;left:20px;font-size:22px;font-weight:800;color:#fff;
+    background:#2f6df0;padding:6px 16px;border-radius:8px;letter-spacing:1px;z-index:5;}
+  .lp{height:300px;background:linear-gradient(135deg,#1f3556,#33507e);position:relative;
+    display:flex;flex-direction:column;justify-content:center;padding:0 44px;color:#fff;}
+  .lp .brand{font-size:26px;font-weight:800;opacity:.8;letter-spacing:2px;}
+  .lp h1{font-size:54px;font-weight:900;line-height:1.15;margin-top:10px;}
+  .lp .sub{font-size:27px;opacity:.85;margin-top:10px;}
+  .lp .cta{margin-top:18px;align-self:flex-start;background:#ffd23f;color:#16213a;
+    font-size:28px;font-weight:900;padding:14px 30px;border-radius:12px;}
+  /* 留资名单栏 */
+  .leads{position:absolute;top:300px;left:0;right:0;bottom:0;padding:26px 36px 30px;}
+  .leads .lh{display:flex;align-items:center;gap:12px;font-size:30px;font-weight:900;color:#16213a;}
+  .leads .lh .cnt{margin-left:auto;font-size:26px;font-weight:800;color:#9aa6b8;}
+  .row{height:62px;border-bottom:2px dashed #e2e7ef;display:flex;align-items:center;
+    font-size:30px;color:#c2cad6;font-weight:700;letter-spacing:6px;}
+  .row.filled{color:#16213a;letter-spacing:1px;}
+  .empty-note{margin-top:14px;font-size:26px;color:#b9c2d0;font-weight:700;text-align:center;}
+  /* 红框点空名单 */
+  .ring{position:absolute;left:30px;right:30px;top:78px;bottom:18px;border:5px solid #ff4d4d;
+    border-radius:18px;opacity:0;box-shadow:0 0 0 6px rgba(255,77,77,.18);}
+
+  /* 反差大字 */
+  .hook{position:absolute;left:40px;right:40px;top:760px;text-align:center;z-index:8;}
+  .hook .l{display:inline-block;font-size:78px;font-weight:900;line-height:1.22;color:#fff;opacity:0;
+    text-shadow:0 5px 0 #07101f,0 16px 34px rgba(0,0,0,.7);
+    background:rgba(10,16,30,.34);padding:14px 26px;border-radius:20px;}
+  .hook .hi{color:#ff5252;}
+  .q{position:absolute;right:120px;top:660px;font-size:120px;font-weight:900;color:#ffd23f;opacity:0;
+    text-shadow:0 6px 0 #07101f,0 14px 30px rgba(0,0,0,.7);z-index:9;}
+</style></head>
+<body>
+  <div class="stage"><div class="scene" id="scene">
+    <!-- 仿真曝光看板 -->
+    <div class="sim" id="sim">
+      <div class="bar"><span class="d"></span><span class="t">投放后台 · 曝光趋势</span><span class="tag">仿真演示</span></div>
+      <div class="chart">
+        <div class="lab">近 5 天曝光</div>
+        <div class="big">持续走高 ↑</div>
+        <svg viewBox="0 0 760 300" preserveAspectRatio="none">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#36d399" stop-opacity=".5"/>
+            <stop offset="1" stop-color="#36d399" stop-opacity="0"/></linearGradient></defs>
+          <path class="area" id="area" d="M10,270 L120,250 L240,215 L360,180 L480,130 L600,80 L740,30 L740,300 L10,300 Z"/>
+          <path class="curve" id="curve" d="M10,270 L120,250 L240,215 L360,180 L480,130 L600,80 L740,30"/>
+          <text class="arrow" x="700" y="60">↑</text>
+        </svg>
+      </div>
+      <div class="wm">示意数据</div>
+    </div>
+    <!-- 真实落地页 + 留资名单 -->
+    <div class="real" id="real">
+      <div class="reallab">真实落地页</div>
+      <div class="lp">
+        <div class="brand">CRAFT&nbsp;STUDIO · EN</div>
+        <h1>Handmade gifts,<br>shipped worldwide</h1>
+        <div class="sub">Leave your email · get the lookbook</div>
+        <div class="cta">Get the lookbook →</div>
+      </div>
+      <div class="leads">
+        <div class="lh">留资 / 邮箱名单<span class="cnt" id="cnt">本周新增：寥寥无几</span></div>
+        <div class="row filled">a••••@gmail.com</div>
+        <div class="row">_______________</div>
+        <div class="row">_______________</div>
+        <div class="row">_______________</div>
+        <div class="empty-note">— 几乎没人留下 —</div>
+        <div class="ring" id="ring"></div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 反差大字（互斥布局，压在看板/落地页之间过渡带，不遮红框）-->
+  <div class="q" id="q">？</div>
+  <div class="hook"><div class="l" id="hookl">一天搭完，<span class="hi">第5天我傻眼了</span></div></div>
+
+<script>
+  const tl=gsap.timeline({paused:true});
+  // 0-1s 系统真在跑：曲线上扬动一下即定
+  tl.fromTo("#sim",{opacity:0,y:-20},{opacity:1,y:0,duration:.4},0);
+  tl.fromTo("#real",{opacity:0,y:20},{opacity:1,y:0,duration:.4},.1);
+  tl.to("#curve",{strokeDashoffset:0,duration:.9,ease:"power2.out"},.15);
+  tl.to("#area",{opacity:1,duration:.6},.4);
+  // 1-2s 镜头下移 zoom 落到留资栏 + 红框点"空"
+  tl.to("#scene",{scale:1.28,y:-300,duration:.7,ease:"power2.inOut"},1.0);
+  tl.to("#sim",{filter:"brightness(.45) saturate(.7)",duration:.5},1.0);   // 曲线压灰退背景
+  tl.fromTo("#ring",{opacity:0,scale:1.05},{opacity:1,scale:1,duration:.4,ease:"back.out(2)"},1.55);
+  // 2-3s 反差大字砸入定格；曲线淡到余光
+  tl.fromTo("#hookl",{opacity:0,y:44,scale:.9},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.6)"},2.05);
+  tl.fromTo("#q",{opacity:0,scale:.4,rotation:-20},{opacity:1,scale:1,rotation:0,duration:.4,ease:"back.out(2.4)"},2.6);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

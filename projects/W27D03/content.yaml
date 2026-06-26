@@ -1,0 +1,9 @@
+# W27D03 content.yaml（gate check_cover_review / custom_form 读取）
+content_id: W27D03
+project: P001
+platform: douyin
+title: 我用 AI 把一周的活干成一天，现在它自己在帮我赚钱
+douyin:
+  cover:
+    at: 1.5          # 封面取 0-3s 停划帧（曝光涨/留资空 + 钩子大字）
+  # 无 evidence/web 通用段：本条全程专属 d03_ 模板真实界面演示

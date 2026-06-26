@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#0c1322;color:#e7f0ff;}
+  .stage{position:absolute;inset:0;}
+  .title{position:absolute;top:90px;left:0;right:0;text-align:center;font-size:46px;font-weight:900;
+    color:#cfe0f7;opacity:0;letter-spacing:1px;}
+  .title .hi{color:#36d399;}
+
+  /* 左右分屏 */
+  .half{position:absolute;top:210px;bottom:430px;width:48%;}
+  .left{left:30px;} .right{right:30px;}
+  .panel{position:absolute;inset:0;border-radius:26px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.5);}
+  .left .panel{background:#16213a;border:3px solid #2c3e5c;}
+  .right .panel{background:#10241c;border:3px solid #1f5b42;}
+  .ptag{position:absolute;top:18px;left:18px;font-size:24px;font-weight:900;padding:7px 14px;border-radius:8px;z-index:3;}
+  .left .ptag{background:#3a4760;color:#cdd7e6;}
+  .right .ptag{background:#36d399;color:#06281c;}
+
+  /* 出图卡（左机器味 / 右像人） */
+  .pic{position:absolute;top:80px;left:24px;right:24px;height:440px;border-radius:18px;overflow:hidden;}
+  /* 左：纯 AI 出图（满图叠机器味大字、网格） */
+  .left .pic{background:linear-gradient(160deg,#7c6f9a,#9a8d6f);}
+  .left .pic .art{position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg,#fff5,#fff5 20px,#fff2 20px,#fff2 40px);}
+  .left .pic .big{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:"Courier New",monospace;font-size:54px;font-weight:900;color:#fff;letter-spacing:3px;
+    text-shadow:0 3px 10px rgba(0,0,0,.5);text-align:center;}
+  /* 右：AI 只出背景 + 文字自己排（像活人发） */
+  .right .pic{background:linear-gradient(160deg,#1f3556,#2a6b52);}
+  .right .pic .photo{position:absolute;inset:0;background:
+    radial-gradient(circle at 30% 30%,#f6d365aa,transparent 50%),
+    radial-gradient(circle at 70% 70%,#f6a5c0aa,transparent 50%),linear-gradient(135deg,#26405f,#2a6b52);}
+  .right .pic .hand{position:absolute;left:30px;right:30px;bottom:40px;color:#fff;font-size:40px;
+    font-weight:700;line-height:1.3;font-family:"PingFang SC",sans-serif;
+    text-shadow:0 2px 8px rgba(0,0,0,.5);}
+  .right .pic .hand small{font-size:28px;opacity:.85;display:block;margin-top:8px;}
+
+  .verdict{position:absolute;left:18px;right:18px;bottom:140px;text-align:center;font-size:34px;font-weight:900;}
+  .left .verdict{color:#ff8a8a;} .right .verdict{color:#9bf7cf;}
+
+  /* 右侧留资栏 示意性轻入 */
+  .leadmini{position:absolute;left:18px;right:18px;bottom:24px;background:#fff;color:#16213a;
+    border-radius:16px;padding:16px 18px;opacity:0;}
+  .leadmini .lh{font-size:24px;font-weight:900;display:flex;align-items:center;gap:8px;}
+  .leadmini .lh .wm{margin-left:auto;font-size:18px;font-weight:800;color:#0c1322;
+    background:#ffd23f;padding:3px 10px;border-radius:6px;letter-spacing:1px;}
+  .leadmini .lr{height:40px;display:flex;align-items:center;font-size:26px;color:#16213a;font-weight:700;
+    border-top:2px dashed #e2e7ef;opacity:0;}
+  .leadmini .lr:first-of-type{border-top:0;}
+  .leadmini .hint{font-size:22px;color:#16a34a;font-weight:800;margin-top:6px;}
+
+  /* 中缝 VS */
+  .vs{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;
+    border-radius:50%;background:#0c1322;box-shadow:0 0 0 8px #0c1322;display:flex;align-items:center;
+    justify-content:center;font-size:60px;font-weight:900;color:#ffd23f;opacity:0;z-index:6;}
+
+  /* 成本反差角标（退背景，区间口径） */
+  .cost{position:absolute;left:60px;right:60px;bottom:300px;text-align:center;
+    background:rgba(14,26,48,.55);border:2px solid #2c486f;border-radius:18px;padding:18px 24px;opacity:0;}
+  .cost .l{font-size:38px;font-weight:900;color:#9fb8dc;}
+  .cost .l .hi{color:#36d399;}
+</style></head>
+<body>
+  <div class="stage">
+    <div class="title" id="title">同样一张图，<span class="hi">差在像不像人</span></div>
+
+    <div class="half left" id="left"><div class="panel">
+      <div class="ptag">改之前 · 纯 AI 出图</div>
+      <div class="pic"><div class="art"></div><div class="big">AI 一键<br>出图</div></div>
+      <div class="verdict">满屏机器味 · 谁都刷过</div>
+    </div></div>
+
+    <div class="half right" id="right"><div class="panel">
+      <div class="ptag">改之后 · AI 只出背景</div>
+      <div class="pic"><div class="photo"></div><div class="hand">手工礼物，<br>给想她的人<small>— 文字我自己排</small></div></div>
+      <div class="verdict">像活人发的</div>
+      <div class="leadmini" id="leadmini">
+        <div class="lh">留资<span class="wm">示意</span></div>
+        <div class="lr" id="lr1">b••••@gmail.com</div>
+        <div class="lr" id="lr2">c••••@outlook.com</div>
+        <div class="hint" id="lhint">↑ 开始有反应了</div>
+      </div>
+    </div></div>
+
+    <div class="vs" id="vs">VS</div>
+
+    <div class="cost" id="cost"><div class="l">整套 <span class="hi">基本没花钱</span> · 盯守 <span class="hi">≈0</span></div></div>
+  </div>
+
+<script>
+  const tl=gsap.timeline({paused:true});
+  const DUR=(window.getData().dur)||9.0;
+  tl.fromTo("#title",{opacity:0,y:-16},{opacity:1,y:0,duration:.4},0);
+  // 分屏推入
+  tl.fromTo("#left",{x:-160,opacity:0},{x:0,opacity:1,duration:.5,ease:"power2.out"},.4);
+  tl.fromTo("#right",{x:160,opacity:0},{x:0,opacity:1,duration:.5,ease:"power2.out"},.4);
+  tl.fromTo("#vs",{opacity:0,scale:.3},{opacity:1,scale:1,duration:.4,ease:"back.out(3)"},1.0);
+  // 明度交接：左压暗、右提亮 → 视线锁右侧差异（唯一赢家）
+  tl.to("#left",{filter:"brightness(.5) saturate(.6)",duration:.7},2.6);
+  tl.to("#right",{filter:"brightness(1.08)",scale:1.03,duration:.7,ease:"power2.out"},2.6);
+  // 右侧留资栏示意性轻入（仅示意"开始有反应"，不出增幅/倍数）
+  tl.fromTo("#leadmini",{opacity:0,y:20},{opacity:1,y:0,duration:.4},4.0);
+  tl.fromTo("#lr1",{opacity:0,x:-12},{opacity:1,x:0,duration:.3},4.4);
+  tl.fromTo("#lr2",{opacity:0,x:-12},{opacity:1,x:0,duration:.3},5.0);
+  tl.fromTo("#lhint",{opacity:0},{opacity:1,duration:.3},5.5);
+  // 成本反差角标（退背景，无音效，区间口径）
+  tl.fromTo("#cost",{opacity:0,y:16},{opacity:.92,y:0,duration:.5},6.4);
+  // 收尾轻呼吸保持右侧差异在赢，铺满窗口
+  tl.to("#right",{scale:1.045,duration:Math.max(1.0,DUR-7.6),yoyo:true,repeat:1,ease:"sine.inOut"},7.2);
+  tl.to({},{duration:.2},DUR-.2);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>

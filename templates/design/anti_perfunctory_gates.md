@@ -65,6 +65,7 @@
 | 数据杠杆 | 必须声明服务 3s、完播、理解、收藏、评论、互动或停划 |
 | 禁止理由 | “默认用 / 为了快 / 更酷 / 沿用上一条 / 套用” = FAIL |
 | 高级动效 | 出现 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达等，必须有 `motion_tech_plan.md` |
+| **注意力引导（折入 · 硬门）** | form_strategy 须含 `单焦点`/`时刻类型`/`加料不加赢家`；时刻分型 ≥2 类；单焦点声明 ≥3 处。详规 `templates/design/attention_guidance_system.md` |
 
 ## 1g. L3 投后进化（数据驱动下一条）
 

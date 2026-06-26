@@ -104,6 +104,13 @@ DATA_LEVER_RE = re.compile(
 FORM_STRATEGY_REQUIRED_LABELS = ("镜头任务", "候选表达", "数据杠杆", "推荐方案")
 MOTION_TECH_REQUIRED_LABELS = ("适用性", "可读性", "资产", "导出", "风险")
 
+# 注意力引导系统（折进 form_strategy · 2026-06-26 · 直接硬门）
+# 标准：templates/design/attention_guidance_system.md
+ATTENTION_REQUIRED_LABELS = ("单焦点", "时刻类型", "加料不加赢家")
+ATTENTION_MOMENT_RE = re.compile(r"停划|看懂|交接|收藏钩|评论钩")
+ATTENTION_MOMENT_MIN = 2   # 时刻分型至少覆盖 2 类
+ATTENTION_FOCUS_MIN = 3    # 单焦点声明至少覆盖 3 个关键镜
+
 SCRIPT_REVIEW_REQUIRED_SIGNERS = ("内核提炼师", "留存设计师", "留存与互动设计师")
 SCRIPT_REVIEW_POST_RENDER_SIGNERS = ("编导",)
 
@@ -725,6 +732,25 @@ def check_form_strategy(day_dir: pathlib.Path, errors: list[str]) -> None:
     recommendation_blocks = re.findall(r"推荐方案|推荐：|推荐:", text)
     if len(recommendation_blocks) < 3:
         errors.append("form_strategy 推荐方案少于 3 处；须覆盖关键镜头而非只给整体路线")
+
+    # 注意力引导系统（折进 · 2026-06-26 硬门）· templates/design/attention_guidance_system.md
+    for label in ATTENTION_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(
+                f"form_strategy 缺少注意力引导必填字段：{label}"
+                "（见 templates/design/attention_guidance_system.md §6）"
+            )
+    moment_hits = len(set(ATTENTION_MOMENT_RE.findall(text)))
+    if moment_hits < ATTENTION_MOMENT_MIN:
+        errors.append(
+            f"form_strategy 时刻分型不足（停划/看懂/交接/收藏钩/评论钩 ≥{ATTENTION_MOMENT_MIN} 类，"
+            f"现 {moment_hits} 类）"
+        )
+    focus_decls = len(re.findall(r"单焦点", text))
+    if focus_decls < ATTENTION_FOCUS_MIN:
+        errors.append(
+            f"form_strategy 单焦点声明少于 {ATTENTION_FOCUS_MIN} 处；每个关键镜须声明唯一视线落点"
+        )
 
 
 def check_motion_tech_plan(day_dir: pathlib.Path, errors: list[str]) -> None:

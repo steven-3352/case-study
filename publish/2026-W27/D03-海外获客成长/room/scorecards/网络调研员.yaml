@@ -1,0 +1,26 @@
+role: 网络调研员
+artifact: insights/external_references.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 完播评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p1-netresearch
+  reviewed_at: '2026-06-26'
+  angle: 同行3s拆解可借鉴度·真实标杆停划力对标
+  score: 91
+  verdict: pass
+  notes: 171播最相关基线+41.4%上限标杆两条均带真实数据并拆到'首镜停划弱'病灶，行业锚3条带可核验URL，'过程展示=高完播'直接喂给镜3。扣(-9)：参考1/2均本账号自比，缺一条真正同行(非本号)爆款0-3s逐帧拆解，外部停划样本偏薄；可补1条抖音同母题他人高完播首帧级拆解。
+- reviewer_id: 真实评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p2-netresearch
+  reviewed_at: '2026-06-26'
+  angle: 行业数据隔离·禁冒充本项目
+  score: 93
+  verdict: pass
+  notes: 9条URL可核验、5条原话带出处，角度三(320%/37%/16倍/83.6%)明确自限'仅作自动化vs人工常识锚、片中禁冒充本项目'，与fact_check红线2闭环。扣(-7)：fortune/atomwriter等外域WebFetch受限、原话以检索摘要为准，已逐条标可人工复核但终归未二次核源。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render
+optimization_round: 2

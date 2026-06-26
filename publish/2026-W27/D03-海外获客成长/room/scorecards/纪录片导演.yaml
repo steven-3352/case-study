@@ -1,0 +1,26 @@
+role: 纪录片导演
+artifact: insights/topic_brief.md
+artifact_version: ''
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: 完播评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p1-docdir
+  reviewed_at: '2026-06-26'
+  angle: 成长弧线对完播留存的牵引
+  score: 91
+  verdict: pass
+  notes: 弧线'一天搭完→自己跑→第5天翻车→改法→仍在跑'起承转合完整，翻车作反差不抢主线(vA定位)，对完播中段牵引清晰。扣(-9)：最大悬念'第5天傻眼什么'镜1就半揭、镜4才回扣，中间镜2/3长17s无新悬念推进，靠过程展示稳完播但缺一个二级悬念，vB那种先扬到顶的留存张力被牺牲一部分。
+- reviewer_id: 真实评审
+  review_mode: independent
+  reviewer_agent_id: task-r2p2-docdir
+  reviewed_at: '2026-06-26'
+  angle: 翻车弧线·改后不夸张失真
+  score: 93
+  verdict: pass
+  notes: 改造前后表'AI只出背景文字自排→像活人发留资才动'弧线完整；'改后留资才动'已降为示意、不呈现具体增幅，storyboard s5'只示意开始有反应、不出倍数'落实。扣(-7)：'留资才动'仍是因果断言、严格说单点叙事归因，但走B级叙事且不报数、可接受。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render
+optimization_round: 2

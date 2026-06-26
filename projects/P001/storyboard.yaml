@@ -1,0 +1,20 @@
+# P001 storyboard（gate check_visual_diversity / custom_form 读取源）· W27D03 成长视频
+# 与 design/storyboard.yaml 一致；模板为本条专属 d03_（非 catalog、非 P004 暗色族）
+# 实测各镜时长（VO 自然语速对齐，总 ~55s）
+content_id: W27D03
+project: P001
+platform: douyin
+canvas: 1080x1920
+duration_s: 55
+scenes:
+  - {id: d03_hook,       template: d03_hook.html,       duration: 3.65,  intent: 停划,        focus: 空留资名单栏}
+  - {id: d03_buildday,   template: d03_buildday.html,   duration: 8.01,  intent: 看懂方案,    focus: 当前界面}
+  - {id: d03_autorun,    template: d03_autorun.html,    duration: 12.18, intent: 看懂收藏钩,  focus: 当前Day亮格}
+  - {id: d03_crash,      template: d03_crash.html,      duration: 8.05,  intent: 交接评论钩,  focus: AI引流图被划走}
+  - {id: d03_compare,    template: d03_compare.html,    duration: 12.38, intent: 看懂差异,    focus: 右侧改后差异}
+  - {id: d03_anchor_cta, template: d03_anchor_cta.html, duration: 10.89, intent: 评论钩,      focus: 价值锚→CTA两拍}
+forms_count: 6
+anti_homogeneity:
+  - 全程真实界面/真实数据演示，零卡通零拟人（与 D01 卡通多 Agent 不同语法）
+  - 非 P004 暗色终端族、非 newsprint 轮播、非 dry-run 旧窗口卡片
+  - 6 镜各镜画面任务不同（停划反差/链路快切/时间轴点亮/翻车划走/改前改后分屏/收束CTA）

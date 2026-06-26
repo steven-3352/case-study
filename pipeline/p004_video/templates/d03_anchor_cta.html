@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1920px;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(120% 90% at 50% 30%,#13203a,#080e1a);color:#e7f0ff;}
+  .stage{position:absolute;inset:0;}
+
+  /* 背景：系统继续自动跑安静全景（邮件还在一封封发，压灰虚化退背景层） */
+  .pano{position:absolute;inset:0;opacity:0;filter:blur(2px) brightness(.55) saturate(.7);z-index:1;}
+  .flyer{position:absolute;width:300px;background:#fff;color:#16213a;border-radius:16px;
+    box-shadow:0 14px 40px rgba(0,0,0,.4);overflow:hidden;opacity:0;}
+  .flyer .mh{background:#f2f6fc;padding:14px 18px;font-size:22px;font-weight:800;color:#2f6df0;
+    display:flex;align-items:center;gap:8px;}
+  .flyer .mh .ic{width:12px;height:12px;border-radius:50%;background:#36d399;}
+  .flyer .mb{padding:14px 18px;font-size:22px;color:#3a4760;}
+  .runtag{position:absolute;top:90px;left:50%;transform:translateX(-50%);font-size:28px;font-weight:800;
+    color:#9fb8dc;background:rgba(14,26,48,.6);border:2px solid #2c486f;border-radius:14px;
+    padding:10px 22px;opacity:0;z-index:2;}
+  .runtag .on{display:inline-block;width:12px;height:12px;border-radius:50%;background:#36d399;
+    box-shadow:0 0 10px #36d399;margin-right:8px;vertical-align:1px;}
+
+  /* 前景：两拍分时（互斥布局，不叠加） */
+  .anchor{position:absolute;left:50px;right:50px;top:680px;text-align:center;z-index:8;}
+  .anchor .l{display:inline-block;font-size:78px;font-weight:900;line-height:1.22;color:#fff;opacity:0;
+    text-shadow:0 5px 0 #07101f,0 16px 34px rgba(0,0,0,.7);
+    background:rgba(10,16,30,.42);padding:20px 30px;border-radius:22px;}
+  .anchor .hi{color:#36d399;}
+
+  .cta{position:absolute;left:50px;right:50px;top:680px;text-align:center;z-index:8;}
+  .cta .q{display:inline-block;font-size:66px;font-weight:900;line-height:1.28;color:#fff;opacity:0;
+    text-shadow:0 5px 0 #07101f,0 16px 34px rgba(0,0,0,.7);
+    background:rgba(10,16,30,.46);padding:22px 30px;border-radius:24px;}
+  .cta .q .hi{color:#ffd23f;}
+  .cta .arrow{display:block;margin-top:26px;font-size:46px;font-weight:900;color:#9fb8dc;opacity:0;}
+</style></head>
+<body>
+  <div class="stage">
+    <!-- 背景安静全景（仍在自动发） -->
+    <div class="pano" id="pano">
+      <div class="flyer" id="f1" style="left:80px;top:480px;"><div class="mh"><span class="ic"></span>✉ Welcome</div><div class="mb">→ new subscriber</div></div>
+      <div class="flyer" id="f2" style="right:90px;top:760px;"><div class="mh"><span class="ic"></span>✉ Gift picks</div><div class="mb">→ day 4 follow-up</div></div>
+      <div class="flyer" id="f3" style="left:120px;top:1080px;"><div class="mh"><span class="ic"></span>✉ A little gift</div><div class="mb">→ day 6 follow-up</div></div>
+      <div class="flyer" id="f4" style="right:70px;top:1320px;"><div class="mh"><span class="ic"></span>✉ New arrivals</div><div class="mb">→ day 10 follow-up</div></div>
+    </div>
+    <div class="runtag" id="runtag"><span class="on"></span>系统仍在自动跑 · 一封封发</div>
+
+    <!-- 拍1 价值锚 -->
+    <div class="anchor" id="anchor"><div class="l">系统能跑，<br>内容得先<span class="hi">像人</span></div></div>
+
+    <!-- 拍2 CTA 问句 -->
+    <div class="cta" id="cta"><div class="q">你有没有「<span class="hi">留了线索<br>却总忘跟进</span>」的活？<br>评论说说</div><div class="arrow" id="arrow">↓ 评论区见</div></div>
+  </div>
+
+<script>
+  const tl=gsap.timeline({paused:true});
+  const DUR=(window.getData().dur)||8.0;
+  // 背景全景淡入（邮件慢慢一封封冒出，压灰退背景）
+  tl.to("#pano",{opacity:.6,duration:.6},0);
+  tl.fromTo("#runtag",{opacity:0,y:-12},{opacity:.8,y:0,duration:.5},.2);
+  ["#f1","#f2","#f3","#f4"].forEach((f,i)=>{
+    tl.fromTo(f,{opacity:0,scale:.8,y:30},{opacity:.9,scale:1,y:0,duration:.5,ease:"back.out(1.4)"},.4+i*.6);
+  });
+  // 拍1 价值锚（一字一句，放慢；与 VO 句界对齐：'系统能跑，内容得先像人' 约 2.25s 收）
+  // beat2 锁 VO 句界（默认 2.5s，可被 data.beat2 覆盖），保证大字与底部跟读字幕互斥不叠加
+  const beat2=(window.getData().beat2)||2.5;   // CTA 大字起点 = 价值锚 VO 句结束
+  tl.fromTo("#anchor .l",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.45,ease:"back.out(1.5)"},0.45);
+  // 价值锚退场 → 背景已淡到余光（VO 句说完才退）
+  tl.to("#anchor .l",{opacity:0,y:-30,duration:.3},beat2-.2);
+  tl.to("#pano",{opacity:.3,duration:.5},beat2-.2);
+  // 拍2 CTA 问句（互斥分时，不与价值锚叠加）
+  tl.fromTo("#cta .q",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},beat2);
+  tl.fromTo("#arrow",{opacity:0,y:10},{opacity:1,y:0,duration:.4},beat2+1.2);
+  // CTA 末轻上扬留白（铺到窗口尾，给完播留白）
+  tl.to("#arrow",{y:14,duration:.7,yoyo:true,repeat:Math.max(1,Math.round((DUR-beat2-2)/1.4)),ease:"sine.inOut"},beat2+1.7);
+  tl.to({},{duration:.2},DUR-.2);
+  if(window.registerTimeline) window.registerTimeline(tl); else tl.play();
+</script>
+</body></html>
