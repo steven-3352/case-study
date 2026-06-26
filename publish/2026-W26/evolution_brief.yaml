@@ -1,41 +1,42 @@
 # 2026-W26 · 数据驱动进化简报
-# 由 pipeline/evolution_apply.py 维护 · D05+ 开工前必读
-# 最后更新: 2026-06-24 · 策略: 用户手动提供 48h 数据后才进化
+# 由 pipeline/evolution_apply.py 维护 · W27 开工前必读
+# 最后更新: 2026-06-25 · 数据源: reports/*.xlsx 手动导出
 
 week_id: "2026-W26"
-updated_at: "2026-06-24T12:00:00"
-evolution_status: paused
+updated_at: "2026-06-25T18:00:00"
+evolution_status: applied
 data_policy:
   mode: manual_48h
   measure_window: 48h
-  note: 用户定期从创作者中心下载 48h 数据 · import_metrics_48h.py 导入后触发进化
-source_days: [D04]
-pending_actual: [D01, D02, D03, D04]
-next_apply_to: [D05, D06, D07]
+  note: auto_fetch 与后台不符已作废 · 以 xlsx + performance_data.yaml 为准
+
+source_days: [D01, D02, D03, D04, D08]
+pending_actual: []
+next_apply_to: [W27]
 
 thresholds:
   form_exclusive_min: 3
   form_catalog_max: 0.35
   form_template_max_repeat: 1
   cta_must_complete_in_mp4: true
-  max_duration_without_data_s: 55
+  max_duration_without_data_s: 45  # 下调：W26 均播 2.2–5.6s
 
 learnings:
   - id: E002
     confidence: confirmed
     source: W26D04
     signal: catalog_pain_compare_cta_fail
-    evidence: form_audit_v10 avg 81 · v11 0% catalog
+    evidence: form_audit avg 81 · v11 0% catalog
     rule: 禁止 pain+06_compare+08_cta 三连
-    apply_to: [D05, D06, D07]
+    apply_to: [W27]
 
   - id: E003
     confidence: confirmed
     source: W26D04
     signal: cta_tail_must_be_in_mp4
-    evidence: v10 VO 50.5s / mp4 48s 裁尾
-    rule: storyboard sum ≥ VO · cta_send 专属镜
-    apply_to: [D05, D06, D07]
+    evidence: v10 VO 裁尾教训
+    rule: storyboard sum ≥ VO · cta 专属镜
+    apply_to: [W27]
 
   - id: E005
     confidence: confirmed
@@ -43,76 +44,93 @@ learnings:
     signal: no_template_repeat
     evidence: v10 excel×2 wechat×2
     rule: 同 HTML ≤1 镜
-    apply_to: [D05, D06, D07]
+    apply_to: [W27]
+
+  - id: E006
+    confidence: confirmed
+    source: W26_week
+    signal: video_reuse_cross_platform_fail
+    evidence: dy121播 xhs539曝46观0藏 · 五对直复用全弱
+    rule: 禁止 dy mp4 直复用 xhs · 两平台须分立项分脚本分形式
+    apply_to: [W27+]
+
+  - id: E007
+    confidence: confirmed
+    source: W26_week
+    signal: audience_mismatch_small_boss_line
+    evidence: 历史TOP 1107播为Agent meta · W26小老板线121播
+    rule: 抖音下周增 meta/引擎叙事 · 小老板线减条数加深脚本
+    apply_to: [W27]
+
+  - id: E008
+    confidence: confirmed
+    source: W26D02
+    signal: single_scene_original_quote_cta
+    evidence: D02 5s29.6% 完播4.2% 均5.6s 为全周最高
+    rule: 抖音叙事优先单场景+原话进片+讨论CTA · 非换UI
+    apply_to: [W27]
 
 hypotheses:
   - id: E001
-    confidence: hypothesis
+    confidence: rejected
     source: W26D04
     signal: number_punch_hook_beats_excel_cold_open
-    forecast: 3s 58-68% vs v10 C+ 12-18% 完播
     verify_with: completion_3s actual ≥ 0.58
-    if_confirmed:
-      - D05 hook: 「30条催进度」→ 数字 punch（如 30→7 漏催）
-      - 首镜禁止 Excel/表格冷开
+    actual: 0.042
     if_rejected:
-      - 试 A/B：场景入戏 vs 数字 punch
+      - 首镜改场景入戏+原话 · 非纯数字punch
+      - D04/D05 类选题压至 40–45s
 
   - id: E004
-    confidence: hypothesis
+    confidence: rejected
     source: W26D04
     signal: 55s_ok_if_avg_watch_gt_12s
-    forecast: avg_watch 12-18s
     verify_with: avg_watch_s actual ≥ 12
-    if_confirmed:
-      - D05 可 50-55s 保 CTA 完整
+    actual: 2.2
     if_rejected:
-      - 压至 45s · 减 compare 镜时长
+      - 目标时长 38–45s · 减中段 compare
 
 topic_overrides:
   W26D05:
-    topic_id: T013
-    status: evolution_required
-    content:
-      keep: script vA · 口播不变
-    form:
-      hook_type: number_punch
-      exclusive_prefix: d05_
-      exclusive_min: 4
-      catalog_max: 0.25
-      forbid_templates: [02_pain, 06_compare, 08_cta]
-      forbid_from_d04: [d04_excel_dread, d04_wechat_drop, d04_compare_reach]
-      required_metaphors:
-        - 催票/催章节点列表变红
-        - 微信催进度 ghost（d05 专属）
-        - 到期提醒 vs 事后追 30 条
-      cta: 发送+确认+讨论型
-      cover_at_s: 1.0
-    gates:
-      read_evolution_brief: true
-      evolution_overlay: design/evolution_overlay.md
-
+    status: killed
+    reason: W26数据证批量小老板线未起量 · 形式进化暂停
   W26D06:
-    topic_id: T014
-    apply_learnings: [E002, E003, E005]
-    note: D04/D05 actual 后再细化
-
+    status: killed
   W26D07:
-    topic_id: T015
-    apply_learnings: [E002, E003]
-    note: 汇总 D01-D06 actual 后定形态
+    status: killed
+  W26D09:
+    status: moved_to_W27
+    note: 抖音独投 · 移入 publish/2026-W27/
 
 queue_evolution:
   raise_priority_if:
-    - vertical: 保健品
-      signal: D04 完播 actual ≥ forecast 中位
-      action: 同 vertical 再开触达/沉默变体
+    - vertical: meta_agent
+      signal: 历史 TOP 1107 播 Agent 叙事
+      action: W27 抖音至少 1 条 meta/引擎复盘
+    - format: xhs_carousel
+      signal: 曝光高于 dy 播放但藏为0
+      action: 小红书专做清单/字段表收藏向 · 非 video
   lower_priority_if:
-    - format: F3
-      signal: 3s actual < 0.50 连续 2 条
-      action: 下周减少 UI 体 · 增数字 punch
+    - format: video_reuse
+      signal: 连续 5 对跨平台复用 0 藏 0 评
+      action: 永久禁止 mp4 直复用
+    - format: F3_ui_body
+      signal: 3s actual 均值 < 20% 连续 3 条
+      action: 减少 UI 体 · 增场景+原话
+
+w27_directives:
+  platform_split: true
+  daily_per_platform: 1
+  per_week: 14
+  forbid:
+    - video_reuse
+    - batch_7day_same_vertical_without_split
+  require:
+    - separate publish.md per platform per day
+    - xhs carousel_or_comic default
+    - dy retention_beat_sheet + 45s cap until avg_watch improves
 
 changelog:
-  - at: "2026-06-24"
-    by: system
-    note: 初版 · form_audit 确认 · E001/E004 待 fetch_platform_metrics 真实 actual
+  - at: "2026-06-25"
+    by: user+agent
+    note: 导入 xlsx 真实 48h · E001/E004 rejected · E006–E008 confirmed · D05–D07 killed

@@ -1,0 +1,43 @@
+# 2026-W27 · 进化简报 · 双平台日更
+
+week_id: "2026-W27"
+updated_at: "2026-06-25T20:00:00"
+evolution_status: active
+inherits_from: "2026-W26"
+
+cadence:
+  douyin: daily
+  xhs: daily
+  per_week: 14
+
+directives:
+  platform_split: true
+  forbid_video_reuse: true
+  daily_per_platform: 1
+  dy_duration_cap_s: 45
+  dy_narrative: "单场景+原话+讨论CTA"
+  xhs_default: "carousel_checklist"
+  xhs_publish: "12:30"
+  dy_publish: "19:30"
+
+apply_learnings:
+  - E006
+  - E007
+  - E008
+  reject:
+    - E001
+    - E004
+
+priority_order:
+  - D01  # dy meta + xhs 3表
+  - D02  # dy 重复咨询 + xhs 美甲
+  - D03  # dy 团购 + xhs 团购清单
+  - D04  # dy Codex + xhs 试吃
+  - D05  # dy 催票 + xhs P001
+  - D06  # dy 退货 + xhs 催票表
+  - D07  # dy 总结 + xhs 复购
+
+gates:
+  - no_video_reuse
+  - gate_check per platform per day
+  - track_48h_before_next_day_batch

@@ -2,9 +2,9 @@
 # status: backlog | approved | in_production | published | killed
 
 direction:
-  current: "Project-001 多形态打磨 → 发布测效果 → 总结 → 再做下一个自己的项目"
-  month_focus: ""
-  last_updated: "2026-06-16"
+  current: "W27 引擎线日更 · 弃W26小老板批测 · 对齐历史TOP"
+  month_focus: "换vertical · 日更分轨 · 禁止同题跨周"
+  last_updated: "2026-06-25"
 
 # ── Project-001 · 现有自动化获客案例（首期，多形态） ──
 project_001:
@@ -163,8 +163,8 @@ topics:
     format: [video]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "Agent 讨论室已定稿；F2 抖音 / F1 小红书"
+    status: published
+    note: "48h: dy32播 xhs166曝 · weak · W27起禁止video_reuse"
     source: publish/2026-W26/D01-美甲撞档/
 
   - id: T010
@@ -175,8 +175,8 @@ topics:
     format: [video, carousel]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "F3 抖音 / F4 小红书"
+    status: published
+    note: "content v3 form v5 · dy26播相对最佳 · 待v3重发验证"
     source: publish/2026-W26/D02-团购回访/
 
   - id: T011
@@ -187,8 +187,8 @@ topics:
     format: [video]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书；合规：不讲功效"
+    status: published
+    note: "dy30播 xhs123曝 · 双平台弱"
     source: publish/2026-W26/D03-试吃反馈/
 
   - id: T012
@@ -199,8 +199,8 @@ topics:
     format: [video, carousel]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "F3 抖音 / F4 小红书"
+    status: published
+    note: "dy22播 · E001/E004 rejected"
     source: publish/2026-W26/D04-复购流失/
 
   - id: T013
@@ -211,9 +211,9 @@ topics:
     format: [video]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书 · evolution_required · 见 publish/2026-W26/D05-催票轮回/design/evolution_overlay.md"
-    source: publish/2026-W26/D05-催票轮回/
+    status: killed
+    note: "未发布 · W27换题 · 文件夹已删"
+    source: null
 
   - id: T014
     project: W26D06
@@ -223,9 +223,9 @@ topics:
     format: [video, carousel]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "F1 抖音 / F4 小红书"
-    source: publish/2026-W26/D06-退货对账/
+    status: killed
+    note: "未发布 · 文件夹已删"
+    source: null
 
   - id: T015
     project: W26D07
@@ -235,94 +235,9 @@ topics:
     format: [video]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "W26 总结；F2 抖音 / F1 小红书"
-    source: publish/2026-W26/D07-流程断档/
-
-  # ── 2026-W26 · 三板块 × 四形式测试周 ──
-  - id: T009
-    project: W26D01
-    series: S1
-    title: "美甲店最亏的不是没客人，是同一时段约了两个人"
-    angle: 本地生活 · 预约撞档
-    format: [video]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书；publish/2026-W26/D01-美甲撞档"
-    source: publish/2026-W26/D01-美甲撞档/
-
-  - id: T010
-    project: W26D02
-    series: S1
-    title: "团购卖了200单，回访0条"
-    angle: 本地生活 · 团购回访
-    format: [video, carousel]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F3 抖音 / F4 小红书"
-    source: publish/2026-W26/D02-团购回访/
-
-  - id: T011
-    project: W26D03
-    series: S1
-    title: "200份试吃发出去了，能说出谁反馈的不到20个"
-    angle: 保健品 · 试吃反馈
-    format: [video]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书"
-    source: publish/2026-W26/D03-试吃反馈/
-
-  - id: T012
-    project: W26D04
-    series: S1
-    title: "300个老客户，复购全靠Excel记"
-    angle: 保健品 · 复购流失
-    format: [video, carousel]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F3 抖音 / F4 小红书"
-    source: publish/2026-W26/D04-复购流失/
-
-  - id: T013
-    project: W26D05
-    series: S1
-    title: "5人小公司，行政每天发30条催进度"
-    angle: 小公司自动化 · 催票轮回
-    format: [video]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书 · evolution_required · 见 publish/2026-W26/D05-催票轮回/design/evolution_overlay.md"
-    source: publish/2026-W26/D05-催票轮回/
-
-  - id: T014
-    project: W26D06
-    series: S1
-    title: "3人电商，退货对账对到差800块找不到"
-    angle: 小公司自动化 · 退货对账
-    format: [video, carousel]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F1 抖音 / F4 小红书"
-    source: publish/2026-W26/D06-退货对账/
-
-  - id: T015
-    project: W26D07
-    series: S1
-    title: "小老板最该自动化的，是人走了不会断的那几步"
-    angle: 跨板块 · 流程断档
-    format: [video]
-    platforms: [抖音, 小红书]
-    priority: P0
-    status: in_production
-    note: "F2 抖音 / F1 小红书"
-    source: publish/2026-W26/D07-流程断档/
+    status: killed
+    note: "未发布 · 文件夹已删"
+    source: null
 
   - id: T016
     project: W26D08
@@ -332,8 +247,8 @@ topics:
     format: [video, carousel]
     platforms: [抖音, 小红书]
     priority: P0
-    status: in_production
-    note: "内容 pass；形式 blocked。禁止通用 evidence/newsprint 产物外发，需专属视觉重做"
+    status: published
+    note: "dy11播全周最差 · 形式须分平台重做 · 禁止复投"
     source: publish/2026-W26/D08-电商私域Agent/
 
   - id: T017
@@ -344,6 +259,115 @@ topics:
     format: [video]
     platforms: [抖音]
     priority: P0
-    status: in_production
-    note: "Phase A 开工：先做官方口径核验、脚本三版、形式策略、技术计划；发布前需复核 OpenAI Codex 官方文档"
+    status: backlog
+    note: "移入 W27D03 · 抖音独投"
     source: publish/2026-W26/D09-Codex入门/
+
+  # ── 2026-W27 · 双平台分轨周 ──
+  - id: T018
+    project: W27D01
+    series: S2
+    title: "W26五条几乎没人看，我拆成9个工种重做了"
+    angle: Agent meta · 数据复盘
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "对齐历史TOP · 见 publish/2026-W27/PLAN.md"
+    source: publish/2026-W27/
+
+  - id: T019
+    project: W27D02
+    series: S1
+    title: "群里100条消息90条同一个问题，我换了个接法"
+    angle: 实体店 · 重复咨询
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "D02镜头任务 · T008方向 · 45s"
+    source: publish/2026-W27/
+
+  - id: T020
+    project: W27D04
+    series: S2
+    title: "普通人第一次用 Codex，别先让它写系统"
+    angle: Codex 入门
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "W27 D04 · 自T017移入"
+    source: publish/2026-W27/
+
+  - id: T021
+    project: W27X01
+    series: S2
+    title: "我说了一句话，9 个 AI 抢着帮我干"
+    angle: P003 多Agent轮播
+    format: [carousel]
+    platforms: [小红书]
+    priority: P0
+    status: approved
+    note: "W27 D01 xhs · T007"
+    source: publish/P003/xhs/script.md
+
+  - id: T032
+    project: W27X04
+    series: S2
+    title: "5 年谈了 5 个对象，没一个超过 8 个月"
+    angle: P002 AI人格化
+    format: [carousel]
+    platforms: [小红书]
+    priority: P0
+    status: approved
+    note: "W27 D04 xhs"
+    source: publish/P002/xhs/
+
+  - id: T033
+    project: W27D05
+    series: S1
+    title: "第5天看数据我傻眼了｜海外品牌邮件获客"
+    angle: P001 视频向
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "W27 D05 dy · 171播方向"
+    source: publish/P001/
+
+  - id: T034
+    project: W27X05
+    series: S2
+    title: "AI时代你准备好了吗？"
+    angle: 思辨轮播
+    format: [carousel]
+    platforms: [小红书]
+    priority: P0
+    status: approved
+    note: "W27 D05 xhs · 403播方向"
+    source: publish/2026-W27/
+
+  - id: T035
+    project: W27D06
+    series: S2
+    title: "我只说了一个选题，一群 Agent 帮我做事全程无参与"
+    angle: 多Agent meta
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "W27 D06 dy"
+    source: publish/2026-W27/
+
+  - id: T036
+    project: W27D07
+    series: S1
+    title: "一个人做老外生意，跟进邮件我一封没发过"
+    angle: 海外自动化
+    format: [video]
+    platforms: [抖音]
+    priority: P0
+    status: approved
+    note: "W27 D07 dy"
+    source: publish/2026-W27/

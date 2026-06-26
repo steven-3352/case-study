@@ -27,6 +27,31 @@ signals:
   weak: "曝光极低且完播差"
 
 rules:
+  - id: R08
+    when: "跨平台 video_reuse 连续2条 xhs 收藏=0 且 观看<20"
+    suggest: 永久禁止 mp4 直复用 · 抖音/小红书分立项分脚本 · 见 evolution E006
+    owner: human
+
+  - id: R09
+    when: "抖音小老板线连续3条 播放<50 且 评论=0"
+    suggest: 减条数加深脚本 · 增 meta/引擎叙事 · 时长压至38-45s · 见 E007/E008
+    owner: human
+
+  - id: R10
+    when: "小红书曝光>100 但 收藏=0 连续2条"
+    suggest: 改清单/字段表轮播 · 标题加「可收藏」· 禁止同题 video
+    owner: pipeline
+
+  - id: R11
+    when: "form_version > content_version 且无 content_redo"
+    suggest: gate_check FAIL · 形式重做须重验脚本 · 见 SYSTEM §3.1b
+    owner: pipeline
+
+  - id: R12
+    when: "某平台当日未发布"
+    suggest: 优先补齐当日排期 · 见 publish/2026-W27/week.yaml 日更表
+    owner: human
+
   - id: R01
     when: "连续3条 exposure < 200"
     suggest: 换封面：数字人大头 → 真实项目截图+冲突大字

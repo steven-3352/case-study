@@ -1,0 +1,129 @@
+# 2026-W27 · 双平台日更 · 引擎线 / 创作者线（≠ W26 小老板批测）
+# W26 同题已证弱 · 本周换 vertical · 仍日更分轨 · 禁止 video_reuse
+
+week_id: "2026-W27"
+title: "引擎线日更 · 对齐历史TOP · 弃W26小老板批测"
+start_date: "2026-06-29"
+end_date: "2026-07-05"
+goal: "每平台每天1条 · 14条全新vertical · 不复用W26美甲/团购/试吃/复购/催票/退货"
+
+cadence:
+  douyin: daily · 19:30
+  xhs: daily · 12:30
+  per_week: 14
+
+principles:
+  - **禁止** W26 已发/已测同痛点（本地生活批测、保健品跟进、小公司催票对账）
+  - 抖音优先：**Agent meta · 海外获客 · 工具入门 · P004 K1**（对齐 1107/403/171 播历史TOP）
+  - 小红书优先：**P001/P003 项目轮播 · 干货拆解 · 收藏向**（非 W26 清单翻版）
+  - 同日 dy/xhs **不同题** · 独立脚本 · 禁止 video_reuse
+
+rotation_note: |
+  W27 旧排期错误原因：为凑满7×2，把 W26 killed 条目（美甲/团购/试吃…）改名再发。
+  数据已说明该 vertical 与账号受众错位；本周改从 queue backlog 抽引擎线/创作者线。
+
+days:
+  - day: D01
+    date: "2026-06-29"
+    douyin:
+      project_id: W27D01
+      topic_id: T018
+      title: "W26五条几乎没人看，我拆成9个工种重做了"
+      hook: "数据不会骗人"
+      note: meta复盘 · 唯一保留的「提及W26」· 说明为何换题
+    xhs:
+      project_id: W27X01
+      topic_id: T007
+      title: "我说了一句话，9 个 AI 抢着帮我干"
+      hook: "9个工种10分钟交付"
+      note: P003 多Agent轮播 · 历史验证方向 · 非小老板线
+
+  - day: D02
+    date: "2026-06-30"
+    douyin:
+      project_id: W27D02
+      topic_id: T008
+      title: "又是这个，问八百遍 — 一群小系统替你回客户"
+      hook: "问八百遍"
+      note: P004 K1 · 实体店但叙事是「项目介绍/meta」· ≠ W26 D01 美甲撞档
+    xhs:
+      project_id: W27X02
+      topic_id: T001
+      title: "花一天搭了套自动跑的系统，第5天我傻眼了"
+      hook: "第5天看数据"
+      note: P001-A 故事踩坑轮播 · 海外获客
+
+  - day: D03
+    date: "2026-07-01"
+    douyin:
+      project_id: W27D03
+      topic_id: T003
+      title: "我用 AI 把一周的活干成一天，现在它自己在帮我赚钱"
+      hook: "自己在赚钱"
+      note: P001-C 成长视频 · 海外自动化 · ≠ W26 试吃/团购
+    xhs:
+      project_id: W27X03
+      topic_id: T002
+      title: "0 后端 + 月成本几乎为 0，怎么搭一套自己会跑的获客系统"
+      hook: "月成本几乎为0"
+      note: P001-B 干货拆解轮播
+
+  - day: D04
+    date: "2026-07-02"
+    douyin:
+      project_id: W27D04
+      topic_id: T020
+      title: "普通人第一次用 Codex，别先让它写系统"
+      hook: "从一件重复事开始"
+      note: Codex · S2 · 官方口径复核
+    xhs:
+      project_id: W27X04
+      topic_id: T032
+      title: "5 年谈了 5 个对象，没一个超过 8 个月"
+      hook: "Copilot到Claude"
+      note: P002 报纸风 · AI工具人格化 · 趣味meta · 非教程号
+
+  - day: D05
+    date: "2026-07-03"
+    douyin:
+      project_id: W27D05
+      topic_id: T033
+      title: "第5天看数据我傻眼了｜海外品牌邮件获客"
+      hook: "第五天曝光有了"
+      note: 对齐历史171播 · P001 视频向 · 邮件自动化
+    xhs:
+      project_id: W27X05
+      topic_id: T034
+      title: "AI时代你准备好了吗？"
+      hook: "十字路口"
+      note: 思辨轮播 · 对齐403播 · 非小老板改造
+
+  - day: D06
+    date: "2026-07-04"
+    douyin:
+      project_id: W27D06
+      topic_id: T035
+      title: "我只说了一个选题，一群 Agent 帮我做事全程无参与"
+      hook: "一行字拆9工种"
+      note: 多Agent协调 meta · 对齐历史41播+引擎叙事
+    xhs:
+      project_id: W27X06
+      topic_id: T006
+      title: "报价单改到崩溃，我做了个自动报价草稿"
+      hook: "改到崩溃"
+      note: 新 vertical · 非 W26 催票/退货 · backlog T006
+
+  - day: D07
+    date: "2026-07-05"
+    douyin:
+      project_id: W27D07
+      topic_id: T036
+      title: "一个人做老外生意，跟进邮件我一封没发过"
+      hook: "一封没发过"
+      note: 海外跟进自动化 · 44播历史条续作
+    xhs:
+      project_id: W27X07
+      topic_id: T005
+      title: "小老板每天回 30 个咨询，我做了个预筛表"
+      hook: "30个咨询"
+      note: 单条 backlog 测收藏 · 非 W26 批量 · 须 demo 后发

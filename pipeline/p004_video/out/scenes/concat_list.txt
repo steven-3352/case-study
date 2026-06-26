@@ -1,7 +1,0 @@
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/01_chaos_broll.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/02_chat_mess.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/03_agent_split.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/04_customer_board.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/05_risk_alarm.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/06_human_focus.mp4'
-file '/Users/bubu/Documents/projects/case-study/pipeline/p004_video/out/scenes/07_cta.mp4'

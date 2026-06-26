@@ -1,0 +1,15 @@
+# W27 选题正文 · 引擎线日更 · 见 week.yaml
+# 旧版 topics_content（W26小老板翻版）已废弃删除
+
+W27D01:
+  douyin:
+    title: W26五条几乎没人看，我拆成9个工种重做了
+    note: meta复盘 · 说明换题理由
+
+W27X01:
+  xhs:
+    topic_id: T007
+    title: 我说了一句话，9 个 AI 抢着帮我干
+    source: publish/P003/xhs/script.md
+
+# D02–D07 正文见 publish/2026-W27/week.yaml · 开工时 week_build 生成

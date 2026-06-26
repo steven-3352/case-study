@@ -1,5 +1,11 @@
-week_id: 2026-W26
-updated_at: '2026-06-24T13:07:31'
+week_id: "2026-W26"
+updated_at: "2026-06-25T18:00:00"
+data_source: "reports/作品列表.xlsx + reports/笔记列表明细表.xlsx · 用户手动导出"
+evolution_status: applied
+data_policy:
+  mode: manual_48h
+  note: auto_fetch 7139/12000 与后台不符 · 以 xlsx 为准
+
 metrics:
   completion_3s:
     label: 3s 完播率
@@ -14,100 +20,161 @@ metrics:
     label: 平均观看时长
     unit: seconds
   collect_rate:
-    label: 收藏率
+    label: 收藏率（小红书）
     unit: ratio
+
 entries:
-- project_id: W26D04
-  day: D04
-  slug: 复购流失
-  topic_id: T012
-  content_version: v11
-  form_version: v11
-  published_at: null
-  status: pending_actual
-  platforms:
-    douyin:
-      video_s: 55.5
-      forecast:
-        completion_3s: [0.58, 0.68]
-        completion_rate: [0.18, 0.24]
-        interaction_rate: [0.022, 0.035]
-        avg_watch_s: [12, 18]
-      actual:
-        completion_3s: null
-        completion_rate: null
-        interaction_rate: null
-        avg_watch_s: null
-        views: null
-        likes: null
-        comments: null
-        shares: null
-    xhs:
-      delivery: carousel_only
-      forecast:
-        collect_rate:
-        - 0.04
-        - 0.08
-        note: 勿直投抖音 mp4
-      actual:
-        collect_rate: null
-        views: null
-        likes: null
-        collects: null
-  form_signals:
-    hook_type: number_punch
-    exclusive_templates: 7
-    catalog_ratio: 0.0
-    cta_complete: true
-    vs_v10:
-      completion_rate_delta_forecast: +6~8pp
-  learnings: []
-- project_id: W26D03
-  day: D03
-  slug: 试吃反馈
-  topic_id: T011
-  content_version: v2
-  published_at: '2026-06-24'
-  status: pending_actual
-  platforms:
-    douyin:
-      forecast: null
-      actual:
-        views: null
-        likes: null
-        comments: null
-        shares: null
-        collects: null
-  learnings: []
-- project_id: W26D01
-  day: D01
-  slug: 美甲撞档
-  topic_id: T009
-  content_version: null
-  published_at: '2026-06-24'
-  status: pending_actual
-  platforms:
-    douyin:
-      actual:
-        views: null
-        likes: null
-        comments: null
-        shares: null
-        collects: null
-  learnings: []
-- project_id: W26D02
-  day: D02
-  slug: 团购回访
-  topic_id: T010
-  content_version: null
-  published_at: '2026-06-24'
-  status: pending_actual
-  platforms:
-    douyin:
-      actual:
-        views: null
-        likes: null
-        comments: null
-        shares: null
-        collects: null
-  learnings: []
+  - project_id: W26D01
+    day: D01
+    slug: 美甲撞档
+    topic_id: T009
+    published_at: "2026-06-22"
+    status: actual_recorded
+    platforms:
+      douyin:
+        forecast: null
+        actual:
+          views: 32
+          completion_3s: 0.194
+          completion_rate: 0.0
+          avg_watch_s: 3.6
+          bounce_2s: 0.677
+          likes: 1
+          comments: 0
+          shares: 0
+      xhs:
+        delivery: video_reuse
+        actual:
+          exposure: 166
+          views: 12
+          likes: 0
+          collects: 0
+          comments: 0
+    learnings:
+      - signal: audience_mismatch
+        note: 历史TOP为Agent/漫剧 meta · 小老板本地生活线冷启动失败
+
+  - project_id: W26D02
+    day: D02
+    slug: 团购回访
+    topic_id: T010
+    content_version: v3
+    form_version: v5
+    published_at: "2026-06-23"
+    status: actual_recorded
+    platforms:
+      douyin:
+        actual:
+          views: 26
+          completion_3s: 0.296
+          completion_rate: 0.042
+          avg_watch_s: 5.6
+          bounce_2s: 0.593
+          likes: 0
+          comments: 0
+      xhs:
+        delivery: video_reuse
+        actual:
+          exposure: 120
+          views: 6
+          likes: 0
+          collects: 0
+    learnings:
+      - signal: relative_best_w26
+        note: 5s/完播/均播全周最高 · 单场景+原话+讨论CTA方向可复用
+      - signal: video_reuse_fail
+        note: xhs清单体曝120但观6藏0 · 禁止dy mp4直复用
+
+  - project_id: W26D03
+    day: D03
+    slug: 试吃反馈
+    topic_id: T011
+    published_at: "2026-06-24"
+    status: actual_recorded
+    platforms:
+      douyin:
+        actual:
+          views: 30
+          completion_3s: 0.243
+          completion_rate: 0.0
+          avg_watch_s: 3.4
+          likes: 0
+          comments: 0
+      xhs:
+        delivery: carousel_newspaper
+        actual:
+          exposure: 123
+          views: 4
+          likes: 0
+          collects: 0
+    learnings:
+      - signal: weak_both_platforms
+        note: 试吃垂直+合规约束下钩子不足
+
+  - project_id: W26D04
+    day: D04
+    slug: 复购流失
+    topic_id: T012
+    content_version: v11
+    form_version: v11
+    published_at: "2026-06-25"
+    status: actual_recorded
+    platforms:
+      douyin:
+        actual:
+          views: 22
+          completion_3s: 0.042
+          completion_rate: 0.0
+          avg_watch_s: 2.2
+          likes: 0
+          comments: 0
+      xhs:
+        delivery: p007_comic
+        actual:
+          exposure: 97
+          views: 16
+          likes: 0
+          collects: 0
+    learnings:
+      - signal: e001_rejected
+        note: 数字punch首镜未带来3s提升 · 5s仅4.2% · hypothesis失效
+      - signal: e004_rejected
+        note: 均播2.2s << 12s下限 · 55s叙事未验证
+
+  - project_id: W26D08
+    day: D08
+    slug: 电商私域Agent
+    topic_id: T016
+    published_at: "2026-06-25"
+    status: actual_recorded
+    platforms:
+      douyin:
+        actual:
+          views: 11
+          completion_3s: 0.10
+          completion_rate: 0.0
+          avg_watch_s: 3.5
+          likes: 0
+          comments: 0
+      xhs:
+        delivery: video_reuse
+        actual:
+          exposure: 33
+          views: 8
+          likes: 0
+          collects: 0
+    learnings:
+      - signal: form_blocked_still_weak
+        note: 文档承诺形式未兑现像素仍弱 · W27须分平台专属重做
+
+week_summary:
+  douyin_published: 5
+  douyin_total_views: 121
+  douyin_avg_5s: 0.175
+  douyin_total_likes: 1
+  xhs_published: 5
+  xhs_total_exposure: 539
+  xhs_total_views: 46
+  xhs_total_collects: 0
+  verdict: weak_cold_start
+  next_week: platform_split_required

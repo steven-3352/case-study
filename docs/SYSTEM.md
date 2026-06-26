@@ -2,7 +2,7 @@
 
 > **任何模型接入本仓库，先读本文。** 执行细则见 `CLAUDE.md`；辩论锁定见 `docs/DECISIONS.md`。
 >
-> 最后同步：**2026-06-21** · 维护规则见 [§7 文档维护](#7-文档维护)
+> 最后同步：**2026-06-25** · 维护规则见 [§7 文档维护](#7-文档维护)
 
 ---
 
@@ -204,6 +204,21 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 3 | **承诺 custom/专属看板须有专属模板** | storyboard 至少包含 `dNN_` / `pexels_` / `custom_` 级模板或真实素材 |
 | 4 | **通用 evidence/newsprint 不得冒充新形式** | `pipeline/render.py` evidence 卡片、`render_carousel()` newspaper 只能做内部草稿；不得作为形式承诺成品 |
 | 5 | **像素失败不得 ready** | `pre_publish_forecast` 标 D/C、blocked_form、通用模板吞掉等 → `gate_check(approve)` FAIL |
+
+### 3.1e 双平台分轨（W26 数据沉淀 · 2026-06-25）
+
+> 数据源：`reports/作品列表.xlsx` · `reports/笔记列表明细表.xlsx` · `publish/2026-W26/performance_data.yaml`
+
+**W26 实测：** 抖音 5 条合计 121 播 / 1 赞 / 0 评；小红书 5 条 539 曝 / 46 观 / 0 藏。跨平台 `video_reuse` 全弱；历史 TOP（1107 播）为 Agent meta，与小老板线人群错位。
+
+| # | 铁律 | 自 W27 起 |
+|---|------|-----------|
+| 1 | **禁止跨平台 mp4 复用** | `meta.yaml` / `verdict.yaml` 不得出现 `video_reuse`；抖音视频 ≠ 小红书视频 |
+| 2 | **分立项、分脚本、分形式** | 同痛点可成对设计，但须独立 `publish/{week}/D*/douyin` 与 `xhs` |
+| 3 | **日更分轨** | 每平台 **每天 1 条**（xhs 12:30 · dy 19:30）；同日可成对痛点但须独立脚本/形式 |
+| 4 | **平台默认形态** | 抖音：38–45s 叙事视频；小红书：轮播/清单/字段表 |
+
+详规：`publish/2026-W27/PLAN.md` · `publish/2026-W26/evolution_brief.yaml` · `templates/publish_双平台.md`
 
 ### 3.1d 正向复用协议（D08 重做版沉淀）
 

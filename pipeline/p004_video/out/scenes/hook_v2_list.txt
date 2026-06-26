@@ -1,3 +1,0 @@
-file '01a_chaos.mp4'
-file '01b_punch1.mp4'
-file '01c_punch2.mp4'
