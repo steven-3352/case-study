@@ -260,6 +260,26 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 2. **图像清晰** — 语义无歧义，画面美观；禁止用抽象图标糊弄可识别的角色/物体（工种用卡通头像，输入输出用具体物件）。
 3. **文字可读** — 所有大字完整可见，标题 / 拟声 / CTA 互斥布局，出图后逐张目视检查叠层遮挡。
 
+### 禁霓虹色（2026-06-27 W27D04 教训 · 详 DECISIONS.md Q9）
+
+| 类别 | 禁用 hex/token | 改用 |
+|---|---|---|
+| Dracula 紫 | `#bd93f9` / `var(--purple)` | — 直接删,不替代 |
+| Dracula 粉 | `#ff79c6` / `var(--pink)` | — 直接删,不替代 |
+| Dracula 青 | `#8be9fd` / `var(--blue)` | 真截屏自带的系统蓝(iOS/微信),不新造蓝 token |
+| 暖红→冷蓝渐变 | `linear-gradient(*,#2a0e0e,#0a0e14)` 一类 | 纯黑 `#000` 或 `#0a0e14` 单色 |
+| 偏粉红 | `#ff5252` / `#ff7e7e` | 血红 `#e53935` / `#c0392b` |
+
+**自动兜底:** `python3 pipeline/gate_check_palette.py <png>` 检测主色域 HSL H=240~290(蓝紫)占比 >5% 直接 fail-closed。pre_publish 必过。
+**允许:** 真截屏自带的系统色(iOS 蓝、微信绿 #95ec69、淘宝橙等) —— 这是真实痕迹不是色板。
+
+### 接手项目第一动作(调用通用服务前)
+
+调 TTS / GPT-image / LLM / 向量等共享服务前 **必做** 三件事:
+1. `cat .env.example` —— 看每条服务的中转地址范例,对照 `.env` 看凭证 + URL 是否齐全(尤其云雾中转的 `/minimax` `/openai-v1` 一类前缀,容易漏写)
+2. `grep -r "<服务名>" publish/2026-W*/ pipeline/p004_video/_d*_*_config.yaml` —— 找最近一条跑通的姊妹脚本,直接抄它的 config
+3. 4xx/5xx 不能直接降级 fallback —— 先核对 URL 拼写,再查凭证,最后才考虑切 provider
+
 - 9:16 → 1080×1920 统一画布（图文 + 视频）
 - **视频音画三件套（硬门槛）**：配音 + BGM + 字幕叠主画面；外发默认 `*_with_bgm.mp4`
 - 口播：Edge TTS 或 MiniMax（见 `audio_plan.yaml`）

@@ -514,6 +514,29 @@ def check_cover_review(day_dir: pathlib.Path, errors: list[str]) -> None:
     elif not cover.exists():
         errors.append("有 video.mp4 但缺少 douyin/cover.png")
 
+    if cover.exists():
+        _check_palette_neon(cover, errors)
+
+
+def _check_palette_neon(png: pathlib.Path, errors: list[str]) -> None:
+    """禁霓虹色门 · 主视觉蓝紫像素占比 > 5% → fail.
+
+    详 docs/DECISIONS.md Q9「禁霓虹色细则」.
+    """
+    try:
+        from pipeline.gate_check_palette import analyze, is_real_screenshot
+    except Exception as e:
+        errors.append(f"禁霓虹色门: 无法 import gate_check_palette ({e})")
+        return
+    if is_real_screenshot(png):
+        return
+    ratio, top5 = analyze(png)
+    if ratio > 0.05:
+        errors.append(
+            f"禁霓虹色门 FAIL · {png.name} 蓝紫像素 {ratio:.1%} > 5% (top: "
+            f"{', '.join(h for h, _ in top5[:3])}) → 详 DECISIONS Q9"
+        )
+
 
 def check_motion_wow(day_dir: pathlib.Path, errors: list[str]) -> None:
     if not _has_douyin_video(day_dir):
