@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .ctx{position:absolute;top:280px;left:0;right:0;text-align:center;font-size:56px;font-weight:800;
+    color:var(--gray-2);letter-spacing:2px;opacity:0;}
+  .price{position:absolute;left:0;right:0;top:560px;text-align:center;font-family:var(--mono);
+    font-size:480px;line-height:1;letter-spacing:-12px;font-weight:900;
+    background:linear-gradient(180deg,var(--green) 0%,#a3ff8c 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 60px rgba(80,250,123,.3);opacity:0;}
+  .unit{position:absolute;left:0;right:0;top:1080px;text-align:center;font-size:48px;font-weight:700;
+    color:var(--gray-2);letter-spacing:4px;opacity:0;}
+  .breakdown{position:absolute;left:120px;right:120px;top:1240px;background:#11161e;border-radius:18px;
+    padding:24px 36px;border:1px solid var(--gray-4);opacity:0;}
+  .breakdown .row{display:flex;justify-content:space-between;padding:10px 0;font-size:34px;
+    border-bottom:1px dashed var(--gray-4);font-family:var(--mono);}
+  .breakdown .row:last-child{border:none;}
+  .breakdown .row .lbl{color:var(--gray-2);}
+  .breakdown .row .v{color:var(--orange);font-weight:800;}
+  .breakdown .row.total{margin-top:6px;border-top:2px solid var(--green);padding-top:14px;font-weight:900;
+    border-bottom:none;}
+  .breakdown .row.total .v{color:var(--green);font-size:38px;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="ctx" id="ctx">4 周 · 14 条 · AI 全自动出片</div>
+  <div class="price" id="price">¥0.00</div>
+  <div class="unit" id="unit">/ 条</div>
+  <div class="breakdown" id="bd">
+    <div class="row"><span class="lbl">图(GPT-image-2)</span><span class="v">¥0.30</span></div>
+    <div class="row"><span class="lbl">配音(MiniMax / Edge)</span><span class="v">¥1.00</span></div>
+    <div class="row"><span class="lbl">渲染(本地 capture_frames)</span><span class="v">¥0.00</span></div>
+    <div class="row total"><span class="lbl">单条边际成本</span><span class="v">¥2.87</span></div>
+  </div>
+</div>
+<script>
+  const obj={v:0};
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#ctx",{opacity:0,y:-20},{opacity:1,y:0,duration:.4},.1);
+  tl.fromTo("#price",{opacity:0,scale:.7},{opacity:1,scale:1,duration:.5,ease:"back.out(1.4)"},.6);
+  tl.fromTo("#unit",{opacity:0},{opacity:1,duration:.3},1.0);
+  // countUp 0 → 2.87
+  tl.to(obj,{v:2.87,duration:2.0,ease:"power2.out",
+    onUpdate:()=>{document.getElementById("price").textContent="¥"+obj.v.toFixed(2);}},1.2);
+  tl.fromTo("#bd",{opacity:0,y:30},{opacity:1,y:0,duration:.5,stagger:.1},3.5);
+  tl.to({},{duration:1.5},5.0);
+  registerTimeline(tl);
+</script>
+</body></html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .top{position:absolute;top:240px;left:60px;right:60px;text-align:center;font-size:78px;font-weight:900;
+    color:#fff;line-height:1.2;letter-spacing:1px;opacity:0;
+    text-shadow:0 5px 0 #000,0 16px 32px rgba(0,0,0,.7);}
+  .top .hi{color:var(--orange);}
+  .bullets{position:absolute;top:580px;left:0;right:0;display:flex;justify-content:center;
+    gap:36px;flex-wrap:wrap;padding:0 40px;}
+  .b{font-family:var(--mono);font-size:160px;font-weight:900;color:#fff;line-height:1;
+    text-shadow:0 6px 0 #000,0 16px 32px rgba(0,0,0,.7);opacity:0;}
+  .b.zero{color:var(--gray-3);}
+  .b.b1{color:var(--green);}
+  .b.b2{color:var(--orange);}
+  .b.b3{color:var(--red);}
+  .quota{position:absolute;top:1080px;left:60px;right:60px;text-align:center;font-size:62px;
+    font-weight:900;color:#fff;line-height:1.2;letter-spacing:1px;opacity:0;
+    text-shadow:0 4px 0 #000;}
+  .quota .hi{color:var(--green);}
+  .cmt{position:absolute;left:60px;right:60px;bottom:240px;background:#11161e;border-radius:24px;
+    padding:24px 30px;border:2px solid var(--gray-4);opacity:0;}
+  .cmt .lbl{font-size:26px;color:var(--gray-3);letter-spacing:2px;margin-bottom:14px;}
+  .cmt .line{font-family:var(--mono);font-size:34px;color:var(--gray-2);padding:6px 0;}
+  .cmt .line .me{color:var(--green);font-weight:800;}
+  .cmt .line .num{color:var(--orange);font-weight:900;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="top" id="top">评论扣个档位号 · <span class="hi">或扣 0:不付</span></div>
+  <div class="bullets">
+    <div class="b zero" id="bz">0</div>
+    <div class="b b1" id="b1">99</div>
+    <div class="b b2" id="b2">299</div>
+    <div class="b b3" id="b3">599</div>
+  </div>
+  <div class="quota" id="quota">扣到 10 个 · <span class="hi">免费做 3 个 demo</span></div>
+  <div class="cmt" id="cmt">
+    <div class="lbl">评论区(示意)</div>
+    <div class="line"><span class="me">@餐饮老板</span> <span class="num">99</span></div>
+    <div class="line"><span class="me">@美容店主</span> <span class="num">299</span></div>
+    <div class="line"><span class="me">@教培负责人</span> <span class="num">99</span></div>
+  </div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#top",{opacity:0,y:-30},{opacity:1,y:0,duration:.4},0);
+  tl.fromTo("#bz",{opacity:0,scale:.5,y:60},{opacity:1,scale:1,y:0,duration:.4,ease:"back.out(2)"},.5);
+  tl.fromTo("#b1",{opacity:0,scale:.5,y:60},{opacity:1,scale:1,y:0,duration:.4,ease:"back.out(2)"},.7);
+  tl.fromTo("#b2",{opacity:0,scale:.5,y:60},{opacity:1,scale:1,y:0,duration:.4,ease:"back.out(2)"},.9);
+  tl.fromTo("#b3",{opacity:0,scale:.5,y:60},{opacity:1,scale:1,y:0,duration:.4,ease:"back.out(2)"},1.1);
+  tl.fromTo("#quota",{opacity:0,y:30},{opacity:1,y:0,duration:.5,ease:"back.out(1.4)"},1.8);
+  tl.fromTo("#cmt",{opacity:0,y:30},{opacity:1,y:0,duration:.5},2.6);
+  tl.to({},{duration:1.4},3.6);
+  registerTimeline(tl);
+</script>
+</body></html>

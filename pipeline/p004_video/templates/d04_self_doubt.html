@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,#1a1f29 0%,#0a0e14 70%);}
+  .l1{position:absolute;left:0;right:0;top:640px;text-align:center;font-size:140px;font-weight:900;
+    color:#fff;letter-spacing:-2px;line-height:1.1;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.8);}
+  .l2{position:absolute;left:0;right:0;top:900px;text-align:center;font-size:140px;font-weight:900;
+    color:var(--red);letter-spacing:-2px;line-height:1.1;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.8);}
+  .sub{position:absolute;left:0;right:0;top:1150px;text-align:center;font-size:42px;color:var(--gray-3);
+    font-style:italic;letter-spacing:2px;opacity:0;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="bg"></div>
+  <div class="l1" id="l1">自己都做不起来</div>
+  <div class="l2" id="l2">凭啥收钱?</div>
+  <div class="sub" id="sub">— 你可能想笑 —</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#l1",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.6,ease:"back.out(1.6)"},.2);
+  tl.fromTo("#sub",{opacity:0},{opacity:1,duration:.4},.9);
+  // 1.5-2.5s 停顿
+  tl.to("#l1",{filter:"brightness(.55)",duration:.4},1.5);
+  tl.fromTo("#l2",{opacity:0,y:50,scale:.88,rotation:-3},{opacity:1,y:0,scale:1,rotation:0,duration:.6,ease:"back.out(1.8)"},2.0);
+  tl.to({},{duration:1.0},3.0);
+  registerTimeline(tl);
+</script>
+</body></html>

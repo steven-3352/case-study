@@ -1,0 +1,21 @@
+# P004 storyboard · W27D04 · 渲染用(实测 VO 拉伸版)
+# 同源 publish/2026-W27/D04-内容服务测水/design/storyboard.yaml
+# 时长 = 实测 VO + 尾静音(见 out/audio/seg_timing_d04.json)
+# 说明:vA 自然语速实测约 49s,按实测 VO 拉伸窗口而非截断口播
+#       (铁律:尽一切可能让内容更好 > 卡死 42s 切口播);s6 报价段最长 11.87s
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: w27d04.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+scenes:
+  - {id: s1_hook,        type: html, template: d04_hook.html,        duration: 4.14,  data: {dur: 4.14}}
+  - {id: s2_signal,      type: html, template: d04_signal.html,      duration: 5.17,  data: {dur: 5.17}}
+  - {id: s3_self_doubt,  type: html, template: d04_self_doubt.html,  duration: 4.38,  data: {dur: 4.38}}
+  - {id: s4_reversal,    type: html, template: d04_reversal.html,    duration: 7.91,  data: {dur: 7.91}}
+  - {id: s5_cost,        type: html, template: d04_cost.html,        duration: 4.53,  data: {dur: 4.53}}
+  - {id: s6_pricing,     type: html, template: d04_pricing.html,     duration: 11.87, data: {dur: 11.87}}
+  - {id: s7_water,       type: html, template: d04_water.html,       duration: 3.36,  data: {dur: 3.36}}
+  - {id: s8_cta,         type: html, template: d04_cta.html,         duration: 7.14,  data: {dur: 7.14}}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .bg{position:absolute;inset:0;background:linear-gradient(135deg,#2a0e0e,#0a0e14 70%);opacity:0;}
+  .data{position:absolute;top:240px;left:60px;right:60px;height:760px;background:#11161e;
+    border:3px solid #3a1f1f;border-radius:24px;padding:36px;font-family:var(--mono);
+    box-shadow:0 30px 80px rgba(0,0,0,.6);opacity:0;}
+  .data .lbl{font-size:28px;color:var(--gray-3);margin-bottom:18px;letter-spacing:2px;}
+  .row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #1f2530;
+    font-size:34px;color:var(--gray-2);}
+  .row .val{color:var(--red);font-weight:800;}
+  .row .v0{color:var(--red);font-weight:900;font-size:38px;}
+  .stamp{position:absolute;top:280px;right:80px;font-size:30px;color:var(--red);
+    border:3px solid var(--red);padding:6px 18px;border-radius:8px;letter-spacing:4px;
+    transform:rotate(-12deg);opacity:0;font-weight:900;}
+  .hook{position:absolute;left:40px;right:40px;top:1120px;text-align:center;}
+  .hook .l1{font-size:104px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:2px;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .hook .l2{font-size:96px;font-weight:900;color:var(--red);line-height:1.15;letter-spacing:2px;
+    opacity:0;margin-top:14px;text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .wm{position:absolute;top:1820px;right:40px;font-size:22px;color:var(--gray-3);opacity:.55;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="bg" id="bg"></div>
+  <div class="data" id="data">
+    <div class="lbl">本账号 · 近 4 周抖音播放(数据节选)</div>
+    <div class="row"><span>W26D01 · 美甲</span><span class="val">32</span></div>
+    <div class="row"><span>W26D02 · 团购</span><span class="val">26</span></div>
+    <div class="row"><span>W26D03 · 试吃</span><span class="val">30</span></div>
+    <div class="row"><span>W26D04 · 复购</span><span class="val">22</span></div>
+    <div class="row"><span>W26D08 · 电商</span><span class="v0">11</span></div>
+    <div class="lbl" style="margin-top:30px">互动 · 评论</div>
+    <div class="row"><span>累计</span><span class="v0">0</span></div>
+  </div>
+  <div class="stamp" id="stamp">几乎为 0</div>
+  <div class="hook">
+    <div class="l1" id="l1">4 周做 AI 内容</div>
+    <div class="l2" id="l2">涨粉几乎为 0</div>
+  </div>
+  <div class="wm">数据来源:本账号 ops/metrics.csv</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.to("#bg",{opacity:1,duration:.3},0);
+  tl.fromTo("#data",{opacity:0,scale:.96},{opacity:1,scale:1,duration:.6,ease:"power2.out"},.1);
+  tl.fromTo("#stamp",{opacity:0,scale:.5,rotation:-30},{opacity:1,scale:1,rotation:-12,duration:.4,ease:"back.out(2)"},.9);
+  tl.fromTo("#l1",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},1.4);
+  tl.fromTo("#l2",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},1.9);
+  tl.to({},{duration:.5},2.5);
+  registerTimeline(tl);
+</script>
+</body></html>

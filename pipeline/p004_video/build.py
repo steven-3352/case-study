@@ -229,6 +229,8 @@ def main() -> None:
     ap.add_argument("--vo", type=pathlib.Path, default=DEFAULT_VO)
     ap.add_argument("--bgm", type=pathlib.Path, default=DEFAULT_BGM)
     ap.add_argument("--no-subtitle", action="store_true")
+    ap.add_argument("--subtitle-template", default="_subtitles.html",
+                    help="字幕 HTML 模板名 (在 templates/ 下);默认 _subtitles.html")
     args = ap.parse_args()
 
     sb = args.storyboard.resolve()
@@ -268,7 +270,7 @@ def main() -> None:
         if not args.no_subtitle:
             total_dur = sum(s.duration for s in scenes)
             cmd2 = [sys.executable, str(ROOT / "capture_frames.py"),
-                    "--template", "_subtitles.html",
+                    "--template", args.subtitle_template,
                     "--duration", f"{total_dur}",
                     "--out-id", "_subtitles",
                     "--transparent"]

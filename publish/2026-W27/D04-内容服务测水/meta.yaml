@@ -1,0 +1,27 @@
+content_id: W27D04
+day: D04
+topic_id: T037   # 新增,覆盖 queue/topics.yaml 旧 T020(Codex 入门已废弃)
+title: "我做 AI 内容 4 周涨粉几乎为 0 但今早 3 个老板问我多少钱包一套"
+date: "2026-07-02"
+form_type: video + carousel  # 双平台同选题不同形式
+platforms:
+  - douyin
+  - xhs
+status: in_production
+series: S3-自燃测水
+audience: 实体店老板 + 中年AI创业试错者
+hook_3s_dy: "4 周做 AI 内容 / 涨粉几乎为 0"
+hook_cover_xhs: "我做 AI 内容 4 周涨粉几乎为 0 / 但今早 3 个老板来问报价"
+reversal: 自燃人设(资格质疑)→ 揭穿(扑得彻底 = 避坑清单)→ 测水落点(评论扣档位号)
+cta_dy: 评论扣档位号 / 扣 0 / 凑 10 个免费做 3 个 demo
+cta_xhs: 档位号 + 行业 / 凑 10 个免费 demo
+pricing:
+  light: 99    # 4 条/月
+  mid: 299     # 14 条/月
+  heavy: 599   # 14 条/月 + 周复盘
+red_lines:
+  - 不出具体粉丝数(只说"几乎为 0")
+  - 不写"全额退款"(广告法绝对化)→ 改"未达约定产出量可退"
+  - 不写"99% / 唯一 / 最 / 第一"绝对化用语
+  - "今早 3 个老板问我"必须标"示意"
+  - 没服务过的不许编客户案例

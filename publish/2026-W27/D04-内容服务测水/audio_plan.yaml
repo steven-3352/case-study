@@ -1,0 +1,71 @@
+content_id: W27D04
+title: 4 周做 AI 内容涨粉几乎为 0 但今早 3 个老板问我多少钱包一套
+duration_s: 42
+
+vo:
+  provider: minimax
+  voice: 真诚青年       # 对齐 D03 选用音色
+  speed: 1.0
+  volume: 1.0
+  segments:
+    - id: s1
+      t_start: 0.0
+      t_end: 3.0
+      text: "我做 AI 内容 4 周,粉丝几乎没动过。"
+      emotion: 平静
+    - id: s2
+      t_start: 3.0
+      t_end: 7.0
+      text: "但今早 3 个实体店老板私信我:能给我店里也做一套吗?"
+      emotion: 疑惑(轻挑)
+    - id: s3
+      t_start: 7.0
+      t_end: 11.0
+      text: "你可能想笑——自己都做不起来,凭啥收钱?"
+      emotion: 自嘲(笑)
+    - id: s4
+      t_start: 11.0
+      t_end: 19.0
+      text: "我反过来想:我已经扑得很彻底,每个坑我都精确知道在哪。这是花钱买不到的清单。"
+      emotion: 坚定
+    - id: s5
+      t_start: 19.0
+      t_end: 26.0
+      text: "4 周,AI 全自动出片,一条不到 3 块。"
+      emotion: 平静(炫数据)
+    - id: s6
+      t_start: 26.0
+      t_end: 32.0
+      text: "我开 3 档实体店老板看:99 一月 4 条,299 一月 14 条,599 一月 14 条加周复盘。14 条交付不行你说停,剩下原路退。"
+      emotion: 平静(报价)
+    - id: s7
+      t_start: 32.0
+      t_end: 37.0
+      text: "但我不知道有没有人愿意付。"
+      emotion: 平静(认怂)
+    - id: s8
+      t_start: 37.0
+      t_end: 42.0
+      text: "评论扣个档位号,或扣 0:不付。扣到 10 个,我免费做 3 个 demo。"
+      emotion: 平静(收束)
+
+bgm:
+  path: 我曾经的丫头.mp3      # 项目默认 BGM,慢节奏适配测水自嘲调
+  volume: 0.08              # 不抢 VO(对齐 D03 0.08)
+  fade_in_s: 1.5
+  fade_out_s: 2.0
+
+subtitle:
+  mode: html_overlay         # 项目既定:ffmpeg 无 libass,走 HTML 帧 overlay
+  template: d04_subtitles.html
+  font: 黑体粗体,描边白底黑字
+  position: 底部(避开大字钩子区)
+  dedup: true                # 复用今日 __contentKey 优化
+
+mix:
+  vo_first: true             # VO 不被 BGM 盖
+  voice_volume: 1.0
+  music_volume: 0.08
+
+# 字幕来源
+srt_file: design/sub_va.srt

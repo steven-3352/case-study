@@ -1,0 +1,128 @@
+# 分镜 · storyboard · W27D04(抖音)
+
+content_id: W27D04
+topic: 4 周做 AI 内容涨粉几乎为 0 但今早 3 个老板问我多少钱包一套
+platform: douyin
+canvas: 1080x1920
+duration_s: 42
+script_version: vA
+hook: "4 周做 AI 内容,涨粉几乎为 0"
+trust_anchor: 真实终端录屏(8e13d3c 真提交)+ 真实弱播数据(metrics.csv)+ 仿真私信常驻"示意"水印
+
+red_lines:
+  - 不出具体粉丝数,只"几乎为 0 / 一片红"定性
+  - "14 条交付不行你说停"履约担保口径,禁"全退"原文
+  - 仿真私信右上角常驻"示意"水印
+  - 不用"保证 / 唯一 / 最便宜 / 99%"绝对化用语
+  - 报价 99/299/599 大字进片但不暗示行业最低
+
+shots:
+  - id: s1_hook
+    t: "0-3"
+    duration: 3.0
+    template: d04_hook.html
+    intent: 停划(自燃反差)
+    visual: |
+      底层:真实后台数据截图(metrics.csv 一片红)虚化压灰打底
+      上层:大字"4 周做 AI 内容 / 涨粉几乎为 0"砸入定格
+      0-1.5s:数据截图 zoom-in 红色一片淡入
+      1.5-3s:大字砸入,数据退背景层
+    vo: "我做 AI 内容 4 周,粉丝几乎没动过。"
+    subtitle: "我做 AI 内容 4 周,粉丝几乎没动过"
+    focus: 大字钩子 · 数据截图退背景
+
+  - id: s2_signal
+    t: "3-7"
+    duration: 4.0
+    template: d04_signal.html
+    intent: 反转预告(信号真有)
+    visual: |
+      3-4s:私信截图 1(餐饮老板)从右滑入 + 右上角"示意"水印
+      4-5s:截图 1 推后,截图 2(美容店主)滑入
+      5-6s:截图 2 推后,截图 3(教培负责人)滑入
+      6-7s:三张并排定格,大字"今早 3 条私信"叠下方
+    vo: "但今早 3 个实体店老板私信我:能给我店里也做一套吗?"
+    subtitle: "但今早 3 个老板私信我:能给我店里也做一套吗?"
+    focus: 三张私信截图依次进入 · "示意"水印可见
+
+  - id: s3_self_doubt
+    t: "7-11"
+    duration: 4.0
+    template: d04_self_doubt.html
+    intent: 灵魂自问(代入)
+    visual: |
+      全屏深色底
+      7-8.5s:大字"自己都做不起来"砸入
+      8.5-9.5s:停顿(VO 自嘲笑)
+      9.5-11s:大字"凭啥收钱?"砸入,前句压灰
+    vo: "你可能想笑——自己都做不起来,凭啥收钱?"
+    subtitle: "你可能想笑——自己都做不起来,凭啥收钱?"
+    focus: 大字自问 + 节奏停顿
+
+  - id: s4_reversal
+    t: "11-19"
+    duration: 8.0
+    template: d04_reversal.html
+    intent: 反转主战场(避坑清单)
+    visual: |
+      11-13s:终端录屏 - capture_frames.py 8 并行截帧 8 个并列进度条
+      13-15s:git log 显示 8e13d3c "perf: P004 截帧并行 + 字幕去重,制作时间 ~3.4×"
+      15-17s:metrics.csv 红色一片放大,大字"扑得彻底 = 避坑清单"砸入
+      17-19s:大字"这是花钱买不到的清单"定格
+    vo: "我反过来想:我已经扑得很彻底,每个坑我都精确知道在哪。这是花钱买不到的清单。"
+    subtitle: "扑得很彻底 = 避坑清单 · 花钱买不到"
+    focus: 终端进度条移动 → git log → 数据 → 大字
+
+  - id: s5_cost
+    t: "19-26"
+    duration: 7.0
+    template: d04_cost.html
+    intent: 真成本拆解(信任锚)
+    visual: |
+      19-20s:大字"4 周 / 14 条 / AI 全自动"从上滑入
+      20-23s:GSAP countUp 从 ¥0 → ¥2.87,大字显示
+      23-26s:旁注小字"图 0.3 + 配音 1 + 渲染本地 0"逐行 stagger
+    vo: "4 周,AI 全自动出片,一条不到 3 块。"
+    subtitle: "4 周 · AI 全自动出片 · 一条不到 3 块"
+    focus: countUp 数字主焦点
+
+  - id: s6_pricing
+    t: "26-32"
+    duration: 6.0
+    template: d04_pricing.html
+    intent: 三档报价(收藏钩)
+    visual: |
+      26-27s:大字"3 档报价"砸入
+      27-29s:99 / 299 / 599 三档大字横排 stagger 显现
+      29-31s:各档下方副字"4 条 / 14 条 / 14 条+周复盘"
+      31-32s:底部小字"14 条交付不行你说停,剩下原路退"
+    vo: "我开 3 档实体店老板看:99 一月 4 条,299 一月 14 条,599 一月 14 条加周复盘。14 条交付不行你说停,剩下原路退。"
+    subtitle: "99 · 299 · 599 / 14 条交付不行你说停,剩下原路退"
+    focus: 三档大数字横排
+
+  - id: s7_water
+    t: "32-37"
+    duration: 5.0
+    template: d04_water.html
+    intent: 测水自嘲(反高潮)
+    visual: |
+      全屏深色底
+      32-34s:大字"但我不知道有没有人愿意付"从左滑入
+      34-37s:VO 节奏放慢,背景灰度加深
+    vo: "但我不知道有没有人愿意付。"
+    subtitle: "但我不知道有没有人愿意付"
+    focus: 单镜反高潮大字
+
+  - id: s8_cta
+    t: "37-42"
+    duration: 5.0
+    template: d04_cta.html
+    intent: CTA 数字弹幕墙(评论主战场)
+    visual: |
+      37-38s:大字"评论扣个档位号 / 或扣 0:不付"砸入
+      38-40s:数字 0 / 99 / 299 / 599 从四角飘入弹幕墙
+      40-41s:大字"扣到 10 个 / 免费做 3 个 demo"
+      41-42s:评论区图标定格
+    vo: "评论扣个档位号,或扣 0:不付。扣到 10 个,我免费做 3 个 demo。"
+    subtitle: "评论扣档位号 0/99/299/599 · 扣 10 个免费做 3 个 demo"
+    focus: 数字弹幕墙 + 评论区图标

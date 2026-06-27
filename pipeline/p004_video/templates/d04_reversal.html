@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .term{position:absolute;top:140px;left:50px;right:50px;height:1000px;}
+  .titlebar{height:70px;background:#2a3140;border-radius:18px 18px 0 0;display:flex;align-items:center;
+    padding:0 28px;gap:12px;}
+  .titlebar .dot{width:18px;height:18px;border-radius:50%;}
+  .titlebar .ti{margin-left:30px;font-family:var(--mono);font-size:26px;color:var(--gray-2);}
+  .body{background:#11161e;border-radius:0 0 18px 18px;padding:30px 34px;height:calc(100% - 70px);
+    font-family:var(--mono);font-size:30px;color:var(--gray-1);overflow:hidden;}
+  .body .cmd{color:var(--green);}
+  .body .out{color:var(--gray-2);margin:8px 0 18px 0;}
+  .body .gh{color:var(--blue);font-weight:700;}
+  .progress{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .prow{display:flex;align-items:center;gap:14px;}
+  .prow .lbl{width:140px;font-size:24px;color:var(--gray-3);}
+  .bar{flex:1;height:18px;background:#2a3140;border-radius:9px;overflow:hidden;position:relative;}
+  .bar .fill{height:100%;background:linear-gradient(90deg,var(--green),#a3ff8c);width:0;border-radius:9px;}
+  .data-stamp{position:absolute;top:1180px;left:50px;right:50px;background:#11161e;border:2px solid #3a1f1f;
+    border-radius:14px;padding:18px 24px;opacity:0;}
+  .data-stamp .lbl{font-size:24px;color:var(--gray-3);letter-spacing:2px;}
+  .data-stamp .nums{display:flex;gap:24px;margin-top:8px;font-family:var(--mono);}
+  .data-stamp .n{font-size:48px;color:var(--red);font-weight:900;}
+  .l1{position:absolute;left:40px;right:40px;top:1380px;text-align:center;font-size:84px;font-weight:900;
+    color:#fff;line-height:1.18;letter-spacing:1px;opacity:0;
+    text-shadow:0 5px 0 #000,0 16px 32px rgba(0,0,0,.7);}
+  .l1 .hi{color:var(--green);}
+  .l2{position:absolute;left:40px;right:40px;top:1600px;text-align:center;font-size:62px;font-weight:800;
+    color:var(--orange);letter-spacing:1px;opacity:0;text-shadow:0 4px 0 #000;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dot" style="background:#ff5f57"></div>
+      <div class="dot" style="background:#febc2e"></div>
+      <div class="dot" style="background:#28c840"></div>
+      <div class="ti">~/case-study — capture_frames.py</div>
+    </div>
+    <div class="body">
+      <div class="cmd">$ python3 capture_frames.py --all --workers 8</div>
+      <div class="out">开始截帧 8 个任务 · 并行 8</div>
+      <div class="progress" id="progress">
+        <div class="prow"><div class="lbl">s1_hook</div><div class="bar"><div class="fill" id="b1"></div></div></div>
+        <div class="prow"><div class="lbl">s2_signal</div><div class="bar"><div class="fill" id="b2"></div></div></div>
+        <div class="prow"><div class="lbl">s3_doubt</div><div class="bar"><div class="fill" id="b3"></div></div></div>
+        <div class="prow"><div class="lbl">s4_reversal</div><div class="bar"><div class="fill" id="b4"></div></div></div>
+        <div class="prow"><div class="lbl">s5_cost</div><div class="bar"><div class="fill" id="b5"></div></div></div>
+        <div class="prow"><div class="lbl">s6_pricing</div><div class="bar"><div class="fill" id="b6"></div></div></div>
+        <div class="prow"><div class="lbl">s7_water</div><div class="bar"><div class="fill" id="b7"></div></div></div>
+        <div class="prow"><div class="lbl">s8_cta</div><div class="bar"><div class="fill" id="b8"></div></div></div>
+      </div>
+      <div class="out" id="gitlog" style="opacity:0;margin-top:24px;font-size:24px;">
+        <span class="gh">commit 8e13d3c</span>  perf: P004 截帧并行 + 字幕去重,制作时间 ~3.4×<br>
+        <span style="color:var(--green)">+154</span> <span style="color:var(--red)">-69</span>  · 字幕去重逐字节一致 · 已 cmp 验证
+      </div>
+    </div>
+  </div>
+  <div class="data-stamp" id="ds">
+    <div class="lbl">本账号 · W26 真实数据</div>
+    <div class="nums">
+      <div><div class="lbl" style="font-size:18px">D01</div><div class="n">32</div></div>
+      <div><div class="lbl" style="font-size:18px">D02</div><div class="n">26</div></div>
+      <div><div class="lbl" style="font-size:18px">D03</div><div class="n">30</div></div>
+      <div><div class="lbl" style="font-size:18px">D04</div><div class="n">22</div></div>
+      <div><div class="lbl" style="font-size:18px">D08</div><div class="n">11</div></div>
+    </div>
+  </div>
+  <div class="l1" id="l1">扑得彻底 = <span class="hi">避坑清单</span></div>
+  <div class="l2" id="l2">花钱买不到</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  // 0-2s 进度条 stagger 跑
+  for(let i=1;i<=8;i++){
+    tl.to("#b"+i,{width:"100%",duration:1.0,ease:"power1.out"},(i-1)*0.12);
+  }
+  // 2-4s git log 渐入
+  tl.fromTo("#gitlog",{opacity:0,y:20},{opacity:1,y:0,duration:.5},2.2);
+  // 4-6s 数据 stamp
+  tl.fromTo("#ds",{opacity:0,scale:.95},{opacity:1,scale:1,duration:.4},4.0);
+  // 6-8s 反转大字
+  tl.fromTo("#l1",{opacity:0,y:30,scale:.95},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.4)"},5.6);
+  tl.fromTo("#l2",{opacity:0,y:30},{opacity:1,y:0,duration:.4},6.4);
+  tl.to({},{duration:1.0},7.0);
+  registerTimeline(tl);
+</script>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#0a0e14;}
+  .ttl{position:absolute;top:200px;left:0;right:0;text-align:center;font-size:88px;font-weight:900;
+    color:#fff;letter-spacing:2px;opacity:0;
+    text-shadow:0 5px 0 #000,0 16px 32px rgba(0,0,0,.7);}
+  .ttl .hi{color:var(--orange);}
+  .cards{position:absolute;top:480px;left:30px;right:30px;display:flex;gap:18px;justify-content:center;}
+  .card{flex:1;background:#11161e;border-radius:28px;padding:30px 18px;text-align:center;
+    border:3px solid var(--gray-4);opacity:0;transform:translateY(60px);}
+  .card.mid{border-color:var(--green);background:linear-gradient(180deg,#0f2a1a 0%,#11161e 100%);
+    transform:translateY(60px) scale(1.04);}
+  .card .tier{font-size:36px;font-weight:800;color:var(--gray-2);margin-bottom:14px;letter-spacing:2px;}
+  .card.mid .tier{color:var(--green);}
+  .card .price{font-family:var(--mono);font-size:140px;font-weight:900;line-height:1;color:#fff;
+    letter-spacing:-4px;}
+  .card.mid .price{color:var(--green);}
+  .card .perm{font-size:26px;color:var(--gray-3);margin-top:8px;letter-spacing:2px;}
+  .card .qty{font-size:34px;font-weight:800;color:var(--orange);margin-top:22px;letter-spacing:1px;}
+  .card.mid .qty{color:#fff;}
+  .card .feat{font-size:24px;color:var(--gray-2);margin-top:14px;line-height:1.45;}
+  .badge{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:var(--green);
+    color:#0a0e14;font-size:22px;font-weight:900;padding:6px 18px;border-radius:999px;letter-spacing:2px;}
+  .promise{position:absolute;left:60px;right:60px;bottom:300px;text-align:center;
+    font-size:42px;font-weight:800;color:#fff;letter-spacing:1px;opacity:0;
+    background:rgba(255,184,108,.15);border:2px solid var(--orange);border-radius:18px;padding:24px 30px;}
+  .promise .hi{color:var(--orange);}
+  .compare{position:absolute;left:60px;right:60px;bottom:180px;text-align:center;font-size:26px;
+    color:var(--gray-3);letter-spacing:1px;opacity:0;font-style:italic;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="ttl" id="ttl">3 档 · <span class="hi">实体店老板看</span></div>
+  <div class="cards">
+    <div class="card" id="c1">
+      <div class="tier">轻档</div>
+      <div class="price">99</div>
+      <div class="perm">元 / 月</div>
+      <div class="qty">4 条</div>
+      <div class="feat">小红书种草<br>文 + 图 + 标签</div>
+    </div>
+    <div class="card mid" id="c2">
+      <div class="badge">推荐</div>
+      <div class="tier">中档</div>
+      <div class="price">299</div>
+      <div class="perm">元 / 月</div>
+      <div class="qty">14 条</div>
+      <div class="feat">同上 +<br>每周 1 次答疑</div>
+    </div>
+    <div class="card" id="c3">
+      <div class="tier">重档</div>
+      <div class="price">599</div>
+      <div class="perm">元 / 月</div>
+      <div class="qty">14 条</div>
+      <div class="feat">同上 +<br>周复盘报告</div>
+    </div>
+  </div>
+  <div class="promise" id="pr">14 条交付不行你说停,<span class="hi">剩下原路退</span></div>
+  <div class="compare" id="cp">参考:同行月套餐 3000 起步(2026 在售公开口径)</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#ttl",{opacity:0,y:-30},{opacity:1,y:0,duration:.4},0);
+  tl.fromTo("#c1",{opacity:0,y:60,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.4)"},.5);
+  tl.fromTo("#c2",{opacity:0,y:60,scale:.92},{opacity:1,y:0,scale:1.04,duration:.5,ease:"back.out(1.4)"},.7);
+  tl.fromTo("#c3",{opacity:0,y:60,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.4)"},.9);
+  tl.fromTo("#pr",{opacity:0,y:30},{opacity:1,y:0,duration:.5},2.0);
+  tl.fromTo("#cp",{opacity:0},{opacity:1,duration:.4},2.7);
+  tl.to({},{duration:1.5},3.5);
+  registerTimeline(tl);
+</script>
+</body></html>

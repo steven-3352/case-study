@@ -92,9 +92,11 @@ def synthesize(text: str, voice: str, rate: str, pitch: str, volume: str, out: p
         [
             edge,
             "--voice", voice,
-            "--rate", rate,
-            "--pitch", pitch,
-            "--volume", volume,
+            # edge-tts 7.x argparse 把 "-3Hz" 当成 option name,
+            # 必须用 = 合并把负值塞进同一个 token
+            f"--rate={rate}",
+            f"--pitch={pitch}",
+            f"--volume={volume}",
             "--text", text,
             "--write-media", str(out),
         ],

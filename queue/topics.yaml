@@ -296,9 +296,9 @@ topics:
     format: [video]
     platforms: [抖音]
     priority: P0
-    status: approved
-    note: "W27 D04 · 自T017移入"
-    source: publish/2026-W27/
+    status: killed
+    note: "W27 D04 原选题 · 2026-06-27 用户拍板换 T037(测水)替换;W26D09 资产保留备查"
+    source: publish/2026-W26/D09-Codex入门/
 
   - id: T021
     project: W27X01
@@ -320,9 +320,21 @@ topics:
     format: [carousel]
     platforms: [小红书]
     priority: P0
-    status: approved
-    note: "W27 D04 xhs"
+    status: killed
+    note: "W27 D04 xhs 原选题 · 2026-06-27 用户拍板换 T037(测水)替换"
     source: publish/P002/xhs/
+
+  - id: T037
+    project: W27D04
+    series: S3-自燃测水
+    title: "4 周做 AI 内容涨粉几乎为 0,但今早 3 个老板问我多少钱包一套"
+    angle: 自燃测水 · 内容代运营 · 双平台同选题
+    format: [video, carousel]
+    platforms: [抖音, 小红书]
+    priority: P0
+    status: approved
+    note: "2026-06-27 用户拍板新选题 · 替代 T020+T032 · 反转 = 资格质疑→避坑清单·CTA=评论扣档位号测水"
+    source: publish/2026-W27/D04-内容服务测水/
 
   - id: T033
     project: W27D05

@@ -72,16 +72,16 @@ days:
     date: "2026-07-02"
     douyin:
       project_id: W27D04
-      topic_id: T020
-      title: "普通人第一次用 Codex，别先让它写系统"
-      hook: "从一件重复事开始"
-      note: Codex · S2 · 官方口径复核
+      topic_id: T037
+      title: "4 周做 AI 内容涨粉几乎为 0,但今早 3 个老板问我多少钱包一套"
+      hook: "涨粉为 0 · 3 个老板问报价"
+      note: 自燃测水 · 双平台同选题不同形式 · 内容代运营测付费意愿
     xhs:
-      project_id: W27X04
-      topic_id: T032
-      title: "5 年谈了 5 个对象，没一个超过 8 个月"
-      hook: "Copilot到Claude"
-      note: P002 报纸风 · AI工具人格化 · 趣味meta · 非教程号
+      project_id: W27D04
+      topic_id: T037
+      title: "4 周做 AI 内容涨粉几乎为 0,但今早 3 个老板来问报价"
+      hook: "我妈是我最铁的粉(已改:涨粉为 0)"
+      note: 双平台同选题 · 形式分轨(抖音视频 + 小红书 8 张轮播)
 
   - day: D05
     date: "2026-07-03"
