@@ -8,11 +8,15 @@
   --green: #50fa7b;
   --green-soft: rgba(80, 250, 123, 0.15);
   --orange: #ffb86c;
-  --red: #ff5252;
-  --red-soft: rgba(255, 82, 82, 0.15);
-  --blue: #8be9fd;
+  --red: #e53935;
+  --red-soft: rgba(229, 57, 53, 0.15);
+  /* DO NOT USE — Dracula 霓虹色板(紫/粉/青)是 AI 圈套路色,触发"AI 味"零容忍.
+     如需冷色调,改用真截屏自带的系统蓝/iOS 蓝,不要走霓虹色值.
+     详见 docs/DECISIONS.md Q9 「禁霓虹色细则」.
   --purple: #bd93f9;
-  --pink: #ff79c6;
+  --pink:   #ff79c6;
+  --blue:   #8be9fd;
+  */
   --gray-1: #f8f8f2;
   --gray-2: #abb2bf;
   --gray-3: #6b7280;
