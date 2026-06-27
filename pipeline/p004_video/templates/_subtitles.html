@@ -67,6 +67,15 @@
     });
     tl.to({}, { duration: 0.05 }, 55.42);
     registerTimeline(tl);
+
+    // 截帧去重钩子 · 可见像素完全由 文字 + opacity + transform 决定。
+    // opacity≈0(8bit alpha 取整为 0)的帧一律是全透明 → 归一为 "blank"。
+    // key 相同 → capture_frames.py 硬链复用上一张,像素一致。
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
   </script>
 </body>
 </html>
