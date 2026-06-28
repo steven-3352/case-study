@@ -27,31 +27,32 @@ days:
     date: "2026-06-29"
     douyin:
       project_id: W27D01
-      topic_id: T018
-      title: "W26五条几乎没人看，我拆成9个工种重做了"
-      hook: "数据不会骗人"
-      note: meta复盘 · 唯一保留的「提及W26」· 说明为何换题
+      slug: AI团队出片
+      topic_id: T007
+      title: "一句话→一支 AI 团队做完一条视频"
+      hook: "一句话出片"
+      note: 实建 publish/2026-W27/D01-AI团队出片 · 展示 meta 过程 · ≠ T018 W26复盘口吻
     xhs:
       project_id: W27X01
       topic_id: T007
       title: "我说了一句话，9 个 AI 抢着帮我干"
       hook: "9个工种10分钟交付"
-      note: P003 多Agent轮播 · 历史验证方向 · 非小老板线
+      note: P003 多Agent轮播 · 未建 W27 目录 · 见 publish/P003/
 
   - day: D02
     date: "2026-06-30"
     douyin:
       project_id: W27D02
-      topic_id: T008
-      title: "又是这个，问八百遍 — 一群小系统替你回客户"
-      hook: "问八百遍"
-      note: P004 K1 · 实体店但叙事是「项目介绍/meta」· ≠ W26 D01 美甲撞档
+      slug: 会议纪要
+      title: "开完会就走，纪要和待办 AI 已发群"
+      hook: "散会就走"
+      note: 实建 D02-会议纪要 · 职场痛点 · 2026-06-27 换题 · queue T019/T008 方向已废弃
     xhs:
       project_id: W27X02
       topic_id: T001
       title: "花一天搭了套自动跑的系统，第5天我傻眼了"
       hook: "第5天看数据"
-      note: P001-A 故事踩坑轮播 · 海外获客
+      note: P001-A 故事踩坑轮播 · 未建 W27 目录
 
   - day: D03
     date: "2026-07-01"
@@ -87,16 +88,16 @@ days:
     date: "2026-07-03"
     douyin:
       project_id: W27D05
-      topic_id: T033
-      title: "第5天看数据我傻眼了｜海外品牌邮件获客"
-      hook: "第五天曝光有了"
-      note: 对齐历史171播 · P001 视频向 · 邮件自动化
+      topic_id: T039
+      title: "老板让我帮他招人回客户消息,我让他先看 3 个月群记录 — 数完那天他说'不用招了'"
+      hook: "招人这件事 我建议你先别招"
+      note: 2026-06-27 用户拍板换题 · 双平台同选题不同形式 · 反转 = 招人 → 数据 → 自己取消招聘 · 实体店通用
     xhs:
-      project_id: W27X05
-      topic_id: T034
-      title: "AI时代你准备好了吗？"
-      hook: "十字路口"
-      note: 思辨轮播 · 对齐403播 · 非小老板改造
+      project_id: W27D05
+      topic_id: T039
+      title: "老板要招人回客户消息,我让他先数 3 个月群记录 — 他自己取消了招聘"
+      hook: "数完那天 他说不用招了"
+      note: 双平台同选题 · 8 张轮播 · 真截屏 + 数字柱图 + 老板原话 + 行动清单
 
   - day: D06
     date: "2026-07-04"

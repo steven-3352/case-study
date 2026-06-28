@@ -218,7 +218,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 3 | **日更分轨** | 每平台 **每天 1 条**（xhs 12:30 · dy 19:30）；同日可成对痛点但须独立脚本/形式 |
 | 4 | **平台默认形态** | 抖音：38–45s 叙事视频；小红书：轮播/清单/字段表 |
 
-详规：`publish/2026-W27/PLAN.md` · `publish/2026-W26/evolution_brief.yaml` · `templates/publish_双平台.md`
+详规：`publish/2026-W27/week.yaml` · `publish/2026-W27/PLAN.md` · `publish/2026-W26/evolution_brief.yaml` · `templates/publish_双平台.md`
 
 ### 3.1d 正向复用协议（D08 重做版沉淀）
 
