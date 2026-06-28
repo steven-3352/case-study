@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#000;}
+  /* 上方大字"她沉默了三秒" */
+  .lead{position:absolute;top:140px;left:60px;right:60px;text-align:center;}
+  .lead .l1{font-size:82px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:2px;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .lead .l1 .hi{color:var(--red);}
+  /* 仿微信群截屏 — 老板自己发的消息(右侧绿色气泡) */
+  .feed{position:absolute;top:380px;left:60px;right:60px;height:1080px;
+    background:#ededed;border-radius:24px;padding:24px 22px;opacity:0;overflow:hidden;}
+  .group-bar{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid #d0d0d0;
+    margin-bottom:18px;}
+  .group-bar .ico{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#95ec69,#2eb872);
+    display:flex;align-items:center;justify-content:center;font-size:30px;}
+  .group-bar .name{font-size:28px;font-weight:700;color:#1a1a1a;}
+  .group-bar .count{margin-left:auto;font-size:22px;color:#888;}
+  .time-pill{display:flex;justify-content:center;margin:8px 0 22px 0;}
+  .time-pill span{background:#c8c8c8;color:#fff;font-size:22px;padding:6px 16px;border-radius:8px;}
+  /* 别人的提问 */
+  .msg-l{display:flex;gap:14px;align-items:flex-start;margin-bottom:24px;opacity:0;}
+  .msg-l .avt{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#a8edea,#6dd5fa);
+    display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
+  .msg-l .bubble{background:#fff;border-radius:14px;padding:18px 22px;max-width:680px;
+    font-size:34px;color:#1a1a1a;line-height:1.4;position:relative;
+    box-shadow:0 4px 12px rgba(0,0,0,.06);}
+  .msg-l .who{position:absolute;top:-28px;left:6px;font-size:20px;color:#999;}
+  /* 老板自己发的 — 右侧绿色 */
+  .msg-r{display:flex;gap:14px;align-items:flex-start;flex-direction:row-reverse;margin-bottom:22px;opacity:0;}
+  .msg-r .avt{width:72px;height:72px;border-radius:10px;background:linear-gradient(135deg,#ff9a8b,#ff6b6b);
+    display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;
+    border:3px solid #e53935;}
+  .msg-r .bubble{background:#95ec69;border-radius:14px;padding:22px 26px;max-width:720px;
+    font-size:42px;color:#1a1a1a;line-height:1.4;font-weight:700;position:relative;
+    box-shadow:0 4px 14px rgba(0,0,0,.1);}
+  .msg-r .who{position:absolute;top:-28px;right:6px;font-size:22px;color:#5a8c40;font-weight:700;}
+  /* 老板那条特别强调:外框红圈 */
+  .msg-r.boss .bubble{border:3px solid #e53935;}
+  /* 顶部水印 */
+  .feed .stamp{position:absolute;top:18px;right:22px;background:#e53935;color:#fff;
+    font-size:18px;padding:4px 10px;border-radius:6px;letter-spacing:2px;font-weight:800;opacity:.85;
+    transform:rotate(-6deg);}
+  /* 底部"她当晚发群" 提示 */
+  .tail{position:absolute;left:40px;right:40px;top:1480px;text-align:center;}
+  .tail .l2{font-size:74px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:2px;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .tail .l2 .hi{color:var(--orange);}
+  .wm{position:absolute;top:1830px;right:40px;font-size:22px;color:var(--gray-3);opacity:.55;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="lead">
+    <div class="l1" id="l1">她看完柱图 <span class="hi">沉默了三秒</span></div>
+  </div>
+  <div class="feed" id="feed">
+    <div class="stamp">示意 · 已脱敏</div>
+    <div class="group-bar">
+      <div class="ico">💬</div>
+      <div class="name">店务总群(8)</div>
+      <div class="count">22:14</div>
+    </div>
+    <div class="time-pill"><span>今天 22:14</span></div>
+    <div class="msg-l" id="m1">
+      <div class="avt">👨</div>
+      <div class="bubble"><span class="who">小王 · 22:13</span>姐 那客服明天发招聘不?</div>
+    </div>
+    <div class="msg-r boss" id="m2">
+      <div class="avt">👩</div>
+      <div class="bubble"><span class="who">店主 L · 22:14</span>招人推迟 · 先做个表</div>
+    </div>
+    <div class="msg-l" id="m3">
+      <div class="avt">👩</div>
+      <div class="bubble"><span class="who">小赵 · 22:15</span>啊?什么表?</div>
+    </div>
+    <div class="msg-r" id="m4">
+      <div class="avt">👩</div>
+      <div class="bubble" style="font-size:34px;font-weight:500;"><span class="who">店主 L · 22:16</span>客户问的问题表 · 明早讲</div>
+    </div>
+  </div>
+  <div class="tail">
+    <div class="l2" id="l2">她当晚发群:<span class="hi">"招人推迟,先做个表"</span></div>
+  </div>
+  <div class="wm">某母婴店店务群(示意 · 已脱敏)</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#l1",{opacity:0,y:30},{opacity:1,y:0,duration:.4,ease:"power2.out"},0);
+  tl.to("#feed",{opacity:1,duration:.4},.8);
+  tl.fromTo("#m1",{opacity:0,x:-20},{opacity:1,x:0,duration:.3},1.2);
+  tl.fromTo("#m2",{opacity:0,scale:.92,x:20},{opacity:1,scale:1,x:0,duration:.45,ease:"back.out(1.5)"},1.7);
+  tl.fromTo("#m3",{opacity:0,x:-20},{opacity:1,x:0,duration:.3},2.4);
+  tl.fromTo("#m4",{opacity:0,x:20},{opacity:1,x:0,duration:.3},2.8);
+  tl.fromTo("#l2",{opacity:0,y:30},{opacity:1,y:0,duration:.4,ease:"power2.out"},3.4);
+  tl.to({},{duration:1.2},4.0);
+  registerTimeline(tl);
+</script>
+</body></html>

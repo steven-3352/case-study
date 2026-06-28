@@ -1,0 +1,36 @@
+content_id: W27D06
+day: D06
+date: "2026-07-04"
+topic_id: T035
+slug: 多Agent一行字
+title: "我只说了一个选题，一群 Agent 帮我做事全程无参与"
+platform: douyin
+form_type: 演示型
+status: ready_to_publish
+series: S2-多Agent-meta
+
+audience: 一人公司 / 内容创业者 / 想用 AI 提效但不想天天盯流程的人
+
+hook_3s: "我只在 queue 里打了一行选题"
+differentiation_vs_D01: |
+  D01 = 一句话做出一条成片视频（成品导向）
+  D06 = 一行选题立项 → 洞察/讨论室/gate/render 全链路（引擎过程导向）
+  首镜证据须不同：queue/topics.yaml + gate_check 终端，非 D01 卡通吵架
+
+cta_style: discussion_only  # 用户拍板 2026-06-27 · 纯讨论型 · 禁止扣1测水
+cta_dy: "你最想先甩给 Agent 的是写稿、找素材还是过门禁？评论区说一件具体事。"
+cta_redlines:
+  - 正文/口播不写私信、扣1、加微信
+  - 置顶仅自然回复，不硬导流
+
+red_lines:
+  - 项目画面用真实仓库录屏/终端，禁 P 图假后台
+  - 不与 D01 同质首镜（形式策略须声明 winner）
+  - 数字人/真人出镜禁止（演示型）
+
+demo_tool: null
+
+source_truth:
+  - queue/topics.yaml
+  - pipeline/week_room.py · gate_check.py
+  - publish/2026-W27/D06-多Agent一行字/

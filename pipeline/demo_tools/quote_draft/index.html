@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>报价草稿 · 演示小工具</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: #f0f2f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    header h1 { font-size: 20px; font-weight: 600; margin: 0; }
+    .badge {
+      font-size: 12px;
+      background: #e8f4fd;
+      color: #0969da;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: #374151;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 2fr 1fr 1fr 40px; gap: 8px; align-items: end; }
+    .row label { margin-bottom: 4px; }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary { background: #111827; color: #fff; }
+    .btn-ghost { background: #f3f4f6; color: #374151; }
+    .btn-sm { padding: 8px; font-size: 12px; }
+    .actions { display: flex; gap: 8px; margin-top: 8px; }
+    .preview {
+      font-size: 14px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      background: #fafafa;
+      border: 1px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 320px;
+    }
+    .preview .title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .preview .meta { color: #6b7280; font-size: 13px; margin-bottom: 16px; }
+    .preview table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    .preview th, .preview td { border-bottom: 1px solid #e5e7eb; padding: 8px 4px; text-align: left; }
+    .preview th:last-child, .preview td:last-child { text-align: right; }
+    .total { font-size: 16px; font-weight: 700; margin-top: 12px; }
+    .hint { font-size: 12px; color: #9ca3af; margin-top: 12px; }
+    .watermark { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>报价草稿生成器</h1>
+      <span class="badge">演示 · 本地小工具</span>
+    </header>
+    <div class="grid">
+      <div class="card">
+        <h2>客户与项目</h2>
+        <label>客户名称</label>
+        <input id="client" value="张姐 · 母婴店" />
+        <label>项目类型</label>
+        <select id="projectType">
+          <option value="活动拍摄">活动拍摄包</option>
+          <option value="门店装修">门店轻装修</option>
+          <option value="定制礼盒">定制礼盒批量</option>
+          <option value="企业培训">企业内训半天</option>
+        </select>
+        <label>备注（口头需求）</label>
+        <textarea id="notes">要拍探店+产品特写，周末两天，要加急，上次报价被嫌贵又改规格…</textarea>
+        <h2 style="margin-top:8px">明细行</h2>
+        <div id="lines"></div>
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" id="addLine">+ 加一行</button>
+          <button class="btn btn-primary" type="button" id="gen">生成草稿</button>
+        </div>
+        <p class="hint">改规格后点一次生成，右侧即时出稿 — 演示「不用 Excel 改第 8 版」。</p>
+      </div>
+      <div class="card">
+        <h2>报价草稿预览</h2>
+        <div class="preview" id="preview">点击「生成草稿」…</div>
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" id="copy">复制全文</button>
+        </div>
+      </div>
+    </div>
+    <p class="watermark">W27X06 演示 · 示意数据 · 非真实客户</p>
+  </div>
+  <script>
+    const presets = {
+      "活动拍摄": [
+        { name: "探店短视频 2 条", unit: "条", qty: 2, price: 800 },
+        { name: "产品特写素材", unit: "组", qty: 1, price: 600 },
+        { name: "周末加急", unit: "次", qty: 1, price: 400 },
+      ],
+      "门店装修": [
+        { name: "门头灯箱设计", unit: "项", qty: 1, price: 1200 },
+        { name: "墙面文化墙", unit: "㎡", qty: 8, price: 180 },
+        { name: "施工协调", unit: "天", qty: 3, price: 500 },
+      ],
+      "定制礼盒": [
+        { name: "礼盒设计打样", unit: "款", qty: 1, price: 900 },
+        { name: "批量制作 200 份", unit: "份", qty: 200, price: 28 },
+        { name: "物流打包", unit: "批", qty: 1, price: 350 },
+      ],
+      "企业培训": [
+        { name: "半天内训讲师", unit: "场", qty: 1, price: 3500 },
+        { name: "课件与练习册", unit: "套", qty: 1, price: 800 },
+        { name: "课后答疑 30 天", unit: "项", qty: 1, price: 0 },
+      ],
+    };
+
+    const linesEl = document.getElementById("lines");
+    const projectType = document.getElementById("projectType");
+
+    function renderLines(items) {
+      linesEl.innerHTML = "";
+      items.forEach((item, i) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerHTML = `
+          <div><label>项目</label><input class="line-name" value="${item.name}" /></div>
+          <div><label>数量</label><input class="line-qty" type="number" min="0" value="${item.qty}" /></div>
+          <div><label>单价</label><input class="line-price" type="number" min="0" value="${item.price}" /></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm del" type="button">删</button></div>
+        `;
+        row.querySelector(".del").onclick = () => {
+          items.splice(i, 1);
+          renderLines(items);
+        };
+        linesEl.appendChild(row);
+      });
+      linesEl._items = items;
+    }
+
+    function loadPreset() {
+      renderLines(presets[projectType.value].map((x) => ({ ...x })));
+    }
+
+    projectType.onchange = loadPreset;
+    document.getElementById("addLine").onclick = () => {
+      const items = linesEl._items || [];
+      items.push({ name: "新明细", unit: "项", qty: 1, price: 0 });
+      renderLines(items);
+    };
+
+    function today() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    document.getElementById("gen").onclick = () => {
+      const client = document.getElementById("client").value.trim();
+      const type = projectType.value;
+      const notes = document.getElementById("notes").value.trim();
+      const items = linesEl._items || [];
+      let rows = "";
+      let sum = 0;
+      items.forEach((it) => {
+        const qty = Number(it.qty) || 0;
+        const price = Number(it.price) || 0;
+        const sub = qty * price;
+        sum += sub;
+        rows += `<tr><td>${it.name}</td><td>${qty}</td><td>¥${price}</td><td>¥${sub}</td></tr>`;
+      });
+      const html = `
+        <div class="title">${type} · 报价草稿</div>
+        <div class="meta">致：${client} · 日期：${today()} · 版本：自动草稿 v1</div>
+        <div>需求摘要：${notes || "—"}</div>
+        <table><thead><tr><th>项目</th><th>数量</th><th>单价</th><th>小计</th></tr></thead><tbody>${rows}</tbody></table>
+        <div class="total">合计（含税说明见合同）：¥${sum}</div>
+        <div style="margin-top:16px;font-size:13px;color:#4b5563">
+          说明：本稿为系统根据口头需求自动整理，正式报价以双方确认签字版为准。工期与付款方式可再议。
+        </div>
+      `;
+      document.getElementById("preview").innerHTML = html;
+      document.getElementById("preview")._text = document.getElementById("preview").innerText;
+    };
+
+    document.getElementById("copy").onclick = async () => {
+      const t = document.getElementById("preview")._text || document.getElementById("preview").innerText;
+      try {
+        await navigator.clipboard.writeText(t);
+        alert("已复制到剪贴板");
+      } catch {
+        alert("复制失败，请手动选中预览区复制");
+      }
+    };
+
+    loadPreset();
+    document.getElementById("gen").click();
+  </script>
+</body>
+</html>

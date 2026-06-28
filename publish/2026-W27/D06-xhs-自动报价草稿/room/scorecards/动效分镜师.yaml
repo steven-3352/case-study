@@ -1,0 +1,35 @@
+role: 动效分镜师
+artifact: design/storyboard.yaml
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 叙事评审
+    angle: 完播
+    reviewer_agent_id: task-d06-motstory-01
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 镜头任务·复现
+    score: 93
+    verdict: pass
+    notes: |
+      YAML结构完整4镜intent清晰,template与form_strategy 1:1对应,信任锚beat标注,5形式反同质;chars版本freeze建议已知 扣(-10)。
+  - reviewer_id: 互动评审
+    angle: 互动
+    reviewer_agent_id: task-d06-motstory-02
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 分镜·落地
+    score: 93
+    verdict: pass
+    notes: |
+      4镜分工明确信任锚beat必进VO字幕,QC具体(气泡0.8s/吵架职责/进度统一/CTA完整),5形式不复用D06 扣(-6)。
+
+avg_score: 93.0
+pass: true
+scorecard_phase: pre_render
+optimization_round: 3

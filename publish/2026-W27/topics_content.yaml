@@ -48,4 +48,23 @@ W27D05:
     same_topic: true
     status: in_production
 
-# D06–D07 · W27X02–X03 · W27X06–X07 见 week.yaml · 未建目录
+W27D06:
+  douyin:
+    slug: 多Agent一行字
+    topic_id: T035
+    title: 我只说了一个选题，一群 Agent 帮我做事全程无参与
+    dir: publish/2026-W27/D06-多Agent一行字/
+    status: approved_pending_production
+    cta: discussion_only
+
+W27X06:
+  xhs:
+    slug: 自动报价草稿
+    topic_id: T006
+    title: 报价单改到崩溃，我做了个自动报价草稿
+    dir: publish/2026-W27/D06-xhs-自动报价草稿/
+    demo: pipeline/demo_tools/quote_draft/index.html
+    status: approved_pending_production
+    cta: discussion_only
+
+# D07 见 week.yaml · 未建目录

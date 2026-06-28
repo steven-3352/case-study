@@ -1,0 +1,6 @@
+project_id: W27X06
+verdict: approved
+content_version: vA
+gates:
+  pre_render: true
+  approve: true

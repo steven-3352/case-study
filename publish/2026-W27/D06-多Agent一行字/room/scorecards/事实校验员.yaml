@@ -1,0 +1,33 @@
+role: 事实校验员
+artifact: insights/fact_check.md
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 完播评审
+    reviewer_agent_id: task-d06-fact-01
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 数字降级·红线
+    score: 93
+    verdict: pass
+    notes: |
+      假里程碑全降级(10分钟→十几分钟/2块→几块钱/300→好几百起),卡通真实性标准补全,VO自证门槛清晰,编剧约束锁定 扣(-7)。
+  - reviewer_id: 事实评审
+    reviewer_agent_id: task-d06-fact-02
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 追问抗性·区间
+    score: 93
+    verdict: pass
+    notes: |
+      数字全区间口语禁写死300/2天/2轮,卡通红线与真实性标准双维标注,编剧只引P0/P1不自增,数字门禁过 扣(-6)。
+
+avg_score: 93.5
+pass: true
+scorecard_phase: pre_render
+optimization_round: 3

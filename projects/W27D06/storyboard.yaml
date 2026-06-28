@@ -1,0 +1,14 @@
+content_id: W27D06
+topic: 我只说了一个选题，一群 Agent 帮我做事全程无参与
+platform: douyin
+canvas: 1080x1920
+duration_s: 46
+script_version: vA
+
+scenes:
+  - {id: s1_hook, template: d06_hook.html, duration: 2.65}
+  - {id: s2_pipeline, template: d06_pipeline.html, duration: 6.01}
+  - {id: s3_gate, template: d06_gate.html, duration: 8.95}
+  - {id: s4_score, template: d06_score.html, duration: 11.89}
+  - {id: s5_publish, template: d06_publish.html, duration: 7.80}
+  - {id: s6_cta, template: d06_cta.html, duration: 8.45}

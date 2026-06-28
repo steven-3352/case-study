@@ -1,0 +1,20 @@
+# P004 storyboard · W27D05 · 渲染用(实测 VO 拉伸版)
+# 同源 publish/2026-W27/D05-招人前先数群/design/storyboard.yaml
+# 时长 = 实测 VO + 尾静音(见 out/audio/seg_timing_d05.json)
+# vA 真诚青年实测约 41.82s,按实测窗口拉伸而非截断口播
+# 内核 s6 用慢速 0.95 + 停顿
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: w27d05.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+scenes:
+  - {id: s1_hook,           type: html, template: d05_hook.html,           duration: 4.89,  data: {dur: 4.89}}
+  - {id: s2_recruit_screen, type: html, template: d05_recruit_screen.html, duration: 2.40,  data: {dur: 2.40}}
+  - {id: s3_export_step,    type: html, template: d05_export_step.html,    duration: 7.20,  data: {dur: 7.20}}
+  - {id: s4_chart,          type: html, template: d05_chart.html,          duration: 11.10, data: {dur: 11.10}}
+  - {id: s5_boss_reaction,  type: html, template: d05_boss_reaction.html,  duration: 6.77,  data: {dur: 6.77}}
+  - {id: s6_core,           type: html, template: d05_core.html,           duration: 3.05,  data: {dur: 3.05}}
+  - {id: s7_cta,            type: html, template: d05_cta.html,            duration: 6.41,  data: {dur: 6.41}}

@@ -1,0 +1,31 @@
+content_id: W27X06
+day: D06
+date: "2026-07-04"
+topic_id: T006
+slug: 自动报价草稿
+title: "报价单改到崩溃，我做了个自动报价草稿"
+platform: xhs
+form_type: 图文轮播
+status: ready_to_publish
+series: S1-小老板烦恼改造
+
+audience: 常改报价的小老板 / 销售 / 小微定制（摄影、装修、礼盒、培训等）
+
+hook_cover: "报价单改到崩溃 / 自动报价草稿"
+hook_3s: "改到崩溃"
+
+cta_style: discussion_only
+cta_xhs: "你报价最烦哪一步？改规格、算价还是跟客户解释？评论区吐槽一句。"
+cta_redlines:
+  - 正文不写私信/扣1/加微信
+  - 不承诺「最便宜」「唯一」
+
+demo_tool:
+  path: pipeline/demo_tools/quote_draft/index.html
+  readme: pipeline/demo_tools/quote_draft/README.md
+  screenshots_dir: publish/2026-W27/D06-xhs-自动报价草稿/demo/screenshots/
+
+red_lines:
+  - 客户名/金额标「示意」
+  - 主视觉含真实工具录屏/截图（≥1 镜）
+  - 轮播 6–8 张 · 收藏动机=字段表/报价模板结构

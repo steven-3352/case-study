@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#000;}
+  /* 微信群消息瀑布 — 真实痕迹 · 头部 5 类问题 */
+  .feed{position:absolute;top:120px;left:60px;right:60px;height:1080px;overflow:hidden;
+    border-radius:24px;background:#ededed;padding:24px 22px;opacity:0;}
+  .group-bar{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid #d0d0d0;
+    margin-bottom:14px;}
+  .group-bar .ico{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#95ec69,#2eb872);
+    display:flex;align-items:center;justify-content:center;font-size:30px;}
+  .group-bar .name{font-size:30px;font-weight:700;color:#1a1a1a;}
+  .group-bar .count{margin-left:auto;font-size:22px;color:#888;}
+  .msgs{display:flex;flex-direction:column;gap:18px;}
+  .msg{display:flex;gap:14px;align-items:flex-start;opacity:0;}
+  .msg .avt{width:64px;height:64px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:36px;flex-shrink:0;}
+  .msg .bubble{background:#fff;border-radius:14px;padding:18px 22px;max-width:760px;
+    font-size:34px;color:#1a1a1a;line-height:1.4;position:relative;
+    box-shadow:0 4px 12px rgba(0,0,0,.06);}
+  .msg .who{position:absolute;top:-28px;left:6px;font-size:20px;color:#999;}
+  .a1{background:linear-gradient(135deg,#ff9a8b,#ff6b6b);}
+  .a2{background:linear-gradient(135deg,#a8edea,#6dd5fa);}
+  .a3{background:linear-gradient(135deg,#ffd89b,#ffae5a);}
+  .a4{background:linear-gradient(135deg,#c4e1ff,#7fa6c8);}
+  .a5{background:linear-gradient(135deg,#fce4ec,#e8a4b8);}
+  .a6{background:linear-gradient(135deg,#d9f99d,#85cc6a);}
+  .a7{background:linear-gradient(135deg,#fde2a4,#f0b87e);}
+  /* 大字钩子 */
+  .hook{position:absolute;left:40px;right:40px;top:1260px;text-align:center;}
+  .hook .l1{font-size:108px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:2px;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.85);}
+  .hook .l2{font-size:96px;font-weight:900;color:var(--red);line-height:1.15;letter-spacing:2px;
+    opacity:0;margin-top:18px;text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.85);}
+  .wm{position:absolute;top:1830px;right:40px;font-size:22px;color:var(--gray-3);opacity:.55;}
+  /* 黑色蒙层(钩子上来后压暗群截图) */
+  .veil{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="feed" id="feed">
+    <div class="group-bar">
+      <div class="ico">💬</div>
+      <div class="name">实体店老板客户群(123)</div>
+      <div class="count">今天</div>
+    </div>
+    <div class="msgs">
+      <div class="msg" id="m1">
+        <div class="avt a1">👩</div>
+        <div class="bubble"><span class="who">客户 · 9:02</span>老板今天几点关门?</div>
+      </div>
+      <div class="msg" id="m2">
+        <div class="avt a2">👨</div>
+        <div class="bubble"><span class="who">客户 · 9:08</span>这个多少钱?能用团购券吗?</div>
+      </div>
+      <div class="msg" id="m3">
+        <div class="avt a3">👩</div>
+        <div class="bubble"><span class="who">客户 · 9:15</span>我明天 3 点的能改到 4 点吗?</div>
+      </div>
+      <div class="msg" id="m4">
+        <div class="avt a4">👨</div>
+        <div class="bubble"><span class="who">客户 · 9:21</span>我家娃 2 岁多,这款能用吗?</div>
+      </div>
+      <div class="msg" id="m5">
+        <div class="avt a5">👩</div>
+        <div class="bubble"><span class="who">客户 · 9:24</span>上次买的有点问题,能退吗?</div>
+      </div>
+      <div class="msg" id="m6">
+        <div class="avt a6">👨</div>
+        <div class="bubble"><span class="who">客户 · 9:30</span>老板在吗?营业时间?</div>
+      </div>
+      <div class="msg" id="m7">
+        <div class="avt a7">👩</div>
+        <div class="bubble"><span class="who">客户 · 9:33</span>这个团购可以堆叠优惠吗?</div>
+      </div>
+    </div>
+  </div>
+  <div class="veil" id="veil"></div>
+  <div class="hook">
+    <div class="l1" id="l1">招人这件事</div>
+    <div class="l2" id="l2">我建议你先别招</div>
+  </div>
+  <div class="wm">真实店主群消息(示意 · 已脱敏)</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  // 0-0.3 群截图淡入
+  tl.to("#feed",{opacity:1,duration:.3},0);
+  // 0.3-2.0 7 条消息瀑布下滚 stagger
+  ["#m1","#m2","#m3","#m4","#m5","#m6","#m7"].forEach((m,i)=>{
+    tl.fromTo(m,{opacity:0,x:-30},{opacity:1,x:0,duration:.35,ease:"power2.out"},.3+i*0.22);
+  });
+  // 2.0-2.3 veil 淡入压暗
+  tl.to("#veil",{opacity:.65,duration:.3},2.0);
+  // 2.0-3.0 大字砸入
+  tl.fromTo("#l1",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},2.0);
+  tl.fromTo("#l2",{opacity:0,y:40,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},2.4);
+  tl.to({},{duration:.4},3.0);
+  registerTimeline(tl);
+</script>
+</body></html>

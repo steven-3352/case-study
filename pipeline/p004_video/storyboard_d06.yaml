@@ -1,0 +1,15 @@
+# P004 storyboard · W27D06 · VO 实测拉伸
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: w27d06.mp4
+  voice_volume: 1.0
+  music_volume: 0.08
+scenes:
+  - {id: s1_hook,      type: html, template: d06_hook.html,      duration: 2.65,  data: {dur: 2.65}}
+  - {id: s2_pipeline,  type: html, template: d06_pipeline.html,  duration: 6.01,  data: {dur: 6.01}}
+  - {id: s3_gate,      type: html, template: d06_gate.html,      duration: 8.95,  data: {dur: 8.95}}
+  - {id: s4_score,     type: html, template: d06_score.html,     duration: 11.89, data: {dur: 11.89}}
+  - {id: s5_publish,   type: html, template: d06_publish.html,   duration: 7.80,  data: {dur: 7.80}}
+  - {id: s6_cta,       type: html, template: d06_cta.html,       duration: 8.45,  data: {dur: 8.45}}

@@ -36,7 +36,7 @@
 | D03 | `D03-海外获客成长/` | W27D03 · T003 一周活一天·自己在赚钱（P001 成长视频） | W27X03 · P001-B「0 后端获客」轮播（**未建目录**） | dy **ready** · xhs 待产 |
 | D04 | `D04-内容服务测水/` | W27D04 · T037 4 周涨粉几乎为 0·3 老板问报价 | W27D04 · 同上选题 · 8 张轮播 | **in_production** |
 | D05 | `D05-招人前先数群/` | W27D05 · T039 招人前先数 3 个月群记录 | W27D05 · 同上 · 8 张轮播 | **in_production** |
-| D06 | — | W27D06 · T035 一行字拆 9 工种（**未建目录**） | W27X06 · T006 自动报价草稿 | 仅 `week.yaml` |
+| D06 | `D06-多Agent一行字/` | W27D06 · T035 | `D06-xhs-自动报价草稿/` · W27X06 · T006 + demo | **ready_to_publish** |
 | D07 | — | W27D07 · T036 老外邮件一封没发过 | W27X07 · T005 咨询预筛表（须 demo） | 仅 `week.yaml` |
 
 ### 换题记录（相对初版 week 计划）
@@ -59,6 +59,7 @@
 | D03 | `D03-海外获客成长/douyin/publish.md` | 待产 |
 | D04 | `D04-内容服务测水/douyin/publish.md` | `D04-内容服务测水/xhs/publish.md` |
 | D05 | `D05-招人前先数群/douyin/publish.md` | `D05-招人前先数群/xhs/publish.md` |
+| D06 | `D06-多Agent一行字/douyin/publish.md` | `D06-xhs-自动报价草稿/xhs/publish.md` · demo: `pipeline/demo_tools/quote_draft/` |
 
 ---
 

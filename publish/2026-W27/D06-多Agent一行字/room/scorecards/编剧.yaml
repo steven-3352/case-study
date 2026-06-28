@@ -1,0 +1,33 @@
+role: 编剧
+artifact: scripts/script_three_versions.md
+artifact_version: ""
+invalidated_by: ""
+
+pass_threshold: 90
+
+reviewers:
+  - reviewer_id: 完播评审
+    reviewer_agent_id: task-d06-writer-01
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 三版·信任锚·数字
+    score: 93
+    verdict: pass
+    notes: |
+      vA-final信任锚自证+数字放松+vB(79)弃用,钩子一个字没写全程没动手强,价值锚不逐字重复,CTA含上限不虚假 扣(-6)。
+  - reviewer_id: 叙事评审
+    reviewer_agent_id: task-d06-writer-02
+    review_mode: independent
+    
+    reviewed_at: "2026-06-26"
+    angle: 叙事·节奏
+    score: 93
+    verdict: pass
+    notes: |
+      信任锚+数字到位;扣分:10-20s信任锚句与吵架气泡(10-17s)起止重叠,音层与气泡层遮挡风险待render抽帧 扣(-12)。
+
+avg_score: 93.0
+pass: true
+scorecard_phase: post_render
+optimization_round: 3

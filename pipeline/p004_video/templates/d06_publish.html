@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>D06 Publish · 发布包目录</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #f5f5f5;
+      font-family: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      color: #1a1a1a;
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: #f5f5f5;
+    }
+    .finder {
+      position: absolute; top: 120px; left: 48px; right: 48px; height: 1500px;
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.06);
+      overflow: hidden; opacity: 0;
+    }
+    .finder-bar {
+      height: 68px; background: #e8eef5; display: flex; align-items: center;
+      padding: 0 24px; gap: 12px; border-bottom: 1px solid #d0d8e4;
+    }
+    .finder-bar .dot { width: 14px; height: 14px; border-radius: 50%; background: #ccc; }
+    .finder-bar .title { font-size: 26px; color: #555; margin-left: 12px; font-weight: 600; }
+    .tree {
+      padding: 36px 40px; font-family: "SF Mono", Menlo, monospace;
+      font-size: 30px; line-height: 1.75; color: #333;
+    }
+    .row { opacity: 0; display: flex; align-items: center; gap: 12px; }
+    .row .icon { font-size: 28px; width: 36px; text-align: center; }
+    .row .name { flex: 1; }
+    .row.folder .name { font-weight: 700; color: #0550ae; }
+    .row.file .name { color: #444; }
+    .row.hi {
+      background: #fff8e1; margin: 0 -40px; padding: 6px 40px;
+      border-left: 5px solid #f5a623;
+    }
+    .row.hi .name { color: #1a1a1a; font-weight: 800; }
+    .indent1 { padding-left: 36px; }
+    .indent2 { padding-left: 72px; }
+    .indent3 { padding-left: 108px; }
+    .punch {
+      position: absolute; left: 48px; right: 48px; bottom: 180px; text-align: center;
+    }
+    .punch .l1 {
+      font-size: 64px; font-weight: 900; color: #1a1a1a; opacity: 0;
+    }
+    .punch .l2 {
+      font-size: 48px; font-weight: 800; color: #666; opacity: 0; margin-top: 16px;
+    }
+    .wm { position: absolute; top: 1830px; right: 48px; font-size: 22px; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="finder" id="finder">
+      <div class="finder-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="title">Finder · publish/2026-W27/</div>
+      </div>
+      <div class="tree">
+        <div class="row folder" id="r1"><span class="icon">📁</span><span class="name">publish/2026-W27/</span></div>
+        <div class="row folder indent1 hi" id="r2"><span class="icon">📁</span><span class="name">D06-多Agent一行字/</span></div>
+        <div class="row folder indent2" id="r3"><span class="icon">📁</span><span class="name">insights/</span></div>
+        <div class="row file indent3" id="r4"><span class="icon">📄</span><span class="name">topic_brief.md</span></div>
+        <div class="row file indent3" id="r5"><span class="icon">📄</span><span class="name">core_message.md</span></div>
+        <div class="row folder indent2" id="r6"><span class="icon">📁</span><span class="name">room/</span></div>
+        <div class="row file indent3" id="r7"><span class="icon">📄</span><span class="name">scorecards/ · verdict.yaml</span></div>
+        <div class="row folder indent2" id="r8"><span class="icon">📁</span><span class="name">design/</span></div>
+        <div class="row file indent3" id="r9"><span class="icon">📄</span><span class="name">storyboard.yaml · motion_wow.md</span></div>
+        <div class="row folder indent2" id="r10"><span class="icon">📁</span><span class="name">douyin/</span></div>
+        <div class="row file indent3 hi" id="r11"><span class="icon">🎬</span><span class="name">video_with_bgm.mp4</span></div>
+        <div class="row file indent3" id="r12"><span class="icon">🖼</span><span class="name">cover.png · publish.md</span></div>
+        <div class="row folder indent2" id="r13"><span class="icon">📁</span><span class="name">xhs/</span></div>
+        <div class="row file indent3" id="r14"><span class="icon">📄</span><span class="name">publish.md · video_reuse</span></div>
+      </div>
+    </div>
+    <div class="punch">
+      <div class="l1" id="p1">你现在看到的</div>
+      <div class="l2" id="p2">就是这套流程的产物</div>
+    </div>
+    <div class="wm">发布包结构(示意)</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.to("#finder", { opacity: 1, duration: 0.3 }, 0);
+    const rows = ["#r1","#r2","#r3","#r4","#r5","#r6","#r7","#r8","#r9","#r10","#r11","#r12","#r13","#r14"];
+    rows.forEach((id, i) => {
+      tl.fromTo(id, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.2, ease: "power2.out" }, 0.15 + i * 0.18);
+    });
+    tl.fromTo("#p1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 3.2);
+    tl.fromTo("#p2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 3.6);
+    tl.to({}, { duration: 1.0 }, 4.2);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

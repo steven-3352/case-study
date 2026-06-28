@@ -1,0 +1,5 @@
+content_id: W27D06
+provider: minimax
+voice_id: Chinese (Mandarin)_Sincere_Adult
+bgm: pipeline/p004_video/bgm/Carefree_loop.mp3
+bgm_volume: 0.08

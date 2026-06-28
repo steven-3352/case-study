@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>Subtitle Overlay · W27D06</title>
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: transparent;
+    }
+    .canvas {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: transparent !important;
+    }
+    .sub-line {
+      position: absolute;
+      left: 60px; right: 60px;
+      bottom: 240px;
+      text-align: center;
+      font-family: "PingFang SC", "Source Han Sans CN", -apple-system, sans-serif;
+      font-weight: 900;
+      font-size: 46px;
+      line-height: 1.3;
+      color: #fff;
+      letter-spacing: 1px;
+      text-shadow:
+        -4px -4px 0 #000, 4px -4px 0 #000,
+        -4px 4px 0 #000, 4px 4px 0 #000,
+        -4px 0 0 #000, 4px 0 0 #000,
+        0 -4px 0 #000, 0 4px 0 #000,
+        0 0 24px rgba(0,0,0,.95);
+      opacity: 0;
+      padding: 0 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="sub-line" id="sub"></div>
+  </div>
+  <script>
+    // W27D06 底部跟读字幕 · 预估 VO 时间码 · 总时长 42s
+    // 待实测 VO 后按 seg_timing_d06.json 微调
+    const lines = [
+      { t: 0.00,  end: 3.00,  text: "我只在 queue 打了一行字" },
+      { t: 3.00,  end: 6.50,  text: "后面九拨人各自领活" },
+      { t: 6.50,  end: 11.00, text: "洞察包 · 讨论室 · gate · render · publish" },
+      { t: 11.00, end: 14.50, text: "洞察没过 · 不能写稿" },
+      { t: 14.50, end: 19.00, text: "pre_render 才允许 TTS 和 render" },
+      { t: 19.00, end: 23.50, text: "脚本 90 分 · 形式没过照样退稿" },
+      { t: 23.50, end: 27.00, text: "每个工种双人互评 · 各 ≥90 才 pass" },
+      { t: 27.00, end: 30.50, text: "89 分等于 fail · 继续改" },
+      { t: 30.50, end: 33.00, text: "跑通不等于能发" },
+      { t: 33.00, end: 36.50, text: "你现在看到的就是这套流程的产物" },
+      { t: 36.50, end: 39.50, text: "写稿 / 找素材 / 过门禁？" },
+      { t: 39.50, end: 42.00, text: "评论区说一件具体事" }
+    ];
+    const sub = document.getElementById("sub");
+    const tl = gsap.timeline({ paused: true });
+    lines.forEach((line) => {
+      tl.call(() => { sub.textContent = line.text; }, [], line.t);
+      tl.fromTo(sub, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.16 }, line.t);
+      tl.to(sub, { opacity: 0, duration: 0.16 }, line.end - 0.16);
+    });
+    tl.to({}, { duration: 0.05 }, 42.0);
+    registerTimeline(tl);
+
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
+  </script>
+</body>
+</html>

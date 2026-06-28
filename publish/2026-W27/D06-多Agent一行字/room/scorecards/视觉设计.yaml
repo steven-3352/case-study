@@ -1,0 +1,21 @@
+role: 视觉设计
+artifact: douyin/cover.png
+pass_threshold: 90
+scorecard_phase: post_render
+reviewers:
+  - reviewer_id: 视觉A
+    review_mode: independent
+    reviewer_agent_id: task-d06-visual-01
+    angle: 封面可读性
+    score: 93
+    verdict: pass
+    notes: 首帧 queue 大字停划合格，主标题不被字幕遮挡；白底对比度够。扣分(-7)因右上角 badge 略小，建议下轮放大 8px。
+  - reviewer_id: 视觉B
+    review_mode: independent
+    reviewer_agent_id: task-d06-visual-02
+    angle: 差异化
+    score: 92
+    verdict: pass
+    notes: 浅色 UI 与 D01 卡通 meta 明显区分，6 镜各一主色块不撞脸。扣分(-8)因 s4 gate 对比色偏淡，成片已可接受，下轮可加深边框。
+avg_score: 92.5
+pass: true

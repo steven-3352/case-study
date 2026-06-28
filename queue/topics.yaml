@@ -112,14 +112,16 @@ topics:
     note: "需先做 demo 再拍"
 
   - id: T006
-    project: null
+    project: W27X06
     series: S1
     title: "报价单改到崩溃，我做了个自动报价草稿"
-    angle: 小老板烦恼改造
-    format: [video]
-    platforms: [抖音, 小红书]
-    priority: P3
-    status: backlog
+    angle: 小老板烦恼改造 · 报价跟单
+    format: [carousel]
+    platforms: [小红书]
+    priority: P0
+    status: approved
+    note: "W27 D06 xhs · demo: pipeline/demo_tools/quote_draft · 纯讨论CTA"
+    source: publish/2026-W27/D06-xhs-自动报价草稿/
 
   # ── Project-003 · 多 Agent 协作元叙事 ──
   - id: T007
@@ -344,8 +346,8 @@ topics:
     format: [video]
     platforms: [抖音]
     priority: P0
-    status: approved
-    note: "W27 D05 dy · 171播方向"
+    status: killed
+    note: "W27 D05 dy 原选题 · 2026-06-27 用户拍板换 T039 · 钩子撞 D02 xhs 'P001 第5天看数据'"
     source: publish/P001/
 
   - id: T034
@@ -356,9 +358,21 @@ topics:
     format: [carousel]
     platforms: [小红书]
     priority: P0
-    status: approved
-    note: "W27 D05 xhs · 403播方向"
+    status: killed
+    note: "W27 D05 xhs 原选题 · 2026-06-27 用户拍板换 T039 · 抽象 AI 味 + 无锚点"
     source: publish/2026-W27/
+
+  - id: T039
+    project: W27D05
+    series: S3-数据让老板自醒
+    title: "老板让我帮他招人回客户消息,我让他先看 3 个月群记录 — 数完那天他说'不用招了'"
+    angle: 数据自醒 · 实体店重复咨询 · 反转 = 招人 → 数据 → 自己取消招聘
+    format: [video, carousel]
+    platforms: [抖音, 小红书]
+    priority: P0
+    status: approved
+    note: "2026-06-27 用户拍板换题 · 替代 T033+T034 · 双平台同选题不同形式 · CTA=评论扣'也想数'测水 · 受众=实体店老板(餐饮/美容/教培/母婴)"
+    source: publish/2026-W27/D05-招人前先数群/
 
   - id: T035
     project: W27D06
@@ -369,8 +383,8 @@ topics:
     platforms: [抖音]
     priority: P0
     status: approved
-    note: "W27 D06 dy"
-    source: publish/2026-W27/
+    note: "W27 D06 dy · 与D01差异化见 meta.yaml · 纯讨论CTA"
+    source: publish/2026-W27/D06-多Agent一行字/
 
   - id: T036
     project: W27D07

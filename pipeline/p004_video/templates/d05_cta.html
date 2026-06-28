@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  body{background:#000;}
+  /* 顶部大字 CTA */
+  .top{position:absolute;top:120px;left:40px;right:40px;text-align:center;}
+  .top .l1{font-size:96px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:2px;opacity:0;
+    text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .top .l1 .hi{color:var(--red);}
+  /* 抖音评论区动效 */
+  .comments{position:absolute;top:380px;left:60px;right:60px;height:780px;
+    background:#0a0a0a;border:3px solid #1c1c1c;border-radius:24px;padding:24px 28px;opacity:0;}
+  .comments .hdr{display:flex;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid #2a2a2a;}
+  .comments .hdr .ti{font-size:30px;color:#fff;font-weight:700;}
+  .comments .hdr .num{font-size:24px;color:var(--gray-3);}
+  .cm{display:flex;gap:16px;margin-top:22px;opacity:0;}
+  .cm .avt{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:30px;flex-shrink:0;}
+  .a1{background:linear-gradient(135deg,#ff9a8b,#ff6b6b);}
+  .a2{background:linear-gradient(135deg,#a8edea,#6dd5fa);}
+  .a3{background:linear-gradient(135deg,#ffd89b,#ffae5a);}
+  .a4{background:linear-gradient(135deg,#d9f99d,#85cc6a);}
+  .a5{background:linear-gradient(135deg,#fde2a4,#f0b87e);}
+  .cm .col{flex:1;}
+  .cm .nick{font-size:24px;color:var(--gray-3);}
+  .cm .txt{font-size:34px;color:#fff;margin-top:6px;font-weight:600;}
+  .cm .txt .hi{color:var(--red);font-weight:900;}
+  .cm .like{font-size:22px;color:var(--gray-3);margin-top:4px;}
+  /* Excel 模板预览闪现 */
+  .excel{position:absolute;top:1200px;left:60px;right:60px;height:340px;
+    background:#fff;border-radius:18px;overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);opacity:0;transform:rotate(-1.5deg);}
+  .excel .titlebar{background:#107c41;color:#fff;font-size:24px;padding:10px 20px;font-weight:700;}
+  .excel table{width:100%;border-collapse:collapse;font-size:22px;}
+  .excel th{background:#e8f4ec;color:#1a1a1a;padding:10px 8px;text-align:left;
+    border:1px solid #c8d8cc;font-weight:700;}
+  .excel td{padding:10px 8px;color:#333;border:1px solid #e8e8e8;}
+  .excel td.hi{background:#fff2f2;color:#e53935;font-weight:700;}
+  /* 底部"凑 10 个发模板" */
+  .tail{position:absolute;left:40px;right:40px;top:1620px;text-align:center;}
+  .tail .l2{font-size:88px;font-weight:900;color:var(--orange);line-height:1.15;letter-spacing:2px;
+    opacity:0;text-shadow:0 6px 0 #000,0 18px 38px rgba(0,0,0,.7);}
+  .wm{position:absolute;top:1830px;right:40px;font-size:22px;color:var(--gray-3);opacity:.55;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="top">
+    <div class="l1" id="l1">评论扣 <span class="hi">"也想数"</span></div>
+  </div>
+  <div class="comments" id="cms">
+    <div class="hdr"><div class="ti">💬 评论</div><div class="num">实时</div></div>
+    <div class="cm" id="cm1">
+      <div class="avt a1">👩</div>
+      <div class="col">
+        <div class="nick">餐饮老板娘</div>
+        <div class="txt"><span class="hi">也想数</span></div>
+        <div class="like">♡ 32</div>
+      </div>
+    </div>
+    <div class="cm" id="cm2">
+      <div class="avt a2">👨</div>
+      <div class="col">
+        <div class="nick">美容店主</div>
+        <div class="txt"><span class="hi">也想数</span> 群消息真不少</div>
+        <div class="like">♡ 18</div>
+      </div>
+    </div>
+    <div class="cm" id="cm3">
+      <div class="avt a3">👩</div>
+      <div class="col">
+        <div class="nick">教培助教</div>
+        <div class="txt">想数 · 求模板 🙏</div>
+        <div class="like">♡ 9</div>
+      </div>
+    </div>
+    <div class="cm" id="cm4">
+      <div class="avt a4">👨</div>
+      <div class="col">
+        <div class="nick">服装小店</div>
+        <div class="txt"><span class="hi">也想数</span></div>
+        <div class="like">♡ 6</div>
+      </div>
+    </div>
+    <div class="cm" id="cm5">
+      <div class="avt a5">👩</div>
+      <div class="col">
+        <div class="nick">水果摊主</div>
+        <div class="txt">数法发我 谢谢老板</div>
+        <div class="like">♡ 3</div>
+      </div>
+    </div>
+  </div>
+  <div class="excel" id="excel">
+    <div class="titlebar">📊 客户问题归类模板 · 90 天.xlsx</div>
+    <table>
+      <tr><th>日期</th><th>客户原话</th><th>归类</th><th>是否头部</th><th>占比</th></tr>
+      <tr><td>06-01</td><td>几点关门?</td><td>营业时间</td><td class="hi">是</td><td class="hi">22%</td></tr>
+      <tr><td>06-02</td><td>团购券能用吗?</td><td>价格 / 团购</td><td class="hi">是</td><td class="hi">18%</td></tr>
+      <tr><td>06-03</td><td>3 点改 4 点?</td><td>改约</td><td class="hi">是</td><td class="hi">14%</td></tr>
+    </table>
+  </div>
+  <div class="tail">
+    <div class="l2" id="l2">凑 10 个 · 发模板</div>
+  </div>
+  <div class="wm">评论区动效(示意)</div>
+</div>
+<script>
+  const tl=gsap.timeline({paused:true});
+  tl.fromTo("#l1",{opacity:0,y:30,scale:.95},{opacity:1,y:0,scale:1,duration:.45,ease:"back.out(1.5)"},0);
+  tl.to("#cms",{opacity:1,duration:.3},.5);
+  ["#cm1","#cm2","#cm3","#cm4","#cm5"].forEach((c,i)=>{
+    tl.fromTo(c,{opacity:0,y:20},{opacity:1,y:0,duration:.3,ease:"power2.out"},.7+i*0.35);
+  });
+  tl.fromTo("#excel",{opacity:0,y:30,rotation:5},{opacity:1,y:0,rotation:-1.5,duration:.5,ease:"back.out(1.4)"},2.7);
+  tl.fromTo("#l2",{opacity:0,y:30,scale:.92},{opacity:1,y:0,scale:1,duration:.5,ease:"back.out(1.5)"},3.4);
+  tl.to({},{duration:1.0},4.2);
+  registerTimeline(tl);
+</script>
+</body></html>
