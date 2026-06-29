@@ -10,5 +10,5 @@
 - **已知不足（D02 起改进）：** 角色为 CSS 手搓，观感偏简陋；找素材/动效工种未真正用网络现成素材。见记忆 `use-real-assets-not-ugly-css`。
 
 ## 发布动作（人工）
-- [ ] 抖音上传 `video_with_bgm.mp4`，文案见 PLAN.md D01 抖音段，CTA + 主页置顶入群
+- [ ] 抖音上传 `video_with_bgm.mp4`，文案见 `douyin/publish.md`，CTA + 主页置顶入群
 - [ ] 48h 回填 `performance_data.yaml`（content_id: W27D01-DY）
