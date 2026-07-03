@@ -21,6 +21,9 @@ publish/{week}/Dxx-{slug}/
 │       └── …
 ├── design/
 │   ├── format_spec.md
+│   ├── design_language.md     # 视觉语言策展师：色板/字体/组件/禁用项
+│   ├── openmontage_brief.md   # 可选：外部视频制作插件启用判断
+│   ├── openmontage_review.md  # 可选：OpenMontage 回流验收
 │   ├── script_review.md        # 编剧 pass/reject（90+ 前置）
 │   ├── motion_wow.md
 │   └── cover_review.md
@@ -41,11 +44,13 @@ publish/{week}/Dxx-{slug}/
 5. **`script_review.md` pass** → 禁止 TTS 前必过
 6. **留存** → **hook_benchmark 映射 0–3s** · 估 VO 时长（禁止为卡时长先删叙事）
 7. **形式选型 + 平台策划 + 纪录片导演** → format_spec · 90+
-8. **动效设计师 + 动效分镜师** → storyboard + motion_wow（标注口播句）· 90+
-9. **漫画分镜师**（若 P007）· 90+
-10. **视觉设计** → cover_review · 90+
-11. **Phase A scorecards 全工种 ≥90** → render
-12. **Phase B Round 6–8** → mp4/PNG 复验 + scorecard 复评 ≥90 → 编导 approved
+8. **视觉语言策展师** → design_language（DESIGN.md 参考本地化为 token/组件/禁用项）· 90+
+9. **OpenMontage 制作导演**（可选）→ 若原生路线不足，写 openmontage_brief；默认不启用 · 90+
+10. **动效设计师 + 动效分镜师** → storyboard + motion_wow（标注口播句）· 90+
+11. **漫画分镜师**（若 P007）· 90+
+12. **视觉设计** → cover_review · 90+
+13. **Phase A scorecards 全工种 ≥90** → render
+14. **Phase B Round 6–8** → mp4/PNG 复验 + scorecard 复评 ≥90 → 编导 approved
 
 **触发重评：** storyboard/动效大版本变更 → Round 4b + 编剧 scorecard 重评。
 
@@ -59,6 +64,8 @@ publish/{week}/Dxx-{slug}/
 | 先分镜后挤口播 | 退稿，按顺序重来 | 编剧 + 分镜师 |
 | 原话 <4 进片 | 编剧重写 | 编剧 + 内核 |
 | 动效无专属创意 / catalog 标配 | motion_wow 重做 | 动效设计师 + 形式选型 |
+| 无 design_language / 只有“高级感”口号 | design_language 重做 | 视觉语言策展师 + 视觉设计 |
+| OpenMontage 未说明必要性 / 直接覆盖平台成片 | 回退插件路线 | OpenMontage 制作导演 + 编导 |
 | 三版 stub / 克隆上条骨架 | reject | 编剧 |
 | 假讨论 / 无 Round 6+ | blocked | 编导 |
 | cover_review reject | blocked | 视觉设计 |

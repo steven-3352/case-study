@@ -1,0 +1,112 @@
+[
+  {
+    "name": "grok_hook_meeting_exit",
+    "success": true,
+    "error": null,
+    "data": {
+      "provider": "grok",
+      "model": "grok-imagine-video",
+      "prompt": "Vertical cinematic workplace scene, modern meeting room right after a meeting ends. Several coworkers remain at a whiteboard and laptops organizing notes, while one confident Chinese male worker stands up and walks toward the door. A smartphone notification glow appears in his hand. Natural office light, realistic documentary style, smooth handheld camera, no readable text, no logos.",
+      "operation": "text_to_video",
+      "request_id": "4fbb4b48-3a46-949b-8201-d4b3c86597cd",
+      "output": "projects/w27d02-meeting-minutes/assets/video/01_hook_meeting_exit.mp4",
+      "output_path": "projects/w27d02-meeting-minutes/assets/video/01_hook_meeting_exit.mp4",
+      "format": "mp4",
+      "file_size_bytes": 1350190,
+      "duration_seconds": 4.041667,
+      "file_size_mb": 1.29,
+      "video_width": 480,
+      "video_height": 848,
+      "video_codec": "h264"
+    },
+    "artifacts": [
+      "projects/w27d02-meeting-minutes/assets/video/01_hook_meeting_exit.mp4"
+    ],
+    "cost_usd": 0.2,
+    "duration_seconds": 46.72
+  },
+  {
+    "name": "grok_contrast_old_new",
+    "success": true,
+    "error": null,
+    "data": {
+      "provider": "grok",
+      "model": "grok-imagine-video",
+      "prompt": "Vertical cinematic split-feeling office sequence, late evening. On one side coworkers look tired replaying meeting audio and rewriting whiteboard notes; on the other side a Chinese male worker calmly moves to his next task with a phone in hand. Realistic workplace, documentary montage, warm desk light, subtle camera motion, no readable text, no logos.",
+      "operation": "text_to_video",
+      "request_id": "a779b0da-8be5-9c39-8527-942692520b85",
+      "output": "projects/w27d02-meeting-minutes/assets/video/04_contrast_old_new.mp4",
+      "output_path": "projects/w27d02-meeting-minutes/assets/video/04_contrast_old_new.mp4",
+      "format": "mp4",
+      "file_size_bytes": 1049752,
+      "duration_seconds": 4.041667,
+      "file_size_mb": 1.0,
+      "video_width": 480,
+      "video_height": 848,
+      "video_codec": "h264"
+    },
+    "artifacts": [
+      "projects/w27d02-meeting-minutes/assets/video/04_contrast_old_new.mp4"
+    ],
+    "cost_usd": 0.2,
+    "duration_seconds": 34.81
+  },
+  {
+    "name": "gpt_minutes_card_support",
+    "success": true,
+    "error": null,
+    "data": {
+      "provider": "openai",
+      "model": "gpt-image-2",
+      "prompt": "A clean vertical smartphone chat interface mockup in a modern Chinese workplace style. Abstract app UI only, no real brand, no readable text, white cards, blue accent, green completion markers, meeting summary card layout, task list card layout, polished SaaS visual language, 9:16 composition, leave room for Chinese overlay text added later.",
+      "output": "projects/w27d02-meeting-minutes/assets/images/02_minutes_card_support.png"
+    },
+    "artifacts": [
+      "projects/w27d02-meeting-minutes/assets/images/02_minutes_card_support.png"
+    ],
+    "cost_usd": 0.053,
+    "duration_seconds": 50.77
+  },
+  {
+    "name": "gpt_todo_tracking_support",
+    "success": true,
+    "error": null,
+    "data": {
+      "provider": "openai",
+      "model": "gpt-image-2",
+      "prompt": "A polished vertical productivity dashboard mockup for meeting follow-up. Abstract non-branded UI, task ownership cards, deadline chips, reminder bell icons, avatar circles, soft grey canvas, white surfaces, blue accent, green success states, red warning accent, no readable text, leave safe area for Chinese overlay labels.",
+      "output": "projects/w27d02-meeting-minutes/assets/images/03_todo_tracking_support.png"
+    },
+    "artifacts": [
+      "projects/w27d02-meeting-minutes/assets/images/03_todo_tracking_support.png"
+    ],
+    "cost_usd": 0.053,
+    "duration_seconds": 49.19
+  },
+  {
+    "name": "minimax_voiceover",
+    "success": true,
+    "error": null,
+    "data": {
+      "provider": "minimax",
+      "model": "speech-2.8-turbo",
+      "voice_id": "male-qn-badao",
+      "format": "mp3",
+      "sample_rate": 32000,
+      "speed": 1.08,
+      "emotion": "neutral",
+      "text_length": 186,
+      "task_id": "415689097642288",
+      "file_id": "415689097642288",
+      "audio_duration_seconds": 35.16,
+      "output": "projects/w27d02-meeting-minutes/assets/audio/voiceover.mp3",
+      "metadata_path": "projects/w27d02-meeting-minutes/assets/audio/voiceover.mp3.json"
+    },
+    "artifacts": [
+      "projects/w27d02-meeting-minutes/assets/audio/voiceover.mp3",
+      "projects/w27d02-meeting-minutes/assets/audio/voiceover.mp3.json"
+    ],
+    "cost_usd": 0.0019,
+    "duration_seconds": 19.15
+  }
+]

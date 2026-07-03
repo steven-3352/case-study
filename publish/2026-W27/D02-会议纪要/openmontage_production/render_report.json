@@ -1,0 +1,15 @@
+{
+  "output": "/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage_production/final.mp4",
+  "final_silent": "/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage_production/final_silent.mp4",
+  "duration_seconds": 35.2,
+  "resolution": "1080x1920",
+  "codec": "h264/aac",
+  "pixel_format": "yuv420p",
+  "subtitle_burned": true,
+  "bgm_ducking": "manual low bed under VO",
+  "sfx": [
+    "ding",
+    "bell",
+    "tick"
+  ]
+}

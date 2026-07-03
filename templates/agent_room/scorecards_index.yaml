@@ -13,6 +13,7 @@ required_roles_phase_a:
   - 内核提炼师
   - 事实校验员
   - 形式选型师
+  - 视觉语言策展师
   - 平台原生策划
   - 纪录片导演
   - 编剧
@@ -32,8 +33,9 @@ required_roles_phase_b:
 # 按需激活（激活则同样 ≥2 人互评 ≥90）
 conditional_roles:
   - 漫画分镜师      # P007 轮播路线
+  - OpenMontage 制作导演  # 外部视频制作插件；仅 brief enabled=true 时激活
   - 合规审核
-  - 视觉设计        # Phase A 若已出 cover 草案
+  - 视觉设计        # Phase A 若已出 cover 草案；Phase B 必跑
   - 声音设计师
   - 运营
 
