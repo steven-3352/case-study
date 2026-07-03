@@ -64,6 +64,9 @@
 
 **没有可套用的「标准成片模板」。** 每条内容从洞察包与分镜单独设计；禁止克隆上一条画面、catalog 拼盘交差。用语见 `templates/README.md`。
 
+**模板边界：** 可以模板化的是判断流程、脚本结构、调研字段、合规检查和数据回收；不能模板化的是首屏画面、中段表达机制、动效语言、B-roll 选择、字幕设计、封面构图和 CTA 视觉。  
+一句话：**模板只能约束判断，不允许决定画面。**
+
 ---
 
 ## 2. 工作方式
@@ -79,7 +82,7 @@ Layer 4  发布采集       人工发布 → 48h/7d 指标
 Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 ```
 
-### 2.2 新选题标准流程（14 步 · v3）
+### 2.2 新选题标准流程（15 步 · v4）
 
 | 步 | 动作 | 产出 | 门禁 |
 |----|------|------|------|
@@ -89,14 +92,17 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 4 | 留存设计 | `retention_beat_sheet.md` | 视频/强互动图文必跑 |
 | 5 | 脚本三版 | v0/vA/vB（仅引用洞察 P0/P1） | — |
 | 6 | 视觉路线 | 形式词汇 ≥3 种观感；封面 brief | 非套旧渲染场景 |
-| 7 | 形式策略会 | `design/form_strategy.md` | 无逐镜表达方案竞争 → **禁止 storyboard 定稿** |
-| 8 | 技术可行性审查 | `design/motion_tech_plan.md` | 用 Web 3D/GSAP/复杂 HTML 动效但无审查 → **禁止 render** |
-| 9 | 分镜 + 画面清单 | 对齐节拍表 + 形式策略 + B-roll | 无节拍表/形式策略 → **禁止分镜** |
-| 10 | 声音方案 | `audio_plan.yaml` | 视频必跑；无方案 → **禁止 publish** |
-| 11 | 流水线出片 | `pipeline/*` | — |
-| 12 | 发布包 | 三平台文案 + 成品 | `templates/publish_三平台.md` |
-| 13 | 验收 | `pipeline/CHECKLIST.md` + `gate_check.py` | 不过则退回对应工种 |
-| 14 | 投后复盘 | `post_publish_retro` + `evolution_overlay` | 48h/7d actual 反哺下条 |
+| 7 | 表现形式竞争 | `design/form_competition.md` | 少于 3 个候选方案 / 未写不选原因 / 未比近 5 条 → **禁止 form_strategy / storyboard** |
+| 8 | 形式策略会 | `design/form_strategy.md` | 无逐镜表达方案竞争 → **禁止 storyboard 定稿** |
+| 9 | 视觉语言约束 | `design/design_language.md` | 无色板/字体/组件/禁用项/逐镜应用 → **禁止 storyboard 定稿** |
+| 10 | 视觉原创门 | `design/visual_originality_gate.md` | 不能证明首屏/中段/CTA 与近作不同 → **禁止 storyboard 定稿** |
+| 11 | 技术可行性审查 | `design/motion_tech_plan.md` | 用 Web 3D/GSAP/复杂 HTML 动效但无审查 → **禁止 render** |
+| 12 | 分镜 + 画面清单 | 对齐节拍表 + 形式策略 + 视觉语言 + B-roll；任何 `template:` 须有 `reuse_reason/visual_difference/risk` | 无节拍表/形式竞争/形式策略/视觉语言/视觉原创门 → **禁止分镜** |
+| 13 | 声音方案 | `audio_plan.yaml` | 视频必跑；无方案 → **禁止 publish** |
+| 14 | 流水线出片 | `pipeline/*` | — |
+| 15 | 发布包 | 三平台文案 + 成品 | `templates/publish_三平台.md` |
+| 16 | 验收 | `pipeline/CHECKLIST.md` + `gate_check.py` | 不过则退回对应工种 |
+| 17 | 投后复盘 | `post_publish_retro` + `evolution_overlay` | 48h/7d actual 反哺下条 |
 
 带货 / 出镜 / 图文轮播在标准流程上有分支 — 见 `CLAUDE.md` 形态对照。
 
@@ -106,7 +112,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 |----|------|--------|
 | 理解 4 | 选题深挖、内核提炼、领域专家、事实校验 | **所有形态** |
 | 网络调研 | 网络调研员 | **所有选题** |
-| 核心 9 | 编导、记者、纪录片导演、导演、摄像、编剧、视觉、剪辑、运营 | **所有形态** |
+| 核心 10 | 编导、记者、纪录片导演、导演、摄像、编剧、视觉、视觉语言策展、剪辑、运营 | **所有形态** |
 | 表达/音画 4 | 留存与互动设计、形式策略、动效技术导演、声音设计 | **视频**；Web 3D/GSAP/复杂动效按需强制 |
 | 增长复盘 1 | 数据复盘官 | **发布后 48h/7d** |
 | 带货 4 | 合规、选品、消费者声音、销售脚本 | 带货型 |
@@ -120,6 +126,35 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 2. **形式门** — 视觉同质、forecast、CTA 完整；`pre_publish_forecast` pass 才外发
 
 脚本 90+ ≠ 能投。详规：`templates/design/content_form_split_gates.md` · `pipeline/gate_check.py`
+
+### 2.4a Fail-Closed 状态
+
+新选题开工第一步是 `GAP_REPORT.md`，不是直接生成完整生产包。`GAP_REPORT` 仍有 blocking 时，禁止写 `approved`，禁止 TTS / gpt-image / render。
+
+所有 `pass / approved / score >=90` 必须有来源：
+
+```yaml
+status: draft_self_generated     # 不具备门禁效力
+status: pass_agent_reviewed
+status: pass_human_reviewed
+status: pass_gate_checked
+scorecard_valid: false           # 自生成 scorecard 必须标 false
+```
+
+一个模型代替多个工种写出的讨论室和 scorecard，只能是 `draft_self_generated`，不能当作真实互评。
+
+### 2.4b 视频生产硬门：禁止 QA 截图冒充成片
+
+`prototype/qa_shots/`、低保真 HTML 截图、静态 QA 帧只用于证明“画面进入像素”，不得直接拼接为 `douyin/video.mp4`。
+
+写入 canonical 成片路径 `douyin/video.mp4` 前，必须满足：
+
+- 画面来自动态表现层：动态 HTML/GSAP/Canvas/Three 录屏或帧序列、OpenMontage、真实录屏/B-roll/视频生成素材、或正式 render pipeline。
+- 配音来自项目生产级 TTS/录音方案，不得用系统 `say` 冒充生产级配音。
+- 成片包含字幕、BGM/SFX、动态镜头节奏和逐镜验收。
+- `gate_check(pre_render)` 未通过时，任何 mp4 只能作为 `_build/` 临时预览或 `rejected/` 事故归档，不得写成发布候选。
+
+如果达不到这些条件，正确状态是 `blocked`，不是生成一个“长得像视频”的文件。
 
 ### 2.5 Git
 
@@ -146,6 +181,11 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 
 项目完结后长期保留的是**设计、实现、代码、结构化数据和复盘依据**；视频、图片、素材、音频等重资产必须归属到具体项目目录，允许按项目清理。
 
+素材来源遵守一条原则：**事实可以生成，但来源不能伪造。**  
+`generated_fact` 是合法一等素材来源，可以用 AI 生成虚构但合理的聊天、表格、日报、报价、业务数据样本；但不得声称为真实客户案例、真实后台、真实成交或真实用户原话。详见 `ops/data-policy.yaml` 与 `docs/ASSET_LIFECYCLE.md`。
+
+同理，若没有同平台热门样本，允许形式/留存 Agent 生成 `agent_hypothesis` 作为临时 benchmark 假设，用于指导 0-3s 设计；但它不能冒充真实视频拆解，发布前如有条件应被真实样本替换。
+
 | 长期保留 | 可清理 |
 |----------|--------|
 | `insights/`、`scripts/`、`design/`、`room/`、`content.yaml`、`storyboard.yaml`、代码、公共模板、`performance.yaml` | `*.mp4`、`*.png`、`*.jpg`、`*.mp3`、`*.wav`、下载 B-roll、渲染帧、`pipeline/**/out/` |
@@ -171,6 +211,9 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 6 | **自我进化** — 提标准 → 测 → 更新 Rubric + gate + REJECT_LOG |
 | 7 | **形式重做 ≠ 脚本可静默复用** — `form_version` 升版时，须同步评估脚本/叙事；见 [§3.1b](#31b-形式重做时脚本门禁-d02-沉淀) |
 | 8 | **形式承诺必须兑现到像素** — format/storyboard 写了 Pexels、B-roll、custom、专属看板等，最终视频里必须真实出现对应素材/模板；禁止用通用 `pipeline/render.py` evidence/newsprint 产物冒充新形式 |
+| 9 | **表现形式不可模板化** — 脚本结构可复用，画面表达必须逐条重新设计；首屏、中段机制、CTA 形态不得旧模板换字 |
+| 10 | **自生成不等于通过** — 文件齐全但缺真实调研、真实 benchmark、真实互评时，只能标 `draft_self_generated`，不得 pass/approved |
+| 11 | **先竞争，后分镜** — 每条内容必须先提出至少 3 个表现方案并说明不选理由；禁止从旧 storyboard 开始改 |
 
 ### 3.1b 形式重做时 · 脚本门禁（D02 沉淀）
 
@@ -344,6 +387,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | **配音** | `pipeline/tts/` | edge / minimax / volcengine |
 | **B-roll 库** | `assets/broll/catalog.yaml` | 登记、选型、chaos 真实素材 |
 | **形式词汇** | `assets/formats/catalog.yaml` | 分镜观感类型（非 HTML 套用） |
+| **视觉语言参考** | `assets/design-md/` · `design/design_language.md` | 从 DESIGN.md 提取本条色板/字体/组件/禁用项 |
 | **外发门禁** | `pipeline/gate_check.py` | 内容门+形式门 |
 | **投后指标** | `pipeline/fetch_platform_metrics.py` · `import_metrics_48h.py` | 48h 回填 |
 | **标准进化** | `pipeline/evolution_apply.py` | 数据驱动 Rubric/gate 更新 |
@@ -438,6 +482,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 | 洞察包 | `templates/insights/` → 复制到 `publish/{id}/insights/` |
 | 节拍 / 音画 | `templates/retention_beat_sheet.md` · `templates/audio_plan.yaml` |
 | 工种设计室 | `templates/design/*` · `templates/agent_room/*` |
+| 视觉语言约束 | `templates/design/design_language.md` → `publish/{id}/design/design_language.md` |
 | 发布文案结构 | `templates/publish_三平台.md` |
 | 渲染场景（技术壳） | `pipeline/*/templates/*.html` |
 
@@ -461,7 +506,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 |------|--------|
 | **本文 `docs/SYSTEM.md`** | 首次接入 / 大改后对齐全貌 |
 | **`.cursor/rules/*.mdc`** | Cursor 自动加载铁律（90 分互评、讨论室、结果负责制） |
-| `CLAUDE.md` | Agent 执行：工种、14 步、反例、环境 |
+| `CLAUDE.md` | Agent 执行：工种、15 步、反例、环境 |
 | `docs/DECISIONS.md` | 皮肤层策略辩论结论（Q1–Q8） |
 | `templates/README.md` | 产出格式 vs 渲染场景 vs 形式词汇 |
 | `pipeline/README.md` | 流水线步骤与 produce.py |

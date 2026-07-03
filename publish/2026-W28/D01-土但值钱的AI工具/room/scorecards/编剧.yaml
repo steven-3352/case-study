@@ -1,0 +1,19 @@
+role: 编剧
+content_id: W28D01
+review_source: draft_self_generated
+scorecard_valid: false
+reviewers:
+  - name: reviewer_a
+    angle: "结构与原话"
+    score: 92
+    notes:
+      - "chosen 有反常识钩子、四条原话、场景、框架和 CTA。"
+      - "三版结构差异明确，不是 stub。"
+  - name: reviewer_b
+    angle: "听感与风险"
+    score: 92
+    notes:
+      - "短句比例高，适合旁白。"
+      - "需 TTS 后确认时长，超过 75 秒要压缩例子。"
+avg: 92
+status: draft_self_generated

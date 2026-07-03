@@ -1,0 +1,92 @@
+content_id: W28D01
+title: 真正值钱的 AI 工具，都很土
+duration_s: 64
+status: draft_self_generated
+script_source: scripts/production_cut.md
+tts_allowed: false
+
+vo:
+  provider: minimax
+  voice: 真诚青年
+  speed: 1.06
+  volume: 1.0
+  direction: "克制、判断明确；重点词前稍停，不亢奋。"
+  segments:
+    - id: s1
+      t_start: 0.0
+      t_end: 3.0
+      text: "很多老板做 AI 的第一步就错了。"
+      emotion: 冷静判断
+    - id: s2
+      t_start: 3.0
+      t_end: 13.0
+      text: "我通常会把这类需求概括成几种情况:想用 AI,但不知道从哪开始。一上来就想做复杂 Agent。买了工具,最后还是没人用。员工每天还在复制消息和整理表格。"
+      emotion: 代入
+    - id: s3
+      t_start: 13.0
+      t_end: 24.0
+      text: "比如员工每天早上,把客户消息复制到表格。"
+      emotion: 场景推进
+    - id: s4
+      t_start: 24.0
+      t_end: 34.0
+      text: "中午,按备注判断谁该跟进。"
+      emotion: 场景推进
+    - id: s5
+      t_start: 34.0
+      t_end: 43.0
+      text: "下午,把差不多的回复改几个字发出去。"
+      emotion: 场景推进
+    - id: s6
+      t_start: 43.0
+      t_end: 49.0
+      text: "这不是员工勤奋。这是流程没有被产品化。"
+      emotion: 反转强调
+    - id: s7
+      t_start: 49.0
+      t_end: 58.0
+      text: "所以企业做 AI,第一步不是问能不能做一个很厉害的系统。先问四件事:高频吗?重复吗?输入明确吗?结果明确吗?"
+      emotion: 方法给出
+    - id: s8
+      t_start: 58.0
+      t_end: 64.0
+      text: "AI 真正落地,往往不是从酷开始,是从少掉一段重复工作开始。评论区写一个你公司每天重复最多的动作,我帮你判断它值不值得 AI 化。"
+      emotion: 收束
+
+bgm:
+  source: local_or_royalty_free
+  mood: "低频、克制、轻压力；不要科技感过强。"
+  volume: 0.075
+  fade_in_s: 0.4
+  fade_out_s: 1.2
+  ducking: true
+
+subtitle:
+  mode: html_overlay
+  style: "浅底黑字，关键词用 contrast/accent；每屏不超过 14 个字。"
+  position: lower_third
+  dedup: true
+
+sfx:
+  - cue: "0.8s"
+    sound: "paper_snap"
+    purpose: "客户消息打断高级方案"
+  - cue: "13-43s"
+    sound: "soft_tick"
+    purpose: "每次重复动作计数累加"
+  - cue: "43s"
+    sound: "freeze_hit"
+    purpose: "重复动作 10 冻结"
+  - cue: "58s"
+    sound: "input_pop"
+    purpose: "动作输入条出现"
+
+mix:
+  vo_first: true
+  voice_volume: 1.0
+  music_volume: 0.075
+
+review_notes:
+  - "未过内容门，不允许实际 TTS。"
+  - "后续 TTS 输入以 scripts/production_cut.md 为准，不直接使用 chosen.md 全量稿。"
+  - "若后续 TTS 超过 68s，优先压缩四句原话的停顿，不删动作计数器逻辑。"

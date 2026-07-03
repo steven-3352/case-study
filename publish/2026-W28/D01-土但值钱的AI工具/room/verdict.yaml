@@ -1,0 +1,78 @@
+content_id: W28D01
+status: production_preparation_only
+review_source: pass_agent_reviewed_for_prototype
+scorecard_valid: prototype_only
+phase: phase_a_reviewed
+decision: proceed_to_low_fidelity_prototype
+prototype_qa:
+  status: pass_with_limits
+  file: prototype/QA.md
+  evidence:
+    - prototype/qa_shots/s1.png
+    - prototype/qa_shots/s2.png
+    - prototype/qa_shots/s3.png
+    - prototype/qa_shots/s4.png
+    - prototype/qa_shots/s5.png
+    - prototype/qa_shots/s6.png
+    - prototype/qa_shots/s7.png
+    - prototype/qa_shots/s8.png
+  note: "只代表低保真 HTML 样机可继续作为表现层试点依据；不代表正式 pre_render 或 final render 通过。"
+
+gates:
+  insights:
+    status: draft_self_generated
+    files:
+      - insights/topic_brief.md
+      - insights/core_message.md
+      - insights/domain_notes.md
+      - insights/fact_check.md
+      - insights/hook_benchmark.md
+      - insights/external_references.md
+  retention:
+    status: draft_self_generated
+    file: retention_beat_sheet.md
+  scripts:
+    status: draft_self_generated
+    chosen: scripts/chosen.md
+    review: design/script_review.md
+  form_strategy:
+    status: draft_self_generated
+    file: design/form_strategy.md
+  design_language:
+    status: draft_self_generated
+    file: design/design_language.md
+  openmontage:
+    status: disabled
+    file: design/openmontage_brief.md
+    reason: "D01 用原生 2D 工作流动效足够，OpenMontage 留给更强流程演示选题。"
+  storyboard:
+    status: draft_self_generated
+    file: design/storyboard.yaml
+  audio_plan:
+    status: draft_self_generated
+    file: audio_plan.yaml
+  publish_copy:
+    status: draft_self_generated
+    files:
+      - douyin/publish.md
+      - xhs/publish.md
+
+allowed_next_phase:
+  - "低保真 HTML/动效样机"
+  - "生产前准备补齐"
+blocked_before_final_render:
+  - "逐镜动态像素验收未完成"
+  - "Phase B 复验未完成"
+  - "final asset_log 未完成"
+optional_calibration:
+  - "真实同平台短视频 hook benchmark ≥2"
+  - "真实网络原话 ≥2"
+
+cta_policy:
+  allowed: "评论区写一个每天重复最多的动作"
+  banned:
+    - 私信
+    - 扣1
+    - 硬导流
+
+next_step: "进入生产级前先补 Phase B 复验和逐镜动态验收；未完成前禁止最终 TTS/render/approved"

@@ -1,0 +1,23 @@
+provider: minimax
+voice: zh-CN-YunjianNeural
+jitter: false
+rate: "+15%"
+pitch: "-2Hz"
+volume: "-2%"
+output:
+  format: mp3
+  sample_rate: 32000
+  save_params: true
+script_extract:
+  markers: ["**口播：**"]
+minimax:
+  model: speech-2.8-turbo
+  mode: async
+  voice_id: Chinese (Mandarin)_Sincere_Adult
+  speed: 1.08
+  vol: 1.0
+  pitch: 0
+  language_boost: Chinese
+  format: mp3
+  sample_rate: 32000
+  channel: 1

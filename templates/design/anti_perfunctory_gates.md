@@ -31,6 +31,7 @@
 | `design/vo_listen_notes.md` | content_version + mp4 时间戳 |
 | `design/pre_publish_forecast.md` | 平台表现分析师 · 形式 go/no-go · **approve 必填** |
 | `design/form_strategy.md` | 形式策略官 · 逐镜表达方案竞争 · **pre_render/approve 必填** |
+| `design/design_language.md` | 视觉语言策展师 · DESIGN.md 参考本地化为 token/组件/逐镜约束 · **pre_render/approve 必填** |
 | `design/motion_tech_plan.md` | 动效技术导演 · Web 3D/GSAP/复杂 HTML 动效可行性审查 · 触发时必填 |
 | `design/cover_review.md` | mtime ≥ video.mp4；@ 与 content.yaml 一致 |
 | `design/motion_wow.md` | Phase B **无 `[ ]`** |
@@ -67,7 +68,19 @@
 | 高级动效 | 出现 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达等，必须有 `motion_tech_plan.md` |
 | **注意力引导（折入 · 硬门）** | form_strategy 须含 `单焦点`/`时刻类型`/`加料不加赢家`；时刻分型 ≥2 类；单焦点声明 ≥3 处。详规 `templates/design/attention_guidance_system.md` |
 
-## 1g. L3 投后进化（数据驱动下一条）
+## 1g. 视觉语言策展（gate_check pre_render + approve 验）
+
+| 规则 | 执行 |
+|------|------|
+| `design_language.md` 必填 | 缺失 = 禁止 storyboard 定稿 / render |
+| 参考来源 | 须说明 DESIGN.md / 成熟视觉系统来源与选择理由 |
+| 色板 | 至少 4 个 hex 色值，并声明 canvas/surface/ink/accent 等角色 |
+| 字体层级 | 须有字号/字重/行高或明确替代规则 |
+| 组件规则 | 须覆盖卡片、CTA、标签、表格/字段等本条会用的组件 |
+| 逐镜应用 | 至少 3 行，说明每镜/页使用哪些 token、焦点路径与禁用项 |
+| 禁止口号 | 只写“高级感 / 产品感 / 干净一点 / 参考一下” = FAIL |
+
+## 1h. L3 投后进化（数据驱动下一条）
 
 | 步骤 | 产出 | 命令 |
 |------|------|------|

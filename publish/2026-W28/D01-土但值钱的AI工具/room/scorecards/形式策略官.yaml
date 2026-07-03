@@ -1,0 +1,19 @@
+role: 形式策略官
+content_id: W28D01
+review_source: draft_self_generated
+scorecard_valid: false
+reviewers:
+  - name: reviewer_a
+    angle: "平台适配"
+    score: 91
+    notes:
+      - "抖音与小红书同内核分轨，符合 W28 规则。"
+      - "D01 不启用 OpenMontage 的理由成立。"
+  - name: reviewer_b
+    angle: "可制作性"
+    score: 91
+    notes:
+      - "2D 筛选器、聊天气泡、仿真表格都能在现有项目内完成。"
+      - "后续 storyboard 要避免做成 PPT。"
+avg: 91
+status: draft_self_generated

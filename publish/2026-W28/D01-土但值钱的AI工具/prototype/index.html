@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>W28D01 Prototype</title>
+  <style>
+    :root {
+      --canvas: #f6f4ef;
+      --surface: #ffffff;
+      --ink: #171717;
+      --muted: #6b7280;
+      --line: #e5e0d8;
+      --accent: #1f7a5a;
+      --contrast: #c2410c;
+      --data: #2f5dcc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #d8d4ca;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      display: block;
+      min-height: 100vh;
+    }
+    .phone {
+      width: min(420px, 100vw);
+      aspect-ratio: 9 / 16;
+      background: var(--canvas);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(0,0,0,.22);
+    }
+    @media (max-width: 520px) {
+      body {
+        min-height: auto;
+      }
+      .phone {
+        box-shadow: none;
+      }
+    }
+    .stage {
+      position: absolute;
+      inset: 0;
+      padding: 42px 34px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 22px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .counter {
+      position: absolute;
+      top: 38px;
+      right: 14px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-weight: 800;
+      font-size: 15px;
+      white-space: nowrap;
+      z-index: 5;
+    }
+    .counter span { color: #8ee0b3; }
+    .scene {
+      position: absolute;
+      inset: 0;
+      padding: 88px 34px 40px;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: show 64s linear infinite;
+    }
+    .scene h1 {
+      font-size: 44px;
+      line-height: 1.06;
+      margin: 0 0 18px;
+      letter-spacing: 0;
+    }
+    .scene h2 {
+      font-size: 31px;
+      line-height: 1.12;
+      margin: 0 0 16px;
+      letter-spacing: 0;
+    }
+    .doc, .table, .reply, .inputbox {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    .doc { padding: 20px; min-height: 230px; }
+    .doc-title { font-size: 24px; font-weight: 800; margin-bottom: 18px; }
+    .doc-line { height: 13px; background: #ded8ce; margin: 12px 0; border-radius: 4px; }
+    .doc-line.short { width: 62%; }
+    .message {
+      background: #eef6ff;
+      border: 1px solid #c9daf8;
+      border-radius: 8px;
+      padding: 13px 14px;
+      font-size: 19px;
+      font-weight: 700;
+      animation: pop .7s ease both;
+    }
+    .sticky {
+      background: #fff7d1;
+      border: 1px solid #eedf93;
+      border-radius: 6px;
+      padding: 13px;
+      font-weight: 700;
+      margin: 10px 0;
+      transform: rotate(-1deg);
+    }
+    .sticky:nth-child(2n) { transform: rotate(1deg); }
+    .sticky.hot { background: #ffe4d5; border-color: #f7b38f; color: #9a3412; }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      font-size: 17px;
+    }
+    .table th, .table td {
+      border-bottom: 1px solid var(--line);
+      padding: 13px 10px;
+      text-align: left;
+    }
+    .table th { color: var(--muted); font-size: 14px; background: #faf8f3; }
+    .mark { background: #fff1c7; }
+    .workbench {
+      position: relative;
+      margin-top: 10px;
+    }
+    .cursor {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-left: 12px solid var(--ink);
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,.18));
+      z-index: 4;
+    }
+    .selection {
+      position: absolute;
+      left: 88px;
+      right: 72px;
+      height: 30px;
+      border: 2px solid rgba(47,93,204,.55);
+      background: rgba(47,93,204,.10);
+      border-radius: 5px;
+      z-index: 3;
+    }
+    .copy-chip,
+    .scan-chip,
+    .rewrite-chip {
+      position: absolute;
+      z-index: 4;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .copy-flow {
+      position: absolute;
+      left: 54px;
+      top: 120px;
+      width: 270px;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(47,93,204,.18), rgba(47,93,204,.72));
+      border-radius: 99px;
+      transform: rotate(8deg);
+      z-index: 2;
+    }
+    .s3 .cursor { left: 304px; top: 116px; transform: rotate(10deg); }
+    .s3 .selection { top: 91px; }
+    .s3 .copy-chip { left: 240px; top: 56px; }
+    .scan-line {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      height: 38px;
+      border: 2px solid rgba(194,65,12,.55);
+      background: rgba(194,65,12,.08);
+      border-radius: 6px;
+      z-index: 3;
+    }
+    .s4 .scan-line { top: 95px; }
+    .s4 .cursor { left: 190px; top: 132px; transform: rotate(22deg); }
+    .s4 .scan-chip { right: 18px; top: 60px; background: var(--contrast); }
+    .rewrite-track {
+      position: relative;
+      margin-top: 8px;
+    }
+    .rewrite-track::before {
+      content: "";
+      position: absolute;
+      left: 30px;
+      right: 30px;
+      top: 55px;
+      height: 4px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(47,93,204,.2), rgba(31,122,90,.7));
+    }
+    .s5 .cursor { left: 246px; top: 103px; transform: rotate(-8deg); }
+    .s5 .rewrite-chip { right: 18px; top: 64px; background: var(--data); }
+    .reply {
+      padding: 18px;
+      margin: 12px 0;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+    .var { color: var(--data); font-weight: 800; }
+    .freeze {
+      position: absolute;
+      inset: 92px 28px 120px;
+      border: 2px dashed rgba(31,122,90,.45);
+      border-radius: 10px;
+    }
+    .trail {
+      position: absolute;
+      background: rgba(47,93,204,.18);
+      height: 4px;
+      transform-origin: left center;
+      border-radius: 99px;
+    }
+    .trail.a { width: 250px; left: 42px; top: 190px; transform: rotate(18deg); }
+    .trail.b { width: 300px; left: 50px; top: 330px; transform: rotate(-12deg); }
+    .trail.c { width: 220px; left: 90px; top: 470px; transform: rotate(8deg); }
+    .extract-map {
+      position: relative;
+      height: 390px;
+      margin-top: 18px;
+    }
+    .extract-trail {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      height: 5px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(47,93,204,.15), rgba(31,122,90,.55));
+    }
+    .extract-trail.t1 { top: 42px; }
+    .extract-trail.t2 { top: 132px; transform: rotate(-3deg); }
+    .extract-trail.t3 { top: 222px; transform: rotate(2deg); }
+    .extract-node {
+      position: absolute;
+      width: 128px;
+      min-height: 70px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      font-weight: 800;
+      font-size: 21px;
+      line-height: 1.15;
+    }
+    .extract-node span {
+      display: block;
+      margin-top: 6px;
+      color: var(--accent);
+      font-size: 15px;
+    }
+    .extract-node.n1 { left: 8px; top: 4px; }
+    .extract-node.n2 { right: 8px; top: 94px; }
+    .extract-node.n3 { left: 8px; top: 184px; }
+    .extract-node.n4 { right: 8px; top: 274px; }
+    .big-reversal {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      bottom: 180px;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .inputbox {
+      padding: 22px;
+      margin-top: 36px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-weight: 700;
+    }
+    .subtitle {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 34px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 15px;
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      z-index: 6;
+    }
+    .watermark {
+      position: absolute;
+      left: 30px;
+      top: 38px;
+      color: var(--muted);
+      font-size: 13px;
+      z-index: 8;
+    }
+    .s1 { animation-delay: 0s; }
+    .s2 { animation-delay: 3s; }
+    .s3 { animation-delay: 13s; }
+    .s4 { animation-delay: 24s; }
+    .s5 { animation-delay: 34s; }
+    .s6 { animation-delay: 43s; }
+    .s7 { animation-delay: 49s; }
+    .s8 { animation-delay: 58s; }
+    .phone[data-shot="s1"] .scene,
+    .phone[data-shot="s2"] .scene,
+    .phone[data-shot="s3"] .scene,
+    .phone[data-shot="s4"] .scene,
+    .phone[data-shot="s5"] .scene,
+    .phone[data-shot="s6"] .scene,
+    .phone[data-shot="s7"] .scene,
+    .phone[data-shot="s8"] .scene {
+      animation: none;
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    .phone[data-shot] .message {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .phone[data-shot="s1"] .s1,
+    .phone[data-shot="s2"] .s2,
+    .phone[data-shot="s3"] .s3,
+    .phone[data-shot="s4"] .s4,
+    .phone[data-shot="s5"] .s5,
+    .phone[data-shot="s6"] .s6,
+    .phone[data-shot="s7"] .s7,
+    .phone[data-shot="s8"] .s8 {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes show {
+      0%, 100% { opacity: 0; transform: translateY(18px); }
+      1.2%, 14% { opacity: 1; transform: translateY(0); }
+      15.2% { opacity: 0; transform: translateY(-12px); }
+    }
+    @keyframes pop {
+      from { transform: scale(.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="W28D01 low fidelity prototype">
+    <div class="watermark">示意 · generated_fact / synthetic_visual</div>
+    <div class="counter">重复动作 <span>1</span></div>
+
+    <section class="scene s1">
+      <div class="doc">
+        <div class="doc-title">高级 AI Agent 方案</div>
+        <div class="doc-line"></div><div class="doc-line"></div><div class="doc-line short"></div>
+        <div style="margin-top:28px" class="message">客户消息弹窗：想了解报价</div>
+      </div>
+      <h1 style="margin-top:28px">很多老板做 AI<br>第一步就错了</h1>
+      <div class="subtitle">方案被现实工作打断，计数器 0 → 1</div>
+    </section>
+
+    <section class="scene s2">
+      <h2>示意需求压住了方案</h2>
+      <div class="doc">
+        <div class="sticky">想用 AI，但不知道从哪开始</div>
+        <div class="sticky">一上来就想做复杂 Agent</div>
+        <div class="sticky">买了工具，最后还是没人用</div>
+        <div class="sticky hot">每天还在复制消息和整理表格</div>
+      </div>
+      <div class="subtitle">示意需求：不冒充真实用户原话</div>
+    </section>
+
+    <section class="scene s3">
+      <h2>早上：复制客户消息</h2>
+      <div class="workbench">
+        <table class="table">
+          <tr><th>客户</th><th>需求</th><th>下一步</th></tr>
+          <tr><td>陈总</td><td>报价</td><td>发方案</td></tr>
+          <tr><td>李店</td><td>案例</td><td>补截图</td></tr>
+          <tr><td>王经理</td><td>时间</td><td>约电话</td></tr>
+        </table>
+        <div class="selection"></div>
+        <div class="copy-flow"></div>
+        <div class="cursor"></div>
+        <div class="copy-chip">复制 → 表格</div>
+      </div>
+      <h1 style="color:var(--data); margin-top:34px">重复动作 4</h1>
+      <div class="subtitle">每复制一次，计数器加 1</div>
+    </section>
+
+    <section class="scene s4">
+      <h2>中午：按备注判断</h2>
+      <div class="workbench">
+        <table class="table">
+          <tr><th>备注</th><th>判断</th></tr>
+          <tr><td class="mark">昨天问过价格</td><td>今天跟进</td></tr>
+          <tr><td class="mark">已读未回</td><td>换案例</td></tr>
+          <tr><td class="mark">要发案例</td><td>补资料</td></tr>
+        </table>
+        <div class="scan-line"></div>
+        <div class="cursor"></div>
+        <div class="scan-chip">扫备注 → 判断</div>
+      </div>
+      <h1 style="color:var(--contrast); margin-top:34px">重复判断 7</h1>
+      <div class="subtitle">不是只搬运，还在重复判断</div>
+    </section>
+
+    <section class="scene s5">
+      <h2>下午：相似回复只改变量</h2>
+      <div class="rewrite-track">
+        <div class="reply">您好 <span class="var">陈总</span>，这版方案适合 <span class="var">门店获客</span>，今晚可以发您。</div>
+        <div class="reply">您好 <span class="var">李店</span>，这版方案适合 <span class="var">报价整理</span>，今晚可以发您。</div>
+        <div class="cursor"></div>
+        <div class="rewrite-chip">只替换变量</div>
+      </div>
+      <h1 style="color:var(--data); margin-top:22px">重复改写 10</h1>
+      <div class="subtitle">变量在变，动作没变</div>
+    </section>
+
+    <section class="scene s6">
+      <div class="freeze"></div>
+      <div class="trail a"></div><div class="trail b"></div><div class="trail c"></div>
+      <h1 style="color:var(--contrast)">重复动作 10</h1>
+      <div class="big-reversal">这不是员工勤奋<br>是流程没产品化</div>
+      <div class="subtitle">冻结现场，不做纯金句页</div>
+    </section>
+
+    <section class="scene s7">
+      <h2>从动作里抽出 4 个问题</h2>
+      <div class="extract-map">
+        <div class="extract-trail t1"></div>
+        <div class="extract-trail t2"></div>
+        <div class="extract-trail t3"></div>
+        <div class="extract-node n1">高频吗？<span>早 / 中 / 下午都出现</span></div>
+        <div class="extract-node n2">重复吗？<span>复制 / 判断 / 改写</span></div>
+        <div class="extract-node n3">输入明确吗？<span>客户消息 + 备注</span></div>
+        <div class="extract-node n4">结果明确吗？<span>下一步动作</span></div>
+      </div>
+      <div class="subtitle">轨迹拆成四个判断点</div>
+    </section>
+
+    <section class="scene s8">
+      <h1>你公司每天重复最多的动作是：</h1>
+      <div class="inputbox">__________</div>
+      <div class="examples">
+        <span class="pill">复制</span><span class="pill">整理</span><span class="pill">判断</span><span class="pill">改写</span><span class="pill">提醒</span>
+      </div>
+      <div class="subtitle">评论一个重复动作，我帮你判断值不值得 AI 化</div>
+    </section>
+  </main>
+  <script>
+    const shot = new URLSearchParams(location.search).get("shot");
+    const phone = document.querySelector(".phone");
+    const counter = document.querySelector(".counter");
+    const states = [
+      { at: 0, label: "重复动作", value: 1 },
+      { at: 13, label: "重复动作", value: 4 },
+      { at: 24, label: "重复判断", value: 7 },
+      { at: 34, label: "重复改写", value: 10 },
+      { at: 43, label: "重复动作", value: 10 },
+      { at: 58, label: "重复动作", value: 0 },
+    ];
+    const shotState = {
+      s1: ["重复动作", 1],
+      s2: ["重复动作", 1],
+      s3: ["重复动作", 4],
+      s4: ["重复判断", 7],
+      s5: ["重复改写", 10],
+      s6: ["重复动作", 10],
+      s7: ["重复动作", 10],
+      s8: ["重复动作", 0],
+    };
+    function setCounter(label, value) {
+      counter.innerHTML = `${label} <span>${value}</span>`;
+    }
+    if (shot) {
+      phone.dataset.shot = shot;
+      if (shotState[shot]) setCounter(shotState[shot][0], shotState[shot][1]);
+    } else {
+      const started = Date.now();
+      setInterval(() => {
+        const t = ((Date.now() - started) / 1000) % 64;
+        const current = states.reduce((last, item) => (t >= item.at ? item : last), states[0]);
+        setCounter(current.label, current.value);
+      }, 250);
+    }
+  </script>
+</body>
+</html>

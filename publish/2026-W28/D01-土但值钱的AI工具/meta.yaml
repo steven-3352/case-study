@@ -1,0 +1,48 @@
+content_id: W28D01
+day: D01
+date: "2026-07-06"
+week_id: "2026-W28"
+topic_id: W28D01
+slug: 土但值钱的AI工具
+title: "真正值钱的 AI 工具，都很土"
+objective: exposure
+status: production_preparation_only
+review_source: pass_agent_reviewed_for_prototype
+series: S4-AI流程诊断
+platforms:
+  - douyin
+  - xhs
+audience:
+  primary: "老板、创业者、业务负责人、运营负责人"
+  secondary: "正在尝试 AI 但不知道从哪里落地的团队管理者"
+core_question: "什么样的业务流程，值得用 AI 工具重做一遍？"
+hook_3s_dy: "很多老板做 AI 的第一步就错了"
+hook_cover_xhs: "真正值钱的 AI 工具，都很土"
+core_claim: "企业里最先值得 AI 化的，往往不是炫酷 Agent，而是每天重复、烦、容易出错的小流程。"
+platform_strategy:
+  douyin:
+    form: "45-75 秒口播/旁白视频"
+    emphasis: "反常识钩子 + 场景快切 + 流程接管示意"
+  xhs:
+    form: "6-8 页轮播"
+    emphasis: "封面冲突句 + 土工具例子 + 判断清单"
+cta:
+  primary: "评论区写一个你公司每天重复最多的动作，我帮你判断值不值得 AI 化。"
+  rule_note: "遵守项目规则：正文不写私信/扣1/硬导流。"
+success_signals:
+  - "3 秒停留优先"
+  - "评论出现具体流程名"
+  - "小红书收藏/转发高于上周均值"
+red_lines:
+  - "不承诺一定降本、一定提效、一定成交"
+  - "不说替代某个岗位或裁人"
+  - "不把 ChatGPT/API/Agent 等技术词当主卖点"
+  - "不编造客户案例和项目金额"
+  - "不使用私信、扣1等导流式 CTA"
+blocking:
+  - "正式 pre_render 前需完成逐镜动态像素验收"
+  - "正式 pre_render 前需补 Phase B 复验"
+  - "当前仅完成低保真首镜像素 QA；正式 render 前仍需逐镜动态验收"
+optional_calibration:
+  - "真实同平台短视频 hook benchmark ≥2"
+  - "真实网络原话 ≥2"

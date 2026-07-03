@@ -33,7 +33,7 @@
 
 ## 5. 关联
 
-- 全流程：`docs/SYSTEM.md` · `CLAUDE.md`（14 步 / 工种清单）
+- 全流程：`docs/SYSTEM.md` · `CLAUDE.md`（15 步 / 工种清单）
 - 互评门禁：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md`
 - 注意力硬门：`templates/design/attention_guidance_system.md`
 - 防同质：`templates/README.md` · `docs/design/SCRIPT_REJECT_LOG.md`

@@ -17,6 +17,7 @@ participants:
     - 事实校验员
     - 编剧
     - 留存与互动设计师
+    - 视觉语言策展师
     - 运营
   activated:
     - 视觉设计
@@ -40,6 +41,7 @@ gates:
   p0_count: 0
   fact_check_clear: false
   retention_aligned: false
+  design_language_pass: false
   script_review_pass: false
   scorecards_phase_a_pass: false   # Phase A 必跑工种 avg 均 ≥90
   scorecards_phase_b_pass: false   # render 后复评 ≥90
@@ -53,6 +55,7 @@ gates:
 # 变更 → 级联作废 scorecard（见 pipeline/gate_check.py INVALIDATE_MAP）
 invalidates_on:
   script: [编剧, 留存与互动设计师, 编导]
-  storyboard: [动效分镜师, 动效设计师, 留存与互动设计师]
+  design_language: [视觉语言策展师, 视觉设计, 动效设计师, 动效分镜师]
+  storyboard: [动效分镜师, 动效设计师, 视觉语言策展师, 留存与互动设计师]
   render: [动效设计师, 视觉设计, 编剧, 编导, 留存与互动设计师]
   cover: [视觉设计, 编导]

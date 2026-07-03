@@ -1,8 +1,12 @@
 # 数据叙事规范
-# 辩论结论 Q4：有真实用真实；没有允许叙事修饰，项目画面必须真实
+# 当前原则：事实可以由 AI 生成，但来源不能伪造。
+# 生成事实是合法的一等素材来源；禁止把 generated_fact 冒充 real_private / public_reference。
 
 principle: >
-  项目录屏/页面/邮件必须真实（自己做的系统）。
+  内容系统可以使用真实事实、公开事实、AI 生成事实和解释性视觉。
+  事实可以生成，用于表达真实业务规律、构造合理案例和制作画面素材；
+  但来源不能伪造：generated_fact 不得声称为真实客户案例、真实成交、
+  真实后台、真实用户原话或真实项目结果。
   效果数字：有后台用后台，没有用区间或叙事；绝不 P 图假后台。
 
 tiers:
@@ -16,6 +20,37 @@ tiers:
     examples: ["留资个位数", "曝光几百", "第5天复盘", "从0到有评论"]
     use_when: "系统确有其物，效果未精确统计"
 
+  C_generated_fact:
+    desc: "AI 生成事实型素材，合法一等来源"
+    examples: [虚构但合理的客户咨询记录, 虚构但合理的销售跟进表, 虚构但合理的日报, 虚构但合理的报价流程, 虚构但合理的业务数据样本]
+    use_when: "没有隐私素材，且需要构造合理业务场景/案例/表格/聊天/流程"
+    internal_mark: "generated_fact 或 synthetic_case"
+    limits:
+      - 不冒充真实客户案例
+      - 不冒充真实后台/真实截图/真实成交
+      - 不作为真实用户原话或真实调研证据
+      - 可用于脚本场景、视觉素材、示例流程和演示数据
+
+  D_synthetic_visual:
+    desc: "AI/代码生成解释性视觉"
+    examples: [仿真聊天记录, 仿真表格, 仿真工作台, 仿真日报, 动作计数器, AI 生成 B-roll]
+    use_when: "为了让观众看懂流程长什么样，而非证明某事真实发生"
+    internal_mark: "synthetic_visual"
+    limits:
+      - 涉及客户、后台、聊天、数据时内部必须标来源
+      - 必要时画面标示意
+      - 不伪造品牌/平台/客户身份
+
+  E_agent_hypothesis:
+    desc: "Agent 生成的结构假设/benchmark 假设"
+    examples: [假设爆款开头结构, 假设评论触发方式, 假设视觉节奏]
+    use_when: "没有可访问同平台样本，但仍需推进形式设计"
+    internal_mark: "agent_hypothesis"
+    limits:
+      - 不冒充真实视频拆解
+      - 不冒充真实平台数据
+      - 后续有真实样本时应替换或校准
+
   C_narrative:
     desc: "无精确数据时的叙事修饰"
     examples: ["当时觉得可以躺了", "后来数据不太好看", "慢慢在涨"]
@@ -26,18 +61,22 @@ tiers:
       - 同一表述不在多平台当不同事实反复用
 
 forbidden:
-  - P图假后台 / 假私信
-  - "一夜涨粉5000" "月入xx万" 等可验证假里程碑
+  - 把 generated_fact / synthetic_visual 冒充真实客户后台、真实私信、真实成交
+  - P图假后台 / 假私信并声称真实
+  - "\"一夜涨粉5000\" \"月入xx万\" 等可验证假里程碑"
   - 无来源的具体倍数: "提升10倍"
-  - 虚构不存在的项目或客户
+  - 虚构不存在的项目或客户并声称真实存在
 
 project_vs_content:
-  project: "页面、表单、邮件、内容产出 → 必须能录屏展示"
+  project: "页面、表单、邮件、内容产出 → 如声称为自有项目必须能录屏展示；如为 generated_fact/synthetic_visual 必须内部标记"
   content_metrics: "发布后的曝光/赞/藏/评 → fetch_platform_metrics.py 或 metrics.csv"
   project_effects: "留资、转化 → A或B层，无则C层叙事"
 
 review_checklist:
-  - 项目画面能录屏或截图吗？（必须能）
+  - 每个素材的 source_type 是否标清？real_private / public_reference / generated_fact / synthetic_visual / hybrid / agent_hypothesis
+  - generated_fact 有没有被误写成真实客户事实？
+  - synthetic_visual 有没有被误读为真实后台？
+  - 如声称项目画面真实，能录屏或截图吗？
   - 效果数字属于哪一层？A/B/C 是否标注？
-  - 有没有 P 图或假后台？
+  - 有没有把生成事实伪装成真实来源？
   - 标题和正文口径一致吗？

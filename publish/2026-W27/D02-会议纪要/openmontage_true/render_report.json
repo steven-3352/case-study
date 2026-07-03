@@ -1,0 +1,23 @@
+{
+  "pipeline": "hybrid",
+  "render_runtime": "ffmpeg_composition_with_openmontage_assets",
+  "duration_target_seconds": 35.2,
+  "output": "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/renders/final.mp4",
+  "case_study_output": "/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage_true/final.mp4",
+  "scene_paths": [
+    "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/assets/scenes/01_hook.mp4",
+    "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/assets/scenes/02_minutes.mp4",
+    "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/assets/scenes/03_todo.mp4",
+    "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/assets/scenes/04_contrast.mp4",
+    "/Users/bubu/Documents/projects/OpenMontage/projects/w27d02-meeting-minutes/assets/scenes/05_cta.mp4"
+  ],
+  "source_support_mix": {
+    "anchor_medium": "grok_generated_workplace_video",
+    "support_layers": [
+      "gpt-image-2 UI support cards",
+      "Chinese overlay cards",
+      "MiniMax narration"
+    ],
+    "ratio": "2 generated-video anchor scenes / 3 support-led scenes"
+  }
+}

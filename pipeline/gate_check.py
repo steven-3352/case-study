@@ -54,7 +54,7 @@ BATCH_AGENT_ID_BLOCKLIST = frozenset({"batch", "script", "auto", "self", "same-s
 SCORECARD_ROLES_PHASE_A = [
     "网络调研员", "记者", "选题深挖师", "内核提炼师", "事实校验员",
     "形式选型师", "平台原生策划", "纪录片导演", "编剧", "留存与互动设计师",
-    "形式策略官", "动效技术导演", "动效设计师", "动效分镜师", "编导",
+    "形式策略官", "视觉语言策展师", "动效技术导演", "动效设计师", "动效分镜师", "编导",
 ]
 
 SCORECARD_ROLES_PHASE_B = [
@@ -71,7 +71,7 @@ CATALOG_TEMPLATE_RE = re.compile(
 # 专属模板：d{NN}_ 前缀（如 d04_excel_dread）
 EXCLUSIVE_TEMPLATE_RE = re.compile(r"^d\d{2}_", re.I)
 
-FORM_LAYER_ROLES = frozenset({"动效设计师", "形式选型师", "动效分镜师", "平台原生策划"})
+FORM_LAYER_ROLES = frozenset({"动效设计师", "形式选型师", "视觉语言策展师", "动效分镜师", "平台原生策划"})
 
 # 表现形式 90+ 硬门槛（与 scorecard 纸面分独立校验）
 FORM_EXCLUSIVE_MIN = 3          # 至少 3 种不同专属视觉隐喻
@@ -103,6 +103,41 @@ DATA_LEVER_RE = re.compile(
 )
 FORM_STRATEGY_REQUIRED_LABELS = ("镜头任务", "候选表达", "数据杠杆", "推荐方案")
 MOTION_TECH_REQUIRED_LABELS = ("适用性", "可读性", "资产", "导出", "风险")
+DESIGN_LANGUAGE_REQUIRED_LABELS = ("参考来源", "色板", "字体", "组件", "逐镜", "Don't")
+FORM_COMPETITION_REQUIRED_LABELS = (
+    "本条视觉命题",
+    "最近 5 条",
+    "方案 A",
+    "方案 B",
+    "方案 C",
+    "推荐方案",
+    "不选其他方案原因",
+    "禁止从旧 storyboard 开始改",
+)
+VISUAL_ORIGINALITY_REQUIRED_LABELS = (
+    "最近 5 条",
+    "首屏有什么不同",
+    "中段表达方式有什么不同",
+    "关掉声音",
+    "复用的是能力还是画面",
+)
+VISUAL_ORIGINALITY_MUST_HAVE = (
+    "专属首屏表达",
+    "专属中段机制",
+    "专属 CTA 形态",
+    "不复用上一条分镜骨架",
+    "不用旧模板换字",
+)
+ASSET_STRATEGY_REQUIRED_LABELS = (
+    "source_type",
+    "generated_fact",
+    "synthetic_visual",
+    "素材来源类型",
+    "镜头素材计划",
+    "允许 AI 生成的事实",
+    "不得声称",
+    "asset_log",
+)
 
 # 注意力引导系统（折进 form_strategy · 2026-06-26 · 直接硬门）
 # 标准：templates/design/attention_guidance_system.md
@@ -117,7 +152,8 @@ SCRIPT_REVIEW_POST_RENDER_SIGNERS = ("编导",)
 # 变更 → 须重评的工种（级联作废）
 INVALIDATE_MAP: dict[str, list[str]] = {
     "script": ["编剧", "留存与互动设计师", "编导"],
-    "storyboard": ["动效分镜师", "动效设计师", "留存与互动设计师"],
+    "design_language": ["视觉语言策展师", "视觉设计", "动效设计师", "动效分镜师"],
+    "storyboard": ["动效分镜师", "动效设计师", "视觉语言策展师", "留存与互动设计师"],
     "render": ["动效设计师", "视觉设计", "编剧", "编导", "留存与互动设计师"],
     "cover": ["视觉设计", "编导"],
 }
@@ -570,6 +606,9 @@ def check_evidence(day_dir: pathlib.Path, errors: list[str]) -> None:
 
 
 def _storyboard_path(day_dir: pathlib.Path) -> pathlib.Path | None:
+    local_sb = day_dir / "design" / "storyboard.yaml"
+    if local_sb.exists():
+        return local_sb
     proj_id = _read_yaml(day_dir / "meta.yaml").get("project_id")
     if not proj_id:
         verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
@@ -585,7 +624,62 @@ def _load_storyboard_scenes(day_dir: pathlib.Path) -> list[dict]:
     if not sb_path:
         return []
     data = _read_yaml(sb_path)
-    return list(data.get("scenes") or [])
+    return list(data.get("scenes") or data.get("shots") or [])
+
+
+def check_gap_report_status(day_dir: pathlib.Path, errors: list[str], *, phase: str) -> None:
+    """Fail closed when a project explicitly records unresolved gaps.
+
+    GAP_REPORT is the first artifact for new topics: it prevents a directory full of
+    generated files from being mistaken for a valid process run.
+    """
+    path = day_dir / "GAP_REPORT.md"
+    text = _read_text(path)
+    verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
+    score_idx = _read_yaml(day_dir / "room" / "scorecards_index.yaml")
+    meta = _read_yaml(day_dir / "meta.yaml")
+
+    combined_status = " ".join(
+        str(x or "")
+        for x in (
+            meta.get("status"),
+            verdict.get("status"),
+            verdict.get("review_source"),
+            score_idx.get("status"),
+        )
+    )
+    if re.search(r"blocked_before|draft_self_generated|scorecard_valid:\s*false", combined_status, re.I):
+        errors.append(
+            "状态为 blocked_before*/draft_self_generated 或 scorecard_valid=false；"
+            "须补真实调研/benchmark/互评后才能进入下一阶段"
+        )
+
+    if not text:
+        return
+    prototype_allowed = bool(re.search(r"允许低保真|prototype_allowed:\s*true", text, re.I))
+    if prototype_allowed and phase == "pre_render":
+        # Low-fidelity prototype is allowed even when final TTS/render remains blocked.
+        return
+    if re.search(r"status:\s*blocked|blocking:|阻塞|不可进入|不允许|not_allowed", text, re.I):
+        errors.append("GAP_REPORT 仍记录阻塞项；禁止 pre_render/render/approve")
+
+
+def check_self_generated_passes(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """Self-generated artifacts may exist, but must not be marked pass/approved."""
+    score_idx = _read_yaml(day_dir / "room" / "scorecards_index.yaml")
+    if score_idx.get("scorecard_valid") is False:
+        errors.append("scorecards_index.scorecard_valid=false；scorecard 不得作为门禁通过依据")
+    if re.search(r"draft_self_generated|single_agent", str(score_idx), re.I):
+        errors.append("scorecards_index 标记为自生成/单 Agent 草稿；不得 pass")
+
+    sc_dir = day_dir / "room" / "scorecards"
+    if sc_dir.exists():
+        for path in sc_dir.glob("*.yaml"):
+            card = _read_yaml(path)
+            source = " ".join(str(card.get(k) or "") for k in ("status", "review_source", "room_status"))
+            if re.search(r"draft_self_generated|single_agent|self_generated", source, re.I):
+                if card.get("pass") or str(card.get("status", "")).lower() == "pass":
+                    errors.append(f"{path.name}: 自生成/单 Agent scorecard 不得标 pass")
 
 
 def check_visual_diversity(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -676,7 +770,7 @@ def check_no_dark_p004_clone(
 
 
 def check_hook_benchmark(day_dir: pathlib.Path, errors: list[str]) -> None:
-    """完播北极星 · 同行前3秒拆解 · pre_render 必填."""
+    """完播北极星 · 同行前3秒拆解或 agent_hypothesis · pre_render 必填."""
     hb = day_dir / "insights" / "hook_benchmark.md"
     retention = day_dir / "retention_beat_sheet.md"
     if not hb.exists():
@@ -691,9 +785,12 @@ def check_hook_benchmark(day_dir: pathlib.Path, errors: list[str]) -> None:
         if label not in text:
             errors.append(f"hook_benchmark 须拆解：{label}")
     urls = re.findall(r"https?://[^\s\)|\]>]+", text)
-    if len(urls) < 2:
+    hypothesis_mode = bool(re.search(r"benchmark_mode:\s*agent_hypothesis|source_type:\s*agent_hypothesis", text, re.I))
+    hypothesis_refs = len(re.findall(r"假设参考\s*\d+|Hypothesis\s*\d+", text, re.I))
+    if len(urls) < 2 and not (hypothesis_mode and hypothesis_refs >= 2):
         errors.append(
-            "hook_benchmark 须含 ≥2 条可核验 URL（https://…，禁止「抖音搜…」占位）"
+            "hook_benchmark 须含 ≥2 条可核验 URL；若没有同平台样本，必须声明 "
+            "benchmark_mode: agent_hypothesis 并给出 ≥2 条假设参考（不得冒充真实视频）"
         )
     if retention.exists():
         rt = _read_text(retention)
@@ -708,6 +805,7 @@ def _combined_form_context(day_dir: pathlib.Path) -> str:
     parts: list[str] = []
     for rel in (
         "design/form_strategy.md",
+        "design/design_language.md",
         "design/format_spec.md",
         "design/motion_wow.md",
         "design/pre_publish_forecast.md",
@@ -774,6 +872,129 @@ def check_form_strategy(day_dir: pathlib.Path, errors: list[str]) -> None:
         errors.append(
             f"form_strategy 单焦点声明少于 {ATTENTION_FOCUS_MIN} 处；每个关键镜须声明唯一视线落点"
         )
+
+
+def check_form_competition(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """表现形式竞争：先比 3 个方案，再允许进入形式策略/分镜。"""
+    path = day_dir / "design" / "form_competition.md"
+    if not path.exists():
+        errors.append("缺少 design/form_competition.md（表现形式三方案竞争，禁止默认套模板）")
+        return
+    text = _read_text(path)
+    if len(text.strip()) < 900:
+        errors.append("form_competition 内容过短（<900 字），须完整比较至少 3 个表现方案")
+    for label in FORM_COMPETITION_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"form_competition 缺少必填字段：{label}")
+
+    candidate_hits = len(set(re.findall(r"方案\s*[ABC]", text)))
+    if candidate_hits < 3:
+        errors.append(f"form_competition 候选方案不足 3 个（现 {candidate_hits} 个）")
+
+    for metric in ("3s", "完播", "理解", "收藏", "评论"):
+        if metric not in text:
+            errors.append(f"form_competition 未覆盖服务指标：{metric}")
+
+    if not re.search(r"不选原因|不选择|不选其他方案原因", text):
+        errors.append("form_competition 必须写明不选其他方案原因")
+    if not re.search(r"最近\s*5\s*条|近作", text):
+        errors.append("form_competition 必须与最近 5 条做撞形检查")
+    if re.search(r"复制上一条|旧\s*storyboard|旧模板换字|套用", text) and not re.search(r"禁止|不是|不得|不允许", text):
+        errors.append("form_competition 出现旧 storyboard/模板复用但未明确禁止")
+    if re.search(r"为了快|默认用|沿用上一条|直接套|更酷", text):
+        errors.append("form_competition 含非法选型理由（为了快/默认/沿用/直接套/更酷）")
+
+
+def check_visual_originality_gate(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """视觉原创门：模板只能约束判断，不能约束画面。"""
+    path = day_dir / "design" / "visual_originality_gate.md"
+    if not path.exists():
+        errors.append("缺少 design/visual_originality_gate.md（表现形式不可模板化门禁）")
+        return
+    text = _read_text(path)
+    if len(text.strip()) < 600:
+        errors.append("visual_originality_gate 内容过短（<600 字），须具体比较最近内容与本条差异")
+    for label in VISUAL_ORIGINALITY_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"visual_originality_gate 缺少必答问题：{label}")
+    for label in VISUAL_ORIGINALITY_MUST_HAVE:
+        if label not in text:
+            errors.append(f"visual_originality_gate 缺少 must_have：{label}")
+    if re.search(r"- \[ \].*(专属|不复用|不用旧模板|首屏|中段|CTA)", text):
+        errors.append("visual_originality_gate 仍有必选项未勾选")
+    if re.search(r"沿用上一条|旧模板换字|统一模板|固定模板", text) and not re.search(r"禁止|不得|不允许|fail", text):
+        errors.append("visual_originality_gate 出现模板复用表述但未明确禁止/失败动作")
+
+    scenes = _load_storyboard_scenes(day_dir)
+    for i, sc in enumerate(scenes, start=1):
+        tpl = str(sc.get("template") or "")
+        if not tpl:
+            continue
+        missing = [k for k in ("reuse_reason", "visual_difference", "risk") if not sc.get(k)]
+        if missing:
+            errors.append(
+                f"storyboard 第 {i} 镜 template={tpl!r} 缺少 {', '.join(missing)}；"
+                "任何模板/组件复用都必须声明复用能力而非复用画面"
+            )
+
+
+def check_asset_strategy(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """素材策略门：事实可以生成，但来源不能伪造。"""
+    path = day_dir / "design" / "asset_strategy.md"
+    if not path.exists():
+        errors.append("缺少 design/asset_strategy.md（素材来源策略：generated_fact / synthetic_visual / real_private）")
+        return
+    text = _read_text(path)
+    if len(text.strip()) < 700:
+        errors.append("asset_strategy 内容过短（<700 字），须逐镜说明素材来源与误读风险")
+    for label in ASSET_STRATEGY_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"asset_strategy 缺少必填字段：{label}")
+    if "事实可以生成，但来源不能伪造" not in text:
+        errors.append("asset_strategy 必须写明：事实可以生成，但来源不能伪造")
+    if re.search(r"generated_fact|synthetic_visual", text) and not re.search(r"不得声称|不能冒充|禁止.*真实", text):
+        errors.append("asset_strategy 使用 generated_fact/synthetic_visual 但未声明不得冒充真实来源")
+    if re.search(r"真实客户|真实后台|真实成交|真实用户原话", text) and not re.search(r"不得|不能|禁止|不把", text):
+        errors.append("asset_strategy 涉及真实来源词，但未写清禁止误读边界")
+
+
+def check_design_language(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """视觉语言策展师：把 DESIGN.md/成熟视觉系统转成可执行 token 与逐镜约束."""
+    path = day_dir / "design" / "design_language.md"
+    if not path.exists():
+        errors.append("缺少 design/design_language.md（视觉语言策展师 · DESIGN.md 参考本地化约束）")
+        return
+
+    text = _read_text(path)
+    if len(text.strip()) < 700:
+        errors.append("design_language 内容过短（<700 字），须写清参考来源、token、组件、逐镜应用与验收")
+
+    for label in DESIGN_LANGUAGE_REQUIRED_LABELS:
+        if label not in text:
+            errors.append(f"design_language 缺少必填字段：{label}")
+
+    if not re.search(r"DESIGN\.md|design-md|awesome-design-md|参考来源", text, re.I):
+        errors.append("design_language 未标注 DESIGN.md / 成熟视觉系统参考来源")
+
+    hex_count = len(set(re.findall(r"#[0-9a-fA-F]{6}\b", text)))
+    if hex_count < 4:
+        errors.append(f"design_language 色板不足（至少 4 个 hex 色值，现 {hex_count} 个）")
+
+    if not re.search(r"font|字体|字号|字重|line-height|行高", text, re.I):
+        errors.append("design_language 缺少字体/字号/层级规则")
+
+    if not re.search(r"组件|component|卡片|按钮|CTA|badge|标签|表格", text, re.I):
+        errors.append("design_language 缺少组件规则（卡片/CTA/标签/表格等）")
+
+    scene_rows = len(re.findall(r"^\|\s*(?:\d+|s\d+|p\d+|镜|页)", text, re.I | re.M))
+    if scene_rows < 3:
+        errors.append("design_language 逐镜/逐页应用少于 3 行；须进入 storyboard 前约束关键画面")
+
+    if re.search(r"高级感|产品感|更好看|干净一点|参考一下", text) and not re.search(r"#[0-9a-fA-F]{6}", text):
+        errors.append("design_language 含口号式审美描述但缺少可执行 token")
+
+    if re.search(r"照抄|直接复制|logo|商标", text, re.I) and not re.search(r"不照抄|不冒充|禁止|禁用", text):
+        errors.append("design_language 涉及品牌/Logo 但未声明不照抄、不冒充或禁用项")
 
 
 def check_motion_tech_plan(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -981,10 +1202,16 @@ def gate_check(
     cv = _content_version(day_dir)
 
     if phase == "pre_render":
+        check_gap_report_status(day_dir, errors, phase=phase)
+        check_self_generated_passes(day_dir, errors)
         validate_scorecards(day_dir, phase="pre_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="pre_render", errors=errors)
         check_form_redo_content_gate(day_dir, errors=errors)
+        check_form_competition(day_dir, errors=errors)
         check_form_strategy(day_dir, errors=errors)
+        check_design_language(day_dir, errors=errors)
+        check_asset_strategy(day_dir, errors=errors)
+        check_visual_originality_gate(day_dir, errors=errors)
         check_motion_tech_plan(day_dir, errors=errors)
         check_custom_form_fulfillment(day_dir, errors=errors)
         check_hook_benchmark(day_dir, errors=errors)
@@ -993,12 +1220,16 @@ def gate_check(
             errors.append("render 前缺少 design/motion_wow.md")
 
     elif phase == "post_render":
+        check_gap_report_status(day_dir, errors, phase=phase)
+        check_self_generated_passes(day_dir, errors)
         validate_scorecards(day_dir, phase="post_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="post_render", errors=errors)
         check_cover_review(day_dir, errors=errors)
         check_motion_wow(day_dir, errors=errors)
 
     elif phase == "approve":
+        check_gap_report_status(day_dir, errors, phase=phase)
+        check_self_generated_passes(day_dir, errors)
         validate_scorecards(day_dir, phase="post_render", content_version=cv, errors=errors)
         check_script_review(day_dir, phase="post_render", errors=errors)
         check_cover_review(day_dir, errors=errors)
@@ -1006,6 +1237,10 @@ def gate_check(
         check_evidence(day_dir, errors=errors)
         check_discussion_phase_b(day_dir, errors=errors)
         check_form_strategy(day_dir, errors=errors)
+        check_form_competition(day_dir, errors=errors)
+        check_design_language(day_dir, errors=errors)
+        check_asset_strategy(day_dir, errors=errors)
+        check_visual_originality_gate(day_dir, errors=errors)
         check_motion_tech_plan(day_dir, errors=errors)
         check_visual_diversity(day_dir, errors=errors)
         check_custom_form_fulfillment(day_dir, errors=errors)

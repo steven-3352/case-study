@@ -7,12 +7,16 @@
 
 ## 洞察与编排（Layer 2 门禁）
 
+- [ ] `GAP_REPORT.md` 完成且无 blocking；若为 `draft_self_generated` / `blocked_before_*`，禁止进入下一阶段
 - [ ] `insights/topic_brief.md` 完成：受众、钉子场景、≥5 条原话
 - [ ] `insights/core_message.md` 完成：P0 ≥ 3 条 + 价值锚 + 钩子
 - [ ] `insights/domain_notes.md` 完成（演示/知识/带货型）或注明跳过原因
 - [ ] `insights/fact_check.md` 完成：无红区表述进入脚本
 - [ ] `retention_beat_sheet.md` 完成（视频/强互动图文）
+- [ ] `design/form_competition.md` 完成：至少 3 个表现方案 + 推荐方案 + 不选其他方案原因 + 最近 5 条撞形检查
 - [ ] `design/form_strategy.md` 完成：逐镜比较 ≥3 类表达方式，声明数据杠杆与推荐理由
+- [ ] `design/asset_strategy.md` 完成：素材来源标清，generated_fact / synthetic_visual 不冒充真实来源
+- [ ] `design/visual_originality_gate.md` 完成：证明本条首屏/中段/CTA 不是旧模板换字
 - [ ] 若使用 Web 3D / Three / GSAP / 复杂 HTML / 风险雷达：`design/motion_tech_plan.md` 完成
 - [ ] 视频：形式 ≥ 3 种（`assets/formats/catalog.yaml`）
 
@@ -25,6 +29,8 @@
 
 ## 视频
 
+- [ ] **禁止幻灯片冒充成片**：`prototype/qa_shots/`、低保真截图、静态 QA 帧不得直接拼接为 `douyin/video.mp4`
+- [ ] **动态来源**：成片画面来自动态 HTML/GSAP/Canvas/Three、OpenMontage、真实录屏/B-roll/视频生成素材或正式 render pipeline
 - [ ] **全屏**为项目演示（录屏/数据/系统页面/真实截图）— **演示型/知识型默认**
 - [ ] **出镜**符合形态（`docs/DECISIONS.md` Q8）：
   - 演示型 / 知识型（默认）：❌ 真人、❌ 数字人（含小窗、画中画、封面大头）
@@ -33,6 +39,7 @@
 - [ ] **封面**：`design/cover_review.md` 为 **pass**（视觉设计对 render 产出 PNG 签字）
 - [ ] **封面反例**：禁止纯黑金渐变回落场景直接外发（`templates/design/cover_standards.md`）
 - [ ] **配音**：`audio_plan.yaml` 已填；口播 MP3 已生成并与脚本对齐
+- [ ] **配音质量**：不得用 macOS `say` / 系统默认 TTS 冒充生产级配音；临时音频只能放 `_build/`，不得发布
 - [ ] **BGM**：成片含背景音乐；**外发默认** `*_with_bgm.mp4`（非裸 `p004_*.mp4`）
 - [ ] **字幕**：SRT + 烧录/叠字；前 3s 钩子大字可见
 - [ ] 人工听 30s：VO 清晰，BGM 不盖人声
@@ -48,6 +55,9 @@
 
 ## 视觉与可读性（图文静帧 + 视频关键帧）
 
+- [ ] **表现形式不可模板化**：脚本结构可复用，但首屏、中段机制、CTA 形态必须本条专属
+- [ ] **先竞争后分镜**：不得复制上一条 storyboard 后改字；必须从本条视觉命题生成新分镜
+- [ ] `storyboard.yaml` 中任何 `template:` 复用都写明 `reuse_reason / visual_difference / risk`
 - [ ] **证据优先**（Q9）：真实截屏/录屏为主；体裁混搭 ≥3；chaos 须真实 B-roll
 - [ ] **留存铁律**：前屏直给；图像清晰无歧义、画面美观；文字不被遮挡
 - [ ] 一屏一个主信息（输入→输出、对比、单句钩子）
@@ -66,6 +76,8 @@
 
 - [ ] 品牌/客户/邮箱已打码
 - [ ] 无编造里程碑数据
+- [ ] 生成事实 source_type 标为 `generated_fact`，不冒充真实客户案例
+- [ ] 仿真视觉 source_type 标为 `synthetic_visual`，必要时画面标“示意”
 
 ## 运营
 
@@ -73,7 +85,7 @@
 - [ ] publish.md / publish_三平台.md 齐全
 - [ ] metrics.csv 已预填一行（publish_date 待填）
 - [ ] 周包：`gate_check.py` pass；`pre_publish_forecast` 形式门 pass（若适用）
-- [ ] 周包：scorecard Phase A/B 各工种 ≥90（`room/scorecards/`）
+- [ ] 周包：scorecard Phase A/B 各工种 ≥90（`room/scorecards/`），且不是 `draft_self_generated` / 单 Agent 草稿
 
 ## 路人测试（Phase 0 必须，Phase 1 建议）
 

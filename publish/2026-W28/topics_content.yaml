@@ -1,0 +1,80 @@
+# W28 选题正文 · 曝光优先周
+# 双平台同内容内核，不同表现形式；详见 PLAN.md / week.yaml
+
+W28D01:
+  title: 真正值钱的 AI 工具，都很土
+  dir: publish/2026-W28/D01-土但值钱的AI工具/
+  status: blocked_before_content_gate
+  objective: exposure
+  douyin:
+    form: 45-75秒口播/旁白
+    hook: 很多老板做 AI 的第一步就错了。
+  xhs:
+    form: 6-8页轮播
+    cover: 真正值钱的 AI 工具，都很土
+
+W28D02:
+  title: 判断一个岗位能不能 AI 化，看这 3 个信号
+  status: planned
+  objective: exposure
+  douyin:
+    form: 框架型口播 + 3信号动效
+    hook: 别再问某个岗位会不会被 AI 替代。
+  xhs:
+    form: 收藏型轮播
+    cover: 岗位能不能 AI 化，看这 3 个信号
+
+W28D03:
+  title: 员工每天复制粘贴 30 次，不是勤奋，是系统问题
+  status: planned
+  objective: exposure
+  douyin:
+    form: 场景故事 + 重复操作快切
+    hook: 公司不该夸他勤奋，应该问为什么这件事还要人做。
+  xhs:
+    form: 痛点型轮播
+    cover: 每天复制粘贴 30 次，不是勤奋
+
+W28D04:
+  title: 很多公司用 AI 没效果，是因为只买了工具，没有改流程
+  status: planned
+  objective: exposure
+  douyin:
+    form: 左右对比视频
+    hook: 你只是多给员工一个网页，不是少给他一段工作。
+  xhs:
+    form: 对比型轮播
+    cover: 买 AI 工具，不等于改流程
+
+W28D05:
+  title: 企业做 AI，最容易失败的不是模型，而是入口
+  status: planned
+  objective: exposure
+  douyin:
+    form: 方法论口播 + 筛选器视觉
+    hook: 入口选错，再强的模型也救不了。
+  xhs:
+    form: 判断表轮播
+    cover: AI 项目失败，往往不是模型问题
+
+W28D06:
+  title: 你公司最该 AI 化的，可能不是最贵的人，而是最烦的流程
+  status: planned
+  objective: exposure
+  douyin:
+    form: 老板视角口播 + 岗位替代误区反转
+    hook: 老板一想到 AI，就想替掉一个人。
+  xhs:
+    form: 认知反转轮播
+    cover: 最该 AI 化的，不一定是最贵的人
+
+W28D07:
+  title: 一个流程值不值得做 AI 工具，先问这 4 个问题
+  status: planned
+  objective: exposure
+  douyin:
+    form: 清单型口播 + 四问题打点
+    hook: 不懂技术也能判断一个流程值不值得做 AI 工具。
+  xhs:
+    form: 收藏型轮播
+    cover: 流程值不值得做 AI？先问 4 个问题

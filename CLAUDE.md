@@ -2,7 +2,7 @@
 
 > **首读：** [docs/SYSTEM.md](docs/SYSTEM.md)（§1.0 北极星 · 宗旨 · 工作方式 · 铁律 · 能力全景 · 文档维护）
 >
-> 本文：Agent **执行细则**（工种、14 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
+> 本文：Agent **执行细则**（工种、15 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
 
 ## 项目概览（摘要）
 
@@ -87,7 +87,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 工种清单
 
-> **理解层 4**（所有形态必跑）+ **核心 9** + **表达/音画层 4**（视频必跑/按需激活）+ **增长复盘层 1** + 扩展工种（按形态激活）
+> **理解层 4**（所有形态必跑）+ **核心 10** + **表达/音画层 4**（视频必跑/按需激活）+ **增长复盘层 1** + 扩展工种（按形态激活）
 
 #### 理解层 4 工种（所有形态必跑 · 洞察包）
 
@@ -108,7 +108,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 **门禁：** 无 external_references（≥3 URL、≥2 网络原话）→ 禁止洞察包定稿。前期宁可多讨论，不可跳过调研。
 
-#### 核心 9 工种（所有形态都跑）
+#### 核心 10 工种（所有形态都跑）
 
 | 工种 | 职责 | 输出 |
 |------|------|------|
@@ -119,6 +119,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **摄像/视觉** | 画面可拍性、构图、可复用素材 | 画面清单：B-roll 列表、截图需求 |
 | **编剧** | 钩子、逐字稿、字幕节奏 | v0/vA/vB 三版脚本 + 前 3s 大字钩子 |
 | **视觉设计** | 版面、色彩、品牌一致性；**封面 mock 验收** | 视觉路线 + `design/cover_brief.md` + `design/cover_review.md` |
+| **视觉语言策展师** | 读取 DESIGN.md / 成熟视觉系统，萃取本条可执行的色板、字体、组件、禁用项；把审美口径落成约束 | `design/design_language.md` |
 | **剪辑** | 时长卡控、三平台规格 | 剪辑说明：抖音 45-60s / 小红书 ≤60s / 视频号 60-90s |
 | **运营/增长** | 分发策略、私信转化承接 | 三平台文案 + 评论区埋点 + 私信路径 |
 
@@ -161,11 +162,11 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 | 形态 | 激活工种 | 典型选题 |
 |------|----------|-----------|
-| **演示型**（默认） | 理解 4 + 核心 9 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | AI 改造小老板系统、案例复盘 |
-| **知识型** | 理解 4 + 核心 9 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | 拆解、方法论、教程 |
-| **带货型** | 理解 4 + 核心 9 + 表达/音画 4 + 带货 4 + 增长复盘 1（发布后） | 商品种草、对比测评 |
+| **演示型**（默认） | 理解 4 + 核心 10 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | AI 改造小老板系统、案例复盘 |
+| **知识型** | 理解 4 + 核心 10 + 表达/音画 4（视频）+ 增长复盘 1（发布后） | 拆解、方法论、教程 |
+| **带货型** | 理解 4 + 核心 10 + 表达/音画 4 + 带货 4 + 增长复盘 1（发布后） | 商品种草、对比测评 |
 | **出镜型**（可叠加） | 当前形态 + 出镜 2 | 任何形态切真人出镜版本 |
-| **图文轮播** | 理解 4 + 核心 9（无声音设计师；图内大字替代字幕） | 6–8 张小红书轮播 |
+| **图文轮播** | 理解 4 + 核心 10（无声音设计师；图内大字替代字幕） | 6–8 张小红书轮播 |
 
 ### 生产模式（轻量 / 全量 · 2026-06-26 固化）
 
@@ -184,13 +185,14 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 5. **脚本三版** — 编剧产出 v0/vA/vB（**只能引用洞察卡 P0/P1，不得新增卖点**）
 6. **视觉路线** — 视觉设计定 P001 / P002 / 新路线；形式选型见 `assets/formats/catalog.yaml`（≥3 种）
 7. **形式策略会** — 形式策略官逐镜比较表达方案，声明数据杠杆、理解成本、制作成本、技术风险 → `design/form_strategy.md`
-8. **技术可行性审查** — 使用 Web 3D / GSAP / 复杂 HTML 动效 / 重资产 B-roll 时，动效技术导演给实现路线 → `design/motion_tech_plan.md`
-9. **分镜 + 画面清单** — 导演 + 摄像对齐节拍表、形式策略与 `assets/broll/catalog.yaml`
-10. **声音方案** — 声音设计师 → `audio_plan.yaml`（视频必跑）
-11. **剪辑/出图** — 进入对应 `pipeline/` 脚本
-12. **发布包** — 运营三平台文案 + `templates/publish_三平台.md`
-13. **验收** — `pipeline/CHECKLIST.md`，不过回到对应工种返工
-14. **投后复盘** — 数据复盘官回填 48h/7d actual，形成 `post_publish_retro` 与下条 `evolution_overlay`
+8. **视觉语言约束** — 视觉语言策展师从 DESIGN.md / 成熟视觉系统中萃取本条 token、组件、Do/Don't 与逐镜应用 → `design/design_language.md`
+9. **技术可行性审查** — 使用 Web 3D / GSAP / 复杂 HTML 动效 / 重资产 B-roll 时，动效技术导演给实现路线 → `design/motion_tech_plan.md`
+10. **分镜 + 画面清单** — 导演 + 摄像对齐节拍表、形式策略、视觉语言约束与 `assets/broll/catalog.yaml`
+11. **声音方案** — 声音设计师 → `audio_plan.yaml`（视频必跑）
+12. **剪辑/出图** — 进入对应 `pipeline/` 脚本
+13. **发布包** — 运营三平台文案 + `templates/publish_三平台.md`
+14. **验收** — `pipeline/CHECKLIST.md`，不过回到对应工种返工
+15. **投后复盘** — 数据复盘官回填 48h/7d actual，形成 `post_publish_retro` 与下条 `evolution_overlay`
 
 ### 形态分支（在标准动作上插入）
 
@@ -240,6 +242,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - ❌ 无留存节拍表就出分镜 → 中段拖沓、完播差
 - ❌ 发裸片（无 BGM / 无字幕）→ 违反音画硬门槛
 - ❌ 跳过视觉设计 → 所有选题都出报纸风
+- ❌ 跳过视觉语言策展 → 只说“高级/像产品/更干净”，没有色板、字体层级、组件、禁用项和逐镜应用
 - ❌ 全片单一渲染场景或同质画面 → 观赏性差、用户划走
 - ❌ 从上一条克隆分镜/画面（模板克隆）→ 见 `SCRIPT_REJECT_LOG.md`
 - ❌ 用形式库 catalog 拼盘代替本条分镜设计 → 平台表现分析师退稿
