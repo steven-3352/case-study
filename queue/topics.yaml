@@ -2,9 +2,11 @@
 # status: backlog | approved | in_production | published | killed
 
 direction:
-  current: "W27 引擎线日更 · 弃W26小老板批测 · 对齐历史TOP"
-  month_focus: "换vertical · 日更分轨 · 禁止同题跨周"
-  last_updated: "2026-06-25"
+  current: "开放选题 · 选题定皮肤（2026-07-04 起，取消固定「小老板」皮肤）"
+  month_focus: "受众开放到「对 AI 工具/AI 应用感兴趣者」；每条选题在 topic_brief.skin 声明自己的受众/人设/话术；日更分轨保持"
+  last_updated: "2026-07-04"
+  history:
+    - "2026-06-25 W27 引擎线日更 · 弃W26小老板批测 · 对齐历史TOP（历史皮肤下决议，已归档）"
 
 # ── Project-001 · 现有自动化获客案例（首期，多形态） ──
 project_001:

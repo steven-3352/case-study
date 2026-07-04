@@ -5,6 +5,18 @@
 > 时机：`form_strategy.md` 之后、`storyboard.yaml` 定稿之前。  
 > 核心原则：**脚本结构可以复用，表现形式不能模板化。模板只能约束判断流程，不能决定画面长什么样。**
 
+## 0. 入口必读（开工前打勾）
+
+> memory 元规则：[[feedback_pre-node-checklist]] · 不过清单不得开工
+
+- [ ] **SYSTEM refs**：`docs/SYSTEM.md` §3.1 结果负责制铁律 #9 表现形式不可模板化 · §3.1c 形式承诺兑现门禁 · §3.1d 正向复用协议
+- [ ] **template refs**：本节点已完成 `form_competition.md` + `form_strategy.md` + `design_language.md`（原创差异必须能对应到具体 token）
+- [ ] **memory refs**：`feedback_no-default-tech-stack` · `feedback_anti-ai-visual`
+- [ ] **姊妹条 refs**：**同周 + 上周共 5 条**的 storyboard 首屏/中段/CTA 实读（不看是抄错的起点）· `docs/design/FORM_FAIL_LOG.md`
+- [ ] **能力清单 refs**：本节点无 pipeline 关联，可 skip
+
+**触发词打断**：「跟上条差不多也行」「差异化随便写两句」「关声画面能看出是新内容吗？→ 不能改画面」
+
 ## 0. 结论
 
 ```yaml

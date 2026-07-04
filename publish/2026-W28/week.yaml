@@ -1,8 +1,23 @@
 week_id: "2026-W28"
-title: "曝光优先 · AI流程诊断周"
+title: "曝光优先 · AI 破圈测试周（B端 1 vs C端 6）"
 start_date: "2026-07-06"
 end_date: "2026-07-12"
-goal: "7条主视频测试大曝光；双平台同内容内核，不同表现形式；聚焦互动和私信线索入口"
+goal: "用 7 条主视频做「B端 1 vs C端 6 池」曝光对比测试，找到本项目在双平台的最大受众池"
+
+# 2026-07-04 战略变更（DECISIONS Q10）· 2026-07-04 二次调整（本次 C 方案）:
+# 原 W28 内核「业务流程 × AI 化判断」锁死在企业决策者（老板/管理者）圈层。
+# 本次改为「AI 到底能帮你做点什么」多受众破圈测试周：
+#   - D01 保留老板圈选题（已进生产），作为 B 端对照组
+#   - D02–D07 全部换成 6 个 C 端受众池，测破圈潜力
+# 每条 D0X 的完整 skin 见对应 DXX/insights/topic_brief.md，本文件仅保留 week 层调度信息。
+skin_registry:
+  D01: publish/2026-W28/D01-土但值钱的AI工具/insights/topic_brief.md         # B端对照·中小老板
+  D02: publish/2026-W28/D02-打工人5分钟出周报/insights/topic_brief.md          # C端·打工人
+  D03: publish/2026-W28/D03-AI陪练英语口语/insights/topic_brief.md             # C端·学生/学英语党
+  D04: publish/2026-W28/D04-AI帮想视频选题/insights/topic_brief.md             # C端·内容创作者
+  D05: publish/2026-W28/D05-接单党AI写方案/insights/topic_brief.md             # C端·自由职业者/接单党
+  D06: publish/2026-W28/D06-AI改简历不用找人改/insights/topic_brief.md         # C端·求职党
+  D07: publish/2026-W28/D07-家长陪孩子学英语/insights/topic_brief.md           # C端·家长/宝妈
 
 cadence:
   douyin: daily · 19:30
@@ -11,123 +26,94 @@ cadence:
 
 strategy:
   north_star: exposure
-  content_kernel: "什么样的业务流程，值得用 AI 工具重做一遍？"
+  content_kernel: "AI 到底能帮你做点什么？"
+  test_hypothesis: |
+    在同一账号下并行发 7 条不同受众池的选题，1 周内看双平台推流反馈，
+    确认三个问题：
+    (1) B 端（中小老板圈）vs C 端（打工人/学生/创作者/接单/求职/家长）哪边跑得动
+    (2) C 端 6 池之间，哪 1-2 池在本账号双平台上有明显推流优势
+    (3) 破圈池的私信 / 收藏 / 评论质量能否承接项目「等私信」转化路径
   platform_split:
-    douyin: "45-75秒口播/旁白视频；强冲突钩子；场景B-roll/流程动效；不做深度demo"
-    xhs: "6-8页图文轮播或轻视频；封面冲突句；判断清单；收藏和评论导向"
-  cta: "你可以把公司里最耗人的一个流程发我，我帮你判断它值不值得 AI 化。"
+    douyin: "45-75秒真人/场景剧/演示型视频；每条前 3 秒必须有具体钉子场景（不是抽象口号）"
+    xhs: "6-8页图文轮播为主；封面钉子场景 + 数字反差；正文清单可保存"
+  cta: "每条按本条 skin 的 landing_intent 定制；不统一 CTA（不同池子聊的东西不同）"
 
 principles:
-  - 曝光优先，不做补充视频，不做深度成交内容。
-  - 不切单一行业垂直场景，避免继续缩小受众池。
-  - 不展示工具炫技，先讲老板/负责人能感知的流程浪费。
-  - 小红书与抖音同题同观点，但表现形式分轨，禁止直接复用同一视频。
-  - 评论和私信入口统一指向“流程诊断”，不硬卖开发服务。
+  - 每条独立受众池，不共享钩子，不共享文案，不共享 CTA。
+  - 每条 topic_brief.skin 必须写 differ_from_last，防止「6 池实际同质」。
+  - D01 老皮肤（老板圈）保留在生产管线，作为 B 端曝光对照。
+  - 抖音 ≠ 小红书：分立项、分脚本、分形式（W26 教训 · SYSTEM §3.1e）。
+  - 每条曝光/互动数据分池归档；周末做「破圈池排行」进 evolution_apply.py。
+  - 破圈池的 CTA 不硬拉私信；打工人/学生池以「收藏 + 评论问 prompt」为主要转化信号。
 
+# 每日选题详见 topics_content.yaml + DXX/insights/topic_brief.md
 days:
   - day: D01
     date: "2026-07-06"
     project_id: W28D01
+    audience_pool: B端·中小老板
     slug: 土但值钱的AI工具
     title: "真正值钱的 AI 工具，都很土"
     dir: "publish/2026-W28/D01-土但值钱的AI工具/"
     status: blocked_before_content_gate
     hook: "很多老板做 AI 的第一步就错了。"
-    core_point: "AI 不是越炫越好，越能接住重复流程越值钱。"
-    douyin:
-      form: "口播/旁白 + 老板误区对比 + 低效流程B-roll"
-      opening: "很多老板做 AI 的第一步就错了，他们总想做一个很高级的 Agent，但真正能省钱的 AI 工具，往往土得要命。"
-    xhs:
-      form: "6-8页轮播"
-      cover: "真正值钱的 AI 工具，都很土"
-      page_logic: "误区 → 土工具定义 → 3个例子 → 判断方法 → 评论入口"
 
   - day: D02
     date: "2026-07-07"
     project_id: W28D02
-    slug: 岗位AI化三信号
-    title: "判断一个岗位能不能 AI 化，看这 3 个信号"
-    hook: "别再问某个岗位会不会被 AI 替代。"
-    core_point: "重复输入、固定判断、标准输出，比岗位名称更重要。"
-    douyin:
-      form: "框架型口播 + 3信号动效"
-      opening: "别再问销售、运营、客服会不会被 AI 替代了。判断一个岗位适不适合做 AI 工具，只看 3 个信号。"
-    xhs:
-      form: "收藏型轮播"
-      cover: "岗位能不能 AI 化，看这 3 个信号"
-      page_logic: "岗位误区 → 3信号 → 可做/不可做对比 → 评论岗位"
+    audience_pool: C端·打工人
+    slug: 打工人5分钟出周报
+    title: "周报 5 分钟搞定，老板还夸你写得细"
+    dir: "publish/2026-W28/D02-打工人5分钟出周报/"
+    status: planned
+    hook: "18:55 老板群里 @你「周报呢」，你 Excel 还没打开。"
 
   - day: D03
     date: "2026-07-08"
     project_id: W28D03
-    slug: 复制粘贴不是勤奋
-    title: "员工每天复制粘贴 30 次，不是勤奋，是系统问题"
-    hook: "公司不该夸他勤奋，应该问为什么这件事还要人做。"
-    core_point: "重复搬运信息是流程没有产品化，不是员工能力问题。"
-    douyin:
-      form: "场景故事 + 重复操作快切 + 流程接管示意"
-      opening: "一个员工每天复制粘贴 30 次，公司不应该夸他勤奋，应该问：为什么这件事还要人做？"
-    xhs:
-      form: "痛点型轮播"
-      cover: "每天复制粘贴 30 次，不是勤奋"
-      page_logic: "一天场景 → 低效动作清单 → 系统问题 → 可AI化判断 → 评论一个动作"
+    audience_pool: C端·学生/学英语党
+    slug: AI陪练英语口语
+    title: "AI 陪你练英语口语，比外教便宜 100 倍"
+    dir: "publish/2026-W28/D03-AI陪练英语口语/"
+    status: planned
+    hook: "晚上 11 点想开口说英语，只能对着墙念，尴尬。"
 
   - day: D04
     date: "2026-07-09"
     project_id: W28D04
-    slug: 买工具不等于改流程
-    title: "很多公司用 AI 没效果，是因为只买了工具，没有改流程"
-    hook: "你只是多给员工一个网页，不是少给他一段工作。"
-    core_point: "AI 要嵌入业务流程，自动接收、处理、输出，而不是让员工多开一个工具。"
-    douyin:
-      form: "左右对比视频：多开网页 vs 流程自动触发"
-      opening: "为什么很多公司上了 AI，最后员工还是不用？因为你只是多给他一个网页，不是少给他一段工作。"
-    xhs:
-      form: "对比型轮播"
-      cover: "买 AI 工具，不等于改流程"
-      page_logic: "失败现象 → 原因 → 正确流程图 → 判断问题 → 私信流程"
+    audience_pool: C端·内容创作者
+    slug: AI帮想视频选题
+    title: "AI 帮我想视频选题，10 个里 8 个能用"
+    dir: "publish/2026-W28/D04-AI帮想视频选题/"
+    status: planned
+    hook: "对着镜头空半小时想不出下一条拍啥。"
 
   - day: D05
     date: "2026-07-10"
     project_id: W28D05
-    slug: AI项目先选入口
-    title: "企业做 AI，最容易失败的不是模型，而是入口"
-    hook: "入口选错，再强的模型也救不了。"
-    core_point: "第一入口应该高频、低风险、结果明确。"
-    douyin:
-      form: "方法论口播 + 筛选器视觉"
-      opening: "企业做 AI，最重要的不是选模型，而是选入口。入口选错，再强的模型也救不了。"
-    xhs:
-      form: "判断表轮播"
-      cover: "AI 项目失败，往往不是模型问题"
-      page_logic: "模型误区 → 入口三标准 → 反例 → 正例 → 评论判断"
+    audience_pool: C端·自由职业者/接单党
+    slug: 接单党AI写方案
+    title: "接单党用 AI 写方案，客户还夸专业"
+    dir: "publish/2026-W28/D05-接单党AI写方案/"
+    status: planned
+    hook: "客户凌晨 1 点：「明天上午能给我个方案吗？」你在床上犹豫要不要接。"
 
   - day: D06
     date: "2026-07-11"
     project_id: W28D06
-    slug: 最烦流程先AI化
-    title: "你公司最该 AI 化的，可能不是最贵的人，而是最烦的流程"
-    hook: "老板一想到 AI，就想替掉一个人。"
-    core_point: "AI 改造应先找高频烦人流程，而不是先讨论替代谁。"
-    douyin:
-      form: "老板视角口播 + 岗位替代误区反转"
-      opening: "很多老板一想到 AI，就想替掉一个人。但真正应该先动的，不是最贵的人，而是最烦的流程。"
-    xhs:
-      form: "认知反转轮播"
-      cover: "最该 AI 化的，不一定是最贵的人"
-      page_logic: "替人误区 → 流程视角 → 3类烦流程 → 自查问题 → 评论流程"
+    audience_pool: C端·求职党
+    slug: AI改简历不用找人改
+    title: "AI 帮你改简历，别再花 500 找人改"
+    dir: "publish/2026-W28/D06-AI改简历不用找人改/"
+    status: planned
+    hook: "投了 200 份简历只有 2 个面试，付费花 500 找人改依然没回音。"
 
   - day: D07
     date: "2026-07-12"
     project_id: W28D07
-    slug: 流程AI化四问题
-    title: "一个流程值不值得做 AI 工具，先问这 4 个问题"
-    hook: "你不用懂技术，也能判断一个流程值不值得做 AI 工具。"
-    core_point: "高频、重复、明确输入、明确结果，是流程AI化的基础门槛。"
-    douyin:
-      form: "清单型口播 + 四问题打点"
-      opening: "你不用懂技术，也能判断一个流程值不值得做 AI 工具。先问这 4 个问题。"
-    xhs:
-      form: "收藏型轮播"
-      cover: "流程值不值得做 AI？先问 4 个问题"
-      page_logic: "4问题总览 → 每题解释 → 示例 → 评论流程"
+    audience_pool: C端·家长/宝妈
+    slug: 家长陪孩子学英语
+    title: "AI 陪孩子练英语，一年省 3 万培训费"
+    dir: "publish/2026-W28/D07-家长陪孩子学英语/"
+    status: planned
+    hook: "每年英语培训班 3 万块，孩子上了两年还是不敢开口说。"

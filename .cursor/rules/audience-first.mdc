@@ -1,0 +1,63 @@
+---
+description: 铁律 0 · Audience-First, Not Pipeline-First - 内容共鸣/强观赏性/强内容是唯一交付标准，不是 pipeline 跑通/15 步齐/render 无报错
+alwaysApply: true
+---
+
+# 铁律 0 · Audience-First, Not Pipeline-First
+
+> **交付的评判基准是观众成果，不是工程产出。** 与 `content-outcome-accountability` 同级，是所有铁律的元规则。
+> 详规：`AGENTS.md` · `docs/SYSTEM.md` §1.0 · `CLAUDE.md` 铁律 0
+
+## 三要素（正向标准）
+
+| 要素 | 含义 | 反面 |
+|---|---|---|
+| **内容共鸣** | 命中真实情绪/场景，观众愿意在评论里接话 | 干货堆砌 · 泛泛而谈 · 蹭热点无锚 |
+| **强观赏性** | 每 2-4s 视觉变化 · 首屏停划 · 中段不塌 · 音画同步 | 单场景占大部分时长 · 静态字幕 · catalog 拼盘 |
+| **强内容** | 信息密度真材实料 · 可复现的方法/prompt/清单 | 空喊口号 · AI 拼凑 · 概念糊弄 |
+
+## 反例（工程完成心态 · 全部不算交付达标）
+
+- ❌「pipeline 跑通了就发」
+- ❌「15 步走完了就 ship」
+- ❌「所有工种产出齐了就 done」
+- ❌「render 没报错就 approve」
+- ❌「三平台文案齐了就 ready」
+- ❌「Task #XX completed」但没确认下游用没用、观众看没看
+
+## 唯一交付判据
+
+`pre_publish_forecast` 评级 ≥ **B** + 投后观众数据（3s 完播 / 完播率 / 互动 / 收藏）达标。C/D 或无 forecast 一律 `blocked`。
+
+## 触发时刻（自查三问）
+
+任何 "完成" 判定的语义节点：
+- Task 打勾前
+- Write 完文件后
+- 脚本终稿声明
+- render 出 mp4
+- 发布包齐
+- 「Task #XX completed」声明
+
+**自查三问**：
+1. 观众看到会不会**共鸣**？（场景是真的吗？情绪是命中的吗？）
+2. 画面**观赏性**够吗？（每 2-4s 有变化吗？首屏停划吗？）
+3. 内容**真材实料**吗？（有可复现的 prompt/clip/清单？还是空喊/概念糊弄）
+
+**任何一问答不上"是" → 状态仍是 `draft`，未 done。**
+
+## 正向表达（写文档/规范/汇报时的默认措辞）
+
+- ✅「本条 3s 完播预测 X% · 达 `pre_publish_forecast` B 级 · 可外发」
+- ✅「共鸣：钉子场景来自 X 平台 Y 条网络原话；观赏性：每 3s 变化 + catalog 占比 28%；强内容：3 段 prompt 可复制粘贴」
+- ❌「pipeline 已跑通 · 发布包齐 · 可外发」
+- ❌「15 步完成 · Task closed」
+
+## 详规联动
+
+- `AGENTS.md` — model-agnostic 入口 · 跨模型铁律 0
+- `docs/SYSTEM.md` §1.0 — 北极星完整定义 + 载体拆解
+- `CLAUDE.md` 铁律 0 — Claude Code 特定执行细则
+- `templates/design/completion_rate_north_star.md` — 完播北极星拆解框架
+- `templates/design/pre_publish_forecast.md` — 交付判据模板
+- `templates/design/content_form_split_gates.md` — 两道门 fail-closed

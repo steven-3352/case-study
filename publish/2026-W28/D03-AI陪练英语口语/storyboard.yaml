@@ -1,0 +1,522 @@
+# 分镜清单 · storyboard · W28D03 AI 陪练英语口语
+# 工种：导演（执行）+ 摄像/视觉
+# 依赖：form_competition.md（方案 A · 家族 pipeline · 66/60 分）· form_strategy.md（10 段 · 5 种形式 ID）· design_language.md · retention_beat_sheet.md（10 段 58s）· visual_originality_gate.md（pass）· motion_tech_plan.md（SKIP · 无 GSAP/Web 3D）
+# 状态：draft_self_generated · 2026-07-04
+#
+# 用于 pipeline：Pexels 深夜 B-roll + QuickTime 真机屏录豆包 + drawtext/drawbox 大字 + SVG 覆盖 + 分屏静图 + ffmpeg 合成
+# 不走 pipeline/p004（本条无 GSAP）
+# 不走 integrations/openmontage（brief 判定 blocked_infrastructure · 见 openmontage_brief.md）
+# 推荐流水线：pipeline/p001（半手工）或 QuickTime + ffmpeg-full 剪辑 · 字幕烧录走 gen_subs + libass
+
+meta:
+  content_id: W28D03
+  slug: AI陪练英语口语
+  script_version: v0  # 本 storyboard 对应脚本 v0 严格执行版（vA/vB 备用）
+  platform: douyin  # 视频号同抖音口径 · 小红书轮播见 xhs_carousel 段
+  duration_s: 58
+  canvas: [1080, 1920]  # 9:16
+  fps: 30
+  bgm_layer: 0  # 密 VO 演示型 · 默认无 BGM（feedback_dense-vo-no-bgm-default）· 只有 3s 处 sting 单击（可选）
+
+# ─────────────────────────────────────
+# 抖音 58s · 10 段镜头（对应 form_strategy）
+# ─────────────────────────────────────
+
+scenes:
+  - id: M1_night_desk
+    time_range: [0, 3]
+    intent: 停划 · 深夜钉子
+    format_id: chaos_broll
+    template: null
+    reuse_reason: null
+    visual_difference: null
+    risk: null
+    picture: |
+      深夜台灯 + 英语课本 + 手部特写 B-roll。
+      Pexels 素材候选：
+        - office_desk_dusk_evening_empty__26609644.json
+        - office_desk_dusk_evening_empty__29540810.json
+        - office_desk_dusk_evening_empty__7710338.json
+      优先选画面构图含「暖光台灯 + 桌面」的一条；若无「英语课本」主体，drawtext/drawbox 叠一个「Unit 5 · Making phone calls」纸质书页面模拟。
+      转场 → iPhone 锁屏时间「23:12」特写（真机拍摄或 drawtext 高保真仿真 iOS 锁屏 UI）
+      2-3s 处：手部特写握英语课本 → 主角背影/侧影嘴部特写 → 咽口水吞咽近景 → 抬头看向墙。
+    voiceover: null  # 沉默钉子 · 环境音钉子
+    subtitle:
+      text: null
+      style: null
+    audio:
+      env: 深夜环境音（远处空调低频 + 翻书纸声 + 一次咽口水吞咽）
+      bgm: none  # 0-3s 无 BGM · 全片默认无 BGM
+    assets_needed:
+      - Pexels 深夜书桌 B-roll（3 条已下载）
+      - 手机屏幕真实拍摄（iOS 锁屏 · 时间设为 23:12）
+      - 咽口水吞咽 SFX（Freesound / Pexels audio 或真实录制）
+    forbidden:
+      - AI 生图书桌 / 台灯 / 手部
+      - HTML 仿真手机 UI（除非真机拍摄不可得，且叠加真实感明显）
+      - 明亮日光书桌（必须深夜暖光）
+      - Dracula 霓虹色（禁 #bd93f9 / #ff79c6 / #8be9fd）
+
+  - id: M2_group_anchor
+    time_range: [3, 8]
+    intent: 认领 · 群体锚定
+    format_id: punch_black
+    template: null
+    picture: |
+      灰底 #0a0a0a 全屏。
+      3-5s 段位：display 160pt 白字「92%」大字滑入 · headline 96pt 中文文本「中国人不敢开口」在数字下方 · 底部 caption 32pt 小字「来源：讯飞录《2024 中国英语学习报告》」
+      5-8s 段位：数字翻切成「78%」+ 中文「缺安全场合」+ 讯飞录官方引用页真截屏（画面右下角 UI 层展示，无遮挡主大字）
+      3s 处：字幕大字 drawtext 淡入 0.3s
+    voiceover: |
+      「晚上 11 点，你在对着墙念英语。92% 中国人不敢开口——不是你的问题，是**没人**的问题。」
+    subtitle:
+      text_seq: ["92% 中国人不敢开口", "78% 缺安全场合"]
+      style:
+        font: 苹方 · display 160pt 数字 · headline 96pt 中文 · caption 32pt 来源
+        color: 白字 #f5f5f0 · 数字带 accent_red 描边 2px（强调）
+        position: 屏幕中心（数字）· 中心下方（中文）· 底部（来源）
+        appear_at: 3.0
+        exit_at: 8.0
+        transition: drawtext 淡入 0.3s · 硬切翻页 5s
+      forbidden: [emoji, 惊叹号, 彩色渐变数字, GSAP 数字跳动特效]
+    audio:
+      env: 无（3s 处开始 VO）
+      bgm: none  # 密 VO 无 BGM
+    assets_needed:
+      - 讯飞录《2024 中国英语学习报告》原页截屏（若可获取；否则大字 + 底部小字来源标注同帧展示，B 级同帧口径）
+      - drawtext 苹方字体（PingFang SC 或 Source Han Sans）
+    forbidden:
+      - 打真实竞品 logo
+      - 数字用花字 / 装饰性字体
+      - 数据锚无来源标注（弱信任）
+
+  - id: M3_streak_disillusion
+    time_range: [8, 15]
+    intent: 打卡幻灭
+    format_id: broll_demo
+    template: null
+    picture: |
+      左半屏（约 12s）：多邻国 App 700 天连击数字截屏放大（不打 logo · 遮挡 App 名 · 只留连击天数 + 火苗图标）
+      右半屏：手机视频通话 UI（真截屏或高保真仿真 · 沉默 3s · 空白气泡或尴尬表情）
+      中间 2px `ink_light` 分割线
+      12-15s：字幕大字 drawtext 「打卡 ≠ 会说 · 700 天见老外还是卡壳」
+    voiceover: |
+      「多邻国打了 700 天卡，见到老外还是——嘴张开一半，脑子空了。」
+    subtitle:
+      text: "打卡 ≠ 会说 · 700 天见老外还是卡壳"
+      style:
+        font: 苹方 · body 42pt（抖音）/ 50pt（小红书轮播 P3）/ 42pt（视频号）
+        color: 白字 #f5f5f0 · 「≠」符号可用 accent_red
+        position: 屏幕中下
+        appear_at: 12.0
+        exit_at: 15.0
+      forbidden: [emoji, 打竞品 logo]
+    audio:
+      env: 视频通话空白/静音气氛音（3s 尴尬沉默）
+      bgm: none
+    assets_needed:
+      - 多邻国 700 天连击数字截图（真机截屏 · 遮挡 logo · 只留连击数字与火苗）
+      - 手机视频通话 UI 截图（FaceTime / 微信视频通话真截屏）
+    forbidden:
+      - 多邻国 logo / App 名（fact_check.md 合规红区）
+      - AI 生成的 App 界面
+      - 3D App 图标
+
+  - id: M4_wrong_prompt
+    time_range: [15, 20]
+    intent: 反面 · 常见错误解法
+    format_id: broll_demo
+    template: null
+    picture: |
+      AI 对话框（豆包 / 通义 / Kimi 任选 · 不打 logo）
+      光标位于输入框 · 打字 1s 输入「怎么练口语」（1s 打字动画）
+      AI 输出通用建议列表 10 条（打字机效果 · 2s 快速掠过）
+      主角摇头 B-roll 快切 → 关闭 AI 页面
+      accent_red 描边框（2px）圈住反例文本「怎么练口语」
+    voiceover: |
+      「你去问 AI『怎么练口语』——它给你 10 条建议，全是废话。」
+    subtitle:
+      text: "打字问 AI「怎么练」= 拿到废话"
+      style:
+        font: 苹方 · body 42pt · 红字 accent_red #e53935
+        position: 屏幕上方
+        appear_at: 18.0
+        exit_at: 20.0
+      forbidden: [粉红 #ff5252, emoji]
+    audio:
+      env: 无
+      bgm: none
+    assets_needed:
+      - AI 对话框录屏（真机录 · 不用 HTML 模拟）
+      - 通用建议 10 条文本（generated_fact 声明）
+      - 摇头动作 B-roll（Pexels 或真人录制手部关闭 App 动作）
+    forbidden:
+      - AI 生成的 AI 对话界面
+      - 打真实 ChatGPT/OpenAI logo
+      - Dracula 霓虹描边
+
+  - id: M5_analogy_anchor
+    time_range: [20, 24]
+    intent: 顿悟锚 · 反差点
+    format_id: before_after
+    template: null
+    picture: |
+      灰底 #0a0a0a 全屏 · 分屏两图 50/50
+      左：游泳教程 book cover 静图（Pexels/Unsplash CC0 `swimming instruction book` · 或 `swim manual`）
+      右：跃入泳池瞬间静图（Pexels · `jumping into pool` CC0）
+      中间 2px `ink_light` 分割线
+      大字类比锚 drawtext headline 96pt 白字居中偏下：「读游泳教程 vs 跳进泳池」
+    voiceover: |
+      「问题在这。」
+    subtitle:
+      text: "读游泳教程 vs 跳进泳池"
+      style:
+        font: 苹方 · headline 96pt · 白字 #f5f5f0
+        position: 屏幕中下（分屏图下方 30%）
+        appear_at: 21.0
+        exit_at: 24.0
+      forbidden: [emoji, 感叹号]
+    audio:
+      env: 无
+      bgm: none
+    assets_needed:
+      - 游泳教程 book cover 静图（Pexels / Unsplash / Pixabay CC0）
+      - 跃入泳池静图（Pexels）
+    forbidden:
+      - 三分屏以上
+      - 图之间装饰性边框
+      - GSAP 大字动画
+
+  - id: M6_prompt_demo
+    time_range: [24, 36]
+    intent: 演示核心 · role prompt
+    format_id: broll_demo + svg_overlay
+    template: null
+    picture: |
+      豆包语音界面原生 · QuickTime 真机屏录
+      主角操作步骤：
+        1. 打开豆包 App（豆包本身允许出现，因为是主演示 · 不打脸不背书）
+        2. 光标滚动到语音输入键
+        3. 长按语音键 · 显示"松手发送"提示
+      role prompt 分五段 punch-in 大字滑入（drawtext 分段 · 底部叠加）
+      SVG 覆盖高亮五段标签：「角色卡 / 场景 / 只提问 / 说错不打断 / 用英文」
+      每段标签用 accent_soft #ffc857 淡黄底 + 黑字 · 淡入 0.3s → 停 2s → 淡出 0.3s（不做复杂 GSAP）
+      底部小字 caption 28pt：「可长按暂停复制」（增强收藏动机）
+    voiceover: |
+      「你不是要 AI 教你，你要 AI 陪你说。先给它一张角色卡：**你是我雅思口语搭档，我 Part 3，你只用英文提问，我说错也别打断**。」
+    subtitle:
+      text_seq_svg_labels: ["角色卡", "场景", "只提问", "说错不打断", "用英文"]
+      style:
+        font: JetBrains Mono / SF Mono · caption 28pt · 黑字 #1a1a1a
+        background: 淡黄底 accent_soft #ffc857 padding 8px 12px
+        position: 每段 role prompt 左侧
+        transition: SVG 淡入 0.3 → 停 2 → 淡出 0.3
+      bottom_caption:
+        text: "可长按暂停复制"
+        font: 苹方 · caption 28pt · 白字 #f5f5f0 · 透明度 70%
+        position: 屏幕底部
+    audio:
+      env: 长按语音键"叮"提示音（豆包原生）
+      bgm: none
+    assets_needed:
+      - QuickTime/OBS 录制豆包语音演示全过程
+      - SVG 打点标签（5 个 · 静态 SVG + CSS transition · 无需 GSAP）
+      - role prompt 全文文本（fact_check.md #P0-4 A 级 · 直用 domain_notes Prompt 1）
+    forbidden:
+      - GSAP 复杂动画
+      - 高亮语法 IDE 风（用简单 SVG 打点即可）
+      - 遮挡 role prompt 主内容
+      - 数字人形象（Q7/Q8 暂停）
+
+  - id: M7_real_dialogue
+    time_range: [36, 42]
+    intent: 真陪练感 · 对话回合
+    format_id: broll_demo
+    template: null
+    picture: |
+      豆包语音界面延续 · QuickTime 屏录真实对话
+      AI 英文追问 · 用户英文回答（真机真人发声 · 允许口音）
+      字幕英中对照：
+        - AI: "What kind of book do you enjoy?" / (中文) "AI: 你喜欢看哪种书？"
+        - 你: "Um... mystery." / (中文) "你: 呃... 悬疑。"
+        - AI: "Interesting — what makes mysteries fun?" / (中文) "AI: 有意思 —— 悬疑哪里好玩？"
+      字幕英文原句在上（SF Mono / Inter · body 40pt · accent_soft）· 中文对应在下（苹方 body 32pt · 白字）
+    voiceover: null  # 无中文 VO · 让 AI 和用户英文对话真出声
+    subtitle:
+      text: |
+        AI: What kind of book do you enjoy?
+        你: Um... mystery.
+        AI: Interesting — what makes mysteries fun?
+      style:
+        font: 英文 SF Mono / Inter · body 40pt · accent_soft #ffc857
+        font_zh: 苹方 · body 32pt · 白字 #f5f5f0（中文对应）
+        position: 屏幕下方 30%
+        appear_at: 逐句同步
+      forbidden: [彩色渐变字幕, 表情包]
+    audio:
+      env: AI 英文追问声（真机豆包语音输出）+ 用户英文回答（可以是本条制作者的真声）
+      bgm: none
+    assets_needed:
+      - QuickTime 真机豆包语音真实对话录屏
+      - 英中字幕对照（gen_subs 生成 SRT/ASS · 烧录 libass）
+    forbidden:
+      - AI 生成的英文对话
+      - HTML 仿真豆包对话框（真机屏录优先）
+      - 数字人形象
+
+  - id: M8_lying_side
+    time_range: [42, 48]
+    intent: 情感落点 · 侧躺共同体
+    format_id: chaos_broll + punch_black
+    template: null
+    picture: |
+      Pexels 素材候选：
+        - smartphone_screen_notification_night__32365211.json
+        - smartphone_screen_notification_night__7821861.json
+      优先选画面构图含「侧躺 + 手机亮屏」的一条 · 台灯关（画面自然变暗）· 手机继续亮着
+      时间戳大字 drawtext display 120pt 白字「22:45」叠画面右下角
+      caption 32pt 小字「今天真开口 15 分钟」在时间戳下方
+    voiceover: |
+      「先敢说 30 分钟，比敢背 300 单词管用。」
+    subtitle:
+      text: "22:45 · 今天真开口 15 分钟"
+      style:
+        font_time: SF Mono · display 120pt · 白字 #f5f5f0（时间戳）
+        font_sub: 苹方 · caption 32pt · 白字 #f5f5f0 · 透明度 80%（副字）
+        position: 屏幕右下（时间戳）· 时间戳下方（副字）
+        appear_at: 44.0
+        exit_at: 48.0
+      forbidden: [emoji, 惊叹号]
+    audio:
+      env: 深夜环境音（呼吸声 · 屏幕轻微亮度嗡鸣 · 极安静）
+      bgm: none  # 密 VO 演示型默认无 BGM
+    assets_needed:
+      - Pexels 侧躺深夜手机 B-roll（2 条已下载）
+    forbidden:
+      - 明亮日光侧躺
+      - AI 生图侧躺
+      - Dracula 霓虹色
+
+  - id: M9_value_anchor
+    time_range: [48, 54]
+    intent: 价值锚 · 反教程
+    format_id: punch_black
+    template: null
+    picture: |
+      全屏黑底 #0a0a0a
+      display 140pt 白字 · 两行 · 每行 6 字：
+        「不是教你怎么问 AI」
+        「是把我 22:30 用的救命 role prompt 给你」
+      两行居中排布 · 行间距 1.2 倍字号
+      沉稳 VO 特写节奏
+    voiceover: |
+      「不是教你怎么问 AI，是把我 22:30 用的救命 role prompt 给你。」
+    subtitle:
+      text_2lines: ["不是教你怎么问 AI", "是把我 22:30 用的救命 role prompt 给你"]
+      style:
+        font: 苹方 · display 100pt · 白字 #f5f5f0
+        position: 屏幕中心（居中偏上）
+        appear_at: 48.5
+        exit_at: 54.0
+      forbidden: [emoji, 感叹号, 彩色底]
+    audio:
+      env: 无
+      bgm: none
+    assets_needed:
+      - drawtext 大字（无外部素材需求）
+    forbidden:
+      - 「学英语党狂喜」类情绪词
+      - 「效率革命」「秒变外教」类口号
+      - AI 生成的背景
+
+  - id: M10_cta_options
+    time_range: [54, 58]
+    intent: 互动 CTA · 四选项
+    format_id: punch_black
+    template: null
+    picture: |
+      灰底 #0a0a0a
+      headline 88pt 白字四选项分四行居中：
+        面试
+        雅思
+        日常
+        旅游
+      每选项前加一个小的 · 分隔符（可选）
+      底部 caption 32pt 小字「评论区回复 · 我发对应 role prompt」
+    voiceover: |
+      「评论「面试」「雅思」「日常」「旅游」——我把对应 role prompt 给你。」
+    subtitle:
+      text_options: ["面试", "雅思", "日常", "旅游"]
+      bottom_text: "评论区回复 · 我发对应 role prompt"
+      style:
+        font_options: 苹方 · headline 88pt · 白字 #f5f5f0
+        font_bottom: 苹方 · caption 32pt · 白字 #f5f5f0 · 透明度 80%
+        position_options: 屏幕中心（四行等距）
+        position_bottom: 屏幕底部 10%
+        appear_at: 54.0
+        exit_at: 58.0
+      forbidden: [亮色按钮, 「点这里」箭头]
+    audio:
+      env: 无
+      bgm: none
+    assets_needed:
+      - drawtext 大字（无外部素材）
+    forbidden:
+      - 硬拉私信话术
+      - 弹幕特效
+      - 彩色 CTA 按钮
+
+# ─────────────────────────────────────
+# 小红书 8 页轮播 · 简 storyboard
+# 详见 retention_beat_sheet.md 末尾小红书节拍
+# 差异：抖音重场景剧演出 · 小红书重清单可保存（P5-P7 完整 3 段 prompt）
+# ─────────────────────────────────────
+
+xhs_carousel:
+  meta:
+    canvas: [1080, 1920]
+    pages: 8
+    pipeline: 手工设计 · 参考 P002 尺寸（但不用报纸风）· mono 字体 role prompt 页可截图
+    subtitle_font_size: 50pt  # 小红书大字标准
+  pages:
+    - id: P1
+      role: 封面 · 停划 + 收藏动机
+      picture: 手机锁屏「23:12」+ 英语课本 + 台灯 · 灰底 #0a0a0a 顶部大字
+      title: 92% 中国人不敢开口<br>不是你的问题
+      style: display 160pt 数字 · headline 96pt 中文
+    - id: P2
+      role: 场景认领
+      picture: 主角背影对墙念 · 咽口水动作 · 深夜暖光
+      title: 晚上 11 点你在对着墙念英语<br>念两句就闭嘴 —— 我懂
+    - id: P3
+      role: 打卡失效
+      picture: 多邻国 700 天连击数字截图（不打 logo）+ 视频通话尴尬截图 · 分屏
+      title: 多邻国 700 天<br>见到老美还是卡壳
+    - id: P4
+      role: 顿悟锚
+      picture: 分屏静图（游泳教程 vs 跳进泳池）+ 大字类比锚
+      title: 语音模式 ≠ 打字模式<br>读书 ≠ 跳进泳池
+    - id: P5
+      role: Prompt 1 · 雅思 Part 3（收藏动机最强）
+      picture: 全屏 role prompt 文本（mono 字体 · 可截图）· 灰底纸感 `surface_paper #f5f5f0`
+      title: "雅思 Part 3 陪练 · role prompt"
+      prompt_body: |
+        You are my IELTS Speaking Part 3 tutor.
+        Ask me only in English.
+        I'm Part 3, topic: Books.
+        Follow-up like a real examiner.
+        Don't interrupt me if I make mistakes.
+        Give quick feedback at the end.
+    - id: P6
+      role: Prompt 2 · 日常场景
+      picture: 全屏 role prompt 文本（mono 字体 · 可截图）· 灰底纸感
+      title: "咖啡店点单 · 问路 · role prompt"
+      prompt_body: |
+        You are a native English speaker in a Seattle coffee shop.
+        I'm ordering coffee.
+        Ask me questions naturally in English.
+        Small talk if I go off-topic.
+        Correct one mistake at the end, not during.
+    - id: P7
+      role: Prompt 3 · 面试英文
+      picture: 全屏 role prompt 文本（mono 字体 · 可截图）· 灰底纸感
+      title: "外企面试 · role prompt"
+      prompt_body: |
+        You are an interviewer at a MAANG company.
+        Position: Senior Product Manager.
+        Ask me behavioral questions in English.
+        Push me on the STAR structure.
+        End with 2 hard follow-ups.
+    - id: P8
+      role: CTA + 使用姿势
+      picture: 灰底 + 底部小字 · 便签感 CTA
+      title: 评论「面试/雅思/日常/旅游」我发变体<br>💡 先敢说 30 分钟，别改发音
+      # 说明：此处 💡 不是 emoji · 是 caption 前置符号 · 若审核紧可去掉
+
+# ─────────────────────────────────────
+# 通用素材清单
+# ─────────────────────────────────────
+
+assets_summary:
+  b_roll:
+    - office_desk_dusk_evening_empty__26609644.mp4  # M1 主选
+    - office_desk_dusk_evening_empty__29540810.mp4  # M1 备选
+    - office_desk_dusk_evening_empty__7710338.mp4   # M1 备选
+    - smartphone_screen_notification_night__32365211.mp4  # M8 主选
+    - smartphone_screen_notification_night__7821861.mp4    # M8 备选
+    - iphone_lockscreen_2312.mp4  # M1 真机拍摄或高保真仿真
+  ui_screenshots:
+    - xunfei_report_92_78.png       # M2 讯飞录官方引用
+    - duolingo_700_streak_no_logo.png  # M3 遮挡 logo
+    - facetime_awkward_silence.png     # M3 视频通话 UI
+    - doubao_wrong_prompt.png          # M4 反例
+    - doubao_role_prompt_full.mp4      # M6 屏录
+    - doubao_real_dialogue.mp4         # M7 真对话屏录
+  static_images:
+    - swim_instruction_book_cover.jpg  # M5 左（Pexels/Unsplash CC0）
+    - jumping_into_pool.jpg             # M5 右（Pexels CC0）
+  svg_overlays:
+    - role_prompt_5_labels.svg   # M6 五段 punch-in 标签
+    - accent_red_border_wrong_prompt.svg  # M4 反例描边
+  drawtext_texts:
+    - time_2312.txt         # M1 3s 处大字入
+    - group_anchor_92.txt   # M2 92% 大字
+    - group_anchor_78.txt   # M2 78% 大字
+    - checkin_disillusion.txt  # M3 大字
+    - wrong_prompt_label.txt   # M4 反例小字
+    - analogy_anchor.txt       # M5 类比锚
+    - lying_side_time.txt      # M8 22:45
+    - value_anchor_2lines.txt  # M9 两行价值锚
+    - cta_4_options.txt        # M10 四选项
+  audio:
+    - env_night_room.mp3    # M1 深夜环境音
+    - env_swallow_saliva.wav  # M1 咽口水（真实录制或 Freesound）
+    - env_awkward_silence.mp3  # M3 视频通话空气音
+    - vo_v0.mp3             # 全片 VO（MiniMax 或 Edge TTS 生成）
+    # 无 BGM · 全片默认无 BGM（feedback_dense-vo-no-bgm-default）
+
+# ─────────────────────────────────────
+# 兑现检查（对 form_competition 承诺回查）
+# SYSTEM §3.1c 形式承诺兑现门禁
+# ─────────────────────────────────────
+
+fulfillment_check:
+  - promise: 场景剧钉子用真实素材
+    actual: M1/M8 用 Pexels 已下载深夜/侧躺 B-roll · 无 AI 生图
+    status: pass_planned
+  - promise: 真机屏录 role prompt 演示
+    actual: M6/M7 用 QuickTime 真机屏录豆包语音 · 无 HTML 模拟
+    status: pass_planned
+  - promise: SVG 打点非 GSAP
+    actual: M6 五段标签 · M4 反例描边 · 全用 SVG + CSS transition · drawtext 大字用 ffmpeg 原生
+    status: pass_planned
+  - promise: 分屏静图
+    actual: M5 静态 Pexels/Unsplash 图 + 2px 分割线 + drawtext 大字
+    status: pass_planned
+  - promise: ≥3 种观感
+    actual: 5 种形式 ID（chaos_broll · broll_demo · punch_black · before_after · SVG 覆盖）
+    status: pass_planned
+  - promise: 反 AI 味
+    actual: 全片无 GSAP 主视觉 · 用真实素材 + SVG 打点 · 禁 Dracula 色板
+    status: pass_planned
+  - promise: 不撞 W27/D01/D02 近作
+    actual: 见 visual_originality_gate.md 差异化承诺声明（W27 老板圈 / D02 傍晚办公室 / D03 深夜自习房各自独立）
+    status: pass_planned
+  - promise: 不打竞品 logo
+    actual: 多邻国 700 天连击遮 logo · 豆包主演示允许（不打脸不背书）· ChatGPT 不出现
+    status: pass_planned
+  - promise: 数据锚同帧口径
+    actual: v0 严格版不用「便宜 100 倍」锚 · 若切 vB · 15-18s 段位显式「对比线下 300 元/小时」小字口径
+    status: pass_planned_v0_default
+
+# ─────────────────────────────────────
+# Audience-First 自查三问（storyboard 层）
+# ─────────────────────────────────────
+
+audience_first_check:
+  - question: 观众会不会共鸣？
+    answer: ✅ M1 深夜钉子 + M2 群体锚 92% + M3 700 天自嘲 + M8 侧躺共同体 · 四层情感锚一路铺垫 · 学英语党天然认领
+  - question: 画面观赏性够吗？
+    answer: ✅ 10 段镜头 · 5 种形式 ID · 每 3-6s 有明确视觉变化 · 单场景占比最大 20.7%（M6 屏录 12s）< 40% 上限
+  - question: 内容真材实料吗？
+    answer: ✅ M6 role prompt 真机屏录 + 全屏可截图 + P5-P7 三段完整 role prompt 走小红书轮播 · 收藏 + 评论双动机

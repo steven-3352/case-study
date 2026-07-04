@@ -1,10 +1,16 @@
-# W28 选题正文 · 曝光优先周
-# 双平台同内容内核，不同表现形式；详见 PLAN.md / week.yaml
+# W28 选题正文 · 曝光优先 · AI 破圈测试周
+# 双平台同池同选题，不同表现形式；详见 PLAN.md / week.yaml
+#
+# 2026-07-04 战略变更（DECISIONS Q10）· 2026-07-04 二次调整（C 方案）:
+# D01 保留老板圈（老皮肤对照组），D02–D07 全部换成 6 个 C 端受众池测破圈。
+# 每条选题的完整 skin（audience / persona_anchor / tone_direction / hook_scene /
+# landing_intent / format_leaning / differ_from_last）见对应 DXX/insights/topic_brief.md。
 
 W28D01:
   title: 真正值钱的 AI 工具，都很土
   dir: publish/2026-W28/D01-土但值钱的AI工具/
   status: blocked_before_content_gate
+  audience_pool: B端·中小老板
   objective: exposure
   douyin:
     form: 45-75秒口播/旁白
@@ -14,67 +20,91 @@ W28D01:
     cover: 真正值钱的 AI 工具，都很土
 
 W28D02:
-  title: 判断一个岗位能不能 AI 化，看这 3 个信号
+  title: 周报 5 分钟搞定，老板还夸你写得细
+  dir: publish/2026-W28/D02-打工人5分钟出周报/
+  topic_brief: publish/2026-W28/D02-打工人5分钟出周报/insights/topic_brief.md
   status: planned
+  audience_pool: C端·打工人
   objective: exposure
+  skin_summary: "25–40 岁办公室打工人 · 打工人共鸣型自嘲 · 18:55 老板 @ 你「周报呢」你 Excel 还没打开"
   douyin:
-    form: 框架型口播 + 3信号动效
-    hook: 别再问某个岗位会不会被 AI 替代。
+    form: 场景剧 + 录屏演示（AI 5 分钟出周报过程）
+    hook: 18:55 老板 @ 你「周报呢」，你 Excel 还没打开。
   xhs:
-    form: 收藏型轮播
-    cover: 岗位能不能 AI 化，看这 3 个信号
+    form: 6-8页步骤型轮播
+    cover: 周报 5 分钟搞定，老板还夸你写得细
 
 W28D03:
-  title: 员工每天复制粘贴 30 次，不是勤奋，是系统问题
+  title: AI 陪你练英语口语，比外教便宜 100 倍
+  dir: publish/2026-W28/D03-AI陪练英语口语/
+  topic_brief: publish/2026-W28/D03-AI陪练英语口语/insights/topic_brief.md
   status: planned
+  audience_pool: C端·学生/学英语党
   objective: exposure
+  skin_summary: "想学英语但没时间没钱找外教的普通人 · 亲切去神秘感 · 晚上 11 点想开口只能对着墙念"
   douyin:
-    form: 场景故事 + 重复操作快切
-    hook: 公司不该夸他勤奋，应该问为什么这件事还要人做。
+    form: 场景演示（AI 陪聊过程录屏 + 对话字幕）
+    hook: 晚上 11 点想开口说英语，只能对着墙念。
   xhs:
-    form: 痛点型轮播
-    cover: 每天复制粘贴 30 次，不是勤奋
+    form: 6-8页教程型轮播（3 个 prompt + 使用场景）
+    cover: AI 陪练英语口语，比外教便宜 100 倍
 
 W28D04:
-  title: 很多公司用 AI 没效果，是因为只买了工具，没有改流程
+  title: AI 帮我想视频选题，10 个里 8 个能用
+  dir: publish/2026-W28/D04-AI帮想视频选题/
+  topic_brief: publish/2026-W28/D04-AI帮想视频选题/insights/topic_brief.md
   status: planned
+  audience_pool: C端·内容创作者
   objective: exposure
+  skin_summary: "刚起号或 1-10w 粉的中腰部创作者 · 同行共鸣结果导向 · 对着镜头空半小时想不出下一条"
   douyin:
-    form: 左右对比视频
-    hook: 你只是多给员工一个网页，不是少给他一段工作。
+    form: 演示型（对着镜头思考 → AI 出 10 条选题 → 评价筛选）
+    hook: 对着镜头空半小时想不出下一条拍啥。
   xhs:
-    form: 对比型轮播
-    cover: 买 AI 工具，不等于改流程
+    form: 6-8页清单型轮播（选题库 prompt 大全）
+    cover: AI 帮我想视频选题，10 里 8 能用
 
 W28D05:
-  title: 企业做 AI，最容易失败的不是模型，而是入口
+  title: 接单党用 AI 写方案，客户还夸专业
+  dir: publish/2026-W28/D05-接单党AI写方案/
+  topic_brief: publish/2026-W28/D05-接单党AI写方案/insights/topic_brief.md
   status: planned
+  audience_pool: C端·自由职业者/接单党
   objective: exposure
+  skin_summary: "设计/文案/剪辑/程序等自由职业者 · 同类共鸣实用主义 · 客户凌晨发需求犹豫要不要接"
   douyin:
-    form: 方法论口播 + 筛选器视觉
-    hook: 入口选错，再强的模型也救不了。
+    form: 场景演示（半夜手机响 → AI 出方案框架 → 回复客户）
+    hook: 客户凌晨 1 点：「明天上午能给我个方案吗？」
   xhs:
-    form: 判断表轮播
-    cover: AI 项目失败，往往不是模型问题
+    form: 6-8页轮播（3 类接单场景 + prompt + 成品截图）
+    cover: 接单党用 AI 写方案，客户还夸专业
 
 W28D06:
-  title: 你公司最该 AI 化的，可能不是最贵的人，而是最烦的流程
+  title: AI 帮你改简历，别再花 500 找人改
+  dir: publish/2026-W28/D06-AI改简历不用找人改/
+  topic_brief: publish/2026-W28/D06-AI改简历不用找人改/insights/topic_brief.md
   status: planned
+  audience_pool: C端·求职党
   objective: exposure
+  skin_summary: "求职/跳槽/应届生投了很多没回音 · 直接去焦虑给真实建议 · 200 份简历 2 个面试花 500 改也没回音"
   douyin:
-    form: 老板视角口播 + 岗位替代误区反转
-    hook: 老板一想到 AI，就想替掉一个人。
+    form: 演示型（AI 从 HR 视角批改简历过程）
+    hook: 投了 200 份简历只有 2 个面试，付费花 500 找人改还没回音。
   xhs:
-    form: 认知反转轮播
-    cover: 最该 AI 化的，不一定是最贵的人
+    form: 6-8页 before/after 对比轮播（3-4 个真实场景改动 + HR 视角评论）
+    cover: AI 改简历，别再花 500 找人改
 
 W28D07:
-  title: 一个流程值不值得做 AI 工具，先问这 4 个问题
+  title: AI 陪孩子练英语，一年省 3 万培训费
+  dir: publish/2026-W28/D07-家长陪孩子学英语/
+  topic_brief: publish/2026-W28/D07-家长陪孩子学英语/insights/topic_brief.md
   status: planned
+  audience_pool: C端·家长/宝妈
   objective: exposure
+  skin_summary: "家有 6-15 岁孩子的家长 · 家长共鸣去焦虑务实 · 一年 3 万培训班孩子还不敢开口"
   douyin:
-    form: 清单型口播 + 四问题打点
-    hook: 不懂技术也能判断一个流程值不值得做 AI 工具。
+    form: 场景剧（家长 + 孩子跟 AI 对话）
+    hook: 每年英语培训班 3 万块，孩子上了两年还是不敢开口。
   xhs:
-    form: 收藏型轮播
-    cover: 流程值不值得做 AI？先问 4 个问题
+    form: 6-8页方案型轮播（3 个年龄段 + 适配 prompt + 使用截图）
+    cover: AI 陪孩子练英语，一年省 3 万培训费

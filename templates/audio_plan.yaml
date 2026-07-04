@@ -1,6 +1,19 @@
 # 声音方案 · audio_plan.yaml
 # 工种: 声音设计师 · 视频形态必跑
 #
+# ── 0. 入口必读（开工前打勾） ─────────────────────────────────────────
+# memory 元规则: feedback_pre-node-checklist · 不过清单不得开工
+#
+# [ ] SYSTEM refs: docs/SYSTEM.md §3.3 音画三件套 · §2.4b 视频硬门（配音+BGM+字幕）
+# [ ] template refs: 本节点已完成 scripts/vX.md（口播提取源）· retention_beat_sheet.md（情绪曲线）· storyboard.yaml（对齐每段 BGM 音量）
+# [ ] memory refs: **feedback_no-synth-bgm（禁 ffmpeg 合成假 BGM）** · feedback_read-env-example-first（TTS provider 走 .env 现成）
+# [ ] 姊妹条 refs: 同周最近 1 条 audio_plan.yaml（对齐 voice_id 和 emotion_arc 粒度）· pipeline/p004_video/_dNN_tts_config.yaml
+# [ ] 能力清单 refs: cat pipeline/tts/config.yaml · ls pipeline/tts/ · ls integrations/openmontage/openmontage.env.example（若走 OpenMontage 音频）
+#
+# 触发词打断: 「BGM 用 ffmpeg aevalsrc 拼一下就行」「voice 抄上条」「音量随便设」
+#
+# ──────────────────────────────────────────────────────────────────
+#
 # content_id: ___
 # topic_id: ___
 
@@ -14,15 +27,23 @@ voice:
   script_path:             # 口播逐字稿路径
 
 bgm:
-  mood: tension            # tension | release | upbeat | calm | neutral
-  source:                  # 相对 PROJECT_ROOT 的路径
+  # ── enabled 决策规则（2026-07-04 固化）─────────────────────────────
+  # auto = 按形态 + VO 密度自动判定：
+  #   密 VO 演示/知识型（VO 覆盖率 ≥85% + 每段无 3s+ 死区）→ 默认 off
+  #   稀疏 VO / 出镜型 / 情感叙事型 / 带货型                → 默认 on
+  # 参考 WaytoAGI / 七七 / 浙大猫学长 3 支密 VO 无 BGM 视频：VO 已把氛围撑满，
+  # 硬加 BGM 只会盖 VO；剪映 交接期若需氛围，用 -24 dB 环境垫音，别用曲。
+  # memory: feedback_dense-vo-no-bgm-default
+  enabled: auto            # auto | on | off；单条选题可强制 on/off，需在 notes 说明
+  mood: tension            # tension | release | upbeat | calm | neutral（enabled=off 时忽略）
+  source:                  # 相对 PROJECT_ROOT 的路径（enabled=off 时留空）
   volume: 0.10             # 对齐 storyboard music_volume
   fade_in_s: 1.5
   fade_out_s: 2.0
   loop: true
   benchmark_ref:           # hook_benchmark 参考编号（如「参考1·紧张铺底」）
   hook_0_3s:               # 0–3s：入点情绪、是否压人声、与钩子同拍
-  notes:                   # 选曲理由、与 retention 情绪曲线关系
+  notes:                   # 选曲理由 / off 时说明「密 VO 已撑满，无 BGM」
 
 subtitles:
   srt_path:                # 如 pipeline/p004_video/sub_k1.srt
@@ -36,7 +57,8 @@ outputs:
   vo_mp3:
 
 qc:
-  - VO 清晰可辨，BGM 不盖人声（人工听 30s）
+  - VO 清晰可辨，前 6s RMS 落在 -13~-23 dB（对齐参考视频响度）
+  - 若 bgm.enabled != off：BGM 不盖人声（人工听 30s）；0–3s BGM 入点不抢戏（对照 retention 节拍表）
+  - 若 bgm.enabled == off：全程无音乐是「设计」不是「缺件」，需在 notes 记明依据（memory: feedback_dense-vo-no-bgm-default）
   - 前 3s 钩子字幕可见，且与 hook_benchmark 停划设计一致
-  - 0–3s BGM 入点不抢戏（对照 retention 节拍表）
   - 外发使用 video_publish，非 video_raw

@@ -4,7 +4,19 @@
 > 使用时机：OpenMontage 输出 `preview.mp4` / `final.mp4` 后，复制到平台发布目录前。  
 > 结论：本文件 pass 前，`openmontage/final.mp4` 不得替换 `douyin/video.mp4`。
 
-## 0. 基本信息
+## 0. 入口必读（开工前打勾）
+
+> memory 元规则：[[feedback_pre-node-checklist]] · 不过清单不得开工
+
+- [ ] **SYSTEM refs**：`docs/SYSTEM.md` §2.4b 视频生产硬门 · §3.1c 形式承诺兑现门禁 · §3.3 音画三件套
+- [ ] **template refs**：本条前置 `design/openmontage_brief.md`（画面承诺）· `design/design_language.md`（token 兑现）· `storyboard.yaml`（分镜兑现）· `audio_plan.yaml`（音画兑现）
+- [ ] **memory refs**：`feedback_no-default-tech-stack` · `feedback_no-neon-palette` · `feedback_no-synth-bgm`
+- [ ] **姊妹条 refs**：同周 1 条 `design/openmontage_review.md`（学抽帧复验的具体粒度）· `docs/design/FORM_FAIL_LOG.md`
+- [ ] **能力清单 refs**：`ffmpeg`/`ffprobe` 可用（抽帧复验必需）
+
+**触发词打断**：「跑通了就行」「preview 差不多就通过」（抽帧复验必须逐镜看，不看不通过）
+
+## 0-a. 基本信息
 
 ```yaml
 content_id:

@@ -1,0 +1,35 @@
+status: allow_render_no_approve
+content_version: v0
+form_version: v1
+content_id: W28D03
+project_id: W28D03
+review_source: draft_self_generated
+scorecard_valid: false
+
+# gate_check(post_render) 状态
+# - 单 Agent 自评 · 编剧 avg 91 / 留存与互动设计师 avg 90.5（draft_self_generated · scorecard_valid: false）
+# - 其余 15 工种 scorecard 未生成 · 走 D01 同 baseline（honest 不冒充独立复评）
+# - 反 fake-pass 门（check_self_generated_passes）: 若强填 pass:true 会 fail-closed 反噬
+# - 决议：honest 走 allow_render_no_approve · 三平台外发按 script_review.md 允许项执行
+#
+# 触发真独立复评：见 design/pre_publish_forecast.md 「D+2 触发条件」
+gates:
+  content_gate: draft_self_generated_pass
+  form_gate: draft_self_generated_pass
+  pre_publish_forecast: B
+  attribution: honest_no_fake_pass
+allow:
+  - upload_douyin
+  - upload_xhs
+  - upload_weixin
+  - collect_d2_d7_metrics
+disallow:
+  - mark_verdict_approved_before_independent_review
+  - reuse_storyboard_skeleton_for_D04
+  - claim_pass_true_on_self_generated_scorecards
+
+next_actions:
+  - user_upload_3_platforms_video_no_bgm_mp4
+  - agent_collect_metrics_at_d2_d7
+  - if_below_B_grade_lower_bound_trigger_independent_review + v2_iteration
+  - v2: s2/s6 speed 0.98 to release M7 6s space + insert real doubao voice mov

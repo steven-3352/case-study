@@ -3,7 +3,19 @@
 > 工种：**视觉语言策展师** · 在 `form_strategy.md` 后、`storyboard.yaml` 前完成  
 > 目的：把 DESIGN.md / 成熟网站视觉系统转成**本条内容可执行的画面约束**，不是照抄品牌。
 
-## 0. 本条定位
+## 0. 入口必读（开工前打勾）
+
+> memory 元规则：[[feedback_pre-node-checklist]] · 不过清单不得开工
+
+- [ ] **SYSTEM refs**：`docs/SYSTEM.md` §3.2 留存铁律 · §3.2a Q9 视觉路线（禁霓虹/禁 AI 味/证据优先） · §3.4 拒稿反例
+- [ ] **template refs**：本节点已完成 `topic_brief.md` skin.tone_direction · `form_competition.md`（推荐方案） · `form_strategy.md`
+- [ ] **memory refs**：**`feedback_no-neon-palette`（禁 Dracula 紫粉青）** · **`feedback_anti-ai-visual`（反 AI 味）**
+- [ ] **姊妹条 refs**：同周最近 1 条 `design/design_language.md` 实读（防复用 token）
+- [ ] **能力清单 refs**：`assets/design-md/` 有没有可萃取的 DESIGN.md 参考
+
+**触发词打断**：「用 W27 老色板」「Dracula 紫其实挺好看的」「上条 token 抄一下」
+
+## 0-a. 本条定位
 
 - content_id:
 - 平台 / 形态:

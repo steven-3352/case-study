@@ -1,13 +1,15 @@
-# CLAUDE.md — AI 小系统获客引擎 · 项目规则
+# CLAUDE.md — AI 内容自动化生产引擎 · Claude Code 特定执行细则
 
 > **首读：** [docs/SYSTEM.md](docs/SYSTEM.md)（§1.0 北极星 · 宗旨 · 工作方式 · 铁律 · 能力全景 · 文档维护）
 >
-> 本文：Agent **执行细则**（工种、15 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
+> 本文：Claude Code **特定执行细则**（工种、15 步、环境、反例）。与 SYSTEM 同步维护，勿在两处写不同规则。
+>
+> **其他模型/agent（Codex / Aider / Cline / Cursor / 其他）：** 首读 [AGENTS.md](AGENTS.md) 拿到跨模型铁律 0 + 分工指路；工种/15 步/反例同样适用本文。
 
 ## 项目概览（摘要）
 
 - **引擎：** `queue/topics.yaml` 选题 → 多 Agent 编排 → `pipeline/` 出片 → `publish/` 发布包
-- **当前皮肤：** 小老板烦事 → 能跑的小系统（可换，非系统边界）
+- **内容皮肤：** **按选题激活**（2026-07-04 起取消固定皮肤；受众开放到「任何对 AI 工具/AI 应用感兴趣者」；每条选题在 `insights/topic_brief.md` 的 `skin:` 段声明自己的受众/人设锚/话术方向）
 - **辩论锁定：** `docs/DECISIONS.md` · **无标准内容模板：** `templates/README.md`
 
 ## 环境配置
@@ -38,16 +40,33 @@ pip install openai pillow python-dotenv edge-tts requests
 - 全局 9:16 → 1080×1920（图文 + 视频统一）
 - 常量定义：`pipeline/screen_dims.py`（CANVAS_W/H, VIDEO_W/H, IPHONE_W/H）
 
-## 流水线入口
+## 候选实现清单（无默认顺序 · 每次分镜必查完整版）
 
-| 路线 | 脚本 | 用途 |
+> **本表只列常用入口，完整版看 `docs/SYSTEM.md §4.2 候选实现清单`。**
+> ⚠️ **禁止把本表任一条当"默认路线"**——每一镜必须按 SYSTEM §4.2 五维打分；出现"就走 P004 吧"这类念头立即回 SYSTEM §4.2 校对。
+
+### 原生 pipeline（`pipeline/`）
+
+| 候选之一 | 脚本 | 用途 |
 |------|------|------|
 | P001 真实截图风 | `pipeline/render_p001.py --all` | 仿真 B-roll + 三平台视频/图文 |
 | P001 仿真素材 | `pipeline/gen_evidence.py` | Chrome 渲 HTML 出 9:16 满铺帧 |
 | P002 报纸风出图 | `pipeline/p002_carousel_gen.py` | GPT-image-2 整版报纸风轮播 |
-| P004 视频总编排 | `pipeline/p004_video/build.py` | HTML+GSAP 渲染场景 → PNG → mp4 + VO + BGM + 字幕 |
+| P004 HTML+GSAP 视频 | `pipeline/p004_video/build.py` | HTML+GSAP 渲染场景 → PNG → mp4 + VO + BGM + 字幕 |
+| P005/P006/P007 | `pipeline/p005_belt_video/` 等 | 带货 / 漫画视频 / 漫画图文 |
+| 真实 B-roll | `pipeline/p004_video/fetch_broll.py` | 拉 Pexels CC0 免费商用素材 |
 | TTS 配音 | `pipeline/tts/gen_speech.py --script <path>` | `config.yaml` provider: edge / minimax / volcengine |
 | 调研工具 | `agent-reach`(独立 CLI) | 小红书/B站/Reddit 公开内容拉取(消费者声音研究员用) |
+
+### 外部制作插件（`integrations/`）· 与原生 pipeline 同级候选
+
+| 候选之一 | 位置 | 用途 | 门禁 |
+|------|------|------|------|
+| **OpenMontage** | `integrations/openmontage/` | 视频合成 runtime（Remotion / HyperFrames / FFmpeg / undecided） | **每条必跑** `design/openmontage_brief.md` 判断 enabled/disabled/blocked，未跑不得进 storyboard |
+| Grok video | `integrations/openmontage/openmontage.env.example` · `grok-imagine-video` | 视频生成素材候选 | 走 OpenMontage brief |
+| GPT-image-2 | 直接 API | 报纸风外，也可用于任意需静态生成的画面 | 走 form_competition 打分 |
+
+**候选池完整性铁律：** 3 个方案不得同家族（不能都是 P001 变体或都是 P004 变体）；发现候选被"默认习惯"排除立即打断，回 SYSTEM §4.2 重列。
 
 ## GPT-image-2 API（报纸风首选）
 
@@ -123,16 +142,26 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **剪辑** | 时长卡控、三平台规格 | 剪辑说明：抖音 45-60s / 小红书 ≤60s / 视频号 60-90s |
 | **运营/增长** | 分发策略、私信转化承接 | 三平台文案 + 评论区埋点 + 私信路径 |
 
-#### 表达/音画层 4 工种（视频形态必跑/按需激活）
+#### 表达/音画层 5 工种（视频形态必跑/按需激活）
 
-| 工种 | 职责 | 输出 |
-|------|------|------|
-| **留存与互动设计师** | 完播节拍、形式切换、互动 CTA | `retention_beat_sheet.md` |
-| **形式策略官 / 视觉策略官** | 在脚本期比较每个关键镜头的多种表达方式，按数据杠杆选择实拍、2D UI、GSAP、Three/Web 3D、截图或字幕 | `design/form_strategy.md` |
-| **动效技术导演 / Web 3D 技术导演** | 对高级动效、GSAP、Three/Web 3D、HTML 截帧做可行性、资产、性能、导出风险审查 | `design/motion_tech_plan.md` |
-| **声音设计师** | 配音、BGM 情绪、字幕方案 | `audio_plan.yaml` |
+| 工种 | 职责 | 输出 | 是否双评 |
+|------|------|------|------|
+| **留存与互动设计师** | 完播节拍、形式切换、互动 CTA | `retention_beat_sheet.md` | 是（≥90 门） |
+| **动画导演 / Motion Planner** 🆕 | 判定风格（WaytoAGI / 七七 / Vibe Motion / 混合），输出**逐秒分镜**（9 字段：时间/旁白/内容类型/画面主体/动画动作/镜头运动/屏幕文字/素材需求/推荐实现方式/设计目的），每 2-4 秒必须有明确视觉变化 | `design/motion_storyboard.md` | **否（单跑 · 2026-07-04 起）** |
+| **形式策略官 / 视觉策略官** | 在脚本期比较每个关键镜头的多种表达方式，按数据杠杆选择实拍、2D UI、GSAP、Three/Web 3D、截图或字幕 | `design/form_strategy.md` | 是（≥90 门） |
+| **动效技术导演 / Web 3D 技术导演** | 对高级动效、GSAP、Three/Web 3D、HTML 截帧做可行性、资产、性能、导出风险审查；接住动画导演的逐秒分镜，拆成 Remotion / Manim / Three.js 组件任务清单 | `design/motion_tech_plan.md` | 是（≥90 门） |
+| **声音设计师** | 配音、BGM 情绪、字幕方案 | `audio_plan.yaml` | 是（≥90 门） |
 
-产出格式见 `templates/retention_beat_sheet.md`、`templates/audio_plan.yaml`。**门禁：** 无留存节拍表 → 禁止出分镜；视频/强互动图文无 `form_strategy` → 禁止定 storyboard；使用 Web 3D/GSAP/复杂 HTML 动效但无 `motion_tech_plan` → 禁止 render；无音画方案 → 禁止进 publish。
+产出格式见 `templates/retention_beat_sheet.md`、`templates/design/motion_storyboard.md`、`templates/audio_plan.yaml`。
+
+**门禁：**
+- 无留存节拍表 → 禁止出分镜
+- 视频形态无 `motion_storyboard.md`（含风格判定 + 逐秒分镜）→ **禁止**进入形式策略会
+- 视频/强互动图文无 `form_strategy` → 禁止定 storyboard
+- 使用 Web 3D/GSAP/复杂 HTML 动效但无 `motion_tech_plan` → 禁止 render
+- 无音画方案 → 禁止进 publish
+
+**动画导演单跑说明**：2026-07-04 起决定，动画导演走 draft_self_generated 直接生效，不做双 agent 90 分互评。原因：本岗是"翻译层"（把已定的脚本 + 留存节拍翻译成逐秒画面），错了下游形式策略官/动效技术导演/声音设计师会拦，无需自建打分门。详见 `docs/DECISIONS.md` Q11。
 
 #### 增长复盘层 1 工种（发布后必跑）
 
@@ -216,7 +245,11 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 铁律 · 结果负责制（2026-06 起 · D04 升级）
 
-0. **北极星** — 做出用户愿意看完、且互动高的内容；视频看 `completion_3s` + `completion_rate` + 评论/收藏；图文看划完 + 收藏/评论。前 3s 须拆同行热门设计停划。详规：`docs/SYSTEM.md` §1.0 · `templates/design/completion_rate_north_star.md`
+0. **北极星 · Audience-First, Not Pipeline-First** — 做出用户愿意看完、且互动高的内容；三要素：**内容共鸣**（命中真实情绪/场景）+ **强观赏性**（每 2-4s 视觉变化、首屏停划、音画同步）+ **强内容**（信息密度真材实料、可复现方法）。视频看 `completion_3s` + `completion_rate` + 评论/收藏；图文看划完 + 收藏/评论。前 3s 须拆同行热门设计停划。
+
+   **反例（工程完成心态 · 全部不算交付达标）**：pipeline 跑通了 / 15 步走完了 / 所有工种产出齐了 / render 无报错 / 发布包三平台文案齐了。**唯一交付判据**：`pre_publish_forecast` ≥ B + 投后观众数据达标。
+
+   详规：`docs/SYSTEM.md` §1.0 · `templates/design/completion_rate_north_star.md`
 
 1. **不看仓库有什么，只看哪条实现更强** — pipeline/场景文件/工种名单不是完成标准；标准是观众会不会停、懂、互动/收藏，以及发布包能否直接外发。实现选型：`docs/SYSTEM.md` §4.2
 2. **内容门与形式门分开** — 脚本 90+ 允许 TTS；**形式**（视觉同质、分析师 forecast、CTA 完整）pass 才允许外发。禁止 catalog 拼盘假 approved。
@@ -284,7 +317,13 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 3. 4xx/5xx 不能直接降级 fallback —— 先核对 URL 拼写,再查凭证,最后才考虑切 provider
 
 - 9:16 → 1080×1920 统一画布（图文 + 视频）
-- **视频音画三件套（硬门槛）**：配音 + BGM + 字幕叠主画面；外发默认 `*_with_bgm.mp4`
+- **视频音画硬门槛**（2026-07-04 起 · BGM 由硬门下调为条件件）：
+  - **硬门（必满足）**：配音（VO 全程覆盖，前 6s RMS ≥ -25 dB，禁沉默钉子）+ 字幕叠主画面
+  - **条件件（按形态判定）**：BGM
+    - 密 VO 演示/知识型（VO 覆盖 ≥85% + 无 3s+ 死区）→ **默认无 BGM**（参考 WaytoAGI / 七七 / 浙大猫学长）
+    - 稀疏 VO / 出镜型 / 情感叙事型 / 带货型 → **默认要 BGM**
+  - 外发命名：有 BGM → `*_with_bgm.mp4`；无 BGM → `*_no_bgm.mp4` 直接外发（不再是"预览件"）
+  - 依据：memory `feedback_dense-vo-no-bgm-default` · `feedback_dense-vo-no-dead-air`
 - 口播：Edge TTS 或 MiniMax（见 `audio_plan.yaml`）
 - 前 3s 冲突钩子：大字字幕 + 演示画面（演示/知识型），或真人冲突表情（出镜型）
 - 项目结果先于方法论，业务问题先于技术栈

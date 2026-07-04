@@ -1,0 +1,108 @@
+{
+  "engine": [
+    "minimax"
+  ],
+  "total": 59.9,
+  "segments": [
+    {
+      "id": "s1_silence",
+      "window": 3.0,
+      "vo_dur": 0.0,
+      "start": 0.0,
+      "seg_dur": 3.0,
+      "emotion": "silence",
+      "speed": 0.0,
+      "text": "(0-3s 沉默钉子 · 由 env_audio 深夜环境音 + 咽口水 SFX 填充)"
+    },
+    {
+      "id": "s2",
+      "window": 8.55,
+      "vo_dur": 8.4,
+      "start": 3.0,
+      "seg_dur": 8.55,
+      "emotion": "neutral",
+      "speed": 0.95,
+      "text": "晚上十一点，你在对着墙念英语。九成中国人不敢开口——不是你的问题，是没人的问题。"
+    },
+    {
+      "id": "s3",
+      "window": 7.4,
+      "vo_dur": 7.2,
+      "start": 11.55,
+      "seg_dur": 7.4,
+      "emotion": "sad",
+      "speed": 0.93,
+      "text": "多邻国打了七百天卡，见到老外还是——嘴张开一半，脑子空了。"
+    },
+    {
+      "id": "s4",
+      "window": 5.05,
+      "vo_dur": 4.9,
+      "start": 18.95,
+      "seg_dur": 5.05,
+      "emotion": "neutral",
+      "speed": 0.95,
+      "text": "你去问AI，怎么练口语——它给你十条建议，全是废话。"
+    },
+    {
+      "id": "s5",
+      "window": 4.0,
+      "vo_dur": 1.38,
+      "start": 24.0,
+      "seg_dur": 4.0,
+      "emotion": "neutral",
+      "speed": 0.92,
+      "text": "问题在这。"
+    },
+    {
+      "id": "s6",
+      "window": 12.3,
+      "vo_dur": 12.0,
+      "start": 28.0,
+      "seg_dur": 12.3,
+      "emotion": "neutral",
+      "speed": 0.95,
+      "text": "你不是要AI教你，你要AI陪你说。先给它一张角色卡：你是我雅思口语搭档，我Part 3，你只用英文提问，我说错也别打断。"
+    },
+    {
+      "id": "gap_40s",
+      "window": 1.7,
+      "vo_dur": 0.0,
+      "start": 40.3,
+      "seg_dur": 1.7,
+      "emotion": "gap",
+      "speed": 0.0,
+      "text": "(M7 段 · 40.3-42s · 真机豆包语音真对话音填充)"
+    },
+    {
+      "id": "s8",
+      "window": 6.0,
+      "vo_dur": 4.0,
+      "start": 42.0,
+      "seg_dur": 6.0,
+      "emotion": "neutral",
+      "speed": 0.95,
+      "text": "先敢说三十分钟，比敢背三百单词管用。"
+    },
+    {
+      "id": "s9",
+      "window": 6.0,
+      "vo_dur": 5.3,
+      "start": 48.0,
+      "seg_dur": 6.0,
+      "emotion": "neutral",
+      "speed": 0.92,
+      "text": "不是教你怎么问AI。是把我二十二点三十用的救命role prompt给你。"
+    },
+    {
+      "id": "s10",
+      "window": 5.9,
+      "vo_dur": 5.3,
+      "start": 54.0,
+      "seg_dur": 5.9,
+      "emotion": "neutral",
+      "speed": 0.98,
+      "text": "评论 面试、雅思、日常、旅游——我把对应role prompt给你。"
+    }
+  ]
+}

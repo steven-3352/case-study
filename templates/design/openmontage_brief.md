@@ -4,7 +4,20 @@
 > 状态：可选插件输入 · 不替代当前项目内容门 / 形式门  
 > 使用时机：`form_strategy.md` + `design_language.md` 完成后，进入 storyboard / render 前。
 
-## 0. 启用判断
+## 0. 入口必读（开工前打勾 · **每条必跑，决定是否启用**）
+
+> memory 元规则：[[feedback_pre-node-checklist]] · 不过清单不得开工
+> 强制性：**无论最终 enabled/disabled/blocked，本 brief 必须每条跑一次**——教训见 W28D02 form_competition 门禁绕过事故
+
+- [ ] **SYSTEM refs**：`docs/SYSTEM.md` §2.4b 生产 whitelist（OpenMontage 在其中）· §4.2 候选清单
+- [ ] **template refs**：本节点已完成 `form_competition.md`（3 方案要含 integrations 家族）· `design_language.md` · `openmontage_review.md`（了解回流验收标准）
+- [ ] **memory refs**：**`feedback_no-default-tech-stack`** · `feedback_pre-node-checklist`
+- [ ] **姊妹条 refs**：同周 1 条 `design/openmontage_brief.md`（学 decision 理由写法，尤其 disabled 时的理由结构）
+- [ ] **能力清单 refs**：`ls integrations/openmontage/` · `cat integrations/openmontage/README.md`
+
+**触发词打断**：「OpenMontage 不适合本条」（不跑判断就写这句 = 门禁绕过）「W27D01 disabled 了我也 disabled」（每条独立判断）
+
+## 0-a. 启用判断
 
 ```yaml
 enabled: false

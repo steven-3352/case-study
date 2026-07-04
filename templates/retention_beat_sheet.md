@@ -5,6 +5,18 @@
 > 依赖: `insights/core_message.md` + `insights/hook_benchmark.md` 已完成
 > **北极星：** `completion_rate` + `completion_3s` — 详规 `templates/design/completion_rate_north_star.md`
 
+## 0. 入口必读（开工前打勾）
+
+> memory 元规则：[[feedback_pre-node-checklist]] · 不过清单不得开工
+
+- [ ] **SYSTEM refs**：`docs/SYSTEM.md` §1.0 北极星 · §3.2 留存铁律 · §3.3 音画三件套 · `templates/design/completion_rate_north_star.md`
+- [ ] **template refs**：本节点已完成 `insights/core_message.md`（钩子句 · P0/P1）· `insights/hook_benchmark.md`（3s 停划设计输入）
+- [ ] **memory refs**：`feedback_contrast-hook-3s`（3s 反差钩子结构）· `feedback_anti-ai-visual`
+- [ ] **姊妹条 refs**：同周最近 1 条 `retention_beat_sheet.md` 实读（对齐节拍粒度，防止塌陷段位置雷同）
+- [ ] **能力清单 refs**：本节点无 pipeline 关联，可 skip
+
+**触发词打断**：「差不多按标准 chaos-punch-reveal 走」「每 5-8s 变化点随便写」（变化点必须是具体形式 ID，不是空口号）
+
 ## 完播北极星（编导 + 留存共填）
 
 | 指标 | 本条目标 | 上条 actual（若有） | 未达则改 |

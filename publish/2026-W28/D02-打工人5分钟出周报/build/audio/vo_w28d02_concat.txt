@@ -1,0 +1,8 @@
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s1.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s2.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s3.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s4.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s5.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s6.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s7.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D02-打工人5分钟出周报/build/audio/vo_w28d02_s8.mp3'
