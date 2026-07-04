@@ -1,0 +1,193 @@
+# W28D03 pipeline_config.yaml · golden reference · 对齐 build_w28d03_preview.py / gen_vo_w28d03.py
+# 用途：验证 run_pipeline.py 与原生 build_wXXdYY_preview.py 输出等价（W29+ 走本 orchestrator）
+# ⚠ 不覆盖 D03 已 render 的 mp4；如要再跑，先 mv build/ build_bak/
+content_id: W28D03
+
+paths:
+  root_rel: publish/2026-W28/D03-AI陪练英语口语
+
+ffmpeg:
+  crf: 20
+
+tts:
+  voice_id: male-qn-jingying-jingpin
+  base_speed: 0.95
+  segments:
+    # 0-3s 沉默钉子（env_audio 深夜环境音填充 · 不合成 VO）
+    - sid: s1_silence
+      target_start: 0.0
+      target_dur: 3.0
+      emotion: silence
+      speed: 0.0
+      text: "(0-3s 沉默钉子 · 由 env_audio 深夜环境音 + 咽口水 SFX 填充)"
+      tail_pad: 0.0
+    # 3-8s · 群体锚
+    - sid: s2
+      target_start: 3.0
+      target_dur: 5.0
+      emotion: neutral
+      speed: 0.95
+      text: "晚上十一点，你在对着墙念英语。九成中国人不敢开口——不是你的问题，是没人的问题。"
+      tail_pad: 0.15
+    # 8-15s · 打卡幻灭
+    - sid: s3
+      target_start: 8.0
+      target_dur: 7.0
+      emotion: sad
+      speed: 0.93
+      text: "多邻国打了七百天卡，见到老外还是——嘴张开一半，脑子空了。"
+      tail_pad: 0.20
+    # 15-20s · 反面正解
+    - sid: s4
+      target_start: 15.0
+      target_dur: 5.0
+      emotion: neutral
+      speed: 0.95
+      text: "你去问AI，怎么练口语——它给你十条建议，全是废话。"
+      tail_pad: 0.15
+    # 20-24s · 顿悟锚
+    - sid: s5
+      target_start: 20.0
+      target_dur: 4.0
+      emotion: neutral
+      speed: 0.92
+      text: "问题在这。"
+      tail_pad: 0.30
+    # 24-36s · role prompt 演示
+    - sid: s6
+      target_start: 24.0
+      target_dur: 12.0
+      emotion: neutral
+      speed: 0.95
+      text: "你不是要AI教你，你要AI陪你说。先给它一张角色卡：你是我雅思口语搭档，我Part 3，你只用英文提问，我说错也别打断。"
+      tail_pad: 0.30
+    # 36-42s · M7 真英文对话音（不合成 · 由屏录填充）
+    - sid: s7_gap
+      target_start: 36.0
+      target_dur: 6.0
+      emotion: gap
+      speed: 0.0
+      text: "(M7 段 · 36-42s · 真机豆包语音真对话音填充)"
+      tail_pad: 0.0
+    # 42-48s · 情感落点
+    - sid: s8
+      target_start: 42.0
+      target_dur: 6.0
+      emotion: neutral
+      speed: 0.95
+      text: "先敢说三十分钟，比敢背三百单词管用。"
+      tail_pad: 0.25
+    # 48-54s · 价值锚
+    - sid: s9
+      target_start: 48.0
+      target_dur: 6.0
+      emotion: neutral
+      speed: 0.92
+      text: "不是教你怎么问AI。是把我二十二点三十用的救命role prompt给你。"
+      tail_pad: 0.30
+    # 54-58s · CTA
+    - sid: s10
+      target_start: 54.0
+      target_dur: 4.0
+      emotion: neutral
+      speed: 0.98
+      text: "评论 面试、雅思、日常、旅游——我把对应role prompt给你。"
+      tail_pad: 0.60
+
+scenes:
+  - name: M1_night_desk
+    total_dur: 3.0
+    clips:
+      - src_type: broll
+        src_rel: assets/broll/raw/office_desk_dusk_evening_empty__26609644.mp4
+        duration: 2.0
+      - src_type: img
+        src_rel: build/assets_ui/01_lockscreen_2312.png
+        duration: 1.0
+  - name: M2_group_anchor
+    total_dur: 8.55
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/02_group_anchor_92.png
+        duration: 4.28
+      - src_type: img
+        src_rel: build/assets_ui/03_group_anchor_78.png
+        duration: 4.27
+  - name: M3_streak_disillusion
+    total_dur: 7.4
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/04_streak_700.png
+        duration: 3.7
+      - src_type: img
+        src_rel: build/assets_ui/05_facetime_awkward.png
+        duration: 3.7
+  - name: M4_wrong_prompt
+    total_dur: 5.05
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/06_ai_wrong_prompt.png
+        duration: 5.05
+  - name: M5_analogy_anchor
+    total_dur: 4.0
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/07_analogy_split.png
+        duration: 4.0
+  - name: M6_prompt_demo
+    total_dur: 12.3
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/08_role_prompt_full.png
+        duration: 12.3
+  - name: M7_real_dialogue
+    total_dur: 1.7
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/05_facetime_awkward.png
+        duration: 1.7
+  - name: M8_lying_side
+    total_dur: 6.0
+    clips:
+      - src_type: broll
+        src_rel: assets/broll/raw/smartphone_screen_notification_night__32365211.mp4
+        duration: 3.0
+      - src_type: img
+        src_rel: build/assets_ui/09_lying_side_2245.png
+        duration: 3.0
+  - name: M9_value_anchor
+    total_dur: 6.0
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/10_value_anchor.png
+        duration: 6.0
+  - name: M10_cta_options
+    total_dur: 5.9
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/11_cta_options.png
+        duration: 5.9
+
+platforms:
+  douyin:
+    subs_size: 42
+    margin_v: 200
+    max_cue_chars: 32
+    max_line_chars: 17
+  xhs:
+    subs_size: 50
+    margin_v: 220
+    max_cue_chars: 26
+    max_line_chars: 14
+  weixin:
+    subs_size: 42
+    margin_v: 200
+    max_cue_chars: 32
+    max_line_chars: 17
+
+overlays:
+  - text: "23:12 · 又一次决心学英语"
+    t_start: 2.0
+    t_end: 3.0
+    fontsize: 64
+    y_expr: h-500
