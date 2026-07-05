@@ -1,0 +1,729 @@
+# 声音方案 · audio_plan.yaml · W28D05 一周活干成一天
+# 工种: 声音设计师 · 视频形态必跑 · draft_self_generated · 2026-07-05
+#
+# 铁律 (本条属**密 VO 演示型 · 白天卧室→办公场景**)
+# → 默认无 BGM (feedback_dense-vo-no-bgm-default)
+# → 前 3s 无 VO 但有 sfx 钉子 (feedback_dense-vo-no-dead-air)
+# → 3-58s VO 覆盖 55s (55/58=94.8% ≥85% 硬门)
+# → sfx 4 类必覆盖 · 禁合成 sfx · 字幕烧片走 ffmpeg-full libass
+# → 外发命名 *_no_bgm.mp4 直接外发
+#
+# content_id: W28D05
+# 依赖: scripts/vA.md (推荐 A 出) · storyboard.yaml · design_language.md ·
+#       retention_beat_sheet.md · motion_storyboard.md (pass_single_run) ·
+#       form_strategy.md (pass_dual_review 92/85)
+
+# ─────────────────────────────────────
+# 0. 入口必读打勾 (fail-closed)
+# ─────────────────────────────────────
+
+pre_node_checklist:
+  system_refs:
+    - docs/SYSTEM.md §3.3 音画三件套
+    - docs/SYSTEM.md §2.4b 视频硬门 (配音必满足 · BGM 条件件 · 字幕烧片)
+  template_refs:
+    - templates/audio_plan.yaml (sfx 万能公式 + 四类事件音)
+  memory_refs:
+    - feedback_dense-vo-no-bgm-default
+    - feedback_dense-vo-no-dead-air
+    - feedback_sfx-layer-required
+    - feedback_no-synth-bgm
+    - feedback_pipeline-burn-subs
+    - feedback_pipeline-full-platform-output
+    - feedback_ai-voice-known-gap
+    - feedback_read-env-example-first
+    - tts-estimate-duration-pre-synth
+  sister_refs:
+    - publish/2026-W28/D04-AI帮想视频选题/audio_plan.yaml (voice_id + sfx 结构复用参考)
+    - publish/2026-W28/D03-*/audio_plan.yaml (VO segments 结构学习)
+  capability_refs:
+    - pipeline/tts/config.yaml (MiniMax speech-2.8-turbo)
+    - pipeline/tts/gen_speech.py
+    - pipeline/tts/estimate_duration.py (前置估算 · 硬门)
+    - /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg (libass · 字幕烧片专用)
+
+trigger_word_check:
+  - not_triggered: "voice 直接抄 D04 · D04 白天办公 vs D05 白天卧室→办公 voice_id 可复用 但 emotion 需重估"
+  - not_triggered: "BGM 用 ffmpeg aevalsrc 拼一下 (禁 · 合成 BGM 硬拦)"
+  - not_triggered: "sfx 音量随便设 · 4 类事件音有严格 dB 分级"
+  - not_triggered: "字幕字号统一 42pt (禁 · 三平台差 42/50/42 硬约束)"
+
+# ─────────────────────────────────────
+# 1. 配音 (Voice) · MiniMax speech-2.8-turbo
+# ─────────────────────────────────────
+
+voice:
+  engine: minimax
+  model: speech-2.8-turbo
+  voice_id: male-qn-jingying-jingpin
+  voice_id_rationale: |
+    D05 skin.tone_direction「同行说话 · 不打鸡血 · 不 sell 秘籍 · 反教程反印钞机」
+    → 沉稳男声匹配"做了 20 年互联网 · 一人公司"
+    male-qn-jingying-jingpin 稳、克制、非博主感
+    与 D04 相同 voice_id · emotion=neutral 保持一致 (同"同行"人设)
+    speed 0.96 (略比 D04 0.98 慢 · 因本条价值锚更重 · 需消化时间)
+  备选路线:
+    - 1_female_shaonv_luyin: 若首轮数据回填测出女性受众更强
+    - 2_user_real_recording: 首选 · 消除 AI 音色 gap · 若用户愿录
+  ai_voice_gap_note: |
+    memory feedback_ai-voice-known-gap 已识别 MiniMax 真诚青年破绽 4 类
+    D05 属演示型 (三层 UI + 表格占 40% 时长 · AI 音色 gap 影响面小)
+    触发切人声条件: 投后差评"AI 味太重" >15% 或 用户愿录样本
+
+  speed: 0.96
+  pitch: 0
+  emotion: neutral
+  script_path: publish/2026-W28/D05-AI帮我一周活干成一天/scripts/vA.md
+  script_backup_path: publish/2026-W28/D05-AI帮我一周活干成一天/scripts/vB.md
+  loudnorm:
+    target: -16
+    LRA: 11
+    TP: -1.5
+
+  # VO segments 逐段 (对齐 storyboard M1-M10 · 前 3s 无 VO)
+  # 铁律: 无 3s+ 死区 (M1/M2 由 ambient + 推送音 × 3 + tick + hit 填充 · 不算死区)
+  segments:
+    # 0-3s 无 VO (M1_chaos_sleep_push + M2_reveal_bigtext · 沉默钉子)
+
+    - m: M3
+      time_range: [3.0, 8.0]
+      text: "上周我也这样 · 凌晨 1 点还在改方案 · 早上继续跟单。这个项目做通之后 · 我一周的活干成了一天。"
+      char_count: 45
+      estimated_duration_s: 8.6   # 5.5 chars/sec × 0.96 → 8.5s · 略超 5s 段位 3.6s
+      overrun_action: |
+        方案 A (推荐): 精简→「上周我也这样 · 凌晨 1 点还在改方案。这项目做通后 · 一周活干成一天。」
+        (-14 字节约 2.7s · 保"凌晨 1 点/一周活干成一天"双关键锚)
+        方案 B: 延段位到 3-8.5s (M4 起点后推 0.5s)
+
+    - m: M4
+      time_range: [8.0, 15.0]
+      text: "一人公司都想装 AI · 大多数装了 5 个用不起来——每天切来切去 40 分钟没了。"
+      char_count: 38
+      estimated_duration_s: 7.2   # 略超 7s 段位 0.2s · 可容
+      overrun_action: 不改 (M4 段位 7s · 略超 0.2s 可容忍)
+
+    - m: M5
+      time_range: [15.0, 20.0]
+      text: "或者花 3 个月搭个完美 workflow · 每步都要人 review · 更累。"
+      char_count: 32
+      estimated_duration_s: 6.1   # 超 5s 段位 1.1s
+      overrun_action: |
+        若报警: 改→「或花 3 月搭完美 workflow · 每步都要 review · 更累。」
+        (-6 字节约 1.1s · 保"3 月/完美 workflow/更累"三锚)
+
+    - m: M6
+      time_range: [20.0, 25.0]
+      text: "或者只自动化打字这种 10 分钟的活 · 客户沟通 6 小时的活一个字没碰。"
+      char_count: 34
+      estimated_duration_s: 6.5   # 超 5s 段位 1.5s
+      overrun_action: |
+        若报警: 改→「或只自动化 10 分钟的打字 · 6 小时客户沟通一个字没碰。」
+        (-8 字节约 1.5s · 保"10 min/6h"双数字锚)
+
+    - m: M7
+      time_range: [25.0, 40.0]
+      text: "解法是顺序不能反——先自己做一遍 · SOP 记 Notion。再让 Claude 按 SOP 出草稿 · Cursor 存 prompt 模板。最后 n8n 把 SOP 串成 workflow · 系统跑。跳过 SOP 直接搭自动化 · 需求一改整套散架。"
+      char_count: 96
+      estimated_duration_s: 18.3   # 超 15s 段位 3.3s · **本片最高风险段**
+      overrun_action: |
+        方案 A (推荐 · 保 3 层顺序完整): 精简→
+        「顺序不能反——先自己做一遍 · SOP 记 Notion。再让 Claude 按 SOP 出草稿。最后 n8n 把 SOP 串成 workflow。跳过 SOP · 需求一改整套散架。」
+        (-24 字节约 3.5s · 保"3 层顺序"骨架 + "散架"反证 · 精简 Cursor 描述)
+        方案 B: 延段位到 25-42s · M8 段位相应压缩 42-49s
+
+    - m: M8
+      time_range: [40.0, 48.0]
+      text: "每天分配是——60% 塞给 AI · 20% 塞给自动化 · 20% 保留给你决策。是我的项目实测 · 请参考不套用。"
+      char_count: 47
+      estimated_duration_s: 8.9   # 略超 8s 段位 0.9s
+      overrun_action: |
+        若报警: 改→「每天分配——60% 塞 AI · 20% 自动化 · 20% 你决策。我的项目实测 · 参考不套用。」
+        (-11 字节约 2.1s · 保"60/20/20 + 参考不套用"双关键锚)
+
+    - m: M9
+      time_range: [48.0, 54.0]
+      text: "我不是教你搞钱 · 是给你看我怎么把自己解放的。AI 帮我解放 · 不是帮我印钞机。"
+      char_count: 37
+      estimated_duration_s: 7.0   # 超 6s 段位 1.0s
+      overrun_action: |
+        若报警: 改→「不是教你搞钱 · 是给你看我怎么把自己解放。AI 帮我解放 · 不是印钞机。」
+        (-6 字节约 1.1s · 保"解放/不是印钞机"双锚)
+
+    - m: M10
+      time_range: [54.0, 58.0]
+      text: "私信『我在做什么项目 · 卡在哪』——我给你可自动化的第 1 步。"
+      char_count: 28
+      estimated_duration_s: 5.3   # 超 4s 段位 1.3s
+      overrun_action: |
+        方案 A (推荐 · 保 CTA 完整): 改→「私信『项目+卡点』——我给你可自动化的第 1 步。」
+        (-10 字节约 1.9s · 保"项目+卡点/可自动化的第 1 步"双锚)
+        方案 B: 延段位到 54-59s (视频总时长 59s 抖音上限内)
+
+  # TTS 时长前置估算硬门 (memory: tts-estimate-duration-pre-synth)
+  duration_pre_check:
+    required: true
+    tool: pipeline/tts/estimate_duration.py
+    run_command: python pipeline/tts/estimate_duration.py --config publish/2026-W28/D05-AI帮我一周活干成一天/audio_plan.yaml --output publish/2026-W28/D05-AI帮我一周活干成一天/build/tts_duration_estimate.json
+    warning_threshold_pct: 10   # >10% 溢出预警
+    fail_threshold_pct: 30      # >30% 溢出 fail-closed
+    action_on_fail: |
+      按 overrun_action 改稿或改 storyboard 段位 · 改完重跑 estimate_duration.py 直到全段过关
+      **本条已识别高溢出风险段**:
+        - M7 (15s / 96 chars / 估 18.3s / 溢出 22%) → 方案 A 精简 -24 字节
+        - M3 (5s / 45 chars / 估 8.6s / 溢出 72%) → 方案 A 精简 -14 字节 **必需处理**
+        - M5/M6/M9/M10 均 20-33% 溢出 · 需处理
+
+# ─────────────────────────────────────
+# 2. BGM · 默认无
+# ─────────────────────────────────────
+
+bgm:
+  enabled: false
+  mood: none
+  reason: |
+    D05 属**密 VO 演示型 + 白天卧室→办公场景**:
+    - VO 覆盖率 = 55s / 58s = 94.8% ≥ 85% 硬门
+    - M1 睡姿 ambient 已有暖光晨光真实痕迹 (远处鸟鸣 + 室内空气声) · BGM 会稀释
+    - M7 三层堆叠 UI (25-40s) 需权威静默感 · 收藏动机第一位 · BGM 会稀释
+    - M8 60/20/20 表格 (40-48s) 收藏动机第二位 · 同 · BGM 会稀释
+    - M9 反印钞机价值锚 (48-54s) 需情绪落点 · BGM 会稀释
+    - 参考 WaytoAGI / 七七 / 浙大猫学长视频均无 BGM · 相同"演示型 + 静态大字"路径
+    - 外发命名 *_no_bgm.mp4 (直接外发 · 非"预览件")
+
+  future_upgrade_trigger:
+    - metric: M3 段位 (3-8s) 停留率 <45% (共情段塌陷)
+      action: 评估 M3 加极轻 lo-fi ambient (volume ≤0.05 · 无鼓点 · 3-8s only)
+      restriction: 仍不加 M1/M2 段位 BGM (沉默钉子必保) · 用户提供 mp3 或剪映自带库 · 禁合成
+    - metric: 整片 completion_rate <30% 且拆解显示 M9-M10 塌陷
+      action: 评估 M9-M10 加极低压钢琴 ambient (volume ≤0.06 · 承接反印钞机情绪落点)
+
+  global_if_enabled:
+    max_volume: 0.08
+    duck_on_vo: true
+    forbidden:
+      - ffmpeg aevalsrc/sine/棕噪合成的假 BGM
+      - 版权音乐 · 用剪映自带库或免版权 lo-fi
+      - EDM / 高亢营销 BGM (会拉起"AI 一键印钞"话术观感 · 与 M9 反印钞机冲突)
+      - 前 3s BGM (会破坏推送 3 声 chaos punch)
+
+# ─────────────────────────────────────
+# 3. sfx 音效层 (视频形态硬门 · BGM off 但 sfx 不 off)
+# ─────────────────────────────────────
+
+sfx:
+  enabled: true
+  formula_check:
+    ambient_bed: true
+    riser_before_hit: false   # 演示型不用 riser
+    hit_on_key_moment: true
+  formula_note: |
+    寒林招 3 (ambient + riser + hit) 本条改为「ambient + whoosh + hit + tick」
+    参考 WaytoAGI / Vibe Motion 视频均无 riser
+    D05 特色: 手机推送 × 3 (M1) + 三层 whoosh × 3 (M7) + 60/20/20 hit × 3 (M8) 三段拍点密集
+
+  gain_ref_db: -12
+  gain_range_db: [-8, -22]
+
+  # 全时间戳级具体化事件表 (对齐 storyboard M1-M10)
+  events:
+    # M1 (0-1.6s · chaos + punch · 睡姿 + 手机推送 3 声)
+    - sid: sfx01
+      kind: ambient
+      t_start: 0.0
+      duration: 58.0
+      gain_db: -24
+      src_rel: assets/sfx/ambient/morning_bedroom_room_tone.wav
+      src_backup: assets/sfx/ambient/quiet_room_tone.wav
+      note: "全片暖光晨光 ambient 铺底 · 远处鸟鸣 + 室内空气声 · loop 若素材 <58s"
+      fetch_hint: "Freesound.org `morning bedroom ambient birds distant` CC0"
+
+    - sid: sfx02
+      kind: hit
+      t_start: 1.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/ios_notification_soft.wav
+      note: "M1 手机推送 1 · iOS 原生 notification tone"
+      fetch_hint: "Freesound.org `iphone notification sound soft` CC0"
+
+    - sid: sfx03
+      kind: hit
+      t_start: 1.2
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/ios_notification_soft.wav
+      note: "M1 手机推送 2"
+
+    - sid: sfx04
+      kind: hit
+      t_start: 1.4
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/ios_notification_soft.wav
+      note: "M1 手机推送 3"
+
+    # M2 (1.6-3s · reveal · 大字入)
+    - sid: sfx05
+      kind: hit
+      t_start: 2.4
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M2 display 90pt 大字入拍点「我睡着的时候·系统已经跑完了昨晚的活」"
+      fetch_hint: "Freesound.org `impact soft boom cinematic` CC0"
+
+    # M3 (3-8s · 群体锚 · 40h→8h 数据锚)
+    - sid: sfx06
+      kind: hit
+      t_start: 3.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_hard_cut.wav
+      note: "M3 硬切进分屏拍点 (M2 睡姿 → M3 凌晨/晨光对比)"
+      fetch_hint: "Freesound.org `impact hard cut stinger` CC0"
+
+    - sid: sfx07
+      kind: hit
+      t_start: 3.5
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M3 headline 96pt 血红数字大字入「40h/周 → 8h/周」拍点"
+
+    # M4 (8-15s · 烂做法 ① · 5 AI 图标 stagger)
+    - sid: sfx08
+      kind: tick
+      t_start: 8.5
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M4 图标 1 fade-in (ChatGPT)"
+      fetch_hint: "Freesound.org `subtle ui tap soft` CC0"
+
+    - sid: sfx09
+      kind: tick
+      t_start: 9.2
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M4 图标 2 (Claude)"
+
+    - sid: sfx10
+      kind: tick
+      t_start: 9.9
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M4 图标 3 (Cursor)"
+
+    - sid: sfx11
+      kind: tick
+      t_start: 10.6
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M4 图标 4 (Notion)"
+
+    - sid: sfx12
+      kind: tick
+      t_start: 11.3
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M4 图标 5 (n8n)"
+
+    - sid: sfx13
+      kind: hit
+      t_start: 12.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M4 headline 72pt「切来切去 40 min 没了」大字入 · 少数派原话落地"
+
+    # M5 (15-20s · 烂做法 ② · workflow 半成品)
+    - sid: sfx14
+      kind: hit
+      t_start: 17.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M5 headline 66pt 血红字入「3 月搭完美流 → 更累」"
+
+    # M6 (20-25s · 烂做法 ③ · 打字 vs 客户沟通)
+    - sid: sfx15
+      kind: hit
+      t_start: 20.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_hard_cut.wav
+      note: "M6 分屏 slide 进拍点"
+
+    - sid: sfx16
+      kind: hit
+      t_start: 22.0
+      duration: 0.3
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M6 headline 60pt 血红字入「自动化最容易 → 省 10 min 累 6h」"
+
+    # M7 (25-40s · 3 层堆叠 UI · 本片最重镜 · 收藏动机第一位)
+    - sid: sfx17
+      kind: whoosh
+      t_start: 25.0
+      duration: 0.4
+      gain_db: -10
+      src_rel: assets/sfx/whoosh/soft_swish_transition.wav
+      note: "M7 第 1 层 Notion 卡 slide-down whoosh"
+      fetch_hint: "Freesound.org `whoosh transition swish soft` CC0"
+
+    - sid: sfx18
+      kind: whoosh
+      t_start: 30.0
+      duration: 0.4
+      gain_db: -10
+      src_rel: assets/sfx/whoosh/soft_swish_transition.wav
+      note: "M7 第 2 层 Cursor 卡 slide-down whoosh"
+
+    - sid: sfx19
+      kind: whoosh
+      t_start: 35.0
+      duration: 0.4
+      gain_db: -10
+      src_rel: assets/sfx/whoosh/soft_swish_transition.wav
+      note: "M7 第 3 层 n8n workflow slide-down whoosh"
+
+    - sid: sfx20
+      kind: hit
+      t_start: 39.0
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M7「散架」血红大字 pop-in 拍点 · 反证句落地"
+
+    # M8 (40-48s · 60/20/20 表格 · 收藏动机第二位)
+    - sid: sfx21
+      kind: hit
+      t_start: 40.5
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M8 第 1 列 60% AI 血红数字 pop"
+
+    - sid: sfx22
+      kind: hit
+      t_start: 42.5
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M8 第 2 列 20% 自动化数字 pop"
+
+    - sid: sfx23
+      kind: hit
+      t_start: 44.5
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M8 第 3 列 20% 人做数字 pop"
+
+    - sid: sfx24
+      kind: tick
+      t_start: 41.5
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M8 第 1 列底注 fade-in 拍点"
+
+    - sid: sfx25
+      kind: tick
+      t_start: 43.5
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M8 第 2 列底注"
+
+    - sid: sfx26
+      kind: tick
+      t_start: 45.5
+      duration: 0.15
+      gain_db: -12
+      src_rel: assets/sfx/tick/subtle_tap_ui.wav
+      note: "M8 第 3 列底注 (含参考不套用小字)"
+
+    # M9 (48-54s · 反印钞机价值锚)
+    - sid: sfx27
+      kind: hit
+      t_start: 49.0
+      duration: 0.5
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_deep.wav
+      note: "M9 display 100pt 双行「AI 帮我解放 / 不是帮我印钞机」深长 hit 落地"
+      fetch_hint: "Freesound.org `impact deep resonance cinematic` CC0"
+
+    # M10 (54-58s · CTA)
+    - sid: sfx28
+      kind: hit
+      t_start: 54.5
+      duration: 0.4
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M10 CTA 88pt 血红字入拍点"
+
+    - sid: sfx29
+      kind: hit
+      t_start: 57.5
+      duration: 0.5
+      gain_db: -8
+      src_rel: assets/sfx/hit/impact_boom_soft.wav
+      note: "M10 全片收尾拍点 · fade-out 500ms"
+
+  # sfx 统计 (QC 硬门校验用)
+  stats:
+    ambient_count: 1      # sfx01 全片
+    tick_count: 8         # sfx08-12 (M4 图标 × 5) + sfx24-26 (M8 底注 × 3)
+    whoosh_count: 3       # sfx17-19 (M7 三层 × 3)
+    hit_count: 17         # sfx02-04 (M1 推送 × 3) + sfx05 (M2 大字) + sfx06-07 (M3 × 2) + sfx13 (M4) + sfx14 (M5) + sfx15-16 (M6 × 2) + sfx20 (M7 散架) + sfx21-23 (M8 数字 × 3) + sfx27 (M9) + sfx28-29 (M10 × 2)
+    total_events: 29
+
+  # VO ducking 规则
+  vo_ducking:
+    enabled: true
+    ducking_amount_db: -6
+    ducking_attack_ms: 100
+    ducking_release_ms: 300
+    scope: [ambient, tick, whoosh]  # hit 不 duck
+    tool: pipeline/lib/sfx.py mix_sfx_with_vo · 若未实装走 ffmpeg sidechaincompress
+
+# ─────────────────────────────────────
+# 4. 环境音 (并入 sfx01 全片 ambient)
+# ─────────────────────────────────────
+
+env_audio_note: |
+  D05 全片 ambient 层已并入 sfx01 (暖光晨光 ambient -24dB)
+  M1/M2 睡姿场景由 ambient + 手机推送 × 3 撑
+  M3-M10 白天转场后 ambient 延续 · 不再单列 env_audio
+
+# ─────────────────────────────────────
+# 5. 字幕 · pipeline 自动烧
+# ─────────────────────────────────────
+
+subtitles:
+  srt_path: publish/2026-W28/D05-AI帮我一周活干成一天/subtitles/vA.srt
+  ass_path: publish/2026-W28/D05-AI帮我一周活干成一天/subtitles/vA.ass
+  srt_backup_path: publish/2026-W28/D05-AI帮我一周活干成一天/subtitles/vB.srt
+  burn: true
+  burn_engine: /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg
+  burn_engine_reason: |
+    系统 /usr/local/bin/ffmpeg 无 libass 编译 · 字幕烧片会 fail
+    /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg 是 brew 装的 full 版 · 含 libass
+
+  platform_font_sizes:
+    douyin: 42pt
+    xhs_轮播: 50pt          # xhs 轮播大字更大
+    wechat_video: 42pt      # 本条不做视频号 · 保留 fallback
+
+  # 大字分类 (feedback_pipeline-full-platform-output)
+  static_vs_drawtext_split:
+    static_png_ui:
+      - M1 iOS 通知条 3 条 (推送内容 · 屏内原生 UI)
+      - M4 5 AI 图标网格 (SVG 图标 · 无 drawtext)
+      - M5 n8n workflow 半成品 UI (mock · 每节点红标 SVG)
+      - M6 打字 vs 微信客户沟通分屏 mock
+      - M7 三层堆叠 UI (Notion + Cursor + n8n 卡 · SVG 静态)
+      - M8 60/20/20 表格 (SVG 表格结构)
+    drawtext_fast_switch:
+      - M2 display 90pt 双行「我睡着的时候 / 系统已经跑完了昨晚的活」
+      - M3 headline 96pt 血红「40h/周 → 8h/周」+ caption 24pt 副标
+      - M4 headline 72pt 白字「切来切去 40 min 没了」+ caption 24pt「少数派原话」
+      - M5 headline 66pt 血红「② 3 月搭完美流 → 更累」
+      - M6 headline 60pt 血红「③ 自动化最容易 → 省 10 min 累 6h」
+      - M7 每层 50pt 白字标签 (第 1/2/3 层 · Notion/Cursor/n8n) + "散架"血红 pop
+      - M8 数字 96pt (60/20/20) + 底注 42pt (动作 3 行) · SVG 表格结构叠 drawtext 数字
+      - M9 display 100pt 双行「AI 帮我解放 / 不是帮我印钞机」
+      - M10 headline 88pt 血红 CTA「私信『项目+卡点』→ 可自动化的第 1 步」
+
+  style: |
+    主画面叠字规则 (对齐 storyboard M1-M10):
+      M1 (0-1.6s): 无 drawtext (iOS 推送本身即视觉字幕)
+      M2 (1.6-3s): display 90pt 白字双行 · 思源黑体 Heavy · 黑蒙层上无描边
+      M3 (3-8s): headline 96pt 血红居中 + caption 24pt 副标
+      M4 (8-15s): headline 72pt 白字 + caption 24pt 灰字「少数派原话」
+      M5 (15-20s): headline 66pt 血红屏底
+      M6 (20-25s): headline 60pt 血红屏底
+      M7 (25-40s): 每层 50pt 白字侧标 + 39s "散架"血红 pop + caption 24pt 底部「可长按暂停截屏」
+      M8 (40-48s): 数字 96pt + 底注 42pt · 血红 (60%) + 白字 (20%)
+      M9 (48-54s): display 100pt 白字双行居中 · fade-in 500ms
+      M10 (54-58s): headline 88pt 血红 · 上下浮动 3px
+    前 1.6s: 无字幕 (M1 iOS 通知条自带) · 1.9s M2 大字入
+    字幕分类: static PNG (UI 内容 + SVG 表格/badge) vs drawtext (叠层大字快切)
+
+  hook_first_3s: false           # M1 iOS 通知条自带内容 · M2 大字入 1.9s
+  hook_at: 1.9                   # M2 display 90pt 双行入
+  vo_align: true                 # M3-M10 字幕与 VO 逐句对齐
+
+# ─────────────────────────────────────
+# 6. 输出规格 (双平台 · *_no_bgm.mp4 直接外发)
+# ─────────────────────────────────────
+
+outputs:
+  video_raw: publish/2026-W28/D05-AI帮我一周活干成一天/build/douyin_raw.mp4
+  video_publish_douyin: publish/2026-W28/D05-AI帮我一周活干成一天/douyin/video_no_bgm.mp4  # 抖音 42pt
+  xhs_carousel_pages: publish/2026-W28/D05-AI帮我一周活干成一天/xhs/pages/P1-P7.png  # 7 张轮播 (form_strategy 判定 xhs 走图文)
+  vo_mp3: publish/2026-W28/D05-AI帮我一周活干成一天/build/vo_vA.mp3
+  vo_mp3_backup: publish/2026-W28/D05-AI帮我一周活干成一天/build/vo_vB.mp3
+  tts_duration_estimate: publish/2026-W28/D05-AI帮我一周活干成一天/build/tts_duration_estimate.json
+  sfx_mix_log: publish/2026-W28/D05-AI帮我一周活干成一天/build/sfx_mix.log
+
+# ─────────────────────────────────────
+# 7. 素材准备清单
+# ─────────────────────────────────────
+
+assets_prep:
+  need_from_user:
+    - name: 睡姿俯拍 B-roll 或 iPhone 内部拍
+      note: |
+        M1/M2 睡姿俯拍 3800-4200K 暖光晨光 · 时长 3s
+        Pexels 关键词候选: `morning bed sleeping overhead` `waking up looking at phone`
+        目标: 俯拍 + 主角一只眼睁开 + 手机屏可放大特写
+    - name: Pexels 凌晨 1 点桌面 B-roll
+      note: M3 左分屏 · 关键词 `night desk laptop lonely blue light`
+    - name: Pexels 08:00 起床看手机 B-roll
+      note: M3 右分屏 · 关键词 `morning wake up phone bed`
+
+  sfx_can_auto_fetch:
+    - name: morning_bedroom_room_tone
+      spec: 暖光晨光 ambient · 3-8s 可 loop · -24dB
+      how: Freesound.org `morning bedroom ambient birds distant` CC0
+      backup: 剪映自带 SFX 库搜索`卧室氛围音`
+
+    - name: ios_notification_soft
+      spec: iOS 原生 notification tone · 0.3s · -8dB
+      how: Freesound.org `iphone notification sound soft` CC0
+
+    - name: impact_boom_soft
+      spec: hit 拍点 · 0.3-0.4s · -8dB
+      how: Freesound.org `impact soft boom cinematic` CC0
+
+    - name: impact_hard_cut
+      spec: hit 硬切 · 0.3s · -8dB
+      how: Freesound.org `impact hard cut stinger` CC0
+
+    - name: impact_boom_deep
+      spec: M9 深长 hit · 0.5s · -8dB
+      how: Freesound.org `impact deep resonance cinematic` CC0
+
+    - name: soft_swish_transition
+      spec: whoosh 段间过渡 · 0.4s · -10dB
+      how: Freesound.org `whoosh transition swish soft` CC0
+      backup: 剪映自带 SFX 库`转场音效`
+
+    - name: subtle_tap_ui
+      spec: tick 轻拍点 · 0.15s · -12dB
+      how: Freesound.org `subtle ui tap soft` CC0
+
+  bgm_prep: null  # 本条默认无 BGM
+
+# ─────────────────────────────────────
+# 8. QC 清单
+# ─────────────────────────────────────
+
+qc:
+  vo:
+    - VO 清晰可辨 (人工听 30s · 尤其 M7 25-40s 三层演示 · M8 40-48s 60/20/20 表格)
+    - VO 覆盖 ≥85% (3-58s 段位 55s / 58s = 94.8%) ✅
+    - 前 3s (M1/M2) 无 VO 是设计 · 由 ambient + iOS 推送 × 3 + hit 撑满 · 非死区
+    - 无 3s+ 死区
+    - loudnorm 目标 -16 dB
+    - "**TTS 时长前置估算硬门**: estimate_duration.py 报告全段 ≤10% 溢出 · M3/M7 高溢出必处理"
+    - voice_id male-qn-jingying-jingpin · emotion=neutral · speed=0.96
+
+  bgm:
+    - BGM off · 外发文件名带 `_no_bgm` 后缀 · 非"预览件"
+    - reason 记明依据 (密 VO 演示型 + 白天卧室→办公场景)
+    - future_upgrade_trigger 已声明
+
+  sfx:
+    - sfx.enabled=true · formula_check 三项至少 2 项为 true (ambient_bed + hit_on_key_moment)
+    - sfx 覆盖: 每场景切换均有 whoosh 或 hit · whoosh × 3 + hit × 17 + tick × 8 + ambient × 1 达标
+    - sfx 音量: 所有 events[].gain_db ≤ -8 · 全部在 [-8, -22] 内
+    - sfx 合规: 所有 src_rel 走 assets/sfx/* 真素材库 · 禁 aevalsrc/sine 合成
+    - VO ducking: VO 起时 ambient + tick + whoosh 降 6dB · hit 不 duck
+
+  subtitles:
+    - 字幕由 pipeline 生 SRT/ASS + ffmpeg-full libass 烧进 mp4
+    - 使用 /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg
+    - 双平台字号: 抖音 42pt · 小红书轮播 50pt (视频号本条不做)
+    - static PNG vs drawtext 分类明确
+    - M1 前 1.6s 无 drawtext 是设计 (iOS 通知条自带)
+    - M2 大字入点 1.9s 与 hit sfx 2.4s (M2 显示定格 400ms 后 hit 打点强化)
+    - 字幕与 VO 逐句对齐 (vo_align=true)
+
+  outputs:
+    - 外发文件带 `_no_bgm` 后缀 (抖音 1 个 + xhs 7 张轮播)
+    - 未使用真实竞品 logo (Notion/Cursor/n8n UI 原生色允许 · logo 禁)
+    - 未使用合成 BGM/sfx
+    - tts_duration_estimate.json 已生成 · 无 >30% 溢出段
+    - sfx_mix.log 已生成 · 无 gain_db 越界事件
+
+# ─────────────────────────────────────
+# 9. fail-closed 门禁
+# ─────────────────────────────────────
+
+gate_check_status:
+  content_gate: pass_dual_review          # 编剧+ vB 92/91 PASS
+  form_gate: pass_dual_review             # form_strategy 92/85 PASS
+  motion_storyboard_gate: pass_single_run # 动画导演单跑 pass (2026-07-04 起)
+  storyboard_gate: pass_self_generated    # storyboard.yaml 已产出
+  audio_gate: pending                     # 本文件 · 声音设计师单跑
+  tts_duration_gate: pending              # 待运行 estimate_duration.py (硬门)
+  gate_check_palette: pending             # 待 render 后跑
+  pre_publish_forecast: pending           # 待 render 后跑
+  decision: proceed_to_pipeline_after_tts_estimate
+  next_step: |
+    1. 先跑 python pipeline/tts/estimate_duration.py 校验 M3/M7 高溢出 (硬门)
+    2. 若报警按 overrun_action 改稿 · 重跑直到全段过关
+    3. 进入 pipeline 出片 (Task #102 · config-driven · pipeline_config.yaml + run_pipeline.py --step all)
+    4. render 后跑 gate_check_palette + pre_publish_forecast · fail-closed 决定是否可外发
+
+# ─────────────────────────────────────
+# 10. Audience-First 自查
+# ─────────────────────────────────────
+
+audience_first_check:
+  - question: 观众会不会共鸣?
+    answer: |
+      ✅ 前 3s ambient + iOS 推送 3 声 (M1) + 大字 reveal (M2)
+      = 一人公司群体"我睡着系统在跑?"1s 认领
+      · 3-58s 沉稳同事男声 VO 全程覆盖 · speed 0.96 匹配"反教程反印钞机"
+      · sfx 29 事件层层撑节奏 (whoosh 3 + hit 17 + tick 8 + ambient 1)
+      · 手机推送 3 声 (M1) 是本片认领点独有 · D04 (摄像头空场) 完全不同
+  - question: 画面观赏性够吗?
+    answer: |
+      ✅ 无 BGM 让 iOS 推送 × 3 + 三层滑入 whoosh × 3 + 60/20/20 数字 hit × 3 更清晰
+      · 音频 29 事件与 storyboard 10 段视觉切换点一一对齐 (每 2-4s 有拍点)
+      · VO ducking 保 VO 优先清晰
+      · 双平台字号 42/50 保阅读体验
+  - question: 内容真材实料吗?
+    answer: |
+      ✅ VO 覆盖 94.8% · 无死区 · loudnorm -16 dB · TTS 前置估算硬门拦 M3/M7 高溢出
+      · sfx 29 事件全走真素材库 (Freesound CC0)
+      · 字幕 pipeline 烧片 (gen_subs + ffmpeg-full libass)
+      · 收藏动机第一位 M7 (三层堆叠 UI 可长按截屏) + 第二位 M8 (60/20/20 表格) 双动机 sfx 撑打点
+      · 呼应 xhs P4-P6 三页收藏动机 (三层顺序 / 60/20/20 / Project-001 结构)
+
+# ─────────────────────────────────────
+# 11. 变更历史
+# ─────────────────────────────────────
+
+changelog:
+  - date: 2026-07-05
+    version: v1.0
+    change: |
+      新建 · draft_self_generated
+      · voice_id 复用 D04 male-qn-jingying-jingpin (同人设"20 年互联网同行") · speed 0.98→0.96 (本条价值锚更重)
+      · BGM off (密 VO 演示型 + 白天卧室→办公场景 · VO 覆盖 94.8%)
+      · sfx 29 事件全时间戳级具体化 (对齐 storyboard M1-M10) · whoosh × 3 · hit × 17 · tick × 8 · ambient × 1
+      · TTS 时长前置估算硬门声明 (M3/M7 高溢出已识别 · overrun_action 9 段全备)
+      · 字幕分类 static PNG (UI/表格) vs drawtext 快切 (叠层大字)
+      · 双平台字号 42 (抖音) / 50 (xhs 轮播) · burn_engine 走 ffmpeg-full libass
+      · 素材清单 7 项 sfx CC0 拉取指引 + 3 项 broll 拉取指引
+      · fail-closed 门禁明示 4 步顺序 (估算 → 改稿 → render → gate_check)

@@ -1,0 +1,74 @@
+role: 形式策略官
+merged_from: [平台原生策划, 纪录片导演, 动效分镜师]
+target_file: design/form_strategy.md
+date: 2026-07-05
+protocol: independent_new_session_review
+rounds:
+  - round: 1
+    reviewer_A:
+      overall: 92
+      dimensions:
+        结果导向: 19
+        洞察消费: 18
+        与上条差异: 19
+        可外发: 18
+        铁律合规: 18
+      hard_gates:
+        H1_data_lever: pass
+        H2_fail_check: pass
+        H3_single_scene_max: pass
+        H4_no_gsap: pass
+        H5_bgm_off_match: pass
+        H6_no_d03_reuse: pass
+      verdict: pass
+      strengths:
+        - 数据杠杆按镜逐项映射到 completion_3s/completion_rate/收藏率/评论率/私信率
+        - chaos 首镜屏录反差是 D03 没有的差异化视觉资产 · H6 显式区分
+        - 场景 A-G 明确"禁 GSAP · 静态 SVG + CSS transition"三处静态兜底一致 · H4 通过
+        - Fail 检查 12 行覆盖 chaos 真素材/真机屏录/单场景 26%/BGM off/单位显式/4 条原话/不打 logo · H2 闭环
+        - 单一形式最长 M7 26% < 40% · 6 种形式 ID · H3 通过
+      must_fix:
+        - M1 表述与 retention 首秒钉子对齐不足 · 建议 §4-A 补 0-1s 音画配置（无 VO/无字幕/环境音钉子 + tick 0.3s）
+        - vA 主推路径 4 条原话进片仅 M4 1 条转述 · 建议 vA 走时 M4/M9 至少植入 2 条 topic_brief 原话直引
+      nice_to_have:
+        - §4-E prompt 演示 15s 建议标注 badge 停 3-4s 秒数总和 ≤14s
+        - M8 表格补字号下限（表头 42pt · 单元格 32pt）
+    reviewer_B:
+      overall: 92
+      dimensions:
+        结果导向: 19
+        洞察消费: 17
+        与上条差异: 19
+        可外发: 19
+        铁律合规: 18
+      hard_gates:
+        H1_data_lever: pass
+        H2_fail_check: pass
+        H3_single_scene_max: pass
+        H4_no_gsap: pass
+        H5_bgm_off_match: pass
+        H6_no_d03_reuse: pass
+      verdict: pass
+      strengths:
+        - 首镜 chaos-punch-reveal 屏录三拍观众 1s 认领感强
+        - M7 4 段 badge + 底部 caption「可长按暂停截屏抄」明示收藏动机 · M8 5 判据 + 静态打勾兑现「10 里 8」
+        - 每镜数据杠杆声明齐 · Fail 检查含承诺-兑现映射
+        - 与 D03 显式区分（白天 3800-4200K vs 深夜 · 96pt 叠层 vs 160pt 全屏）
+        - 场景 A/E 明确禁 GSAP + 禁 Dracula + 禁竞品 logo + 分屏马赛克
+      must_fix: []
+      nice_to_have:
+        - M4 vA 主推 4 条原话进片兜底（同 A 提议 · 建议 Fail 表补注 vA 走则 M4/M9 补 1 条直引，否则强制切 vB v2）
+        - M5 分屏建议加时间戳/账号类型 caption（如「家居 · 2026-06」），避免观众质疑对照口径
+        - M7 badge 4 段停 3-4s × 4 = 12-16s 与 15s 段挤压核算给声音设计师
+        - M10「5 条选题」承诺兑现路径建议加"私信 SLA 24h 内回"避免评论区反噬
+    aggregate:
+      avg: 92
+      verdict: pass
+      hard_gates_all_pass: true
+      second_round_triggered: false
+      patches_applied_in_place:
+        - §4-A 新增"0-1s 音画同频配置"段（无 VO/无字幕/环境音 + tick 0.3s · 与 retention 首秒钉子对齐）
+        - §5 Fail 表新增"vA 主推兜底约束"（M4/M9 补 1 条 topic_brief 原话直引 · 否则强制切 vB v2）
+        - §5 Fail 表新增"M8 表格可读性"（表头 42pt · 单元格 32pt）
+        - §5 Fail 表新增"M10 CTA 承诺兑现"（私信 SLA 24h · 走本人 IP 不推群/星球）
+      unlock: motion_storyboard.md（步 9 · 动画导演单跑不双评）

@@ -1,0 +1,16 @@
+role: 编剧+
+target: vA (主推)
+reviewer: B
+source: independent_new_session
+round_1:
+  scores: {共鸣: 93, 差异: 91, 可信: 90, 动机: 88, 连贯: 92, 取舍: 89}
+  total: 90.4
+  status: pass
+  short_board: 收藏动机 88（缺可截图对照清单）
+round_2:
+  applied_fixes: M6 补❌→✅对照句 · M1大字保守化 · 主体统一
+  scores: {共鸣: 93, 差异: 91, 可信: 90, 动机: 92, 连贯: 92, 取舍: 89}
+  total: 91.35
+  status: pass
+  note: 建议成片收尾做"三改一屏清单卡"→ 收藏推向94+（非阻塞，已并入设计）
+verdict: pass_both_rounds

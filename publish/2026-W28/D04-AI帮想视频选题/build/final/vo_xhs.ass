@@ -1,0 +1,32 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: VO,PingFang SC,50,&H00f0f5f5,&H00ffffff,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,3,0,2,60,60,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.67,VO,,0,0,0,,上周我也这样。9 
+Dialogue: 0,0:00:01.67,0:00:05.75,VO,,0,0,0,,成中腰部创作者遇到选题问题—\N—不是你的问题。
+Dialogue: 0,0:00:05.75,0:00:10.06,VO,,0,0,0,,翻了半小时竞品，存 8 \N张截图，一条不想拍。同行 
+Dialogue: 0,0:00:10.06,0:00:13.33,VO,,0,0,0,,40w \N赞我也拍过——我只有 \N800。
+Dialogue: 0,0:00:13.33,0:00:16.90,VO,,0,0,0,,我以前也这么干：让 AI \N帮我想 10 个 → 
+Dialogue: 0,0:00:16.90,0:00:19.72,VO,,0,0,0,,都是「如何做好 XX」。\N加平台词 → 
+Dialogue: 0,0:00:19.72,0:00:22.69,VO,,0,0,0,,同行都在拍的模板。让 AI \N抄爆款 → 
+Dialogue: 0,0:00:22.69,0:00:24.03,VO,,0,0,0,,换个数字的同质品。
+Dialogue: 0,0:00:24.03,0:00:27.78,VO,,0,0,0,,换个打开方式：打开 AI，\N粘上 4 段 
+Dialogue: 0,0:00:27.78,0:00:31.91,VO,,0,0,0,,prompt——身份卡、\N账号定位、粉丝痛点、
+Dialogue: 0,0:00:31.91,0:00:36.59,VO,,0,0,0,,输出约束。同一个 AI，\N10 条候选，标题、场景、
+Dialogue: 0,0:00:36.59,0:00:39.03,VO,,0,0,0,,钩子、成本、差异化都齐了。
+Dialogue: 0,0:00:39.03,0:00:43.70,VO,,0,0,0,,10 条里 8 \N条能用——5 \N判据筛：具体场景、前 
+Dialogue: 0,0:00:43.70,0:00:48.01,VO,,0,0,0,,3s 钩子、差异化、可拍性、\N粉丝相关。通过 4 
+Dialogue: 0,0:00:48.01,0:00:48.73,VO,,0,0,0,,条能拍。
+Dialogue: 0,0:00:48.73,0:00:51.26,VO,,0,0,0,,不是教你用 AI —— \N是把我上周 30 
+Dialogue: 0,0:00:51.26,0:00:54.15,VO,,0,0,0,,分钟搞定下周 5 条的那 \N4 段 prompt，
+Dialogue: 0,0:00:54.15,0:00:54.75,VO,,0,0,0,,直接给你。
+Dialogue: 0,0:00:54.75,0:00:59.45,VO,,0,0,0,,私信「账号方向」——我给 \N5 条选题。不推服务。

@@ -1,0 +1,16 @@
+role: 形式策略官
+reviewer: B
+source: independent_new_session
+round_1:
+  scores: {前3s停划: 88, 形式信息匹配: 93, 收藏杠杆: 90, 节奏完播: 85, 视觉新鲜: 91, 落地可执行: 87}
+  total: 88
+  status: fail
+  must_fix: M5-M8 四连分屏同质 · M3 扫描线帧规格未落地
+round_2:
+  applied_fixes: M6居中单卡 · M8竖向清单卡破分屏 · M3帧规格≥8帧/30fps · M7前置认知锚 · M10填空模板 · M1光标钩
+  scores: {前3s停划: 92, 形式信息匹配: 93, 收藏杠杆: 90, 节奏完播: 91, 视觉新鲜: 91, 落地可执行: 93}
+  total: 91.7
+  status: pass
+  must_fix: resolved
+  note: 非阻塞 · M3扫描线补缓动 · M8三角标错开0.2s（已并入 gen_ui）
+verdict: pass_round_2

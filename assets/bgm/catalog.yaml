@@ -1,0 +1,364 @@
+# BGM Catalog · 背景音乐映射表
+#
+# 用途：audio_plan.yaml 里的 bgm.family + bgm.emotion → 本表映射到具体 mp3 · bgm-mixer 消费本表
+# 版本：v1 · 2026-07-05 · 从 W26-W28 情感型/带货型/出镜型 audio_plan 归纳
+# 依赖：
+#   - memory feedback_dense-vo-no-bgm-default（密 VO 演示/知识型默认 off · 情感型/出镜型/带货型默认 on）
+#   - memory feedback_sfx-layer-required（4 类 sfx 必覆盖 · BGM 可 off 但 sfx 不 off）
+#   - memory feedback_no-synth-bgm（禁 ffmpeg aevalsrc/sine 合成 · 必用 CC0 mp3）
+#   - memory feedback_dense-vo-no-dead-air（VO -16dB · BGM duck 到 -18~-22dB · release 段 -12~-14dB）
+#
+# 结构：
+#   bgm_families:
+#     <family_key>:              # family 名（audio_plan.bgm.family 用）
+#       description: str
+#       gain_db_range: [min, max]  # 相对 VO(-16dB) 的推荐 dB
+#       bpm_range: [min, max]
+#       default_enabled_for_types: [str, ...]  # 形态默认启用
+#       default_enabled_for_types_not: [str, ...]  # 形态默认关闭
+#       candidates:              # 具体 mp3 文件候选
+#         - id: str
+#           path: str            # 相对项目根
+#           source: pixabay_id | freemusic_id | uppbeat_id | userA
+#           license: CC0 | CC-BY | pixabay | uppbeat
+#           bpm: int
+#           key: str             # C_major / A_minor / D_dorian / atonal
+#           mood: [str, ...]     # 情绪 tag
+#           structure: str       # intro_Xs + loop_Ys + outro_Zs
+#           duration_s: float
+#           tags: [str, ...]
+#           attribution: str | null  # CC-BY 需 attribution
+#           fetched_at: ISO date | null
+#
+# BGM 不存在时 bgm-mixer 的行为：
+#   - 若 candidates 全空 → 打印 gap 报告 · 跳过 BGM 层 · **VO 独立播出** · 不合成
+#   - 生成 assets/bgm/GAP_REPORT.md 供用户 Pixabay/Uppbeat 补齐
+
+version: 1
+last_updated: "2026-07-05"
+
+# ─────────────────────────────────────
+# 全局响度基准（memory feedback_dense-vo-no-dead-air）
+# ─────────────────────────────────────
+global:
+  vo_target_db: -16              # VO loudnorm 目标
+  bgm_duck_db: -20               # VO 段 BGM 音量（duck 状态）
+  bgm_release_db: -14            # 无 VO 段 BGM 音量（release · 允许喘息）
+  bgm_intro_db: -12              # 前 3s intro 全音量（起片建立氛围）
+  bgm_outro_db: -18              # 尾 2s fade
+  bgm_cta_fade_db: -22           # CTA 前 3s 拉低（让 CTA 清晰）
+  duck_attack_ms: 200
+  duck_release_ms: 500
+  duck_threshold_db: -20
+  duck_ratio: 4                  # sidechain compressor 压缩比
+
+# ─────────────────────────────────────
+# 形态 → BGM 默认开关（memory feedback_dense-vo-no-bgm-default）
+# ─────────────────────────────────────
+type_default_bgm:
+  demo_dense_vo: off             # 密 VO 演示型 · BGM 默认 off（D01/D04 走此路径）
+  knowledge_dense_vo: off        # 密 VO 知识型 · BGM 默认 off
+  emotional: on                  # 情感型 · BGM 默认 on
+  oncam: on                      # 出镜型 · BGM 默认 on
+  oncam_vulnerable: on           # 出镜情感型 · BGM 默认 on
+  sales: on                      # 带货型 · BGM 默认 on
+  sparse_vo: on                  # 稀疏 VO · BGM 默认 on（空白段 BGM 顶上）
+
+# ─────────────────────────────────────
+# 情感 → BGM 家族路由（"先定情绪再选音乐" · memory feedback_sfx-layer-required 情感型分支）
+# ─────────────────────────────────────
+# 用法：情感型选题在 audio_plan.bgm.emotion 声明主情绪 · bgm-mixer 按此表选 family
+emotion_to_family:
+  loneliness: [emotional_minimal, ambient_reflective]
+  nostalgia: [emotional_minimal, ambient_reflective]
+  hope: [hopeful_uplifting, documentary_neutral]
+  urgency: [urgent_tension, sales_energetic]
+  confidence: [sales_energetic, hopeful_uplifting]
+  reflection: [emotional_minimal, ambient_reflective]
+  focus: [ambient_reflective, documentary_neutral]
+  chaos_to_calm: [urgent_tension, hopeful_uplifting]  # 前段用 tension · 后段切 hopeful
+  vulnerability: [emotional_minimal]
+  determination: [documentary_neutral, hopeful_uplifting]
+
+# ─────────────────────────────────────
+# 6 大 BGM 家族
+# ─────────────────────────────────────
+bgm_families:
+
+  # ═══ 1. EMOTIONAL MINIMAL · 情感极简 · 深夜自省/温情故事 ═══
+  emotional_minimal:
+    description: "情感极简 · 钢琴/木吉他 solo · 深夜自省 · 温情故事 · 情绪叙事型"
+    gain_db_range: [-20, -14]
+    bpm_range: [60, 90]
+    default_enabled_for_types: [emotional, oncam_vulnerable]
+    default_enabled_for_types_not: [demo_dense_vo, knowledge_dense_vo]
+    candidates:
+      - id: piano_solo_gentle_reflection
+        path: assets/bgm/emotional_minimal/piano_solo_gentle_reflection.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 72
+        key: C_minor
+        mood: [反思, 温情, 深夜, 单人]
+        structure: intro_8s + loop_60s + outro_5s
+        duration_s: 73
+        tags: [钢琴, 极简, 情感型, 深夜]
+        attribution: null
+        fetched_at: null
+      - id: acoustic_guitar_warmth
+        path: assets/bgm/emotional_minimal/acoustic_guitar_warmth.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 78
+        key: G_major
+        mood: [温暖, 木吉他, 治愈]
+        structure: intro_5s + loop_90s + outro_3s
+        duration_s: 98
+        tags: [木吉他, 极简, 治愈, 温情]
+        attribution: null
+        fetched_at: null
+
+  # ═══ 2. AMBIENT REFLECTIVE · 反思铺底 · 长空间感 ═══
+  ambient_reflective:
+    description: "反思铺底 · 长空间感 pad · 无节奏 · 只做情绪铺底不推进 · 极密 VO 也能上"
+    gain_db_range: [-24, -18]
+    bpm_range: [0, 70]                   # 无节奏或极慢
+    default_enabled_for_types: [emotional, sparse_vo]
+    candidates:
+      - id: ambient_pad_deep_space
+        path: assets/bgm/ambient_reflective/ambient_pad_deep_space.mp3
+        source: freemusicarchive_TBD
+        license: CC0
+        bpm: 0
+        key: atonal
+        mood: [空间, 沉浸, 无节奏]
+        structure: seamless_loop_120s
+        duration_s: 120
+        tags: [ambient, pad, 铺底]
+        attribution: null
+        fetched_at: null
+      - id: ambient_pad_hopeful_dawn
+        path: assets/bgm/ambient_reflective/ambient_pad_hopeful_dawn.mp3
+        source: freemusicarchive_TBD
+        license: CC0
+        bpm: 60
+        key: F_major
+        mood: [黎明, 希望, 平缓]
+        structure: intro_10s + loop_90s + outro_8s
+        duration_s: 108
+        tags: [ambient, pad, hopeful]
+        attribution: null
+        fetched_at: null
+
+  # ═══ 3. HOPEFUL UPLIFTING · 希望向上 · 转折点/结尾升华 ═══
+  hopeful_uplifting:
+    description: "希望向上 · 转折点 / CTA 前拉升 / 结尾升华 · 温和电子/木吉他 · 有 build"
+    gain_db_range: [-18, -12]
+    bpm_range: [90, 120]
+    default_enabled_for_types: [emotional, oncam, sales]
+    candidates:
+      - id: hopeful_indie_build_up
+        path: assets/bgm/hopeful_uplifting/hopeful_indie_build_up.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 108
+        key: D_major
+        mood: [希望, 转折, 温和, build]
+        structure: intro_6s + verse_20s + build_10s + climax_20s + outro_6s
+        duration_s: 62
+        tags: [indie, uplifting, build, 转折]
+        attribution: null
+        fetched_at: null
+      - id: soft_electronic_sunrise
+        path: assets/bgm/hopeful_uplifting/soft_electronic_sunrise.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 96
+        key: A_major
+        mood: [电子, 温和, 日出, 释放]
+        structure: intro_4s + main_50s + outro_6s
+        duration_s: 60
+        tags: [电子, hopeful, 释放]
+        attribution: null
+        fetched_at: null
+
+  # ═══ 4. DOCUMENTARY NEUTRAL · 纪录片中性 · 出镜/复盘陪衬 ═══
+  documentary_neutral:
+    description: "纪录片中性 · 出镜型 / 案例复盘 · 木吉他 pluck / 轻电子 · 陪衬不抢戏 · 长时保持一致情绪"
+    gain_db_range: [-18, -14]
+    bpm_range: [80, 110]
+    default_enabled_for_types: [oncam, sparse_vo]
+    candidates:
+      - id: documentary_guitar_pluck_neutral
+        path: assets/bgm/documentary_neutral/documentary_guitar_pluck_neutral.mp3
+        source: uppbeat_TBD
+        license: uppbeat
+        bpm: 92
+        key: E_minor
+        mood: [中性, 纪录, 陪衬, 保持]
+        structure: seamless_loop_120s
+        duration_s: 120
+        tags: [documentary, guitar, neutral]
+        attribution: "Uppbeat free tier · attribution required"
+        fetched_at: null
+      - id: soft_electronic_focus_neutral
+        path: assets/bgm/documentary_neutral/soft_electronic_focus_neutral.mp3
+        source: uppbeat_TBD
+        license: uppbeat
+        bpm: 100
+        key: G_minor
+        mood: [专注, 电子, 中性, focus]
+        structure: seamless_loop_180s
+        duration_s: 180
+        tags: [electronic, focus, neutral]
+        attribution: "Uppbeat free tier · attribution required"
+        fetched_at: null
+
+  # ═══ 5. SALES ENERGETIC · 带货高能 · 电子/流行 · 建立紧迫感 ═══
+  sales_energetic:
+    description: "带货型高能 · 电子/流行 · 建立紧迫感 / 兴奋度 · 短片专用"
+    gain_db_range: [-16, -10]
+    bpm_range: [100, 130]
+    default_enabled_for_types: [sales]
+    default_enabled_for_types_not: [emotional, oncam_vulnerable]
+    candidates:
+      - id: energetic_pop_beat_120
+        path: assets/bgm/sales_energetic/energetic_pop_beat_120.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 120
+        key: C_major
+        mood: [高能, 兴奋, 带货, 流行]
+        structure: intro_2s + main_50s + outro_3s
+        duration_s: 55
+        tags: [sales, pop, energetic, beat]
+        attribution: null
+        fetched_at: null
+      - id: electronic_urgency_beat_110
+        path: assets/bgm/sales_energetic/electronic_urgency_beat_110.mp3
+        source: pixabay_TBD
+        license: pixabay
+        bpm: 110
+        key: F_minor
+        mood: [紧迫, 电子, 带货, beat]
+        structure: intro_3s + main_45s + drop_10s + outro_3s
+        duration_s: 61
+        tags: [electronic, urgency, sales]
+        attribution: null
+        fetched_at: null
+
+  # ═══ 6. URGENT TENSION · 紧张感 · 反面正解翻转前 · 决策悬念 ═══
+  urgent_tension:
+    description: "紧张感 · 反面正解翻转前 · 时间压力 · 决策悬念 · 前段情绪压力 · 通常 3-8s 一段"
+    gain_db_range: [-20, -14]
+    bpm_range: [100, 140]
+    default_enabled_for_types: [emotional, sales]
+    candidates:
+      - id: cinematic_tension_short
+        path: assets/bgm/urgent_tension/cinematic_tension_short.mp3
+        source: freemusicarchive_TBD
+        license: CC0
+        bpm: 120
+        key: D_minor
+        mood: [紧张, 压力, cinematic, 短]
+        structure: build_5s + peak_3s
+        duration_s: 8
+        tags: [cinematic, tension, short]
+        attribution: null
+        fetched_at: null
+      - id: heartbeat_pulse_ambient
+        path: assets/bgm/urgent_tension/heartbeat_pulse_ambient.mp3
+        source: freemusicarchive_TBD
+        license: CC0
+        bpm: 100
+        key: E_minor
+        mood: [心跳, pulse, 悬念]
+        structure: seamless_loop_30s
+        duration_s: 30
+        tags: [heartbeat, pulse, tension]
+        attribution: null
+        fetched_at: null
+
+# ─────────────────────────────────────
+# duck 策略（sidechain compressor · VO 与 BGM 混音）
+# ─────────────────────────────────────
+duck_policy:
+  strategy: sidechain_compress    # ffmpeg sidechaincompress filter
+  vo_threshold_db: -20            # VO 音量超此触发 duck
+  bgm_ratio_when_vo: 4            # VO 存在时 BGM 压缩比
+  bgm_attack_ms: 200
+  bgm_release_ms: 500
+  bgm_intro_seconds: 3.0          # 起始 3s BGM 全音量（-12dB · 建立氛围）
+  bgm_outro_seconds: 2.0          # 结尾 2s BGM fade 到 -18dB
+  bgm_cta_fade_before_seconds: 3.0  # CTA 前 3s 开始 -3dB fade
+  bgm_no_vo_release_seconds: 1.0  # VO 停止 1s 后 BGM 恢复到 release_db(-14dB)
+
+# ─────────────────────────────────────
+# GAP 处理策略（与 sfx-catalog 一致）
+# ─────────────────────────────────────
+gap_handling:
+  when_candidate_not_found:
+    - "bgm-mixer 打印 gap · 记入 GAP_REPORT.md"
+    - "跳过 BGM 层 · VO 独立播出 · 不 fail-close"
+    - "不 aevalsrc/sine 合成（memory feedback_no-synth-bgm）"
+  when_family_empty:
+    - "全 family 无 candidate → BGM layer 整体 off"
+    - "audio_plan.yaml.bgm.enabled=true 且 family 空 → 音画硬门 warn"
+  gap_report_path: assets/bgm/GAP_REPORT.md
+
+# ─────────────────────────────────────
+# CC0 / 免费商用音乐源（P2 bgm-fetcher 消费）
+# ─────────────────────────────────────
+free_music_sources:
+  pixabay_music:
+    url: https://pixabay.com/music
+    license: Pixabay License（免费商用 · 无需 attribution）
+    quality: ★★★★☆
+    search_hint: "Pixabay 搜索直接下 mp3 · 复制 track id 落 candidate.source"
+  free_music_archive:
+    url: https://freemusicarchive.org
+    license: CC0 / CC-BY（varies · 每首查具体许可）
+    quality: ★★★★☆
+    search_hint: "FMA 过滤 CC0 · 下 320kbps mp3"
+  uppbeat:
+    url: https://uppbeat.io
+    license: Uppbeat License（免费层需 attribution · 付费无 attribution）
+    quality: ★★★★★
+    search_hint: "Uppbeat 免费层 5 首/月 · attribution 写在 xhs 视频描述"
+  youtube_audio_library:
+    url: https://www.youtube.com/audiolibrary
+    license: CC0 / YouTube License
+    quality: ★★★☆☆
+    search_hint: "YouTube 后台 · 无 attribution 免费商用"
+
+# ─────────────────────────────────────
+# 检索关键词（P2 bgm-fetcher / bgm-search-helper 消费）
+# ─────────────────────────────────────
+pixabay_search_hints:
+  emotional_minimal:
+    piano_solo_gentle_reflection: "gentle piano solo reflective"
+    acoustic_guitar_warmth: "acoustic guitar warm gentle"
+  ambient_reflective:
+    ambient_pad_deep_space: "ambient pad deep space cinematic"
+    ambient_pad_hopeful_dawn: "ambient pad dawn hopeful"
+  hopeful_uplifting:
+    hopeful_indie_build_up: "hopeful indie build up uplifting"
+    soft_electronic_sunrise: "soft electronic sunrise uplifting"
+  documentary_neutral:
+    documentary_guitar_pluck_neutral: "documentary guitar pluck neutral"
+    soft_electronic_focus_neutral: "soft electronic focus neutral"
+  sales_energetic:
+    energetic_pop_beat_120: "energetic pop beat 120 bpm commercial"
+    electronic_urgency_beat_110: "electronic urgency beat commercial"
+  urgent_tension:
+    cinematic_tension_short: "cinematic tension short build up"
+    heartbeat_pulse_ambient: "heartbeat pulse ambient tension"
+
+# ─────────────────────────────────────
+# 相关 memory · 使用本 catalog 前必读
+# ─────────────────────────────────────
+memory_refs:
+  - feedback_dense-vo-no-bgm-default   # 密 VO 演示/知识型默认 off · BGM 从硬门下调为条件件
+  - feedback_sfx-layer-required        # 4 类 sfx 必覆盖 · BGM off 但 sfx 不 off
+  - feedback_no-synth-bgm              # 禁 ffmpeg aevalsrc/sine 合成
+  - feedback_dense-vo-no-dead-air      # VO -16dB · BGM duck 到 -18~-22dB

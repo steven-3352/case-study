@@ -1,0 +1,14 @@
+✓ s1_silence target  3.00s · est  0.00s · Δ+0.00s (+0.0%) 留空(tail_pad 补) · 字=11 en_syl=15 数=12 · emo=silence spd=0.0
+⚠ s2         target  5.00s · est  6.12s · Δ+1.12s (+22.4%) 溢出 · 字=29 en_syl=0 数=1 · emo=neutral spd=0.98
+✓ s3         target  7.00s · est  7.96s · Δ+0.96s (+13.7%) 溢出 · 字=32 en_syl=1 数=6 · emo=neutral spd=0.98
+✓ s4         target 10.00s · est 10.60s · Δ+0.60s (+6.0%) 溢出 · 字=48 en_syl=3 数=2 · emo=neutral spd=1.0
+✓ s5         target 15.00s · est 13.88s · Δ-1.12s (-7.5%) 留空(tail_pad 补) · 字=61 en_syl=4 数=3 · emo=neutral spd=0.98
+⚠ s6         target  8.00s · est  9.39s · Δ+1.39s (+17.4%) 溢出 · 字=39 en_syl=1 数=6 · emo=neutral spd=0.98
+⚠ s7         target  6.00s · est  7.00s · Δ+1.00s (+16.7%) 溢出 · 字=28 en_syl=3 数=4 · emo=neutral spd=1.0
+✓ s8         target  4.00s · est  4.40s · Δ+0.40s (+10.0%) 溢出 · 字=21 en_syl=0 数=1 · emo=neutral spd=1.0
+
+─ 汇总 ─
+  段数: 8 · warn: 3 · fail: 0
+  预测总长: 62.35s
+  计划总长: 58.00s · Δ=+4.35s
+  ⚠ 关注：s2, s6, s7

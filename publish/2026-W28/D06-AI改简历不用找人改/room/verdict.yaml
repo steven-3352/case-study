@@ -1,0 +1,69 @@
+# verdict · W28D06 · AI 改简历不用找人改
+
+> 编导 + 平台表现分析师 · 终审签字 · 2026-07-05
+> 判据：铁律 0 audience-first · 两道门（内容门 + 形式门）· H6 差异化门禁
+
+## 一、终审结论
+
+- **状态**: ✅ **APPROVED · 双平台可外发**（上传保持人工 · 风控）
+- **抖音**: 视频 `douyin/video_no_bgm.mp4` · 60.64s · B+ (88)
+- **小红书**: 7 页图文轮播 `xhs/pages/p1–p7.png` 首选 · A- (89) · `xhs/video_no_bgm.mp4` 备选
+
+## 二、两道门签字
+
+| 门 | 状态 | 依据 |
+|---|---|---|
+| **内容门** | ✅ PASS | 编剧 vA/vB 新 session 双评 ≥90 · 洞察包四件套 + external_references 达门禁 |
+| **形式门** | ✅ PASS | 形式策略官 A92/B91.7 · 6 硬门全过 · palette 17/17 · CTA ship gate PASS · forecast B+/A- |
+
+## 三、H6 差异化门禁（vs D03/D04/D05）
+
+| 维度 | D06 | 是否重叠上条 |
+|---|---|---|
+| 主色 | 暖白纸面 #f5f0e6 | ✗ 无（D05 全黑卧室） |
+| 视觉族群 | 扫描线 + before/after 分屏 + 对照句卡 + ATS 8 格 | ✗ 无（D05 三层堆叠） |
+| skin | 求职党·投了没回音 | ✗ 无（D05 一人公司） |
+| 情感锚 | 焦虑 → 去焦虑（HR 视角戳破） | ✗ 无 |
+| CTA | 私信「发我简历」脱敏 | ✗ 无（D05「项目+卡点」） |
+| 真人 broll | 无（纯文档 UI） | ✗ 差异（D05 有睡姿 broll） |
+
+**H6 结论**: ✅ 无视觉族群重叠 · 无节拍复用 · 无模板克隆 · PASS
+
+## 四、真实性红线自检
+
+- [x] 简历示例全化名「示例 · 化名 · 陈默」· 无真名
+- [x] 数字标「示例 · 填你真的」· 不宣称真实成交
+- [x] 人设走 HR 视角**方法性表述** · 不宣称第一人称「我面试过很多人」（override topic_brief 原 persona）
+- [x] 数据口径「几秒到几十秒 / 15–30 秒」· 禁用「6 秒」
+- [x] p7 负面例已去禁词（「花钱找人代改·包装虚假经历」line-through · 非「逆袭/名企 offer/爆改秘籍」）
+- [x] 禁词全清：逆袭 / 世界 500 强 / 月薪翻倍 / 名企 offer / 秒变 / 财务自由 / 变现秘籍
+
+## 五、音画硬门
+
+- [x] VO 全程覆盖（s1 start 0.0 · 前 6s 无沉默钉子）
+- [x] 字幕烧进主画面（douyin 42pt / xhs 50pt）
+- [x] sfx 31/31 events applied（0 gap · 声音密度 ≥ 画面变化）
+- [x] 密 VO 演示型 → 默认无 BGM · `*_no_bgm.mp4` 直接外发
+- [x] CTA 不裁（seg 60.64s vs plan 60.97s · Δ=−0.33s）
+
+## 六、交付清单
+
+```
+douyin/video_no_bgm.mp4   60.64s  2.3MB  ← 抖音上传（重命名 video.mp4）
+douyin/publish.md                        ← 抖音文案 + 置顶评论 + 标签
+xhs/pages/p1–p7.png       7 页           ← 小红书轮播首选（暖白纸面）
+xhs/video_no_bgm.mp4      60.64s  2.4MB  ← 小红书备选
+xhs/publish.md                           ← 小红书文案 + 7 页结构 + 话题
+pre_publish_forecast.md                  ← 双平台 forecast B+/A-
+```
+
+## 七、上传须知（人工 · 风控）
+
+1. 抖音：上传 `douyin/video_no_bgm.mp4`（重命名 `video.mp4`）+ 复制 `douyin/publish.md` 文案
+2. 小红书：上传 `xhs/pages/p1–p7.png` 7 张（按序）+ 复制 `xhs/publish.md` 文案
+3. 抖音 60.64s 略超 60s 甜区 0.64s · 若平台压缩异常可 tail 微调
+
+## 八、投后触发
+
+- D+2 / D+7 数据回填 → 数据复盘官 `design/post_publish_retro.md` + `evolution_overlay.md`
+- 触发条件见 `pre_publish_forecast.md §七`

@@ -164,3 +164,78 @@ def sanity_check_timing(
     seg_total = float(data.get("total", 0))
     plan_total = sum(s.total_dur for s in scenes)
     return (seg_total, plan_total, abs(seg_total - plan_total))
+
+
+def suggest_scene_realign(
+    scenes: list[SceneSpec],
+    timing_json: pathlib.Path,
+    align_tolerance: float = 0.3,
+) -> list[tuple[str, float, float, float]]:
+    """从 seg_timing 逐段推荐 scene total_dur · 防 D04 CTA 裁掉重演.
+
+    D04 教训：VO 溢出 · scene 未同步扩窗 · CTA 落在 video window 外被裁
+    修复：seg_timing 生成后 · 逐 scene 计算「本 scene 覆盖的 VO windows 总和」→ 推荐 total_dur
+
+    此启发式只在 scene 数 == 非 silence VO 段数 时准确 · 否则回退到整体 delta 报告
+    返回 (scene_name, current_total_dur, suggested_total_dur, delta) · delta > tolerance 则打印建议
+    """
+    import json
+    if not timing_json.exists() or not scenes:
+        return []
+    data = json.loads(timing_json.read_text(encoding="utf-8"))
+    seg_list = data.get("segments", [])
+    if not seg_list:
+        return []
+
+    non_silence = [s for s in seg_list if s.get("emotion") not in ("silence", "gap")]
+    # 场景一：scene 数正好 == 非 silence VO 段数（每个 scene 对一段 VO）
+    if len(scenes) == len(non_silence):
+        suggestions: list[tuple[str, float, float, float]] = []
+        for sc, seg in zip(scenes, non_silence):
+            window = float(seg.get("window", 0))
+            delta = window - sc.total_dur
+            if abs(delta) >= align_tolerance:
+                suggestions.append((sc.name, sc.total_dur, window, delta))
+        return suggestions
+    return []
+
+
+def check_ship_gate(
+    scenes: list[SceneSpec],
+    timing_json: pathlib.Path,
+    cta_scene_min_dur_ratio: float = 0.95,
+) -> tuple[bool, str]:
+    """CTA 完整性 fail-closed 门 · 防 D04 CTA 被裁重演.
+
+    判据：sum(scene.total_dur) 必须 >= seg_timing.total - 0.5s（允许 tail 微差）
+    否则视频结束时 VO 未播完 · CTA（最后一段）会被裁
+
+    返回 (passed, reason)
+    """
+    import json
+    if not timing_json.exists() or not scenes:
+        return True, "no timing json · skip"
+    data = json.loads(timing_json.read_text(encoding="utf-8"))
+    seg_total = float(data.get("total", 0))
+    plan_total = sum(s.total_dur for s in scenes)
+    delta = seg_total - plan_total  # 正数=VO 超出 scene · CTA 会被裁
+    if delta > 0.5:
+        return False, (
+            f"CTA 会被裁 · seg_total {seg_total:.2f}s > plan_total {plan_total:.2f}s · "
+            f"Δ={delta:+.2f}s · 扩最后 scene total_dur 至少 {delta+0.1:.2f}s"
+        )
+    return True, f"CTA 门 PASS · seg {seg_total:.2f}s vs plan {plan_total:.2f}s · Δ={delta:+.2f}s"
+
+
+def print_realign_report(suggestions: list[tuple[str, float, float, float]]) -> None:
+    """打印 scene realign 建议 · 用户 copy-paste 到 pipeline_config.yaml.scenes."""
+    if not suggestions:
+        return
+    print()
+    print("─ scene realign 建议（VO 已合成 · scene total_dur 建议对齐 seg_timing.window） ─")
+    print(f"  {'scene':<35} {'current':>10} {'suggest':>10} {'delta':>10}")
+    for name, current, suggest, delta in suggestions:
+        icon = "⚠" if delta > 0 else "·"
+        print(f"  {icon} {name:<33} {current:>8.2f}s {suggest:>8.2f}s {delta:>+8.2f}s")
+    print("  · CTA 落在片尾 · scene 未扩窗会被裁 · 见 D04 教训（memory tts-estimate-duration-pre-synth）")
+    print()

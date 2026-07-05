@@ -1,0 +1,70 @@
+scorecard_B:
+  reviewer: analytics-reporter (独立 · 未见 A)
+  file: scripts/vB.md
+  timestamp: 2026-07-05
+  method: 独立评分 · 未参考 reviewer A · 基于 insights 四件套 + retention_beat_sheet 交叉核对
+  scores:
+    I_内容真实:
+      - {item: 3s钩子真实性, score: 92, note: "40h→8h 数字锚+副标'我的项目实测'口径正确·真实但冲击感弱于 vA 手机推送反差"}
+      - {item: 场景细节, score: 84, note: "睡姿+推送有画面·但 vB 中段全靠原话引用·自身场景细节稀释（3-8s 一句'睡了 6 天'略夸张）"}
+      - {item: 数据出处, score: 96, note: "5 条锚全部声明来源·40h/8h 标'我的项目实测'合 fact_check ⚠ 口径"}
+      - {item: 原话属实, score: 96, note: "R3/R4/R6/R7 四条原话嵌入·paraphrase 忠实·符合 external_references"}
+      - {item: Project-001化名, score: 94, note: "3-8s'海外自动化项目'描述符合 reporter_notes §4 · 未打真名·未透露成交"}
+      - {item: 无虚假承诺, score: 91, note: "'我睡了 6 天'略夸张·但用主观口吻·未承诺普遍规律"}
+      - {item: 无禁词, score: 100, note: "禁词表清空·财务自由/月入/秘籍/一键复制/翻倍 均无"}
+      - {item: 无夸大, score: 82, note: "'睡了 6 天'触边缘·'一分钱没赚'为 R4 原话可接受·整体夸张度略高于 vA"}
+      - {item: 卡外卖点=0, score: 98, note: "全部锚点可对回 core_message P0/P1 · 无新增卖点"}
+      - {item: 数字标注参考, score: 95, note: "60/20/20 标'搜狐原话+我实测·参考不套用'合 fact_check P0-2 ⚠ 口径"}
+      - {item: 边界声明, score: 96, note: "46-54s 边界镜'AI 帮我解放·不是印钞机'呼应 P0-3 · 反变现明确"}
+      - {item: skin一致, score: 90, note: "20 年互联网+一人公司+Project-001 三锚齐·符合 topic_brief skin·但中段原话密集稀释了'我'的人格"}
+    avg_I: 92.83
+    II_观赏性:
+      - {item: 3s反差, score: 78, note: "0-3s 只有数字大字·无 chaos-punch-reveal 三拍分层·反差感明显弱于 vA·违 memory feedback_contrast-hook-3s"}
+      - {item: VO覆盖≥85%, score: 94, note: "3-58s 密 VO 全程·段间衔接紧·符合密 VO 演示型定义"}
+      - {item: 无3s+死区, score: 88, note: "0-3s 静默设计需检核 memory feedback_dense-vo-no-dead-air（该规则要求 VO 从 0s 覆盖·前 6s RMS≥-25dB）·此处 0-3s VO=无·违规风险"}
+      - {item: sfx4类, score: 92, note: "tick x4+whoosh x3+hit x6+ambient 全片·4 类齐"}
+      - {item: BGM off, score: 100, note: "密 VO 演示型 BGM off·符合默认策略"}
+      - {item: 每5-8s变化, score: 85, note: "9 段变化基本齐·但 22-25s 虎嗅原话镜只 3s 略短·8-25s 三段原话镜差异靠字幕支撑·画面变化力度弱于 vA"}
+      - {item: 单段≤35%, score: 92, note: "最长 25-40s 三层演示 15s（26%）·未超 catalog 拼盘门"}
+      - {item: 字幕不遮挡, score: 88, note: "原话字幕+大字并行·8-25s 密集原话字幕需确认叠层·稍有遮挡风险"}
+      - {item: 大字节奏, score: 82, note: "0-3s 大字'40h/周→8h/周'信息量偏大·冲击感靠数字对比·但主标+副标 2 行密度对 3s 观感偏挤"}
+      - {item: UI屏录合规, score: 92, note: "Notion+Cursor+n8n 原生 UI·符合 fact_check §5·V2EX 帖子截图需马赛克账号名"}
+      - {item: 屏切自然, score: 86, note: "8-25s 三段原话跳切频繁·屏切次数偏多·节奏稍碎"}
+      - {item: 时长55-58s, score: 100, note: "0-3+5+7+7+3+15+6+8+4=58s·符合"}
+    avg_II: 89.75
+    III_强内容:
+      - {item: P0-1三层顺序, score: 96, note: "25-40s 三层演示完整·'跳过 SOP 整套散架'金句直入·收藏动机强"}
+      - {item: P0-2 60/20/20, score: 94, note: "40-46s R3 搜狐原话+我实测双落·参考口径正确"}
+      - {item: P0-3提效≠变现, score: 96, note: "15-22s R4 V2EX 43 章 0 收入直落·46-54s 边界镜再强调·双落覆盖"}
+      - {item: P1-4三种烂做法, score: 72, note: "vB 弱化了 P1-4·8-15s 只用少数派原话代言 ①·②③ 未直接展开·相较 vA 观众自我识别弱"}
+      - {item: 3层可收藏, score: 96, note: "25-40s 三层堆叠+'可长按暂停截屏'底部提示·收藏动机明确"}
+      - {item: 表格可截屏, score: 88, note: "40-46s 60/20/20 表格·但仅 6s 时长偏短·截屏窗口紧"}
+      - {item: Project-001结构可用, score: 84, note: "3-8s '海外自动化项目'提及·但未展开询盘→分类→方案→决策 4 步·结构完整度弱于 xhs P6"}
+      - {item: CTA具体, score: 96, note: "'项目+卡点'私信关键词具体·'可自动化的第 1 步'具体产出承诺"}
+      - {item: 私信路径, score: 96, note: "54-58s 私信路径清晰·呼应 landing_intent·不走评论"}
+      - {item: 结构承诺可验证, score: 92, note: "40h→8h 声明'我的项目实测'·可验证但非普遍规律·合口径"}
+      - {item: 反变现边界, score: 96, note: "'AI 帮我解放·不是印钞机'金句+ P0-3 边界镜双落"}
+      - {item: 与D04差异化, score: 92, note: "vs D04 中腰部创作者·一人公司 skin+ Project-001+ 三层顺序结构差异明确·原话嵌入型差异明显"}
+    avg_III: 91.50
+  overall_avg: 91.36
+  verdict: PASS
+  top_3_issues:
+    - item: 3s反差
+      score: 78
+      comment: "0-3s 数字锚 40h→8h 大字虽有冲击·但无 chaos-punch-reveal 三拍分层·反差感明显弱于 vA·违 memory feedback_contrast-hook-3s 硬门·A/B 备胎定位可接受但需承担 3s 完播风险"
+    - item: P1-4三种烂做法
+      score: 72
+      comment: "vB 用 R6 少数派原话代言烂做法 ①·烂做法 ②（想全自动化）+ ③（只自动化最容易的）在中段被省略·观众自我识别弱于 vA·retention_beat_sheet §四 15-25s 明确要求快切 ②③ 两段·vB 段位漂移"
+    - item: 无3s+死区
+      score: 88
+      comment: "0-3s 口播=无·静默设计与 memory feedback_dense-vo-no-dead-air（VO 从 0s 覆盖·前 6s RMS≥-25dB）冲突·虽 vA 也如此·但 vB 数字锚无 punch 需 sfx 密度补偿·实际 tick x3+hit x1 略薄"
+  top_3_strengths:
+    - item: 无禁词
+      score: 100
+      comment: "禁词表全部规避·财务自由/月入/秘籍/一键复制/翻倍/躺赚 零出现·合规底"
+    - item: 时长55-58s
+      score: 100
+      comment: "0-3+5+7+7+3+15+6+8+4=58s 精准命中平台上限·各段配比合理"
+    - item: 原话属实
+      score: 96
+      comment: "R3/R4/R6/R7 四条 external_references 原话嵌入·段位明确·paraphrase 忠实原文精神·数字（43 章/40 min/60-20-20）零篡改·远超 ≥2 门"

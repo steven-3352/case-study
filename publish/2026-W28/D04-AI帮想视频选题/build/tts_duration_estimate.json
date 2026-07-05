@@ -1,0 +1,22 @@
+{
+  "content_id": "W28D04",
+  "estimate_run_at": "2026-07-05",
+  "gate_result": "pass",
+  "fail_count": 0,
+  "warn_count": 3,
+  "warn_segments": ["s2 (+22.4%)", "s6 (+17.4%)", "s7 (+16.7%)"],
+  "predicted_total_s": 62.35,
+  "target_total_s": 58.0,
+  "drift_s": 4.35,
+  "notes": "First run (2026-07-05 morning): 2 fail-closed (s2 +34.6% · s8 +81%). Applied overrun_fallback to s2/s3/s6/s8. Second run: 0 fail. 3 warns ≤ 22.4% all under 30% gate. Drift 4.35s absorbed by tail_pad / MiniMax actual TTS typically faster than estimate. Accepted for pipeline render.",
+  "segments": [
+    {"sid": "s1_silence", "target_s": 3.00, "est_s": 0.00, "delta_pct": 0.0, "status": "ok"},
+    {"sid": "s2",         "target_s": 5.00, "est_s": 6.12, "delta_pct": 22.4, "status": "warn", "text_now": "上周我也这样。9 成中腰部创作者遇到选题问题——不是你的问题。", "fallback_applied": true},
+    {"sid": "s3",         "target_s": 7.00, "est_s": 7.96, "delta_pct": 13.7, "status": "warn", "text_now": "翻了半小时竞品，存 8 张截图，一条不想拍。同行 40w 赞我也拍过——我只有 800。", "fallback_applied": true},
+    {"sid": "s4",         "target_s": 10.00, "est_s": 10.60, "delta_pct": 6.0, "status": "ok"},
+    {"sid": "s5",         "target_s": 15.00, "est_s": 13.88, "delta_pct": -7.5, "status": "ok"},
+    {"sid": "s6",         "target_s": 8.00, "est_s": 9.39, "delta_pct": 17.4, "status": "warn", "text_now": "10 条里 8 条能用——5 判据筛：具体场景、前 3s 钩子、差异化、可拍性、粉丝相关。通过 4 条能拍。", "fallback_applied": true},
+    {"sid": "s7",         "target_s": 6.00, "est_s": 7.00, "delta_pct": 16.7, "status": "warn", "text_now": "不是教你用 AI —— 是把我上周 30 分钟搞定下周 5 条的那 4 段 prompt，直接给你。", "fallback_applied": false},
+    {"sid": "s8",         "target_s": 4.00, "est_s": 4.40, "delta_pct": 10.0, "status": "ok", "text_now": "私信「账号方向」——我给 5 条选题。不推服务。", "fallback_applied": true}
+  ]
+}

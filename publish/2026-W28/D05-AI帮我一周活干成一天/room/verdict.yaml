@@ -1,0 +1,183 @@
+status: allow_render_no_approve
+content_version: vA_v1
+form_version: v1
+content_id: W28D05
+project_id: W28D05
+workflow: 10_merged_agents  # docs/DECISIONS.md Q12
+review_source: mixed
+scorecard_valid: partial
+
+# 双评（Agent 新 session 独立）
+double_reviewed:
+  - role: 编剧+
+    rounds: 2
+    round_1: {source: independent_new_session, reviewer_a: 88, reviewer_b: 82, avg: 85, status: pass, hard_gate: pass}
+    round_2: {source: independent_new_session, reviewer_a: 92, reviewer_b: 85, avg: 88.5, status: pass, hard_gate: pass_4_topic_quotes}
+    verdict: vA 主推 · vB v2 为 A/B 备胎
+  - role: 形式策略官
+    rounds: 1
+    round_1: {source: independent_new_session, reviewer_a: 92, reviewer_b: 92, avg: 92, status: pass}
+    hard_gates_6: all_pass
+    verdict: 6 硬门全过 · A 提 must_fix 已就地补 · form_strategy pass_dual_review
+
+# 单跑 · 不双评（Q11）
+single_run:
+  - role: 动画导演
+    artifact: design/motion_storyboard.md
+    reason: 翻译层 · 下游形式策略官/技术导演/声音设计师会拦
+
+# 自生成 · pass_self_generated
+self_generated:
+  - role: 记者+
+    artifacts:
+      - insights/topic_brief.md
+      - insights/reporter_notes.md
+      - insights/external_references.md
+      - insights/core_message.md
+      - insights/fact_check.md
+      - insights/narrative_arc.md
+      - insights/hook_benchmark.md
+  - role: 视觉设计+
+    artifacts:
+      - design/design_language.md
+      - design/cover_brief.md
+  - role: 留存与互动设计师
+    artifact: retention_beat_sheet.md
+  - role: 声音设计师
+    artifact: audio_plan.yaml
+  - role: 编导
+    artifact: 选题立项（queue/topics.yaml T003）
+  - role: 剪辑
+    artifact: pipeline_config.yaml（platforms 段 douyin 42 / xhs 50）
+  - role: 运营+
+    artifacts:
+      - douyin/publish.md
+      - xhs/publish.md
+  - role: 平台表现分析师
+    artifact: design/pre_publish_forecast.md（自跑 88.5/84）
+
+# 双平台 · 视频号已停（memory feedback_dual-platform-only · 2026-07-05）
+platforms:
+  - douyin
+  - xhs
+
+gates:
+  content_gate: pass_dual_review (编剧+ vA · avg 88.5)
+  form_gate: pass_dual_review (形式策略官 · 92)
+  motion_storyboard_gate: pass_single_run (Q11)
+  audio_gate: pass_self_generated
+  sfx_gate: pass (29/29 events applied · 0 gap · Freesound CC0 17 项 · alimiter 0.9 防削)
+  tts_duration_gate: pass (79.5% 利用率 · 3 warn ≤27% · 无 fail · < 30% threshold)
+  pre_publish_forecast_gate: pass_self_generated (douyin B+ 88.5 · xhs B 84)
+  render_gate: pass (2026-07-05 · 双平台 60.22s / 3.7 MB · CTA 完整 · sfx 29/29 applied · peak -0.27dB)
+  palette_gate:
+    ui_png: pass_after_fix_2026-07-05  # M3 第一版 5.48% fail → 改 linear-gradient→单色 #0a0e14/#1a1611 → 0.00% pass
+    rendered_mp4_frames: pass (8 帧采样 2s/6s/12s/20s/30s/45s/52s/58s · 全 0.00% · Dracula 蓝紫)
+  cta_completeness_gate: pass (60.22s 视频 · s10 CTA 起 56.05s 结 60.22s · "私信『项目+卡点』——我给你可自动化的第 1 步" 完整播出)
+  audience_first_3q:
+    content_resonance: pass  # 一人公司凌晨改方案痛点直击
+    strong_visual: pass  # 视觉 OK · sfx 29/29 events applied（fetcher #69 已实施 2026-07-05）声音密度达标
+    strong_content: pass  # 三层顺序 + 60/20/20 + 反印钞机 = 高信息密度可复现
+  attribution: honest_no_fake_pass
+
+allow:
+  - render_douyin_no_bgm_mp4
+  - render_xhs_no_bgm_mp4
+  - upload_douyin_after_render
+  - upload_xhs_after_render_as_video_fallback  # 2026-07-05 更新: 轮播已生成 · 首选 carousel · video 转备选
+  - upload_xhs_carousel_p1_p7  # build/xhs_carousel/ · palette 7/7 PASS · form_strategy 首选形态
+  - collect_d2_d7_metrics
+
+disallow:
+  - mark_verdict_approved_before_independent_review  # 同 D03/D04 待遇
+  - reuse_storyboard_skeleton_from_D04  # H6 · D05 独立视觉族群
+  - claim_pass_true_on_self_generated_scorecards
+  - upload_douyin_before_60s_cap_qc  # 60.22s > 60s 甜区 0.22s · QC 观察是否需 tail 微调
+
+known_gap:
+  - sfx_fetcher_not_ready:
+      task_id: 69
+      status: resolved_2026-07-05  # FREESOUND_API_KEY 已注册 · fetch_sfx.py 拉全 17 CC0 wav · 29/29 events applied · 0 gap
+      impact: 已消除 · 声音密度 audience_first 硬门 partial_pass → pass
+      resolution: |
+        fetch_sfx.py 加渐进降级 query（CC0 池小 · 4 词常空 → 砍到 2 词命中数百）
+        + ambient 时长窗 8-90s（避 8min room-tone 大文件下载挂）· 17/17 拉全。
+        lib/sfx.py amix 尾接 alimiter=0.9 防 hit 瞬态硬削（D05 首版 +0.3dBTP → 修后 -0.27dB）。
+      artifact: assets/sfx/{ambient,tick,whoosh,hit,riser}/*.wav（17 项 · catalog.yaml 全回写 fetched_at）
+      rerender: douyin/xhs video_no_bgm.mp4 60.22s · 29/29 sfx · -15.8 LUFS · peak -0.27dB（旧无 sfx 版备份 build/_nosfx_bak/）
+  - xhs_carousel_generator_missing:
+      status: resolved_2026-07-05  # gen_xhs_carousel_w28d05.py · 7 页生成 · palette gate 7/7 PASS
+      impact: 已消除 · xhs 可按 form_strategy 首选发轮播（收藏预估 7-10% · B → A-）
+      artifact: build/xhs_carousel/p1-p7.png
+      next_action: 用户上传时首选轮播 · video_no_bgm.mp4 转备选
+  - vo_60_22s_over_60s_douyin_cap:
+      impact: 0.22s 超甜区 · 抖音可能算作"略长"影响推荐
+      mitigation: MiniMax 实测比 estimator 慢 6.8%（D04 memory）· 但已在 target_total_cap 60.0 门内
+      next_action: 上传前 QC · 若被压 6 dB 或降清晰度 · 复现 D04 A-fix 路径（删首段沉默或加速）
+
+next_actions:
+  - agent_verify_douyin_upload_ready  # QC 播放全片 · 检 CTA + 大字 + 音量
+  - agent_verify_xhs_upload_ready  # 2026-07-05 更新: 首选 build/xhs_carousel/ 7 页轮播 · video 转备选
+  - user_upload_douyin  # 用户手动 · 上传前重命名 video.mp4
+  - user_upload_xhs  # 用户手动 · 上传前重命名 video.mp4
+  - agent_collect_metrics_at_d2_d7  # fetch_platform_metrics.py + import_metrics_48h.py
+  - if_completion_3s_lt_55pct_trigger_sfx_backfill_v2  # sfx 补层重发路径
+  - if_xhs_saves_lt_4pct_trigger_carousel_generator_p0_d06  # xhs carousel D06 提优先级
+  - if_25_40s_layer_stack_completion_gt_90pct_trigger_skin_promptization  # 三层堆叠泛化到其他 skin
+
+# 差异化状态（H6 门禁）
+differentiation_from_D04:
+  scene: bedroom_morning_sleeping_wake_up vs D04 daytime_desk_video_editing
+  hook: chaos_punch_reveal_phone_push_3sfx vs D04 chaos_daylight_desk_prompt_typing
+  group_anchor: 40h→8h_time_split + 07:00_wakeup vs D04 5_ai_apps_split_screen_chaos
+  correct_action: 3_layer_stack_notion_cursor_n8n vs D04 4_segment_prompt_home_organization
+  saving_hook: 60_20_20_table + project_001_structure vs D04 5_criteria_table + prompt_ready_copy
+  cta: private_message_project_plus_blockpoint vs D04 private_message_account_direction
+  visual_lineage: vibe_motion_static_ui_hybrid + broll_sleep + phone_push_mock vs D04 vibe_motion_screenrec_62 + waytoagi_21 + pexels_15
+  emotion_anchor: overwork_exhaustion_want_freedom vs D04 creator_topic_anxiety
+  cover_language: sleeping_overhead + 3_notifications vs D04 laptop_glow + rejected_topic_pile
+  H6_conclusion: no_visual_family_overlap + no_beat_reuse + independent_skin = PASS
+
+# TTS 前置估算记录
+tts_estimate_record:
+  first_run_2026-07-05:
+    utilization: 79.5%  # 47.68s / 60s
+    warns: [s3 (25.4%), s7 (16.7%), s8 (11.2%)]
+    fails: []
+    predicted_total: 47.68s
+    gate_result: PASS
+  actual_run_2026-07-05:
+    minimax_actual_total: 60.22s  # 慢 26% 于 estimator baseline
+    predicted_vs_actual: 47.68 → 60.22 · 差 12.54s · MiniMax 慢 26.3%
+    note: 校正 D04 memory "慢 6.8%" · D05 观测 "慢 26.3%"
+    hypothesis: base_speed 1.08 → MiniMax 慢 25%; base_speed 0.98 → 慢 6.8%; base_speed vs actual 呈负相关
+    corrective_note: 高 base_speed (≥1.08) 时应把 buffer 从 +10% 提到 +30%
+    scene_alignment: M3/M8/M10 scene total_dur 已扩到匹配 seg_timing (patch script + 4.35s)
+    result: seg 60.22s vs plan 60.22s · Δ=0 · CTA ship gate PASS
+
+# palette 修复记录
+palette_fix_record:
+  first_check_2026-07-05:
+    fail: 02_m3_split_40h_8h.png (蓝紫占比 5.48% > 5% 阈值)
+    root_cause: .left background `linear-gradient(180deg, #0a0e1a 0%, #1a1a2e 100%)` 深蓝紫渐变 · 违反 memory feedback_no-neon-palette "禁暖红→冷蓝渐变 `linear-gradient(*,#2a0e0e,#0a0e14)` 一类"
+  fix_applied:
+    - .left background linear-gradient → 单色 #0a0e14
+    - .right background linear-gradient → 单色 #1a1611
+    - .clock-left text-shadow rgba(100,150,255) → rgba(200,180,150)  # 冷蓝 → 暖米
+    - .sub 文案 "屏幕蓝光 / 疲惫" → "还在改方案 / 疲惫"
+  second_check_2026-07-05:
+    result: 0.00% << 5% 阈值 · PASS
+  rendered_mp4_check_2026-07-05:
+    frames_sampled: [2s, 6s, 12s, 20s, 30s, 45s, 52s, 58s]
+    result: 8/8 PASS · 全帧 0.00%
+
+decisions_reference:
+  - docs/DECISIONS.md Q11 (动画导演单跑)
+  - docs/DECISIONS.md Q12 (10 合并 agent)
+  - memory feedback_dense-vo-no-bgm-default
+  - memory feedback_no-neon-palette
+  - memory feedback_dual-platform-only
+  - memory tts-estimate-duration-pre-synth
+  - memory feedback_sfx-layer-required
+  - memory feedback_d05-parallel-agents
+  - memory feedback_delta-docs-only

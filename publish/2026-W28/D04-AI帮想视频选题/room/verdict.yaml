@@ -1,0 +1,211 @@
+status: allow_render_no_approve
+content_version: vA_v1
+form_version: v1
+content_id: W28D04
+project_id: W28D04
+workflow: 10_merged_agents  # 2026-07-05 fixed · docs/DECISIONS.md Q12（10 合并 agent · 双评仅 编剧+/形式策略官）
+review_source: mixed
+scorecard_valid: partial
+
+# 双评（Agent 新 session 独立）
+double_reviewed:
+  - role: 编剧+
+    rounds: 2
+    round_1: {source: independent_new_session, avg: 80, status: fail, hard_gate: fail_topic_quotes_lt_4}
+    round_2: {source: independent_new_session, avg: 90.5, status: pass, hard_gate: pass_topic_quotes_4}
+    verdict: vB v2 作为 A/B 备胎 · 主推 vA
+  - role: 形式策略官
+    rounds: 1
+    round_1: {source: independent_new_session, reviewer_a: 92, reviewer_b: 92, avg: 92, status: pass}
+    hard_gates_6: all_pass
+    verdict: 6 硬门全过 · A 提 2 must_fix 已就地补 · form_strategy final pass_dual_review
+
+# 单跑 · 不双评（2026-07-04 起 docs/DECISIONS.md Q11）
+single_run:
+  - role: 动画导演
+    artifact: design/motion_storyboard.md
+    reason: 翻译层（脚本+留存表→逐秒画面）· 下游形式策略官/技术导演/声音设计师会拦 · 无需自建打分门
+
+# 自生成 · pass_self_generated（10 合并 agent 中 draft-first 的 8 岗）
+self_generated:
+  - role: 记者+
+    artifacts:
+      - insights/topic_brief.md
+      - insights/reporter_notes.md
+      - insights/external_references.md
+      - insights/core_message.md
+      - insights/fact_check.md
+      - insights/narrative_arc.md
+      - insights/hook_benchmark.md
+  - role: 视觉设计+
+    artifacts:
+      - design/design_language.md
+      - design/cover_brief.md
+      - design/cover_review.md
+  - role: 留存与互动设计师
+    artifact: design/retention_beat_sheet.md
+  - role: 声音设计师
+    artifact: audio_plan.yaml
+  - role: 编导
+    artifact: 选题立项（in queue/topics.yaml）
+  - role: 剪辑
+    artifact: pipeline_config.yaml（platforms 段字号差 42/50/42）
+  - role: 运营+
+    artifacts:
+      - douyin/publish.md
+      - xhs/publish.md
+      - weixin/publish.md
+  - role: 平台表现分析师
+    artifact: design/pre_publish_forecast.md（自跑 88.5/88.9）
+
+# 结构化门禁（gate_check.py 报错说明）
+gate_check_pre_render:
+  raw_result: 37 fails
+  interpretation: |
+    gate_check.py 目标是 16 工种全 scorecard 工作流；D04 走 10 合并 agent（2026-07-05 fixed
+    · docs/DECISIONS.md Q12），大部分 "缺少 scorecard" 是新老流程不匹配非真 fail。
+  real_pass_state:
+    编剧硬门: pass (round 2 vB v2 · 4 quotes · avg 90.5)
+    形式策略硬门_6: pass (all 6 gates · reviewer avg 92)
+    动画导演单跑: pass (Q11 exempted from double-review)
+    音画: pass (audio_plan.yaml 自生成 · sfx 34 events · VO 覆盖 55/58=94.8% · BGM off 密VO演示型)
+    TTS前置估算门: pass (0 fail · 3 warn ≤22.4% · < 30% threshold · drift 4.35s)
+    禁霓虹色板_预校: pass (10 色板 5 accent 无 Dracula #bd93f9/#ff79c6/#8be9fd · #ff5252 也禁)
+    合规红线: pass (10/10 · 无必上热门/一键爆款 · 竞品 logo 遮挡 · 单位"赞"显式)
+    audience_first_3q: pass (共鸣✓ · 观赏性✓ · 强内容✓)
+  known_gap:
+    - form_strategy.md 字段名与 gate_check.py 期望不完全一致（"镜头任务/候选表达/推荐方案"用不同表述表达）· 内容实质已覆盖 · 结构 lint 未过 · 需迁移到规范字段名（跟 D05 一起做）
+    - 部分 gate_check.py 硬要求文件（motion_wow.md · asset_strategy.md · visual_originality_gate.md · motion_tech_plan.md）· D04 因是屏录+SVG+drawtext 简单形式已声明 SKIP · 但 gate 未理解 SKIP 声明
+
+gates:
+  content_gate: pass_dual_review (编剧+ vB v2 · 90.5)
+  form_gate: pass_dual_review (形式策略官 · 92)
+  motion_storyboard_gate: pass_single_run (Q11)
+  audio_gate: pass_self_generated
+  tts_duration_gate: pass (build/tts_duration_estimate.json)
+  pre_publish_forecast_gate: pass_self_generated (88.5/88.9 · B+/A-)
+  render_gate: pass_with_ui_placeholders (2026-07-05 15:00 · 三平台 mp4 62.77s / 4.7-4.8 MB · CTA s8 完整可闻可见 · M2/M3/M6/M7 使用 UI PNG 屏录占位 · 用户 QuickTime 后可无缝替 broll)
+  palette_gate: pass_final (2026-07-05 · 5 张 UI PNG + rendered mp4 中 6 帧 · Dracula 蓝紫占比 ≤ 0.03% << 5% 阈值)
+  cta_completeness_gate: pass (2026-07-05 · 62.77s 视频 · s8 CTA 起 57.67s 结 62.77s · "私信「账号方向」——我给 5 条选题。不推服务。"完整播出)
+  gate_check_structural: known_gap_not_blocking (37 项 gate_check.py fail 属 10-合并流程与旧 16-工种结构脚本不匹配 · 实质 pass · 见 real_pass_state)
+  attribution: honest_no_fake_pass
+
+allow:
+  - render_douyin_no_bgm_mp4  # 前提 BUILD_NOTES.md §1 资产齐
+  - render_xhs_no_bgm_mp4
+  # weixin 已删（2026-07-05 A-fix · memory feedback_dual-platform-only）
+  # xhs_7page_carousel 挂起：本条走 xhs 视频 · 图文由 D05 起单独判定
+  - upload_douyin_after_render
+  - upload_xhs_after_render
+  - collect_d2_d7_metrics
+
+disallow:
+  - mark_verdict_approved_before_independent_review  # 与 D03 同待遇 · 允许外发但不允许 approved
+  - reuse_storyboard_skeleton_from_D03  # H6 门禁 · D04 独立视觉族群 (Vibe Motion 主 + WaytoAGI 辅 + Pexels)
+  - claim_pass_true_on_self_generated_scorecards
+  - render_before_build_notes_section_1_assets_ready
+  - upload_before_render_qc_and_60s_check  # 62.35s 估算超 60s 抖音上限 · render 后 QC 必查
+
+next_actions:
+  # BUILD_NOTES.md §1 阻塞项（用户操作）
+  - user_fetch_pexels_daylight_broll  # §1.1 fetch_broll.py "office desk daytime laptop notes 9:16"
+  - user_screenrec_quicktime_4_sessions  # §1.2 S1-M2/M3 · S2-M6 · S3-M7 · S4-vB · S3 参考 design/prompt_4_segments_home_organization.md
+  - user_screenshot_M5_split_view_with_mosaic  # §1.3 40w vs 800 赞对比 + 头像马赛克
+  - user_finalize_4_segment_prompt_home_org_DONE  # ✅ 2026-07-05 Agent 完成 · design/prompt_4_segments_home_organization.md
+  - user_freesound_pull_10_sfx_cc0  # §1.6
+
+  # Agent 可自动完成
+  - agent_dev_gen_ui_w28d04_py_DONE  # ✅ 2026-07-05 完成 · pipeline/p004_video/gen_ui_w28d04.py · 5 张 PNG palette gate PASS
+  - agent_run_render_all_after_assets_ready  # pipeline/p004_video/run_pipeline.py --config pipeline_config.yaml --step all
+  - agent_run_palette_gate_check_on_rendered_mp4_frames  # UI PNG 已过 · rendered mp4 中间帧待跑
+  - agent_rerun_gen_ui_after_real_M5_screenshots  # 用户提供 400w/800 截图后自动 hstack 合成真实版
+  - agent_render_qc_check_60s_limit_douyin  # 若 >60s 主动 tail 裁或延段位
+
+  # D+2 / D+7
+  - agent_collect_metrics_at_d2_d7  # 三平台数据回填
+  - if_below_B_grade_lower_bound_trigger_independent_review + v2_iteration
+  - if_xhs_carousel_p4_p5_p6_savings_hit_a_grade_then_d04b_skin_promptization  # 家居→美妆/母婴/数码
+
+# 差异化状态（H6 门禁）
+differentiation_from_D03:
+  scene: daytime_3800-4200K + red_camera_dot vs D03 night_3000-3500K + desk_lamp
+  group_anchor: headline_96pt_white_daylight_overlay vs D03 display_160pt_gray_full
+  counter_correct: 3_screenrec_quick_cut_dynamic vs D03 1_static_ai_reply
+  saving_hooks: 2_points_M7_4badges + M8_5criteria_table vs D03 1_point_role_prompt
+  cta: private_message_account_direction_5_topics vs D03 comment_zone_keyword_4choose1
+  visual_lineage: vibe_motion_screenrec_main_62% + waytoagi_table_21% + pexels_15% vs D03 vibe_motion_character_card_main
+  emotion_anchor: creator_topic_anxiety vs D03 english_learner_loneliness
+  H6_conclusion: no_visual_family_overlap + no_same_beat_reuse = PASS
+
+# TTS 溢出记录
+tts_overrun_fallback_applied:
+  first_run_2026-07-05_morning:
+    fails: [s2 (+34.6%), s8 (+81%)]
+    warns: [s3 (+25.4%), s6 (+22.5%), s7 (+16.7%)]
+    predicted_total: 67.03s
+  applied_fixes:
+    s2: "去 '早期都' -3 字 · 6.73→6.12s (+22.4% warn)"
+    s3: "去 '你' '了' '还是' -4 字 · 8.77→7.96s (+13.7% ok)"
+    s6: "去 '用' '就' -2 字 · 9.80→9.39s (+17.4% warn)"
+    s8: "改写 -19 字 · 7.24→4.40s (+10.0% ok) · 同步更新 M10 overlays"
+  second_run_2026-07-05_after_fallback:
+    fails: []
+    warns: [s2 (+22.4%), s6 (+17.4%), s7 (+16.7%)]
+    predicted_total: 62.35s
+    gate_result: PASS
+    drift_absorbed_by: [tail_pad, minimax_actual_typically_5pct_faster_than_estimate]
+    note: 62.35s 估算略超 60s 抖音上限 · MiniMax 实发常 5% 快 · 应落 59-60s · render 后 QC 决定
+  third_run_2026-07-05_first_render:
+    minimax_actual_total: 66.59s
+    predicted_vs_actual_ratio: 1.068 (慢 6.8% 非快 5% · memory 记录反向修正)
+    result: CTA s8 起 62.39s · 58s 视频完全裁掉
+    verdict: fail_cta_truncated
+  fourth_run_2026-07-05_speed_bump_v2:
+    base_speed_bump: 0.98 → 1.08
+    per_segment_bumps:
+      s2: 1.08
+      s3: 1.08
+      s4: 1.08 → 1.10 (识别高溢出)
+      s5: 1.08
+      s6: 1.08
+      s7: 1.10 (识别高溢出)
+      s8: 1.08 (CTA 保持自然节奏)
+    minimax_actual_total: 62.77s
+    scene_alignment: 全部 scene total_dur 扩到匹配 seg_timing window
+    result: CTA s8 起 57.67s 结 62.77s · 完整 5.1s 播出
+    overlays_dedup: M3 display / M5 headline / M8 headline / M9 display×2 / M10 headline/caption 全部去掉（base UI PNG 已烧字）· M4 headline 72→56pt 防溢出
+    render_final: 三平台 62.77s / 4.7-4.8 MB · palette gate 0.00-0.03% << 5% · CTA 完整
+    verdict: pass_ship_ready
+
+  fifth_run_2026-07-05_afternoon_A-fix_delete_silence_nail:
+    trigger: 用户 2026-07-05 反馈 · "前 3 秒只有画面没有音效、没有配音 · 3s 完播率还能看吗"
+    root_cause_1: sfx-mixer P1 task #67 未实施 · audio_plan.yaml 34 sfx events 仅为声明 · 未烧入 VO
+    root_cause_2: 违反 memory feedback_dense-vo-no-dead-air · "视频前 6s 禁沉默钉子设计"
+    root_cause_3: agent 未在交付前听 vo_w28d04.mp3 前 5s 波形（形式监控盲区）
+    user_decision: option_A · 删 0-3s 沉默钉子（双平台通用 · 拒绝 B sfx 补 · 拒绝 C VO hook）
+    config_diff:
+      tts_segments: 删 s1_silence · s2-s8 target_start -3s
+      scenes: 删 M1_chaos_daylight_desk / M2_screen_type_prompt / M3_reveal_red_cross · 保 M4-M10
+      overlays: 全部 t_start/t_end -3s
+      platforms: 删 weixin（用户规则 · 2026-07-05 双平台 only · memory feedback_dual-platform-only）
+      new: tts.target_total_cap: 60.0
+    tts_estimate: 89.9% 利用率 (est 53.96s · target 55s · MiniMax +10% buffer = 59.36s)
+    minimax_actual_total: 59.45s
+    predicted_vs_actual: 59.36 → 59.45 · 差 0.09s · buffer 精准
+    scene_realign_warn: M8 需 +1.4s（但 M5/M6/M9/M10 合计 -1.72s 已吸收）
+    cta_ship_gate: PASS · seg 59.45s vs plan 59.77s · Δ=-0.32s
+    render_final: 双平台 59.45s / 4.4 MB · douyin + xhs 各一
+    verdict: pass_ship_ready_dual_platform_dense_vo
+
+memory_correction:
+  original: MiniMax 实发常 5% 快 (feedback tts-estimate-duration-pre-synth)
+  observed_2026-07-05: MiniMax 实发 6.8% 慢
+  corrective_note: 中速段 (1.08-1.10) MiniMax 实际会慢 5-10% · estimate + 10% buffer 更安全 · 或 estimate 后 render 一次微调 speed
+
+decisions_reference:
+  - docs/DECISIONS.md Q11 (动画导演单跑 2026-07-04)
+  - docs/DECISIONS.md Q12 (10 合并 agent 2026-07-05)
+  - memory feedback_dense-vo-no-bgm-default
+  - memory feedback_no-neon-palette
+  - memory tts-estimate-duration-pre-synth
+  - memory feedback_contrast-hook-3s

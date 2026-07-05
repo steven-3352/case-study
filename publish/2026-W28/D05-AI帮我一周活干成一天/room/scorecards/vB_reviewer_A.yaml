@@ -1,0 +1,57 @@
+scorecard_A:
+  reviewer: content-creator (独立 · 未见 B)
+  file: scripts/vB.md
+  timestamp: 2026-07-05
+  scores:
+    I_内容真实:
+      - {item: 1, name: "3s 钩子真实性", score: 92, note: "40h→8h 数字锚 + 主角睡姿 · 副标'我的项目实测'口径合规"}
+      - {item: 2, name: "场景细节可信", score: 90, note: "主角对镜口述+项目 backstory 合 reporter_notes §1；仅原话嵌入未见 8:00 睡姿延续细节"}
+      - {item: 3, name: "数据锚有出处", score: 96, note: "5 条锚全部标源（内部实测/R6/R4/R7/R3）· 罕见"}
+      - {item: 4, name: "原话引用属实", score: 88, note: "R6 少数派 vB 用'10 个'与 fact_check ⚠ 项标注'改口 5 个'冲突（fact_check 建议'与 topic_brief 一致'）· 需改口或标注引用原文"}
+      - {item: 5, name: "Project-001 化名合规", score: 94, note: "20 年互联网 + 海外自动化项目 · 未打真名"}
+      - {item: 6, name: "无虚假效果承诺", score: 92, note: "40h→8h 声明'我的项目实测' + 60/20/20 标'参考不套用'"}
+      - {item: 7, name: "无禁词", score: 96, note: "无财务自由/睡后收入/月入十万/变现秘籍 · 'AI 帮我解放不是印钞机'合规"}
+      - {item: 8, name: "无夸大", score: 88, note: "'一周活干成一天 · 上周睡了 6 天' 略夸张 · 与 reporter_notes §3 红线'我的项目 4 个月才跑通'冲突未声明"}
+      - {item: 9, name: "卡外卖点 = 0", score: 96, note: "P0-1 P0-2 P0-3 P1-4 P1-5 全落 · 无卡外"}
+      - {item: 10, name: '数字标注参考/实测', score: 94, note: "40h→8h='我的项目实测' · 60/20/20='参考不套用'"}
+      - {item: 11, name: "边界声明清晰", score: 92, note: "'AI 提效 ≠ 变现' + '不是教你搞钱' 边界双落"}
+      - {item: 12, name: "skin 受众一致", score: 90, note: "'一人公司/20 年互联网/海外自动化项目'命中；未点独立开发/SOHO/内容矩阵扩展受众"}
+      avg_I: 92.3
+    II_观赏性:
+      - {item: 13, name: "3s 反差冲击", score: 82, note: "vB 0-3s 无 punch 段（自己写死 vs vA）· 数字锚静态大字 · 反差冲击弱于反差锚 3 拍 · 未违门槛但为 A/B 备胎主用途"}
+      - {item: 14, name: "VO 覆盖 ≥85%", score: 92, note: "3-58s 密集口播 · 前 3s 静默是设计（数字锚模式）· 覆盖率约 92%"}
+      - {item: 15, name: "无 3s+ 死区", score: 92, note: "0-3s 静默由 sfx 3 声 + tick x3 + hit 撑住 · 非死区"}
+      - {item: 16, name: "sfx 4 类必覆盖", score: 90, note: "whoosh 3 + tick 4 + hit 6+ + ambient 落底 · 14 次达标"}
+      - {item: 17, name: "BGM off 一致", score: 96, note: "未提 BGM · 密 VO 演示型默认无 BGM 一致"}
+      - {item: 18, name: "每 5-8s 视觉变化", score: 88, note: "8 段（原节拍表 9 段）· 22-25s 虎嗅原话镜仅 3s · vA 反差锚 3 拍被合并为 1 张数字大字 · 变化频次略降"}
+      - {item: 19, name: "单段 ≤35%", score: 92, note: "25-40s 三层演示 15s = 26% · 未超门槛"}
+      - {item: 20, name: "字幕不遮挡", score: 88, note: "'25-40s 三层堆叠 · 可长按暂停截屏'未明写字幕布局 · 需 storyboard 层保障"}
+      - {item: 21, name: "大字节奏", score: 88, note: "数字锚 40h→8h + R6/R4/R7 原话字幕 + 60/20/20 表格 + CTA · 大字 5 次；'AI 是杠杆不是印钞机'仅字幕一层承接"}
+      - {item: 22, name: "UI 屏录合规", score: 92, note: "Notion + Cursor + n8n 原生 UI · Project-001 化名 · V2EX 帖子截图小字（需打码用户名）"}
+      - {item: 23, name: "屏切自然", score: 88, note: "whoosh x3 分层 + hit 落地 · 但 15-22s 屏录+帖子截图混切需 motion 层保障"}
+      - {item: 24, name: "时长 55-58s", score: 94, note: "总长 58s 内 · 分段合理"}
+      avg_II: 90.0
+    III_强内容:
+      - {item: 25, name: "P0-1 三层顺序落地", score: 94, note: "25-40s 15s 全屏堆叠 SOP→AI→系统 · 收藏动机清晰"}
+      - {item: 26, name: "P0-2 60/20/20 落地", score: 94, note: "40-46s 表格 + R3 搜狐原话 + 实测双落 · 标'参考'"}
+      - {item: 27, name: "P0-3 AI 提效≠变现落地", score: 92, note: "15-22s R4 V2EX 原话 + 46-54s '不是印钞机'边界双落"}
+      - {item: 28, name: "P1-4 三种烂做法落地", score: 78, note: "vB 只嵌入 R6 少数派原话（切来切去）· **烂做法 ②③ 未落**（想全自动+只自动化最容易的）· P1-4 三种缺 2 种"}
+      - {item: 29, name: "3 层演示可收藏", score: 94, note: "'可长按暂停截屏'明写 · 三层堆叠具体（Notion/Cursor/n8n）"}
+      - {item: 30, name: "60/20/20 表格可截屏", score: 92, note: "40-46s 表格上屏 · 具体动作示例待 storyboard 补 · 已含'参考'字样"}
+      - {item: 31, name: "Project-001 化名结构可复用", score: 82, note: "vB 未走 xhs 图文 P6 的'询盘→AI 分类→方案 v0.3→决策 5 min' 4 步流程 · 抖音段仅口述'海外自动化项目' · 结构可复用度弱于 vA/xhs"}
+      - {item: 32, name: "CTA 具体可答", score: 94, note: "'私信项目+卡点 → 可自动化的第 1 步' · 低门槛具体"}
+      - {item: 33, name: "私信路径清晰", score: 94, note: "私信 · 不走评论 · skin.landing_intent 一致"}
+      - {item: 34, name: "5 判据/结构承诺可验证", score: 82, note: "3 层顺序 + 60/20/20 + 项目结构可验证 · 但未含'5 判据'类可核对结构 · 承诺'可自动化的第 1 步' 具体化程度中等"}
+      - {item: 35, name: "反变现话术边界", score: 94, note: "'AI 帮我解放不是印钞机'+ '我不是教你搞钱' 双落 · R4/R7 原话锚强化"}
+      - {item: 36, name: "与 D04 差异化清晰", score: 92, note: "D04 中腰部创作者/摄像头空场/4 段 prompt vs D05 一人公司/手机推送+3 层顺序 · 无重叠"}
+      avg_III: 90.2
+  overall_avg: 90.8
+  verdict: PASS
+  top_3_issues:
+    - {item: 28, score: 78, comment: "P1-4 三种烂做法只嵌入 R6（60% 装 AI 未接起）· 烂做法 ②（25% 想全自动化）③（15% 只自动化最容易）未在片内出现 · 建议 15-22s 段并入 ②③ 快切大字批注（'花 3 月搭工作流' / '省 10 min 累 6h'）· 保 R4 V2EX 原话"}
+    - {item: 13, score: 82, comment: "0-3s 数字锚 vs vA 反差锚 3 拍：punch 段被合并静态大字 · 反差冲击弱化 · 若 vB 用作 A/B 备胎可接受；若单跑抖音需补 1-1.6s punch 段（如手机推送 3 条动态入）"}
+    - {item: 31, score: 82, comment: "Project-001 化名结构 vB 抖音段仅口述'海外自动化项目' · 结构可复用度弱 · 建议 25-40s 三层演示段并入'询盘→AI 分类→方案 v0.3→决策 5 min' 4 步简版 flow"}
+  top_3_strengths:
+    - {item: 3, score: 96, comment: "5 条锚全部标源（内部实测/R6/R4/R7/R3）· 数据锚有出处项罕见 96 · 反 D04 数字化承诺教训彻底"}
+    - {item: 7, score: 96, comment: "禁词表零违规 · 'AI 帮我解放不是印钞机'替代'睡后收入'话术优雅"}
+    - {item: 9, score: 96, comment: "卡外卖点 = 0 · P0-1/2/3 + P1-4/5 全落 · 无编造"}

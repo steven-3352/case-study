@@ -1,0 +1,852 @@
+# 分镜清单 · storyboard · W28D04 AI 帮想视频选题
+# 工种：导演（执行）+ 摄像/视觉
+# 依赖：
+#   - form_competition.md（方案 A · 家族 pipeline · 69/60 分 · 唯一可执行方案）
+#   - form_strategy.md（pass_dual_review avg=92 · 10 段 6 种形式 ID · M7 26% <40%）
+#   - motion_storyboard.md（pass_single_run · Vibe Motion 主 + WaytoAGI 辅混合 · 10 段 × 9 字段逐秒）
+#   - design_language.md（10 色板 · 12 组件 · vA/vB v2 逐镜应用）
+#   - retention_beat_sheet.md（9 段 55-58s · 抖音；7 页轮播 · 小红书；65-72s · 视频号）
+#   - cover_brief.md（三平台差异化封面策略）
+# 状态：draft_self_generated · 2026-07-05
+#
+# 用于 pipeline：Pexels 白天办公 3800-4200K 新拉 + QuickTime 真机屏录 AI 对话框 4 场次 + drawtext/drawbox 大字 + SVG 覆盖 accent_red 红叉 / accent_soft 淡黄 badge / accent_green 静态打勾 + 分屏静图（马赛克遮挡）+ ffmpeg 合成
+# 不走 pipeline/p004 GSAP 场景（motion_tech_plan SKIP · 无 Web 3D/GSAP）
+# 不走 integrations/openmontage（openmontage_brief blocked_infrastructure · 见 openmontage_brief.md）
+# 推荐流水线：pipeline/p004_video/lib config-driven（pipeline_config.yaml + run_pipeline.py --step all）· 字幕烧录走 gen_subs + /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg + libass
+
+meta:
+  content_id: W28D04
+  slug: AI帮想视频选题
+  script_version: vA  # 抖音主推 chaos-punch-reveal 型（vB v2 备胎见文末 vB_backup_diff）
+  platform: douyin  # 视频号同抖音口径（65-72s 加长版差异见 wechat_video_extension）· 小红书 7 页轮播见 xhs_carousel
+  duration_s: 58
+  canvas: [1080, 1920]  # 9:16
+  fps: 30
+  bgm_layer: 0  # 密 VO 演示型 · BGM off（feedback_dense-vo-no-bgm-default）
+  vo_coverage_target: 0.85  # VO ≥85% 无 3s+ 死区（feedback_dense-vo-no-dead-air）
+  sfx_layer: 1  # sfx 4 类必覆盖：whoosh × 4 + tick × 3 + hit × 5-8 + ambient 全片
+  subtitle_burn_pipeline: gen_subs + ffmpeg-full libass  # 三平台字号差 42/50/42 by pipeline
+  audience_pool: 中腰部创作者·自媒体运营
+  skin:
+    persona_anchor: 做了 20 年互联网 · 自己在做自媒体引擎的同行
+    tone_direction: 同行说话 · 不 preach · 不 sell 秘籍
+    landing_intent: 私信喂选题 · 不推付费群/星球/课程 · SLA 24h
+
+# ─────────────────────────────────────
+# 抖音 58s · 10 段镜头（vA 主推 · 对应 motion_storyboard §3 逐秒表）
+# ─────────────────────────────────────
+
+scenes:
+  - id: M1_chaos_daylight_desk
+    time_range: [0, 1]
+    intent: 停划 · chaos · 白天办公空场
+    format_id: chaos_broll
+    template: null
+    reuse_reason: null
+    visual_difference: |
+      D02 打工人下班 18:55 傍晚 · D03 深夜 23:12 台灯 · **D04 白天 3800-4200K 摄像头亮红点**（三日光温 / 场景 / 时间戳全不同）
+    picture: |
+      Pexels 白天办公桌俯拍 3800-4200K + 键盘 + 摄像头亮红点 + 手悬键盘不落 + 空笔记本（页面白）
+      构图：俯拍角度 · 桌面 70% 画面 · 键盘居中 · 摄像头右上或右下（红点必须清晰可见）· 空笔记本左侧
+      Pexels 素材候选（需新拉 fetch_broll.py）：
+        - 关键词组 A：`daylight office desk overhead`（俯拍角度）
+        - 关键词组 B：`webcam recording setup`（摄像头亮红点）
+        - 关键词组 C：`hand hovering keyboard morning`（手悬键盘）
+        - 关键词组 D：`blank notebook desk morning`（空笔记本）
+      目标 4-6 条候选 · 优先"俯拍 + 摄像头红点可见 + 白天光"的一条
+      若无摄像头红点素材：drawbox 小红点 5×5 覆盖右上角 · 真机风格 · 不做发光特效
+    voiceover: null  # 首秒沉默钉子
+    subtitle:
+      text: null  # 无字幕（1s 认领感靠画面）
+      style: null
+    audio:
+      env: 白天办公环境音 ambient（-24dB · AC 底噪 + 远处交通）
+      sfx: [tick 0.3s -15dB 手悬键盘不落拍点]
+      bgm: none
+    assets_needed:
+      - Pexels 白天办公桌 3800-4200K B-roll × 1（新拉 · 目标俯拍 + 摄像头红点 + 空笔记本）
+    forbidden:
+      - AI 生图书桌 / 键盘 / 摄像头（Q9 chaos_must_be_real_footage 硬拦）
+      - HTML 仿真办公桌
+      - 深夜暖光 / 傍晚傍光（必须白天 3800-4200K · 与 D03/D02 显式区分）
+      - Dracula 霓虹色（gate_check_palette.py 硬拦）
+
+  - id: M2_screen_type_prompt
+    time_range: [1, 1.6]
+    intent: punch · 屏录 AI 对话框 · 打字冲击
+    format_id: broll_demo
+    template: null
+    picture: |
+      QuickTime 真机屏录（macOS 或 iPhone · 建议 ChatGPT 界面 · 识别度高）
+      屏幕特写切入（硬切从 M1 俯拍到屏幕特写 · 无过渡镜头 · 同 tick sfx 拍点）
+      AI 对话框深色系 · 光标闪（500ms/次）· 手落键盘 · 打字「帮我想 10 个抖音选题」14 字（30ms/字 · 真人节奏）· 敲回车
+      保留 iOS/macOS 状态栏 + AI 对话框原生 UI · 不打 AI 工具 logo
+      屏录 UI 铁律：禁裁掉状态栏 · 禁抠白底 · 禁加自造装饰性框
+    voiceover: null  # VO 从 M4 3s 处才起
+    subtitle:
+      text: null  # 打字过程本身即视觉字幕
+      style:
+        font_type: mono 32pt（屏内文字非叠层字幕）
+    audio:
+      env: 打字声真实拟音（14 声 -8dB · 每字 30ms）
+      sfx: [tick 敲回车 -12dB]
+      bgm: none
+    assets_needed:
+      - QuickTime 真机屏录 × 1 场次（M2 部分 · 时长 0.6s · 打字 14 字 + 回车）
+      - 打字拟音 14 声（真人录制或 Freesound `keyboard typing single` CC0）
+    forbidden:
+      - AI 生成的 AI 对话界面
+      - HTML 仿真 AI 对话框
+      - 打 ChatGPT/DeepSeek/豆包 logo（UI 原生色允许 · logo 遮挡或马赛克）
+      - 亮白 #ffffff 底
+
+  - id: M3_reveal_red_cross
+    time_range: [1.6, 3]
+    intent: reveal · 反差爆点 · AI 输出被红叉打掉
+    format_id: broll_demo + svg_overlay + punch_black
+    template: null
+    picture: |
+      QuickTime 屏录续场 · AI 对话框输出 3 条固定文案（可复现 · 家居收纳版）：
+        - 「如何做好家居收纳」
+        - 「浅谈家居收纳的重要性」
+        - 「5 个家居收纳误区」
+      3 条 1s 内快速打字机式出现 → 3 次 accent_red `#e53935` 红叉 whoosh 从右上横向划过打掉（每次 0.3s · 静态 SVG + CSS transition · 禁 GSAP 弹跳）
+      → display 140pt 白字入「打"帮我想 10 个" / AI 全给"如何做好"」屏中央 · 两行 · 2px canvas_office_dark 深色描边（增强白字在深色屏幕上的可读性）
+    voiceover: null  # 3s 前无 VO
+    subtitle:
+      text: '打"帮我想 10 个" · AI 全给"如何做好"'
+      style:
+        font: 苹方 · display 140pt · 权重 900
+        color: 白字 #f5f5f0 · 2px canvas_office_dark 深色描边
+        position: 屏幕中央（两行居中）
+        appear_at: 2.4
+        exit_at: 3.0
+        transition: drawtext 淡入 0.3s
+      forbidden: [emoji, 感叹号, 花字, Dracula 紫粉青]
+    audio:
+      env: 无
+      sfx:
+        - whoosh × 3 每次 0.3s -10dB（红叉横划）
+        - hit × 1 -8dB（大字入拍点 2.4s）
+      bgm: none
+    assets_needed:
+      - QuickTime 真机屏录续场（M2 无缝续 · 时长 1.4s）
+      - SVG accent_red 红叉 × 3（静态 · 权重 900 · 4rpx 硬边角）
+      - drawtext 苹方字体（PingFang SC / Source Han Sans）
+    forbidden:
+      - 3D 立体红叉
+      - GSAP 弹跳打勾/打叉动画
+      - 亮白背景
+
+  - id: M4_group_anchor
+    time_range: [3, 8]
+    intent: 认领 · 9 成群体锚 · 白天办公实景叠层
+    format_id: chaos_broll + punch_black overlay
+    template: null
+    visual_difference: |
+      D03 92% 群体锚 display 160pt 全屏灰底大字 · **D04 9 成群体锚 headline 96pt 白字实景叠层**（显式区分版式）
+    picture: |
+      Pexels 白天办公 B-roll（主角背影 + 摄像头亮 + 空笔记本 · 白天光 3800-4200K）
+      构图：主角背影俯拍或侧影（不露脸 · 保代入性）+ 摄像头亮红点右上或右下 + 空笔记本
+      B-roll 静止或缓慢向前推 0.5%/s（几乎不可察觉 · 增加视频感避免静图感）
+      3.5s 处：headline 96pt 白字「9 成中腰部创作者遇到选题问题」淡入 0.3s + hold 到 8s
+      同时 caption 24pt 白字「引 知乎专栏 A 级」右下角淡入
+      Pexels 素材候选（同 M1 白天办公库 · 可复用不同镜头 · 也可新拉）：
+        - `hand hovering keyboard morning`
+        - `blank notebook desk morning`
+        - `behind view of person at desk daylight`
+    voiceover: |
+      「上周我也这样。9 成中腰部创作者早期都遇到选题问题——不是你的问题。」
+    subtitle:
+      text_seq:
+        - "9 成中腰部创作者遇到选题问题"
+      style:
+        font: 苹方 · headline 96pt · 权重 700
+        color: 白字 #f5f5f0（视 B-roll 光线可调 · 若 B-roll 太亮加 drawbox 半透明黑底衬）
+        position: 屏幕中央偏上
+        appear_at: 3.5
+        exit_at: 8.0
+        transition: drawtext 淡入 0.3s
+      source_caption:
+        text: "引 知乎专栏 A 级"
+        font: 苹方 · caption 24pt
+        color: 白字 #f5f5f0 · muted 半透明
+        position: 屏幕右下角
+        appear_at: 3.5
+        exit_at: 8.0
+      forbidden: [emoji, 感叹号, 无来源标注（弱信任）, 全屏灰底大字（D03 版式禁复用）]
+    audio:
+      env: 白天办公环境音延续 -20dB
+      sfx: [tick 3s 处 -15dB VO 起拍]
+      bgm: none
+      vo_start: 3.0  # VO 从 3s 处开始覆盖 · 到 58s
+    assets_needed:
+      - Pexels 白天办公主角背影 B-roll × 1（新拉 · 可与 M1 同库不同镜头）
+      - drawtext 苹方字体
+    forbidden:
+      - AI 生图主角
+      - 全屏灰底 display 160pt 大字（D03 92% 版式禁复用）
+      - 「必上热门」「一键爆款」等承诺
+      - 泛化"打工人焦虑"（D04 群体是中腰部创作者非打工人）
+
+  - id: M5_split_screen_400w_vs_800
+    time_range: [8, 15]
+    intent: 情绪释放 · 反爆款抱怨 · 40w 赞 vs 800 赞
+    format_id: before_after + punch_black
+    template: null
+    picture: |
+      分屏 50/50 · 8s 处 hard cut 硬切进分屏（同 hit sfx 拍点）
+      左半屏：同行「40w 赞」爆款截图（马赛克遮挡真实同行头像/账号名 · 只留赞数 + 分类）
+      右半屏：「我 800 赞」自己截图（同样马赛克 · 单位显式硬约束"赞"字必须出现 · 避 800 粉起号歧义）
+      中间 2px ink_light `#f5f5f0` 白分割线
+      9.5s 处：headline 96pt 白字类比锚居中偏下「40w 赞 vs 我 800 赞」drawtext 淡入 0.3s + hold
+      10s 处：caption 32pt 副标「翻竞品 30 分钟存 8 张截图 · 一条不想拍」淡入
+    voiceover: |
+      「你翻了半小时竞品，存了 8 张截图，还是一条不想拍。同行 40w 赞我也拍过——我只有 800。」
+    subtitle:
+      text_seq:
+        - "40w 赞 vs 我 800 赞"  # headline 主大字
+        - "翻竞品 30 分钟存 8 张截图 · 一条不想拍"  # caption 副标
+      style:
+        headline:
+          font: 苹方 · headline 96pt · 权重 700
+          color: 白字 #f5f5f0
+          position: 屏幕中央偏下（分屏图下方 25%）
+          appear_at: 9.5
+          exit_at: 15.0
+        caption:
+          font: 苹方 · caption 32pt · 权重 500
+          color: 白字 #f5f5f0 · muted 半透明
+          position: 屏幕底部
+          appear_at: 10.0
+          exit_at: 15.0
+      forbidden: [emoji, 感叹号, 三分屏以上, 图之间装饰性边框, 无单位"赞"字（vB v2 verdict 硬约束）]
+    audio:
+      env: 无
+      sfx: [hit 8s 硬切拍点 -8dB, hit 9.5s 大字入拍点 -8dB]
+      bgm: none
+    assets_needed:
+      - 真机截图 × 2（40w 赞爆款 + 800 赞自截 · PhotoRoom 或 PixelMator 打马赛克遮挡真实头像/账号名）
+      - ffmpeg hstack 分屏 + drawbox 分割线
+      - drawtext 苹方字体
+    forbidden:
+      - 打真实同行 logo / 账号名
+      - 三分屏以上
+      - 图之间装饰性边框
+      - 大字叠图中间遮挡视觉焦点
+
+  - id: M6_wrong_prompt_3_flash
+    time_range: [15, 25]
+    intent: 反面正解 · 3 段烂 prompt 快切
+    format_id: broll_demo + svg_overlay
+    template: null
+    picture: |
+      QuickTime 屏录 3 段快切（每段约 3.3s）· 3 个 AI 对话框实录
+      每段结构：
+        - 15-15.3s：屏录 1.5s AI 对话展示反例
+        - accent_red 2px 描边淡入 0.3s（只在关键错误行不全屏描边）
+        - caption 28pt 大字批注 drawtext 淡入 0.3s
+        - hit sfx 拍点
+      3 段反例：
+        ① 「帮我想 10 个」→ AI 通用套话（如「如何做好...」）· 批注「跳过身份卡」
+        ② 「加平台词：帮我想 10 个抖音选题」→ 同行都在拍的模板 · 批注「跳过账号定位」
+        ③ 让 AI 抄爆款：「帮我想 10 个类似 XX 的选题」→ 换个数字的同质品 · 批注「跳过粉丝痛点」
+      段间 whoosh 快速过渡 -12dB
+    voiceover: |
+      「我以前也这么干：让 AI 帮我想 10 个 → 都是「如何做好 XX」·『加平台词』→ 同行都在拍的模板 · 让 AI 抄爆款 → 换个数字的同质品。」
+    subtitle:
+      text_seq:
+        - "跳过身份卡"
+        - "跳过账号定位"
+        - "跳过粉丝痛点"
+      style:
+        font: 苹方 · caption 28pt · 权重 500
+        color: 白字 #f5f5f0 · 「跳过 X」文字加 accent_red 描边 1px 强调
+        position: 屏幕上方或对齐反例文本
+        appear_at_seq: [16.5, 20.0, 23.5]
+        exit_at_seq: [18.3, 21.8, 25.0]
+        transition: drawtext 淡入 0.3s
+      forbidden: [emoji, 全屏描边（视觉负担重）, 装饰性图标]
+    audio:
+      env: 无
+      sfx:
+        - hit × 3（每段拍点 · 16.5s / 20s / 23.5s · -8dB）
+        - whoosh × 2 段间过渡（18.5s / 22s · -12dB）
+      bgm: none
+    assets_needed:
+      - QuickTime 屏录 × 3 段（3 个 AI 对话框实录 · 反例 prompt 家居收纳版）
+      - SVG accent_red 描边 × 3（静态 · 2px）
+      - drawtext 苹方字体
+    forbidden:
+      - 全屏 accent_red 描边（视觉负担重）
+      - 装饰性图标
+      - emoji
+      - 打 AI 工具 logo
+
+  - id: M7_4_prompt_demo_core
+    time_range: [25, 40]
+    intent: 演示核心 · 4 段 prompt · 收藏动机第一位
+    format_id: broll_demo + svg_accent_soft_badge
+    template: null
+    picture: |
+      QuickTime 屏录 AI 对话框深色系 · 主场（15s 连续 · 26% 全片占比 · 单场景最长）
+      25-27s：粘贴完整 4 段 prompt（家居收纳版 · JetBrains Mono 32-40pt）全屏可见
+      27-40s：AI 表格输出 10 条候选（每条 1s 打字机式出现 · 表格列 = 标题/场景/钩子/成本/差异化）
+      accent_soft `#ffc857` 淡黄底 4 段 badge SVG 覆盖（依次淡入 0.5s + 停 3-4s · 4 段总时长 14s 在 15s 段内）：
+        - 27.5s：「身份卡」badge 淡入
+        - 30.5s：「账号定位」badge 淡入（+ whoosh -12dB 段间过渡）
+        - 33.5s：「粉丝痛点」badge 淡入（+ whoosh -12dB）
+        - 36.5s：「输出约束」badge 淡入（+ whoosh -12dB）
+      底部 caption 28pt「可长按暂停截屏抄」全程 hold（收藏动机点明示）
+    voiceover: |
+      「换个打开方式。打开 AI，粘上 4 段 prompt：身份卡、账号定位、粉丝痛点、输出约束。同一个 AI，10 条候选，标题、场景、钩子、成本、差异化都齐了。」
+    subtitle:
+      text_seq:
+        - "身份卡"
+        - "账号定位"
+        - "粉丝痛点"
+        - "输出约束"
+      style:
+        badge:
+          font: 苹方 · headline 88pt · 权重 700
+          background: accent_soft #ffc857 淡黄底
+          color: ink #1a1a1a 黑字
+          shape: 圆角 4rpx 硬边角 · 无描边
+          position: 屏幕右侧或屏幕上方（不遮挡 prompt 内容）
+          appear_at_seq: [27.5, 30.5, 33.5, 36.5]
+          hold_seq: [3.0, 3.0, 3.0, 3.0]
+          transition: fade in 0.5s + hold 3s + fade out 0.5s
+        prompt_text:
+          font: JetBrains Mono / SF Mono · 32-40pt · 权重 400
+          color: 屏内 UI 原生
+        bottom_caption:
+          text: "可长按暂停截屏抄"
+          font: 苹方 · caption 28pt · 权重 400
+          color: 白字 #f5f5f0 · muted 半透明
+          position: 屏幕底部
+          appear_at: 25.5
+          exit_at: 40.0
+      forbidden: [荧光黄 #ffff00, 4 段挤一屏, 段名彩色, 数字 GSAP 跳动, 每段之间装饰性图标]
+    audio:
+      env: 无
+      sfx:
+        - whoosh × 3 段间过渡（30.5s / 33.5s / 36.5s · -12dB）
+      bgm: none
+    assets_needed:
+      - QuickTime 屏录 × 1 主场（15s 连续 · 家居收纳版 4 段 prompt 演示）
+      - 4 段 prompt 家居收纳版全文（generated_fact 声明 · 家居收纳 skin 化）
+      - SVG accent_soft 淡黄底 badge × 4（静态 · headline 88pt 段名）
+      - drawtext 苹方字体（badge 段名 + 底部 caption）
+    forbidden:
+      - HTML 仿真 AI 对话框
+      - GSAP 数字跳动
+      - AI 生成的表格输出
+      - 打 AI 工具 logo
+
+  - id: M8_5_criteria_table
+    time_range: [40, 48]
+    intent: 5 判据表格 · "10 里 8" · 收藏动机第二位 · 可测承诺兑现
+    format_id: punch_black + svg_check_marks
+    template: null
+    picture: |
+      canvas_office_dark `#1a1a1a` 灰底全屏
+      40-40.5s：灰底淡入 0.3s + 表格从上到下扫入 0.5s（10 行）
+      表格结构：横行 = 10 条候选选题左列 · 纵列 = 5 判据（具体场景 / 前 3s 钩子 / 差异化 / 可拍性 / 粉丝相关）
+      41-45s：accent_green `#4caf50` sober 静态打勾从左到右逐个出现（8 个 · 每个 hit sfx 打点 -10dB）+ accent_red `#e53935` 静态打叉 2 个（同 sober 口径）
+      45-48s：headline 96pt 白字大结论「10 里 8 · 能用」从下到上淡入 0.5s + hit sfx 强拍点（-8dB · 45s 处）
+      同时 caption 28pt「5 判据 · 通过 4 条即能用」淡入
+      静态打勾禁 GSAP 动画（直接显示即可）
+    voiceover: |
+      「10 条里 8 条能用——用 5 判据筛（具体场景 / 前 3s 钩子 / 差异化 / 可拍性 / 粉丝相关），通过 4 条就能拍。」
+    subtitle:
+      text_seq:
+        - "10 里 8 · 能用"  # headline 主大字
+        - "5 判据 · 通过 4 条即能用"  # caption 副标
+      style:
+        table:
+          header_font: 苹方 · headline 42pt · 权重 700  # 表头（form_strategy §5 硬约束）
+          cell_font: 苹方 · body 32pt · 权重 500  # 单元格（form_strategy §5 硬约束）
+          color: 白字 #f5f5f0
+          background: canvas_office_dark #1a1a1a
+          divider: 1px muted #7a7a7a
+        headline:
+          font: 苹方 · headline 96pt · 权重 700
+          color: 白字 #f5f5f0
+          position: 屏幕中央偏下
+          appear_at: 45.0
+          exit_at: 48.0
+          transition: 淡入 0.5s
+        caption:
+          font: 苹方 · caption 28pt · 权重 500
+          color: 白字 #f5f5f0 · muted 半透明
+          position: 屏幕底部
+          appear_at: 45.5
+          exit_at: 48.0
+      forbidden: [彩色数字, GSAP 打勾动画, 表格 3D 效果, 花色底, 表格外装饰边框, 大结论彩色数字]
+    audio:
+      env: 无
+      sfx:
+        - hit × 8（accent_green 打勾逐个拍点 · 41-45s · -10dB）
+        - hit × 2（accent_red 打叉拍点 · -10dB）
+        - hit × 1（headline 大字入 45s 拍点 · -8dB 强）
+      bgm: none
+    assets_needed:
+      - SVG 表格结构（10 行 × 5 列 · headline 42pt 表头 + body 32pt 单元格）
+      - SVG accent_green `#4caf50` 静态打勾 × 8
+      - SVG accent_red `#e53935` 静态打叉 × 2
+      - drawtext 苹方字体
+    forbidden:
+      - GSAP 打勾动画（禁弹跳）
+      - 表格 3D 效果
+      - 大结论彩色数字
+      - 花色底
+      - 表格外装饰边框
+
+  - id: M9_anti_tutorial_value_anchor
+    time_range: [48, 54]
+    intent: 反教程价值锚 · 差异化承诺 · 全屏灰底大字
+    format_id: punch_black
+    template: null
+    picture: |
+      全屏 canvas_office_dark `#1a1a1a` 灰底 · 无 B-roll 只有字
+      48-48.5s：M8 表格淡出 0.3s → 灰底全屏无字 0.2s hold（呼吸）
+      48.5-50s：第 1 行「不是教你」display 140pt 白字 drawtext 淡入 0.5s + hold
+      50-52s：第 2 行「是把 4 段 prompt 给你」display 140pt 白字下方淡入 0.5s + hold
+      52-54s：两行 hold 2s + ambient sfx 落底 + hit sfx 收尾
+    voiceover: |
+      「不是教你用 AI —— 是把我上周 30 分钟搞定下周 5 条的那 4 段 prompt，直接给你。」
+    subtitle:
+      text_seq:
+        - "不是教你"
+        - "是把 4 段 prompt 给你"
+      style:
+        font: 苹方 · display 140pt · 权重 900
+        color: 白字 #f5f5f0
+        position: 屏幕中央（两行居中）
+        appear_at_seq: [48.5, 50.0]
+        exit_at_seq: [54.0, 54.0]
+        transition: drawtext 淡入 0.5s
+      forbidden: [emoji, 3 行标题, 花字, 感叹号, 装饰性 pattern, B-roll 干扰]
+    audio:
+      env: ambient 落底 -22dB
+      sfx: [hit 52s 拍点 -8dB, hit 54s 收尾 -8dB]
+      bgm: none
+    assets_needed:
+      - drawtext 苹方字体
+      - ambient sfx 落底（Freesound `low ambient hum` CC0 · -22dB · loop）
+    forbidden:
+      - 3 行标题
+      - emoji + 感叹号
+      - 花字
+      - 背景装饰性 pattern
+      - B-roll 底
+
+  - id: M10_cta_dm_prompt_offer
+    time_range: [54, 58]
+    intent: 互动 CTA · 私信喂选题 · 具体承诺
+    format_id: punch_black
+    template: null
+    picture: |
+      canvas_office_dark `#1a1a1a` 灰底 · 无 B-roll
+      54-54.5s：M9 大字淡出 0.3s → 灰底 hold 0.2s
+      54.5-56s：CTA headline 88pt 白字「私信「你在做什么账号 · 想拍什么方向」→ 我给你 5 条选题」drawtext 淡入 0.5s + hold
+      56-57s：caption 28pt 底部小字「同行互助 · 不推服务」淡入 0.3s + hold
+      57-58s：hit sfx 收尾 + hold
+    voiceover: |
+      「私信『你在做什么账号、想拍什么方向』——我给你 5 条选题。同行互助，不推服务。」
+    subtitle:
+      text_seq:
+        - "私信「你在做什么账号 · 想拍什么方向」→ 我给你 5 条选题"  # headline CTA
+        - "同行互助 · 不推服务"  # caption 底部小字
+      style:
+        headline:
+          font: 苹方 · headline 88pt · 权重 700
+          color: 白字 #f5f5f0
+          position: 屏幕中央
+          appear_at: 54.5
+          exit_at: 58.0
+          transition: drawtext 淡入 0.5s
+        caption:
+          font: 苹方 · caption 28pt · 权重 500
+          color: 白字 #f5f5f0 · muted 半透明
+          position: 屏幕底部
+          appear_at: 56.0
+          exit_at: 58.0
+      forbidden: [emoji, 感叹号, 「点这里」箭头, 弹幕特效, 亮色 CTA 按钮, 「必上热门」承诺]
+    audio:
+      env: ambient 落底延续 -22dB
+      sfx: [hit 57s 收尾 -8dB]
+      bgm: none
+    assets_needed:
+      - drawtext 苹方字体
+    forbidden:
+      - 「点这里」箭头
+      - 弹幕特效
+      - 亮色 CTA 按钮
+      - emoji + 感叹号
+      - 承诺"必上热门"/"月涨粉 X 万"/"变现"
+
+# ─────────────────────────────────────
+# vB v2 备胎逐镜差异（若 vA 3s 完播 <52% 切换 · 仅列出与 vA 不同镜头）
+# ─────────────────────────────────────
+
+vB_backup_diff:
+  trigger_condition: vA 3s 完播 <52%（或 pre_publish_forecast 判定 vA 首镜 completion_3s 低于阈值）
+  scenes:
+    - id: M1_vB_scene_anchor
+      time_range: [0, 3]
+      diff_from_vA: |
+        vA 用屏录 chaos-punch-reveal 三拍 · vB v2 用实景 B-roll + display 大字（无屏录 · 备胎定位下的场景锚版本）
+      picture: |
+        Pexels 白天办公主角背影 + 摄像头亮 + 空笔记本
+        右下角秒表小字 caption 32pt muted `#7a7a7a` 灰色「30:00」静态非动画（vB v1 反向倒数已删）
+        display 140pt 白字入「空半小时 · 0 条选题」屏中央（drawtext 淡入 0.5s + hold）
+      subtitle:
+        text: "空半小时 · 0 条选题"
+        style: display 140pt 白字 · 屏中央
+      forbidden:
+        - GSAP 反向倒数动画
+        - 秒表大字占屏
+
+    - id: M4_vB_add_topic_original
+      time_range: [8, 13]
+      diff_from_vA: |
+        同 vA 反爆款抱怨（40w vs 800）headline + caption · 但加 topic_brief 原话 #2 直引「为什么我抄爆款别人爆我不爆啊」引号符号（「」）+ JetBrains Mono 32pt（区别旁白 body 42pt · 视觉上明显区分"这是原话"）
+      overlay:
+        text: '「为什么我抄爆款别人爆我不爆啊」'
+        font: JetBrains Mono · 32pt · 权重 400
+        color: 白字 #f5f5f0 · 引号符号 accent_red 描边
+        position: 屏幕右上或叠层不遮挡分屏
+        appear_at: 10.5
+        exit_at: 13.0
+
+    - id: M5_vB_calendar_flip
+      time_range: [13, 18]
+      diff_from_vA: |
+        vA 无此镜（并入 M5 40w vs 800）· vB v2 独立成节拍 · 日历翻页视觉 + topic_brief 原话 #3 直引「每周发一篇变成半个月发一篇」+ caption 32pt 数字标签「上周 1 → 这周 0」
+      picture: |
+        1080×1920 竖屏日历动画 · 一周格 → 半月格 · whoosh + tick 组合拟音
+        display 140pt 白字入「上周 1 → 这周 0」屏中央
+        caption 32pt 原话 mono 32pt「每周发一篇变成半个月发一篇」屏下方
+      audio:
+        sfx:
+          - whoosh 日历翻页 -12dB
+          - tick × 3 日历格切换 -15dB
+
+    - id: M6_vB_end_lei_defocus
+      time_range: [23.5, 25]
+      diff_from_vA: |
+        vA M6 3 段烂做法结束就切 M7 · vB v2 末尾加全屏定格「累」一字（topic_brief 原话 #5 直引 · display 140pt 权重 900 · 独立 hit sfx 深长版 -8dB · 1.2s 尾音 · hold 1s）
+      picture: |
+        canvas_office_dark 灰底全屏 · display 140pt 白字「累」屏中央 · 独立 hit sfx 深长版
+      audio:
+        sfx: [hit 深长版 -8dB · 1.2s 尾音]
+
+# ─────────────────────────────────────
+# 小红书 7 页轮播（P1-P7 · 与视频版协同 · 收藏动机核心）
+# ─────────────────────────────────────
+
+xhs_carousel:
+  slug: AI帮想视频选题_xhs_carousel
+  canvas: [1080, 1440]  # 3:4 小红书首图原生比例
+  fps: static  # 图文轮播非视频
+  total_pages: 7
+  subtitle_font_size: 50  # 小红书字号（feedback_pipeline-full-platform-output）
+  pages:
+    - page: P1
+      role: 封面 · 共情锚
+      picture: |
+        主角背影俯拍或侧影（不露脸）+ 摄像头亮红点（右上或右下）+ 空笔记本（页面白 · 无字）· canvas_daylight 白天光 3800-4200K
+      text:
+        main:
+          text: "对着摄像头空半小时"
+          font: 苹方 · display 140pt · 权重 900
+          color: 白字或深色字（视 B-roll 光线定色 · 若 B-roll 亮加 drawbox 半透明黑底衬）
+        sub:
+          text: "你不是不行 · 是没告诉 AI 你是谁"
+          font: 苹方 · caption 32pt · 权重 400
+          color: muted #7a7a7a
+      assets_needed:
+        - Pexels 白天办公主角背影 × 1（同 M1/M4 库 · 可复用）
+      forbidden: [D03 深夜自习房版式, 「点击查看」箭头, 花字, 3D 效果]
+
+    - page: P2
+      role: 群体锚 · 9 成中腰部
+      picture: |
+        surface_paper `#f5f5f0` 底 · 大字铺满
+      text:
+        main:
+          text: "9 成中腰部创作者早期都遇到选题问题"
+          font: 苹方 · display 100pt · 权重 700
+          color: ink #1a1a1a
+        source:
+          text: "来源：知乎专栏 A 级"
+          font: 苹方 · caption 32pt · 权重 400
+          color: muted #7a7a7a
+      forbidden: [无来源标注]
+
+    - page: P3
+      role: 反面 · 3 段烂 prompt
+      picture: |
+        surface_paper 底 · 3 段截图预览 · accent_red 描边强调关键错误行
+      text:
+        items:
+          - "帮我想 10 个 → 通用套话（跳过身份卡）"
+          - "加平台词 → 同行都在拍（跳过账号定位）"
+          - "抄爆款 → 同质品（跳过粉丝痛点）"
+        font: 苹方 · body 50pt · 权重 500
+        color: ink #1a1a1a
+
+    - page: P4
+      role: 4 段 prompt · 第 1 段 身份卡 · 完整可截屏
+      picture: |
+        surface_paper 底 + accent_soft `#ffc857` 淡黄 badge 段名「身份卡」headline 88pt 屏顶 · JetBrains Mono 32pt 完整 prompt 全屏可截屏
+      text:
+        badge: "身份卡"
+        prompt_body: |
+          （完整 prompt 家居收纳版身份卡段 · 见 core_message P0-3 · JetBrains Mono 32pt · 满屏可截图带走）
+      cta_hint:
+        text: "长按保存 · 照抄改 3 处"
+        font: 苹方 · caption 32pt · 权重 400
+        color: muted #7a7a7a · 底部
+      forbidden: [装饰性图标, emoji]
+
+    - page: P5
+      role: 4 段 prompt · 第 2 段 账号定位
+      picture: 同 P4 版式 · badge 换「账号定位」+ 对应完整 prompt
+
+    - page: P6
+      role: 4 段 prompt · 第 3 段 粉丝痛点
+      picture: 同 P4 版式 · badge 换「粉丝痛点」+ 对应完整 prompt
+
+    - page: P7
+      role: 4 段 prompt · 第 4 段 输出约束 + CTA
+      picture: |
+        surface_paper 底 · badge「输出约束」+ 完整 prompt + 底部 CTA
+      cta:
+        main:
+          text: "私信「你在做什么账号 · 想拍什么方向」→ 我给你 5 条选题"
+          font: 苹方 · headline 60pt · 权重 700
+          color: ink #1a1a1a
+        sub:
+          text: "同行互助 · 不推服务"
+          font: 苹方 · caption 32pt · 权重 400
+          color: muted #7a7a7a
+
+# ─────────────────────────────────────
+# 视频号 65-72s 加长版（v0 场景共情 + vB v2 数字锚 + 原话情绪段材料源）
+# ─────────────────────────────────────
+
+wechat_video_extension:
+  target_duration_s: 68  # 65-72s 窗口中位
+  script_version: v0 + vB v2  # v0 场景共情为骨 + vB v2 数字锚与原话情绪段插入
+  format: 同 vA 主推 · 加 15-20s 情绪段（vB v2 M5 日历翻页 + M6 末尾「累」）
+  additional_scenes:
+    - id: M4b_wechat_extension_calendar
+      time_range: [15, 20]  # 插入在 vA M4 之后 · M5 之前
+      diff: |
+        vA/vB v2 M5 日历翻页视觉 + 原话「每周发一篇变成半个月发一篇」+ 数字标签「上周 1 → 这周 0」
+      voiceover: 「你在这条曲线里——上周发 1 条，这周 0 条。有人说这叫『每周发一篇变成半个月发一篇』。」
+    - id: M6b_wechat_extension_lei_defocus
+      time_range: [30, 32]  # 插入在 vA M6 末尾 · M7 之前
+      diff: |
+        vB v2 M6 末尾定格「累」display 140pt · 独立 hit sfx 深长版 1.2s
+  subtitle_font_size: 42  # 视频号字号同抖音
+  forbidden:
+    - 与抖音成片直接跨平台复用（W26 教训 · 每平台单独渲）
+    - 跳过 vB v2 情绪段（视频号刷手机场景需情绪停顿）
+
+# ─────────────────────────────────────
+# B-roll 素材清单（需新拉 · fetch_broll.py）
+# ─────────────────────────────────────
+
+broll_checklist:
+  status: pending_fetch  # 现有 assets/broll/raw/ 全部是 dusk/night · D04 需新拉白天办公
+  target_footage_temp: 3800-4200K  # 白天日光
+  pexels_search_queries:
+    - "daylight office desk overhead"  # 俯拍白天办公桌（M1）
+    - "webcam recording setup desktop"  # 摄像头亮红点（M1）
+    - "hand hovering keyboard morning"  # 手悬键盘不落（M1）
+    - "blank notebook desk daylight"  # 空笔记本白天光（M1 / M4）
+    - "behind view person at desk daylight"  # 主角背影白天光（M4）
+  target_candidates: 4-6 条  # 优先"俯拍 + 摄像头红点可见 + 白天光"
+  fallback_if_no_webcam_red:
+    method: drawbox 小红点 5×5 覆盖右上角
+    style: 真机风格 · 不做发光特效
+  output_dir: assets/broll/raw/W28D04/
+  script: pipeline/p004_video/fetch_broll.py --query "..." --output-dir assets/broll/raw/W28D04/
+
+# ─────────────────────────────────────
+# 屏录素材清单（真机屏录 · QuickTime · 4 场次）
+# ─────────────────────────────────────
+
+screen_recording_checklist:
+  device_preference: macOS QuickTime（识别度高 · 保留状态栏方便）
+  ai_tool_preference: ChatGPT UI（工具中立 · 但识别度高利于观众 1s 认领 · 不打 logo）
+  ui_bottom_line:
+    - 保留 iOS/macOS 状态栏
+    - 保留 AI 对话框原生 UI
+    - 保留光标闪
+    - 打字节奏 30ms/字 真人节奏
+    - 禁裁掉状态栏
+    - 禁抠白底
+    - 禁加自造装饰性框
+    - 禁打 AI 工具 logo（UI 原生色允许 · logo 遮挡或裁掉）
+  sessions:
+    - session: S1_M2_M3_reveal
+      time_range_in_video: [1, 3]
+      duration_needed_s: 2  # 屏录 2s 连续（M2 打字 0.6s + M3 AI 输出 1.4s）
+      script: |
+        1. 打开 ChatGPT（macOS 或 iPhone）· 新建对话
+        2. 光标闪等 0.3s
+        3. 输入「帮我想 10 个抖音选题」14 字（30ms/字 · 真人节奏）
+        4. 敲回车
+        5. AI 输出 3 条「如何做好家居收纳 / 浅谈家居收纳的重要性 / 5 个家居收纳误区」（1s 内快速打字机式）
+        6. 保持 AI 对话框深色系
+      post_processing:
+        - 加 3 次 accent_red 红叉 SVG 覆盖（whoosh 从右上横划打掉 · 每次 0.3s）
+        - 2.4s 处加 display 140pt 白字 drawtext「打"帮我想 10 个" · AI 全给"如何做好"」屏中央
+    - session: S2_M6_wrong_prompt_3_flash
+      time_range_in_video: [15, 25]
+      duration_needed_s: 10  # 屏录 3 段 · 每段约 3.3s
+      script: |
+        3 段独立屏录：
+        ① 输入「帮我想 10 个」→ AI 输出通用套话（跳过身份卡）
+        ② 输入「加平台词：帮我想 10 个抖音选题」→ AI 输出同行都在拍模板（跳过账号定位）
+        ③ 输入「让 AI 抄爆款：帮我想 10 个类似 XX 的选题」→ AI 输出换个数字的同质品（跳过粉丝痛点）
+      post_processing:
+        - 每段加 accent_red 2px 描边（只在关键错误行 · 不全屏描边）
+        - 每段加 caption 28pt 大字批注「跳过身份卡/账号定位/粉丝痛点」drawtext 淡入 0.3s
+        - 每段 hit sfx 拍点 · 段间 whoosh 快速过渡
+    - session: S3_M7_4_prompt_demo
+      time_range_in_video: [25, 40]
+      duration_needed_s: 15  # 屏录 15s 连续主场
+      script: |
+        1. 打开 ChatGPT · 新建对话
+        2. 粘贴完整 4 段 prompt（家居收纳版 · JetBrains Mono 32-40pt · 全屏可见）
+        3. 敲回车
+        4. AI 输出表格（列 = 标题/场景/钩子/成本/差异化 · 10 条候选每条 1s 打字机式出现）
+      post_processing:
+        - 加 accent_soft `#ffc857` 淡黄底 4 段 badge SVG 覆盖（依次淡入 0.5s + 停 3s · 段名「身份卡 · 账号定位 · 粉丝痛点 · 输出约束」headline 88pt）
+        - 段间 whoosh × 3 -12dB
+        - 底部 caption 28pt「可长按暂停截屏抄」全程 hold
+    - session: S4_vB_M1_scene_anchor  # 仅 vB v2 备胎启用
+      condition: vA 3s 完播 <52%
+      duration_needed_s: 3
+      script: |
+        备胎 M1 若走 vB v2：无屏录 · 走 Pexels 白天办公主角背影 + 秒表小字（drawtext 静态）
+      note: |
+        vB v2 M1 不需要屏录（备胎定位下的场景锚版本 · 无屏录 · 秒表静态）
+
+# ─────────────────────────────────────
+# SFX 层清单（4 类必覆盖 · 密 VO 无 BGM）
+# ─────────────────────────────────────
+
+sfx_layer:
+  bgm: none  # 密 VO 演示型 default off（feedback_dense-vo-no-bgm-default）
+  categories:
+    ambient:
+      count: 1
+      description: 白天办公环境音 · 全片氛围铺底
+      time_range: [0, 58]
+      db: -22
+      source: Freesound `office ambient hum daytime` CC0 或 Pexels audio
+      forbidden: 合成假 BGM · ffmpeg aevalsrc/sine 拼的（feedback_no-synth-bgm）
+    tick:
+      count: 3
+      events:
+        - {time: 1.0, event: M1→M2 硬切拍点, db: -15}
+        - {time: 3.0, event: M4 VO 起拍, db: -15}
+        - {time: 54.5, event: M10 CTA 起, db: -15}
+      source: Freesound `soft tick metronome` CC0
+    whoosh:
+      count: 4
+      events:
+        - {time: 1.6, event: M3 红叉 × 3 whoosh 从右上横划, db: -10, duration_s: 0.3 x 3}
+        - {time: 30.5, event: M7 段间过渡 badge 2, db: -12}
+        - {time: 33.5, event: M7 段间过渡 badge 3, db: -12}
+        - {time: 36.5, event: M7 段间过渡 badge 4, db: -12}
+      source: Freesound `whoosh short sweep` CC0
+    hit:
+      count: 8-10  # 上限
+      events:
+        - {time: 2.4, event: M3 大字入拍点, db: -8}
+        - {time: 8.0, event: M5 硬切拍点, db: -8}
+        - {time: 9.5, event: M5 大字入拍点, db: -8}
+        - {time: 16.5, event: M6 反例 ① 拍点, db: -8}
+        - {time: 20.0, event: M6 反例 ② 拍点, db: -8}
+        - {time: 23.5, event: M6 反例 ③ 拍点, db: -8}
+        - {time: 41-45, event: M8 打勾 × 8 逐个拍点, db: -10}
+        - {time: 45.0, event: M8 大结论拍点, db: -8}
+        - {time: 52.0, event: M9 大字定格拍点, db: -8}
+        - {time: 54.0, event: M9 收尾, db: -8}
+        - {time: 57.0, event: M10 收尾, db: -8}
+      source: Freesound `impact hit deep short` CC0
+  mixer:
+    vo_target_lufs: -16  # loudnorm target
+    sfx_ducking: VO 起时 sfx 自动 -3dB 避免抢 VO
+    ambient_ducking: VO 起时 ambient 自动 -6dB
+
+# ─────────────────────────────────────
+# 字幕规格（三平台字号差 · 由 pipeline 烧片）
+# ─────────────────────────────────────
+
+subtitle_specs:
+  burn_method: gen_subs（SRT/ASS）+ ffmpeg-full libass 烧片（feedback_pipeline-burn-subs）
+  ffmpeg_binary: /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg  # 系统 ffmpeg 无 libass
+  platform_font_size:
+    douyin: 42  # body 层字号（feedback_pipeline-full-platform-output）
+    xhs_carousel: 50  # 小红书轮播
+    wechat_video: 42  # 视频号
+  font_family:
+    zh: 苹方 / PingFang SC / Source Han Sans
+    en: San Francisco / Inter
+    mono: JetBrains Mono / SF Mono
+  large_text_categories:
+    static_ui_png:
+      description: 静态入 UI 大字（M4 数据锚 · M8 表格 · M9 价值锚 · M10 CTA · display/headline 层）
+      method: SVG + PNG → ffmpeg overlay
+    fast_cut_drawtext:
+      description: 快切 drawtext 大字（M3 reveal · M5 分屏 · M7 badge · vB v2 M6 末尾定格「累」）
+      method: ffmpeg drawtext + drawbox 白闪
+  forbidden:
+    - 剪映智能识别（不由剪映烧字幕）
+    - 系统 ffmpeg 烧 ASS（无 libass）
+    - 42/50/42 差异未按平台切
+
+# ─────────────────────────────────────
+# 交付命名（三平台）
+# ─────────────────────────────────────
+
+delivery:
+  base_dir: publish/2026-W28/D04-AI帮想视频选题/render/
+  files:
+    - douyin_vA_58s_no_bgm.mp4  # 抖音主推 vA · 无 BGM 直接外发
+    - douyin_vB_58s_no_bgm.mp4  # 抖音备胎 vB v2 · 无 BGM
+    - xhs_carousel_P1-P7.png  # 小红书 7 页轮播
+    - wechat_video_68s_no_bgm.mp4  # 视频号 65-72s 加长版
+    - cover_douyin_vA_M3_reveal_2p4s.png  # 抖音封面 · video_frame 从 vA M3 2.4s 取
+    - cover_xhs_P1_共情锚.png  # 小红书 P1 封面 · 独立设计
+    - cover_wechat_video_reveal.png  # 视频号封面 · 同抖音 vA reveal 帧
+  naming_bgm_rule: |
+    有 BGM → *_with_bgm.mp4；无 BGM → *_no_bgm.mp4（本条 BGM off · 全走 no_bgm 直接外发 · 非预览件）
+
+# ─────────────────────────────────────
+# Fail 检查（承诺-兑现闭环 · 呼应 form_strategy §5）
+# ─────────────────────────────────────
+
+fail_check:
+  - {item: chaos 用真实素材, method: Pexels 白天办公新拉 + QuickTime 真机屏录 · 禁 AI 生图, gate: Q9 chaos_must_be_real_footage}
+  - {item: 真机屏录 AI 对话框, method: QuickTime × 4 场次 · 保留状态栏 · 不打 logo, gate: 屏录 UI 铁律}
+  - {item: SVG 打点非 GSAP, method: 静态 SVG + CSS transition + drawtext, gate: motion_tech_plan SKIP}
+  - {item: 分屏静图, method: 真机截图 + 马赛克遮挡 · 单位显式"赞"字必须出现, gate: vB v2 verdict 硬约束}
+  - {item: ≥3 种观感, method: 6 种形式 ID · 已达标, gate: rules.min_distinct_formats=3}
+  - {item: 单场景占比 <40%, method: M7 15s = 26% < 40%, gate: rules.single_scene_max=40}
+  - {item: 不打竞品 logo, method: UI 原生色允许 + 同行截图必马赛克遮挡真实头像/账号名, gate: fact_check 红区}
+  - {item: 数据锚同帧口径, method: '"10 里 8" = "5 判据 · 通过 4 条" 同帧 caption 28pt 明示（M8）', gate: fact_check 黄区}
+  - {item: 4 条原话进片, method: vB v2 M4/M5/M6 末尾 + M4 转述共 4 条 · vA 主推兜底 M4/M9 至少补 1 条否则强制切 vB, gate: 编剧硬门禁 pass}
+  - {item: BGM off, method: 密 VO 演示型 default · sfx 4 类必覆盖, gate: feedback_dense-vo-no-bgm-default}
+  - {item: VO 覆盖 ≥85%, method: 3-58s VO 全程 · 段间衔接词最大 1.5s 空白, gate: feedback_dense-vo-no-dead-air}
+  - {item: M8 表格可读性, method: 表头 headline 42pt · 单元格 body 32pt, gate: design_language 字号约束}
+  - {item: M10 CTA 私信 SLA, method: 24h 内回 · 走本人 IP 私信而非群/星球/客服, gate: skin.landing_intent}
+  - {item: 无 Dracula 霓虹色, method: 10 色板全符合 · gate_check_palette.py 兜底, gate: feedback_no-neon-palette}

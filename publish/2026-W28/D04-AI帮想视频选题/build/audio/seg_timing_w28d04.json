@@ -1,0 +1,78 @@
+{
+  "engine": [
+    "minimax"
+  ],
+  "total": 59.45,
+  "segments": [
+    {
+      "id": "s2",
+      "window": 5.75,
+      "vo_dur": 5.6,
+      "start": 0.0,
+      "seg_dur": 5.75,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "上周我也这样。9 成中腰部创作者遇到选题问题——不是你的问题。"
+    },
+    {
+      "id": "s3",
+      "window": 7.58,
+      "vo_dur": 7.38,
+      "start": 5.75,
+      "seg_dur": 7.58,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "翻了半小时竞品，存 8 张截图，一条不想拍。同行 40w 赞我也拍过——我只有 800。"
+    },
+    {
+      "id": "s4",
+      "window": 10.7,
+      "vo_dur": 10.5,
+      "start": 13.33,
+      "seg_dur": 10.7,
+      "emotion": "neutral",
+      "speed": 1.1,
+      "text": "我以前也这么干：让 AI 帮我想 10 个 → 都是「如何做好 XX」。加平台词 → 同行都在拍的模板。让 AI 抄爆款 → 换个数字的同质品。"
+    },
+    {
+      "id": "s5",
+      "window": 15.0,
+      "vo_dur": 13.3,
+      "start": 24.03,
+      "seg_dur": 15.0,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "换个打开方式：打开 AI，粘上 4 段 prompt——身份卡、账号定位、粉丝痛点、输出约束。同一个 AI，10 条候选，标题、场景、钩子、成本、差异化都齐了。"
+    },
+    {
+      "id": "s6",
+      "window": 9.7,
+      "vo_dur": 9.5,
+      "start": 39.03,
+      "seg_dur": 9.7,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "10 条里 8 条能用——5 判据筛：具体场景、前 3s 钩子、差异化、可拍性、粉丝相关。通过 4 条能拍。"
+    },
+    {
+      "id": "s7",
+      "window": 6.02,
+      "vo_dur": 5.77,
+      "start": 48.73,
+      "seg_dur": 6.02,
+      "emotion": "neutral",
+      "speed": 1.1,
+      "text": "不是教你用 AI —— 是把我上周 30 分钟搞定下周 5 条的那 4 段 prompt，直接给你。"
+    },
+    {
+      "id": "s8",
+      "window": 4.7,
+      "vo_dur": 4.4,
+      "start": 54.75,
+      "seg_dur": 4.7,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "私信「账号方向」——我给 5 条选题。不推服务。"
+    }
+  ]
+}

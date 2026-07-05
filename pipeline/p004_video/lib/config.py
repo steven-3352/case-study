@@ -191,7 +191,7 @@ def load(config_path: pathlib.Path, project_root: pathlib.Path) -> PipelineConfi
     content_id = data["content_id"]
     content_root = _resolve(project_root, data["paths"]["root_rel"])
 
-    return PipelineConfig(
+    cfg = PipelineConfig(
         content_id=content_id,
         root=project_root,
         content_root=content_root,
@@ -203,3 +203,55 @@ def load(config_path: pathlib.Path, project_root: pathlib.Path) -> PipelineConfi
         platforms=_parse_platforms(data.get("platforms")),
         overlays=_parse_overlays(data.get("overlays")),
     )
+    _lint_overlay_ui_redundancy(cfg)
+    return cfg
+
+
+# ─────────────────────────────────────────────────────────────
+# Lint · D04 教训（2026-07-05）
+# UI PNG 已烧 headline 大字 · config 里 drawtext overlay 又叠同样字 → 视觉冗余 + 溢出边缘
+# 无法 OCR PNG · 只能启发式：headline 级 overlay (fontsize ≥ 80 · text 长度 ≥ 6) 落在 img scene 上 → warn
+# ─────────────────────────────────────────────────────────────
+HEADLINE_FONTSIZE_THRESHOLD = 80
+HEADLINE_TEXT_LEN_THRESHOLD = 6
+
+
+def _lint_overlay_ui_redundancy(cfg: "PipelineConfig") -> None:
+    """检查 headline 级 drawtext 是否落在 img (UI PNG) scene 上 · 印屏警告防冗余.
+
+    D04 曾在 M3/M5/M8/M9/M10 5 处犯此错 · UI PNG 已烧字 + drawtext 又叠 · 视觉冗余 + 溢出
+    """
+    if not cfg.overlays or not cfg.scenes:
+        return
+    # 计算每个 scene 的时间窗
+    scene_windows: list[tuple[float, float, str, str]] = []  # (t_start, t_end, name, src_type)
+    cursor = 0.0
+    for sc in cfg.scenes:
+        t_start = cursor
+        t_end = cursor + sc.total_dur
+        # 只看 scene 首帧 src_type（多 clip 场景取第一段）
+        src_type = sc.clips[0].src_type if sc.clips else "unknown"
+        scene_windows.append((t_start, t_end, sc.name, src_type))
+        cursor = t_end
+
+    warnings: list[str] = []
+    for ov in cfg.overlays:
+        if ov.fontsize < HEADLINE_FONTSIZE_THRESHOLD:
+            continue
+        if len(ov.text) < HEADLINE_TEXT_LEN_THRESHOLD:
+            continue
+        # 找 overlay 时间段覆盖到的 scene
+        mid = (ov.t_start + ov.t_end) / 2
+        for t_start, t_end, name, src_type in scene_windows:
+            if t_start <= mid < t_end and src_type == "img":
+                warnings.append(
+                    f"⚠ overlay '{ov.text[:20]}' ({ov.fontsize}pt · {ov.t_start:.1f}-{ov.t_end:.1f}s) "
+                    f"落在 img scene {name} 上 · 检查 UI PNG 是否已烧同样字（D04 冗余教训）"
+                )
+                break
+
+    if warnings:
+        print("─ config lint · overlay/UI PNG 冗余检查 ─")
+        for w in warnings:
+            print(f"  {w}")
+        print()

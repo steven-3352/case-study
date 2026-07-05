@@ -27,15 +27,26 @@ voice:
   script_path:             # 口播逐字稿路径
 
 bgm:
-  # ── enabled 决策规则（2026-07-04 固化）─────────────────────────────
+  # ── enabled 决策规则（2026-07-04 固化 · 2026-07-05 补情感型分支）──
   # auto = 按形态 + VO 密度自动判定：
   #   密 VO 演示/知识型（VO 覆盖率 ≥85% + 每段无 3s+ 死区）→ 默认 off
-  #   稀疏 VO / 出镜型 / 情感叙事型 / 带货型                → 默认 on
+  #   稀疏 VO / 出镜型 / **情感叙事型** / 带货型              → 默认 on
   # 参考 WaytoAGI / 七七 / 浙大猫学长 3 支密 VO 无 BGM 视频：VO 已把氛围撑满，
   # 硬加 BGM 只会盖 VO；剪映 交接期若需氛围，用 -24 dB 环境垫音，别用曲。
   # memory: feedback_dense-vo-no-bgm-default
+  #
+  # ── 情感型/出镜型选题："先定情绪再选音乐"（寒林教剪辑 · 2026-07-05 吸收）
+  # 步骤：① 问本条要传递什么情绪（高级冷静 / 活力动感 / 悬疑紧张 / 温暖释放）
+  #      ② 按 mood → genre → 乐器 匹配：
+  #         高级冷静 → 钢琴+弦乐 · piano ambient / cinematic minimal
+  #         活力动感 → 电子鼓 · electronic upbeat / synthwave
+  #         悬疑紧张 → 弦乐持续+低频 · tension drone / suspense pad
+  #         温暖释放 → 木吉他+钢琴 · acoustic warm / lo-fi chill
+  #      ③ 关注节奏速度、乐器质感、氛围层次，不是"好听"
+  # ────────────────────────────────────────────────────────────────
   enabled: auto            # auto | on | off；单条选题可强制 on/off，需在 notes 说明
-  mood: tension            # tension | release | upbeat | calm | neutral（enabled=off 时忽略）
+  mood: tension            # tension | release | upbeat | calm | neutral | warm | suspense（enabled=off 时忽略）
+  genre_hint:              # 情感型必填：piano_ambient / electronic_upbeat / tension_drone / acoustic_warm
   source:                  # 相对 PROJECT_ROOT 的路径（enabled=off 时留空）
   volume: 0.10             # 对齐 storyboard music_volume
   fade_in_s: 1.5
@@ -44,6 +55,36 @@ bgm:
   benchmark_ref:           # hook_benchmark 参考编号（如「参考1·紧张铺底」）
   hook_0_3s:               # 0–3s：入点情绪、是否压人声、与钩子同拍
   notes:                   # 选曲理由 / off 时说明「密 VO 已撑满，无 BGM」
+
+# ── sfx 音效层（2026-07-05 新增 · 寒林教剪辑吸收）────────────────
+# 独立于 BGM · 密 VO 演示/知识型也必须有 sfx（BGM 可 off，sfx 不 off）
+# 万能公式（寒林招 3）：riser（上声）+ ambient（氛围）+ hit（打点重音）
+#   找音乐/画面断点 → 加 ambient 铺底 → 加 riser 推起 → 加 hit 落地
+# 四类事件音（音量分级：均比 VO 低 10-15 dB · 让观众感觉自然而不是"注意到"）:
+#   whoosh    每次场景切换 / 转场 · 检索: whoosh · swoosh · swish · transition
+#   tick      文字/字幕/UI 出现 · 检索: UI tick · typewriter click · message tap
+#   hit       关键金句 / CTA / 反转打点 · 检索: impact · boom · stinger · hit
+#   ambient   全片/大段氛围铺底 · 检索: room tone · night city · office ambience
+# 合规（memory feedback_no-synth-bgm）：sfx 同样禁 ffmpeg aevalsrc/sine 拼假的，
+#   必须走 Freesound CC0 / Epidemic Sound / Artlist 授权 · 存 assets/sfx/
+# 检索技巧（寒林招 4）：写形容词 → 翻译英文 → 搜索
+#   悬疑紧张 → tension riser · suspense build
+#   反转揭示 → impact hit · boom stinger
+#   进入界面 → UI whoosh in · pop in
+# ────────────────────────────────────────────────────────────────
+sfx:
+  enabled: true            # 视频形态默认 true · sfx 是 audio_plan 硬门（不是 BGM 的替代）
+  formula_check:           # 打勾即声明"公式已用"：ambient 铺 + riser 推 + hit 落
+    ambient_bed: false     # 是否有全片/段落氛围铺底
+    riser_before_hit: false  # 关键 hit 前是否有 riser 推起
+    hit_on_key_moment: false # 关键金句/CTA 是否有 hit 打点
+  gain_ref_db: -12         # sfx 相对 VO 的 dB 差（-10~-15；越靠近 -10 越明显）
+  events:                  # 逐个 sfx 事件 · 至少覆盖每次场景切换 + 关键金句 + CTA
+    # 示例（真实条按 storyboard M 段填）:
+    # - {sid: sfx01, kind: whoosh, t_start: 3.0, duration: 0.5, gain_db: -12, src_rel: assets/sfx/whoosh/soft_swish_01.wav, note: "M1→M2 切换"}
+    # - {sid: sfx02, kind: tick,   t_start: 6.5, duration: 0.2, gain_db: -15, src_rel: assets/sfx/tick/ui_tap_01.wav,   note: "字幕入"}
+    # - {sid: sfx03, kind: hit,    t_start: 24.0, duration: 0.8, gain_db: -8,  src_rel: assets/sfx/hit/impact_boom_01.wav, note: "反转金句落地"}
+    # - {sid: sfx04, kind: ambient, t_start: 0.0, duration: 172.0, gain_db: -22, src_rel: assets/sfx/ambient/night_room_tone.wav, note: "全片深夜铺底"}
 
 subtitles:
   srt_path:                # 如 pipeline/p004_video/sub_k1.srt
@@ -60,5 +101,9 @@ qc:
   - VO 清晰可辨，前 6s RMS 落在 -13~-23 dB（对齐参考视频响度）
   - 若 bgm.enabled != off：BGM 不盖人声（人工听 30s）；0–3s BGM 入点不抢戏（对照 retention 节拍表）
   - 若 bgm.enabled == off：全程无音乐是「设计」不是「缺件」，需在 notes 记明依据（memory: feedback_dense-vo-no-bgm-default）
+  - **sfx 硬门**：sfx.enabled=true 且 formula_check 三项至少 2 项为 true；否则退回声音设计师（memory: feedback_sfx-layer-required）
+  - **sfx 覆盖**：每次场景切换（M1→M2 等）必有 1 个 whoosh；关键金句 + CTA 必有 hit；缺一即 fail
+  - **sfx 音量**：所有 sfx.events[].gain_db ≤ -8（hit 最响也不超过 VO -8dB · 让观众"感觉自然"而不是"注意到音效")
+  - **sfx 合规**：所有 src_rel 走 assets/sfx/*（真素材库文件），禁 ffmpeg aevalsrc/sine 合成假音效
   - 前 3s 钩子字幕可见，且与 hook_benchmark 停划设计一致
   - 外发使用 video_publish，非 video_raw

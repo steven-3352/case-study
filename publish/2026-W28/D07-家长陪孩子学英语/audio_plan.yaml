@@ -1,0 +1,308 @@
+# 声音方案 · audio_plan.yaml · W28D07 家长陪孩子学英语
+# 工种: 声音设计师 · 视频形态必跑 · draft_self_generated · 2026-07-05
+#
+# 铁律 (本条属**密 VO 演示型 · 聊天气泡场景**)
+# → 默认无 BGM (feedback_dense-vo-no-bgm-default)
+# → VO 从 0s 覆盖 (无沉默钉子) · 实发预估 54.91s / 60s = 92% ≥85% 硬门 (feedback_dense-vo-no-dead-air)
+# → sfx 4 类必覆盖 · 禁合成 sfx · 全走 assets/sfx/ 真素材 (feedback_no-synth-bgm / feedback_sfx-layer-required)
+# → 字幕 pipeline 烧片 ffmpeg-full libass (feedback_pipeline-burn-subs)
+# → 外发命名 *_no_bgm.mp4 直接外发
+#
+# content_id: W28D07
+# 依赖: scripts/vA.md (定稿·M1/M7 已修订) · pipeline_config.yaml (10 段 tts) ·
+#       design_language.md · retention_beat_sheet.md · motion_storyboard.md (pass_single·声画锚点) ·
+#       form_strategy.md (pass_dual_review · best-of-2 修 M5-M7)
+# TTS 前置估算已过: 10 段全 ✓ · 预测 49.92s · 利用率 83.2% PASS · 实发预估 54.91s
+#
+# ⚠ sfx t_start 为**规划值**(对齐 pipeline_config.tts.segments 计划时轴)
+#   --step vo 后按 build/audio/seg_timing_w28d07.json 实测 VO 窗位移再对齐
+
+pre_node_checklist:
+  memory_refs:
+    - feedback_dense-vo-no-bgm-default
+    - feedback_dense-vo-no-dead-air
+    - feedback_sfx-layer-required
+    - feedback_no-synth-bgm
+    - feedback_pipeline-burn-subs
+    - feedback_pipeline-full-platform-output
+    - feedback_dual-platform-only
+    - tts-estimate-duration-pre-synth
+  capability_refs:
+    - pipeline/tts/estimate_duration.py (已跑 · 全段过 · 83.2%)
+    - pipeline/p004_video/lib/sfx.py (mix_sfx_with_vo)
+    - /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg (libass 字幕烧片)
+  sister_refs:
+    - publish/2026-W28/D06-AI改简历不用找人改/audio_plan.yaml (结构复用 · sfx 事件表参考)
+
+trigger_word_check:
+  - not_triggered: "BGM 用 ffmpeg aevalsrc 拼 (禁 · 合成 BGM 硬拦)"
+  - not_triggered: "sfx 音量随便设 (4 类事件音有 dB 分级 [-8,-22])"
+  - not_triggered: "字幕字号统一 (禁 · 抖音 42 / xhs 50 硬约束)"
+  - not_triggered: "sfx 直接抄 D06 时间戳 (D06 简历文档/戳章 vs D07 聊天气泡 · 事件重定时·换音源)"
+  - not_triggered: "VO 承诺效果 (禁 · 全片『敢开口』非承诺 · fact_check R1)"
+
+# ─────────────────────────────────────
+# 1. 配音 (Voice) · MiniMax speech-2.8-turbo
+# ─────────────────────────────────────
+voice:
+  engine: minimax
+  model: speech-2.8-turbo
+  voice_id: male-qn-jingying-jingpin
+  voice_id_rationale: |
+    D07 skin「家长过来人视角 · 方法性表述 · 不打鸡血 · 去焦虑基调」
+    → 沉稳男声匹配"一个陪孩子走过来的家长在分享方法"的克制感
+    male-qn-jingying-jingpin 稳、非博主感 · 与 D04/D05/D06 一致 voice_id (人设连贯)
+    真实性红线 (fact_check R7): VO 全"家长/方法性"表述 · 不第一人称"我是英语老师/我教过多少孩子"
+  备选路线:
+    - 1_female_recording: 若投后测出妈妈受众更认女声
+    - 2_user_real_recording: 首选升级 · 消 AI 音色 gap · 若用户愿录
+  ai_voice_gap_note: |
+    memory feedback_ai-voice-known-gap: D07 属演示型 (聊天气泡/prompt 卡占多数时长)
+    AI 音色 gap 影响面小 · 触发切人声: 投后"AI 味太重" >15% 或 用户愿录
+
+  speed: 1.08
+  pitch: 0
+  emotion: neutral
+  script_path: publish/2026-W28/D07-家长陪孩子学英语/scripts/vA.md
+  script_backup_path: publish/2026-W28/D07-家长陪孩子学英语/scripts/vB.md
+  loudnorm:
+    target: -16
+    LRA: 11
+    TP: -1.5
+
+  # VO segments 逐段 (对齐 pipeline_config.tts.segments · estimate_duration 已过)
+  segments:
+    - {m: M1,  sid: s1,  time_range: [0.0, 3.5],    text: "报了两年英语班，一开口孩子就往后缩。", est_s: 3.33}
+    - {m: M2,  sid: s2,  time_range: [3.5, 9.5],    text: "不是不努力，缺的不是又一个班，是个能陪他瞎聊、说错不尴尬的人。", est_s: 5.74}
+    - {m: M3,  sid: s3,  time_range: [9.5, 15.5],   text: "这事 AI 正好能干——一个不会不耐烦的陪练，随时练、说错也不批评。", est_s: 5.74}
+    - {m: M4,  sid: s4,  time_range: [15.5, 18.3],  text: "按年龄，三套现成玩法。", est_s: 2.34}
+    - {m: M5,  sid: s5,  time_range: [18.3, 24.8],  text: "六到八岁别背单词，让 AI 陪玩角色扮演，点餐买东西，简单英语你来我往。", est_s: 6.11}
+    - {m: M6,  sid: s6,  time_range: [24.8, 32.3],  text: "九到十二岁，复述一段动画，再用三句话说今天。AI 先夸再纠一处，敢说错才敢开口。", est_s: 7.04}
+    - {m: M7,  sid: s7,  time_range: [32.3, 39.1],  text: "十三到十五岁，挑个感兴趣的话题聊下去，随时纠发音语法，像影子跟读一遍。", est_s: 6.48}
+    - {m: M8,  sid: s8,  time_range: [39.1, 43.1],  text: "每天二十分钟，重点是敢开口，不是背多少。", est_s: 3.70}
+    - {m: M9,  sid: s9,  time_range: [43.1, 48.3],  text: "AI 是陪练不替课，不用报付费课，时长话题家长把关就行。", est_s: 4.81}
+    - {m: M10, sid: s10, time_range: [48.3, 53.3],  text: "私信『孩子几岁、学到哪一步』，我把这三套玩法发你。", est_s: 4.63}
+
+  duration_pre_check:
+    required: true
+    status: PASS
+    tool: pipeline/tts/estimate_duration.py
+    run_command: python3 pipeline/tts/estimate_duration.py --config publish/2026-W28/D07-家长陪孩子学英语/pipeline_config.yaml
+    result: "10 段全 ✓ · warn 0 · fail 0 · 预测总长 49.92s · 利用率 83.2% PASS · 实发预估 54.91s (~92% 覆盖 ≥85%)"
+
+# ─────────────────────────────────────
+# 2. BGM · 默认无
+# ─────────────────────────────────────
+bgm:
+  enabled: false
+  mood: none
+  reason: |
+    D07 属**密 VO 演示型 · 聊天气泡场景**:
+    - VO 实发覆盖 ~92% ≥ 85% 硬门
+    - M3 气泡演示 / M5-M7 prompt 卡 = 收藏动机镜 · BGM 会稀释"陪孩子聊"的真实亲和感
+    - 参考 WaytoAGI / 七七 / 浙大猫学长 同类演示型均无 BGM
+    - 外发命名 *_no_bgm.mp4 (直接外发 · 非"预览件")
+  future_upgrade_trigger:
+    - metric: M2 段位 (3.5-9.5s) 停留率 <45%
+      action: 评估 M2-M3 加极轻 warm lo-fi ambient (volume ≤0.05 · 无鼓点)
+      restriction: 用户提供 mp3 或剪映自带库 · 禁合成
+  global_if_enabled:
+    max_volume: 0.08
+    duck_on_vo: true
+    forbidden: [ffmpeg合成假BGM, 版权音乐, EDM高亢营销BGM]
+
+# ─────────────────────────────────────
+# 3. sfx 音效层 (视频硬门 · BGM off 但 sfx 不 off · 全走真素材)
+# ─────────────────────────────────────
+sfx:
+  enabled: true
+  formula_check:
+    ambient_bed: true
+    riser_before_hit: true   # M10 CTA 前用 riser
+    hit_on_key_moment: true
+  formula_note: |
+    「ambient + whoosh + hit + tick + riser」· 全部 assets/sfx/ 真 CC0 wav
+    D07 特色: 气泡 pop (subtle_ui_tap) + ✓点亮 tick (check_tick_soft) + 纠一处 (cross_click_error·柔) +
+             年龄段转场 whoosh + 价值锚/CTA hit + CTA riser
+    ambient 用 coffee_shop_daytime (居家陪聊暖调 · 非 D06 office 冷调)
+  gain_ref_db: -12
+  gain_range_db: [-8, -22]
+
+  events:
+    # ═══ 全片 ambient 铺底 (实测 VO 总长 55.86s) ═══
+    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 55.86, gain_db: -22, src_rel: assets/sfx/ambient/coffee_shop_daytime.wav, note: "居家陪聊暖调 room tone · loop 若 <55.86s"}
+
+    # ═══ M1 (0-3.93s · 气泡弹 + 迟疑 + 钩子大字) ═══
+    - {sid: sfx02, kind: tick,  t_start: 0.3, duration: 0.15, gain_db: -12, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M1 AI 气泡『What did you do today?』弹入 pop"}
+    - {sid: sfx03, kind: tick,  t_start: 0.6, duration: 0.15, gain_db: -16, src_rel: assets/sfx/tick/metronome_soft_tick.wav, note: "M1 孩子气泡光标迟疑闪 (轻·弱)"}
+    - {sid: sfx04, kind: hit,   t_start: 1.0, duration: 0.3,  gain_db: -9,  src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "M1 钩子巨标『一开口就往后缩』入"}
+
+    # ═══ M2 (3.93-9.93s · 反差大字白闪两连) ═══
+    - {sid: sfx05, kind: whoosh, t_start: 4.0,  duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "M1→M2 转场"}
+    - {sid: sfx06, kind: hit,    t_start: 4.2,  duration: 0.35, gain_db: -8,  src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "M2『不是不努力』白闪拍点"}
+    - {sid: sfx07, kind: whoosh, t_start: 6.9,  duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_swipe_fast.wav, note: "M2『缺的不是又一个班』滑入"}
+
+    # ═══ M3 (9.93-15.93s · AI↔孩子气泡你来我往 + ✓点亮) ═══
+    - {sid: sfx08, kind: whoosh, t_start: 9.93, duration: 0.4,  gain_db: -11, src_rel: assets/sfx/whoosh/whoosh_air_pass.wav, note: "M3 对话演示启动 whoosh"}
+    - {sid: sfx09, kind: tick,   t_start: 10.7, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M3 气泡第 1 轮 pop"}
+    - {sid: sfx10, kind: hit,    t_start: 11.2, duration: 0.2,  gain_db: -12, src_rel: assets/sfx/hit/check_tick_soft.wav, note: "M3 孩子气泡 ✓ 点亮 1"}
+    - {sid: sfx11, kind: tick,   t_start: 12.2, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M3 气泡第 2 轮 pop"}
+    - {sid: sfx12, kind: hit,    t_start: 12.7, duration: 0.2,  gain_db: -12, src_rel: assets/sfx/hit/check_tick_soft.wav, note: "M3 孩子气泡 ✓ 点亮 2"}
+    - {sid: sfx13, kind: tick,   t_start: 13.7, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M3 气泡第 3 轮 pop"}
+    - {sid: sfx14, kind: hit,    t_start: 14.2, duration: 0.2,  gain_db: -12, src_rel: assets/sfx/hit/check_tick_soft.wav, note: "M3 孩子气泡 ✓ 点亮 3"}
+
+    # ═══ M4 (15.93-18.73s · 三年龄卡逐个弹) ═══
+    - {sid: sfx15, kind: whoosh, t_start: 16.0, duration: 0.3, gain_db: -11, src_rel: assets/sfx/whoosh/whoosh_swipe_fast.wav, note: "M4 年龄卡 ① 弹入"}
+    - {sid: sfx16, kind: whoosh, t_start: 16.3, duration: 0.3, gain_db: -11, src_rel: assets/sfx/whoosh/whoosh_swipe_fast.wav, note: "M4 年龄卡 ② 弹入"}
+    - {sid: sfx17, kind: whoosh, t_start: 16.6, duration: 0.3, gain_db: -11, src_rel: assets/sfx/whoosh/whoosh_swipe_fast.wav, note: "M4 年龄卡 ③ 弹入"}
+
+    # ═══ M5 (18.73-26.30s · 点餐气泡 + prompt 卡右滑) ═══
+    - {sid: sfx18, kind: whoosh, t_start: 18.73, duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_air_pass.wav, note: "M5 6-8 岁转场"}
+    - {sid: sfx19, kind: tick,   t_start: 19.9,  duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M5 点餐气泡 pop 1"}
+    - {sid: sfx20, kind: tick,   t_start: 21.3,  duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M5 点餐气泡 pop 2"}
+    - {sid: sfx21, kind: whoosh, t_start: 23.5,  duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_swipe_fast.wav, note: "M5 prompt 卡从右滑入 (收藏点)"}
+
+    # ═══ M6 (26.30-33.80s · 拆两拍: 演示夸/纠 26.30-29.80 → prompt 独占全屏 29.80-33.80·最强收藏) ═══
+    - {sid: sfx22, kind: whoosh, t_start: 26.4, duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "M6 9-12 岁转场"}
+    - {sid: sfx23, kind: tick,   t_start: 27.2, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M6 三句话气泡 pop"}
+    - {sid: sfx24, kind: hit,    t_start: 28.2, duration: 0.2,  gain_db: -11, src_rel: assets/sfx/hit/check_tick_soft.wav, note: "M6 AI 先夸 ✓『Good!』"}
+    - {sid: sfx25, kind: hit,    t_start: 29.0, duration: 0.2,  gain_db: -12, src_rel: assets/sfx/hit/cross_click_error.wav, note: "M6 再纠一处 (柔·不同音·非否定感)"}
+    - {sid: sfx26, kind: whoosh, t_start: 29.9, duration: 0.5,  gain_db: -12, src_rel: assets/sfx/whoosh/whoosh_air_pass.wav, note: "M6 prompt 卡独占全屏淡入 (静帧 ~3.9s 供截屏)"}
+
+    # ═══ M7 (33.80-40.94s · 话题气泡 + 波形跟读 + prompt 居中) ═══
+    - {sid: sfx27, kind: whoosh, t_start: 33.9, duration: 0.4,  gain_db: -10, src_rel: assets/sfx/whoosh/whoosh_air_pass.wav, note: "M7 13-15 岁转场"}
+    - {sid: sfx28, kind: tick,   t_start: 35.0, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M7 单话题气泡 pop 1"}
+    - {sid: sfx29, kind: tick,   t_start: 36.5, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M7 单话题气泡 pop 2"}
+    - {sid: sfx30, kind: tick,   t_start: 38.5, duration: 0.15, gain_db: -15, src_rel: assets/sfx/tick/metronome_soft_tick.wav, note: "M7 影子跟读波形律动脉冲 (轻)"}
+
+    # ═══ M8 (40.94-45.15s · 价值锚大字 + 下划线) ═══
+    - {sid: sfx31, kind: hit,   t_start: 41.2, duration: 0.35, gain_db: -9,  src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "M8『每天 20 分钟』价值锚落地"}
+    - {sid: sfx32, kind: tick,  t_start: 41.7, duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M8『敢开口』暖红下划线扫入"}
+
+    # ═══ M9 (45.15-50.86s · 边界三图标错开) ═══
+    - {sid: sfx33, kind: whoosh, t_start: 45.25, duration: 0.4,  gain_db: -11, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "M9 边界卡转场"}
+    - {sid: sfx34, kind: tick,   t_start: 45.6,  duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M9 图标 ① 时长 弹入"}
+    - {sid: sfx35, kind: tick,   t_start: 45.8,  duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M9 图标 ② 发音 弹入 (错开 0.2s)"}
+    - {sid: sfx36, kind: tick,   t_start: 46.0,  duration: 0.15, gain_db: -13, src_rel: assets/sfx/tick/subtle_ui_tap_soft.wav, note: "M9 图标 ③ 把关 弹入 (错开 0.2s)"}
+
+    # ═══ M10 (50.86-55.86s · CTA riser + 落地 + 收尾) ═══
+    - {sid: sfx37, kind: riser, t_start: 50.9, duration: 0.5,  gain_db: -11, src_rel: assets/sfx/riser/riser_short_ascending.wav, note: "M10 CTA 浮入 riser"}
+    - {sid: sfx38, kind: hit,   t_start: 51.4, duration: 0.4,  gain_db: -8,  src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "M10 CTA『私信孩子几岁』落地"}
+    - {sid: sfx39, kind: hit,   t_start: 55.3, duration: 0.5,  gain_db: -8,  src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "M10 收尾拍点 · fade-out 500ms"}
+
+  stats:
+    ambient_count: 1   # sfx01
+    tick_count: 16     # sfx02-03(M1) + sfx09,11,13(M3) + sfx19-20(M5) + sfx23(M6) + sfx28-30(M7) + sfx32(M8) + sfx34-36(M9)
+    whoosh_count: 9    # sfx05,07(M2) + sfx08(M3) + sfx15-17(M4) + sfx18,21(M5) + sfx22,26(M6) + sfx27(M7) + sfx33(M9)
+    hit_count: 12      # sfx04(M1) + sfx06(M2) + sfx10,12,14(M3) + sfx24-25(M6) + sfx31(M8) + sfx38-39(M10)
+    riser_count: 1     # sfx37(M10)
+    total_events: 39
+    stats_note: "计数以 events 实列为准 (tick/whoosh/hit 交叠归类见各 event kind)"
+
+  vo_ducking:
+    enabled: true
+    ducking_amount_db: -6
+    ducking_attack_ms: 100
+    ducking_release_ms: 300
+    scope: [ambient, tick, whoosh, riser]  # hit 不 duck
+    tool: pipeline/p004_video/lib/sfx.py mix_sfx_with_vo (amix + alimiter=0.9 防削顶)
+
+# ─────────────────────────────────────
+# 4. 字幕 · pipeline 自动烧 (双平台字号差异)
+# ─────────────────────────────────────
+subtitles:
+  burn: true
+  burn_engine: /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg
+  burn_engine_reason: 系统 ffmpeg 无 libass · full 版含 libass
+  platform_font_sizes:
+    douyin: 42pt
+    xhs: 50pt
+  hook_first_3s: true
+  hook_at: 0.3
+  vo_align: true
+  static_vs_drawtext_split:
+    static_png_ui:
+      - M1 聊天界面 + AI 气泡 + 孩子气泡光标闪 + 头像后缩
+      - M3 AI↔孩子对话气泡序列 + ✓ 角标
+      - M5 6-8 岁点餐气泡 + prompt 卡 (正文 baked)
+      - M6 9-12 岁 06a 演示 + 06b prompt 卡独占全屏 (38pt baked)
+      - M7 13-15 岁话题气泡 + 波形 + prompt 卡居中
+      - M9 边界三图标卡结构
+    drawtext_fast_switch:
+      - M1 巨标 96pt「一开口就往后缩」+ 副 40pt
+      - M2 巨标 88pt「不是不努力」→「缺的不是又一个班」
+      - M3 顶部 40pt「AI 陪练·无限耐心」
+      - M4 段标 72pt「3 个年龄段·玩法不同」
+      - M5 段标 60pt「6-8 岁·角色扮演」
+      - M6 段标 56pt「9-12 岁·先夸再纠一处」
+      - M7 段标 56pt「13-15 岁·影子跟读」
+      - M8 巨标 88pt「每天 20 分钟」+ 68pt 绿「重点是敢开口」
+      - M9 大字 66pt「陪练不替课·家长把关」+ 40pt 灰
+      - M10 CTA 80pt「私信孩子几岁」+ 44pt「三套玩法发你」
+
+# ─────────────────────────────────────
+# 5. 输出规格 (双平台 · *_no_bgm.mp4 直接外发)
+# ─────────────────────────────────────
+outputs:
+  video_raw: publish/2026-W28/D07-家长陪孩子学英语/build/douyin_raw.mp4
+  video_publish_douyin: publish/2026-W28/D07-家长陪孩子学英语/douyin/video_no_bgm.mp4
+  xhs_carousel_pages: publish/2026-W28/D07-家长陪孩子学英语/xhs/pages/  # 主发 · gen_xhs_carousel_w28d07.py
+  vo_mp3: publish/2026-W28/D07-家长陪孩子学英语/build/audio/vo_W28D07.mp3
+  sfx_mix_log: publish/2026-W28/D07-家长陪孩子学英语/build/sfx_mix.log
+
+# ─────────────────────────────────────
+# 6. QC 清单
+# ─────────────────────────────────────
+qc:
+  vo:
+    - VO 覆盖 实发 ~92% ≥85% ✓
+    - 无 3s+ 死区 (VO 留空段由气泡渐出/✓点亮/波形 + sfx 撑)
+    - loudnorm -16 dB
+    - TTS 前置估算已过 (利用率 83.2% PASS)
+    - 真实性 (fact_check R7): VO 全"家长/方法性" · 无第一人称"我是英语老师"
+    - 合规 (fact_check R1): 效果只说"敢开口"非承诺 · 无"保证见效/提分/流利"
+  bgm:
+    - BGM off · 外发 `_no_bgm` 后缀 · 非预览件
+  sfx:
+    - sfx.enabled=true · 39 事件全走 assets/sfx/ 真 CC0 wav · 禁合成
+    - gain_db 全在 [-8, -22]
+    - 每场景切换有 whoosh 或 hit · VO ducking hit 不 duck
+    - ambient 用 coffee_shop_daytime (居家暖调)
+  subtitles:
+    - pipeline 生 SRT/ASS + ffmpeg-full libass 烧片
+    - 双平台字号 抖音 42 / xhs 50
+  outputs:
+    - 抖音 video_no_bgm.mp4 + xhs 图文轮播
+    - 未用真实竞品 logo · 未用合成 BGM/sfx
+
+# ─────────────────────────────────────
+# 7. fail-closed 门禁
+# ─────────────────────────────────────
+gate_check_status:
+  content_gate: pass_dual_review          # vA (best-of-2 synth · M1 hook + M7 tweak)
+  form_gate: pass_dual_review             # form_strategy best-of-2 修 M5-M7 破同构
+  motion_storyboard_gate: pass_single_run
+  storyboard_gate: pass_self_generated
+  audio_gate: pass_self_generated         # 本文件
+  tts_duration_gate: PASS                 # estimate_duration.py 利用率 83.2%
+  gate_check_palette: pending             # 待 render 后跑
+  pre_publish_forecast: pending           # 待 render 后跑
+  decision: proceed_to_render
+  next_step: |
+    1. gen_ui_w28d07.py 出 11 张 UI PNG (M6 拆 06a/06b) → gate_check_palette 每张过
+    2. run_pipeline.py --step vo (锁 VO 取 seg_timing) → 对齐 scenes/overlays/sfx 实测窗
+    3. run_pipeline.py --step preview (sfx mix) → --step platforms (双平台 · ffmpeg-full 烧字幕)
+    4. gen_xhs_carousel_w28d07.py 出图文轮播 → gate_check_palette
+    5. pre_publish_forecast · fail-closed 决定外发
+
+changelog:
+  - date: 2026-07-05
+    version: v1.0
+    change: |
+      新建 · draft_self_generated
+      · voice_id male-qn-jingying-jingpin (人设连贯) · speed 1.08 · BGM off (密 VO 演示型)
+      · sfx 39 事件全时间戳级 · 全走 assets/sfx/ 真 CC0 (coffee_shop ambient / soft_boom / whoosh / ui_tap / check / cross_click / riser)
+      · H6 vs D06: 聊天气泡 pop + ✓点亮 + 纠一处柔音 (vs D06 戳章+扫描线+ATS点亮)
+      · TTS 前置估算已过 (10 段全 ✓ · 利用率 83.2% · 实发预估 54.91s)
+      · 字幕分类 static PNG vs drawtext · 双平台 42/50 · burn ffmpeg-full libass
+      · 合规锚: VO 全"敢开口"非承诺 (fact_check R1) · 无第一人称英语老师 (R7)

@@ -36,9 +36,10 @@ class PlatformSpec:
 
 
 DEFAULT_PLATFORMS: tuple[PlatformSpec, ...] = (
+    # 2026-07-05 起：只做抖音 + 小红书；视频号停做（用户拍板）
+    # xhs 走视频还是图文轮播 · 由形式策略官在 form_strategy.md 定 · 视频用本 spec / 图文走 p002/p005/p006
     PlatformSpec(name="douyin", subs_size=42, margin_v=200, max_cue_chars=32, max_line_chars=17),
     PlatformSpec(name="xhs", subs_size=50, margin_v=220, max_cue_chars=26, max_line_chars=14),
-    PlatformSpec(name="weixin", subs_size=42, margin_v=200, max_cue_chars=32, max_line_chars=17),
 )
 
 

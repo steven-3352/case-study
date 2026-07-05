@@ -48,6 +48,12 @@ EMOTION_MULT: dict[str, float] = {
 WARN_DELTA_RATIO = 0.15   # 预测 vs target 差 ≥ 15% 报警
 FAIL_DELTA_RATIO = 0.30   # 差 ≥ 30% 建议改稿
 
+# 总时长 buffer（D04 教训 · MiniMax 实发比 estimate 慢 6.8% · 见 memory tts-estimate-duration-pre-synth）
+# 若 estimate 总长接近 target_total_cap（抖音 60s / xhs 60s），实发大概率超上限导致 CTA 裁掉
+MINIMAX_ACTUAL_OVERSHOOT_RATIO = 0.10   # 保守留 10% buffer
+TOTAL_WARN_UTILIZATION = 0.90            # estimate/cap ≥ 0.90 warn
+TOTAL_FAIL_UTILIZATION = 0.97            # estimate/cap ≥ 0.97 fail-closed（几乎必超）
+
 
 def _is_chinese_or_punct(ch: str) -> bool:
     """中文字符 + 常见中文标点（TTS 中都占正常字宽）."""
@@ -167,7 +173,12 @@ def check_config(config_path: pathlib.Path) -> list[SegmentReport]:
     return reports
 
 
-def _print_summary(reports: list[SegmentReport], target_total: float | None = None) -> int:
+def _print_summary(
+    reports: list[SegmentReport],
+    target_total: float | None = None,
+    target_total_cap: float | None = None,
+) -> int:
+    """target_total 是段位规划总长（scenes.total_dur 之和）；target_total_cap 是平台硬上限（抖音 60s）."""
     for r in reports:
         print(r.format())
     warns = [r for r in reports if r.verdict == "warn"]
@@ -180,8 +191,25 @@ def _print_summary(reports: list[SegmentReport], target_total: float | None = No
     print(f"  预测总长: {est_total:.2f}s")
     if target_total is not None:
         print(f"  计划总长: {target_total:.2f}s · Δ={est_total-target_total:+.2f}s")
-    if fails:
-        print(f"  ❌ 建议改稿：{', '.join(r.sid for r in fails)}")
+
+    # 平台硬上限 buffer 检查（D04 教训防 CTA 裁掉）
+    total_gate_fail = False
+    if target_total_cap is not None and target_total_cap > 0:
+        utilization = est_total / target_total_cap
+        actual_with_buffer = est_total * (1 + MINIMAX_ACTUAL_OVERSHOOT_RATIO)
+        print(f"  平台上限: {target_total_cap:.2f}s · 利用率 {utilization*100:.1f}%")
+        print(f"  MiniMax 实发预估 (+10% buffer): {actual_with_buffer:.2f}s")
+        if utilization >= TOTAL_FAIL_UTILIZATION:
+            print(f"  ❌ 总时长门 FAIL: 利用率 ≥ {TOTAL_FAIL_UTILIZATION*100:.0f}% · 实发几乎必超 {target_total_cap:.0f}s · CTA 会被裁 · 必删字/bump speed")
+            total_gate_fail = True
+        elif utilization >= TOTAL_WARN_UTILIZATION:
+            print(f"  ⚠ 总时长门 WARN: 利用率 ≥ {TOTAL_WARN_UTILIZATION*100:.0f}% · 实发风险 +6.8% (D04 观察) · 建议再压 3-5%")
+        else:
+            print(f"  ✓ 总时长门 PASS: 利用率 < {TOTAL_WARN_UTILIZATION*100:.0f}% · buffer 充足")
+
+    if fails or total_gate_fail:
+        if fails:
+            print(f"  ❌ 建议改稿：{', '.join(r.sid for r in fails)}")
         return 2
     if warns:
         print(f"  ⚠ 关注：{', '.join(r.sid for r in warns)}")
@@ -197,6 +225,9 @@ def main() -> None:
     ap.add_argument("--speed", type=float, default=1.0)
     ap.add_argument("--emotion", default="neutral")
     ap.add_argument("--target", type=float, default=0.0, help="单条模式下声明目标窗口")
+    ap.add_argument("--target-total-cap", type=float, default=0.0,
+                    help="平台硬上限（抖音 60s）· 检查 estimate 总长是否留 10% MiniMax buffer · "
+                         "config 模式下若 yaml 里有 tts.target_total_cap 会自动读取")
     args = ap.parse_args()
 
     if args.text:
@@ -212,9 +243,12 @@ def main() -> None:
         sys.exit(0)
 
     reports = check_config(args.config)
-    total = sum(float(s["target_dur"])
-                for s in yaml.safe_load(args.config.read_text(encoding="utf-8"))["tts"]["segments"])
-    code = _print_summary(reports, target_total=total)
+    cfg_data = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    total = sum(float(s["target_dur"]) for s in cfg_data["tts"]["segments"])
+    # 优先命令行 · 兜底 yaml 里 tts.target_total_cap · 都无则 None（不检查总时长门）
+    cap = args.target_total_cap if args.target_total_cap > 0 else \
+          cfg_data.get("tts", {}).get("target_total_cap")
+    code = _print_summary(reports, target_total=total, target_total_cap=cap)
     sys.exit(code)
 
 

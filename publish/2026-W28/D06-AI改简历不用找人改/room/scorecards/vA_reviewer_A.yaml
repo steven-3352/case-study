@@ -1,0 +1,17 @@
+role: 编剧+
+target: vA (主推)
+reviewer: A
+source: independent_new_session
+round_1:
+  scores: {停划: 86, 信息: 93, 情绪: 88, 真实: 95, CTA: 90, 结构: 89}
+  total: 89
+  status: fail
+  must_fix: 人设主体混用（AI vs 我）· M8 缺 before/after 实感 · 前3s缺口延后
+round_2:
+  applied_fixes: 主体统一"我用AI从HR视角" · 缺口前置M1 · M6加❌→✅对照句 · M8三处✕→✓回扫
+  scores: {停划: 91, 信息: 93, 情绪: 90, 真实: 95, CTA: 90, 结构: 91}
+  total: 91.7
+  status: pass
+  must_fix: resolved
+  note: M7 信息密度偏高 · 配音给足停顿
+verdict: pass_round_2

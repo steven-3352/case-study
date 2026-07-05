@@ -1,0 +1,365 @@
+# W28D07 pipeline_config.yaml · config-driven flow (memory: p004-lib-config-driven)
+# 用途：python3 pipeline/p004_video/run_pipeline.py --config <this> --step {vo|preview|platforms|all}
+#       UI PNG 另跑 gen_ui_w28d07.py (run_pipeline 不管 ui step)
+# ⚠ 不覆盖已 render 的 mp4；如要再跑，先 mv build/ build_bak/
+#
+# 依赖对齐:
+#   - audio_plan.yaml (voice_id=male-qn-jingying-jingpin · base_speed=1.08 · emotion=neutral · BGM off · sfx 层)
+#   - motion_storyboard.md (10 段 M1-M10 · 聊天气泡 + 3 年龄段 prompt 卡 · 无 broll · 无 GSAP)
+#   - form_strategy.md (pass_dual_review · best-of-2 修 M5-M7 破同构 · 6 硬门全过)
+#
+# H6 差异化 (vs D06): 暖奶油 #fdf3e8 聊天气泡 vs D06 简历纸面扫描线 · AI 薄荷绿↔孩子暖橙 vs 纸白红绿
+#
+# 合规锁 (fact_check R1-R9): 效果只说"敢开口"非承诺 · 无金钱绝对值 · 不贬低/替代培训班 · 无第一人称英语老师
+#
+# 溢出策略 (estimate_duration.py 前置校验 · 目标 estimate ≤52s → 实发 ~55-58s · cap 60):
+#   - VO 已按估算器压到 ~50s (利用率 <85%) 留 MiniMax +10% buffer
+#   - VO先锁: 先 --step vo 取实测 seg_timing → 再对齐 scenes/overlays → preview → platforms
+
+content_id: W28D07
+
+paths:
+  root_rel: publish/2026-W28/D07-家长陪孩子学英语
+
+ffmpeg:
+  crf: 20
+
+# ─────────────────────────────────────
+# TTS 段落 (对齐 audio_plan.yaml.voice.segments)
+# base_speed 1.08 · target_total_cap 60s · estimate_duration.py 检查利用率 <90%
+# ─────────────────────────────────────
+tts:
+  voice_id: male-qn-jingying-jingpin
+  base_speed: 1.08
+  target_total_cap: 60.0
+  segments:
+    # ═══ M1 · 0-3.5s · 冲突钩 (孩子不敢开口·往后缩) ═══
+    - sid: s1
+      target_start: 0.0
+      target_dur: 3.5
+      emotion: neutral
+      speed: 1.08
+      text: "报了两年英语班，一开口孩子就往后缩。"
+      tail_pad: 0.15
+
+    # ═══ M2 · 3.5-9.5s · 反转 punch (不是又一个班·缺陪练) ═══
+    - sid: s2
+      target_start: 3.5
+      target_dur: 6.0
+      emotion: neutral
+      speed: 1.08
+      text: "不是不努力，缺的不是又一个班，是个能陪他瞎聊、说错不尴尬的人。"
+      tail_pad: 0.15
+
+    # ═══ M3 · 9.5-15.5s · 机制演示 (AI 当耐心陪练) ═══
+    - sid: s3
+      target_start: 9.5
+      target_dur: 6.0
+      emotion: neutral
+      speed: 1.08
+      text: "这事 AI 正好能干——一个不会不耐烦的陪练，随时练、说错也不批评。"
+      tail_pad: 0.15
+
+    # ═══ M4 · 15.5-18.3s · 预告三年龄段 ═══
+    - sid: s4
+      target_start: 15.5
+      target_dur: 2.8
+      emotion: neutral
+      speed: 1.08
+      text: "按年龄，三套现成玩法。"
+      tail_pad: 0.15
+
+    # ═══ M5 · 18.3-24.8s · 6-8岁 角色扮演 (prompt 卡①) ═══
+    - sid: s5
+      target_start: 18.3
+      target_dur: 6.5
+      emotion: neutral
+      speed: 1.08
+      text: "六到八岁别背单词，让 AI 陪玩角色扮演，点餐买东西，简单英语你来我往。"
+      tail_pad: 0.15
+
+    # ═══ M6 · 24.8-32.3s · 9-12岁 复述+三句话 (最强收藏·拆两拍) ═══
+    - sid: s6
+      target_start: 24.8
+      target_dur: 7.5
+      emotion: neutral
+      speed: 1.08
+      text: "九到十二岁，复述一段动画，再用三句话说今天。AI 先夸再纠一处，敢说错才敢开口。"
+      tail_pad: 0.15
+
+    # ═══ M7 · 32.3-39.1s · 13-15岁 单话题+影子跟读 (prompt 卡③) ═══
+    - sid: s7
+      target_start: 32.3
+      target_dur: 6.8
+      emotion: neutral
+      speed: 1.08
+      text: "十三到十五岁，挑个感兴趣的话题聊下去，随时纠发音语法，像影子跟读一遍。"
+      tail_pad: 0.15
+
+    # ═══ M8 · 39.1-43.1s · 价值锚 (敢开口·去焦虑) ═══
+    - sid: s8
+      target_start: 39.1
+      target_dur: 4.0
+      emotion: neutral
+      speed: 1.08
+      text: "每天二十分钟，重点是敢开口，不是背多少。"
+      tail_pad: 0.15
+
+    # ═══ M9 · 43.1-48.3s · 边界+信任 (陪练不替课·家长把关) ═══
+    - sid: s9
+      target_start: 43.1
+      target_dur: 5.2
+      emotion: neutral
+      speed: 1.08
+      text: "AI 是陪练不替课，不用报付费课，时长话题家长把关就行。"
+      tail_pad: 0.15
+
+    # ═══ M10 · 48.3-53.3s · CTA (私信孩子几岁) ═══
+    - sid: s10
+      target_start: 48.3
+      target_dur: 5.0
+      emotion: neutral
+      speed: 1.08
+      text: "私信『孩子几岁、学到哪一步』，我把这三套玩法发你。"
+      tail_pad: 0.25
+
+# ─────────────────────────────────────
+# scenes (对齐 motion_storyboard · 全 img · D07 无 broll)
+# ⚠ total_dur 为规划值 · --step vo 后按 build/audio/seg_timing_w28d07.json 实测对齐再改
+# M6 拆两拍: m6a 演示 + m6b prompt 卡独占全屏静帧 (双评 best-of-2 修)
+# ─────────────────────────────────────
+scenes:
+  - name: M1_chat_freeze_hook
+    total_dur: 3.93
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/01_m1_chat_freeze.png
+        duration: 3.93
+
+  - name: M2_punch_bigtext
+    total_dur: 6.0
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/02_m2_punch.png
+        duration: 6.0
+
+  - name: M3_dialogue_demo
+    total_dur: 6.0
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/03_m3_dialogue.png
+        duration: 6.0
+
+  - name: M4_three_ages_preview
+    total_dur: 2.8
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/04_m4_preview.png
+        duration: 2.8
+
+  - name: M5_age1_roleplay
+    total_dur: 7.57
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/05_m5_age1.png
+        duration: 7.57
+
+  - name: M6_age2_split
+    total_dur: 7.5
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/06a_m6_age2_demo.png
+        duration: 3.5
+      - src_type: img
+        src_rel: build/assets_ui/06b_m6_age2_prompt.png
+        duration: 4.0
+
+  - name: M7_age3_shadow
+    total_dur: 7.14
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/07_m7_age3.png
+        duration: 7.14
+
+  - name: M8_value_anchor
+    total_dur: 4.21
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/08_m8_anchor.png
+        duration: 4.21
+
+  - name: M9_boundary_trust
+    total_dur: 5.71
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/09_m9_boundary.png
+        duration: 5.71
+
+  - name: M10_cta
+    total_dur: 5.0
+    clips:
+      - src_type: img
+        src_rel: build/assets_ui/10_m10_cta.png
+        duration: 5.0
+
+# ─────────────────────────────────────
+# 双平台字号 (memory: feedback_pipeline-full-platform-output)
+# 只做抖音 + 小红书 (视频号 stopped 2026-07-05) · xhs 主发 7 页图文轮播·此为视频兜底
+# ─────────────────────────────────────
+platforms:
+  douyin:
+    subs_size: 42
+    margin_v: 200
+    max_cue_chars: 32
+    max_line_chars: 17
+  xhs:
+    subs_size: 50
+    margin_v: 220
+    max_cue_chars: 26
+    max_line_chars: 14
+
+# ─────────────────────────────────────
+# overlays · 叠层大字快切 (drawtext · UI PNG 未 baked 的秒级快切)
+# 色: 暖红橙 #e05a3a · 通过绿 #2e9c5e · 墨字 #2a2320 · 奶油字 #fdf3e8 (加黑描边保可读)
+# ⚠ t_start/t_end 为规划值 · --step vo 后按 seg_timing_w28d07.json 实测 VO 窗位移再对齐
+# ─────────────────────────────────────
+overlays:
+  # M1 · 巨标 96pt 暖红橙「一开口就往后缩」+ 副 40pt
+  - text: "一开口就往后缩"
+    t_start: 0.3
+    t_end: 3.93
+    fontsize: 96
+    y_expr: h*0.70
+    color: "#e05a3a"
+    borderw: 4
+    bordercolor: "#000000"
+  - text: "报了两年英语班"
+    t_start: 0.5
+    t_end: 3.93
+    fontsize: 40
+    y_expr: h*0.80
+    color: "#fdf3e8"
+    borderw: 3
+    bordercolor: "#000000"
+
+  # M2 · 巨标 88pt 两连反转
+  - text: "不是不努力"
+    t_start: 4.2
+    t_end: 6.9
+    fontsize: 88
+    y_expr: h*0.32
+    color: "#2a2320"
+    borderw: 3
+    bordercolor: "#fdf3e8"
+  - text: "缺的不是又一个班"
+    t_start: 6.9
+    t_end: 9.93
+    fontsize: 84
+    y_expr: h*0.32
+    color: "#e05a3a"
+    borderw: 4
+    bordercolor: "#000000"
+
+  # M3 · 顶部小字机制锚 40pt
+  - text: "AI 陪练·无限耐心"
+    t_start: 10.2
+    t_end: 15.93
+    fontsize: 40
+    y_expr: h*0.12
+    color: "#2e9c5e"
+    borderw: 3
+    bordercolor: "#000000"
+
+  # M4 · 段标 72pt 三年龄段预告
+  - text: "3 个年龄段·玩法不同"
+    t_start: 16.2
+    t_end: 18.73
+    fontsize: 72
+    y_expr: h*0.80
+    color: "#e05a3a"
+    borderw: 4
+    bordercolor: "#000000"
+
+  # M5 · 段标 60pt (prompt 卡正文已 baked 进 PNG · 不重叠 drawtext)
+  - text: "6-8 岁 · 角色扮演"
+    t_start: 19.0
+    t_end: 26.30
+    fontsize: 60
+    y_expr: h*0.10
+    color: "#2a2320"
+    borderw: 2
+    bordercolor: "#fdf3e8"
+
+  # M6 · 段标 56pt「9-12 岁·先夸再纠」(prompt 卡独占帧 baked 进 06b PNG)
+  - text: "9-12 岁 · 先夸再纠一处"
+    t_start: 26.6
+    t_end: 33.80
+    fontsize: 56
+    y_expr: h*0.10
+    color: "#2a2320"
+    borderw: 2
+    bordercolor: "#fdf3e8"
+
+  # M7 · 段标 56pt「13-15 岁·影子跟读」
+  - text: "13-15 岁 · 影子跟读"
+    t_start: 34.1
+    t_end: 40.94
+    fontsize: 56
+    y_expr: h*0.10
+    color: "#2a2320"
+    borderw: 2
+    bordercolor: "#fdf3e8"
+
+  # M8 · 价值锚 88pt + 绿色强调
+  - text: "每天 20 分钟"
+    t_start: 41.2
+    t_end: 45.15
+    fontsize: 88
+    y_expr: h*0.34
+    color: "#2a2320"
+    borderw: 3
+    bordercolor: "#fdf3e8"
+  - text: "重点是敢开口"
+    t_start: 41.7
+    t_end: 45.15
+    fontsize: 68
+    y_expr: h*0.50
+    color: "#2e9c5e"
+    borderw: 3
+    bordercolor: "#000000"
+
+  # M9 · 边界大字 66pt + 小字
+  - text: "陪练不替课·家长把关"
+    t_start: 45.5
+    t_end: 50.86
+    fontsize: 66
+    y_expr: h*0.36
+    color: "#e05a3a"
+    borderw: 4
+    bordercolor: "#000000"
+  - text: "不用报付费课"
+    t_start: 46.0
+    t_end: 50.86
+    fontsize: 40
+    y_expr: h*0.86
+    color: "#8a7f72"
+    borderw: 2
+    bordercolor: "#000000"
+
+  # M10 · CTA 80pt 暖红橙 + 话术卡 44pt
+  - text: "私信『孩子几岁』"
+    t_start: 51.2
+    t_end: 55.86
+    fontsize: 80
+    y_expr: h*0.40
+    color: "#e05a3a"
+    borderw: 4
+    bordercolor: "#000000"
+  - text: "三套玩法发你"
+    t_start: 52.8
+    t_end: 55.86
+    fontsize: 44
+    y_expr: h*0.62
+    color: "#2a2320"
+    borderw: 2
+    bordercolor: "#fdf3e8"

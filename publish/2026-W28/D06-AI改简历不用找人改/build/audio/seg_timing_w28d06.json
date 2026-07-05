@@ -1,0 +1,108 @@
+{
+  "engine": [
+    "minimax"
+  ],
+  "total": 60.64,
+  "segments": [
+    {
+      "id": "s1",
+      "window": 3.11,
+      "vo_dur": 2.96,
+      "start": 0.0,
+      "seg_dur": 3.11,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "投了几百份简历，全是已读不回。"
+    },
+    {
+      "id": "s2",
+      "window": 5.28,
+      "vo_dur": 5.13,
+      "start": 3.11,
+      "seg_dur": 5.28,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "多半不是简历差，是没被看到。花钱找人改，照样没面试。"
+    },
+    {
+      "id": "s3",
+      "window": 6.0,
+      "vo_dur": 5.5,
+      "start": 8.39,
+      "seg_dur": 6.0,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "HR 初筛一份简历只有几秒。我用 AI 站在 HR 那侧，替你先扫一遍。"
+    },
+    {
+      "id": "s4",
+      "window": 3.5,
+      "vo_dur": 3.19,
+      "start": 14.39,
+      "seg_dur": 3.5,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "多半是这三处，HR 根本没看到。"
+    },
+    {
+      "id": "s5",
+      "window": 8.0,
+      "vo_dur": 7.73,
+      "start": 17.89,
+      "seg_dur": 8.0,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "第一，求职意向空着，HR 定位不了你要哪个岗，直接划走。改成写死岗位加到岗时间。"
+    },
+    {
+      "id": "s6",
+      "window": 8.75,
+      "vo_dur": 8.6,
+      "start": 25.89,
+      "seg_dur": 8.75,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "第二，全是负责、配合，没数字。这样改：负责社群运营，改成从 0 搭 3000 人、转化涨 40%。"
+    },
+    {
+      "id": "s7",
+      "window": 8.5,
+      "vo_dur": 6.75,
+      "start": 34.64,
+      "seg_dur": 8.5,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "第三，机器先筛关键词。要的词没写，简历没到 HR 就被刷。照招聘描述补上。"
+    },
+    {
+      "id": "s8",
+      "window": 6.5,
+      "vo_dur": 4.46,
+      "start": 43.14,
+      "seg_dur": 6.5,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "同一段经历，这三处一改，HR 扫到的完全是两回事。"
+    },
+    {
+      "id": "s9",
+      "window": 5.5,
+      "vo_dur": 4.57,
+      "start": 49.64,
+      "seg_dur": 5.5,
+      "emotion": "neutral",
+      "speed": 1.1,
+      "text": "被看到，是不花钱的第一步。数字填真的，别编。"
+    },
+    {
+      "id": "s10",
+      "window": 5.5,
+      "vo_dur": 4.6,
+      "start": 55.14,
+      "seg_dur": 5.5,
+      "emotion": "neutral",
+      "speed": 1.08,
+      "text": "私信『发我简历』，脱敏就行，我用 HR 视角帮你圈重点。"
+    }
+  ]
+}

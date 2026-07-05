@@ -245,7 +245,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 铁律 · 结果负责制（2026-06 起 · D04 升级）
 
-0. **北极星 · Audience-First, Not Pipeline-First** — 做出用户愿意看完、且互动高的内容；三要素：**内容共鸣**（命中真实情绪/场景）+ **强观赏性**（每 2-4s 视觉变化、首屏停划、音画同步）+ **强内容**（信息密度真材实料、可复现方法）。视频看 `completion_3s` + `completion_rate` + 评论/收藏；图文看划完 + 收藏/评论。前 3s 须拆同行热门设计停划。
+0. **北极星 · Audience-First, Not Pipeline-First** — 做出用户愿意看完、且互动高的内容；三要素：**内容共鸣**（命中真实情绪/场景）+ **强观赏性**（每 2-4s 视觉变化、首屏停划、音画同步 · **声音密度 ≥ 画面变化密度**：每次画面切换/关键金句/CTA 必配 sfx 或 VO 变化，"画面是骨架、声音是灵魂"）+ **强内容**（信息密度真材实料、可复现方法）。视频看 `completion_3s` + `completion_rate` + 评论/收藏；图文看划完 + 收藏/评论。前 3s 须拆同行热门设计停划。
 
    **反例（工程完成心态 · 全部不算交付达标）**：pipeline 跑通了 / 15 步走完了 / 所有工种产出齐了 / render 无报错 / 发布包三平台文案齐了。**唯一交付判据**：`pre_publish_forecast` ≥ B + 投后观众数据达标。
 

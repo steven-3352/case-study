@@ -1,0 +1,28 @@
+{
+  "freesound_id": 243749,
+  "name": "Metronome 1kHz (weak pulse)",
+  "username": "unfa",
+  "license": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "duration": 0.05025,
+  "tags": [
+    "1000Hz",
+    "1kHz",
+    "GUI",
+    "button",
+    "click",
+    "interface",
+    "menu",
+    "metronome",
+    "option",
+    "ping",
+    "short",
+    "signal",
+    "switch",
+    "synthetic",
+    "tick"
+  ],
+  "num_downloads": 5581,
+  "query": "metronome tick soft",
+  "url": "https://freesound.org/s/243749/",
+  "fetched_at": "2026-07-05"
+}

@@ -1,0 +1,267 @@
+# SFX Catalog · 音效映射表
+#
+# 用途：audio_plan.yaml 里的 sfx.events[].kind → 本表映射到具体 wav 文件 · sfx-mixer 消费本表
+# 版本：v1 · 2026-07-05 · 从 W27D01/D03 + W28D01/D04 audio_plan 归纳的公共 sfx 家族
+# 依赖：
+#   - memory feedback_sfx-layer-required（4 类必覆盖 · BGM off 但 sfx 不 off）
+#   - memory feedback_no-synth-bgm（禁 ffmpeg aevalsrc/sine 合成 · 必用 CC0 wav）
+#   - memory feedback_dense-vo-no-dead-air（VO -16dB · sfx -8~-22dB 层级）
+#
+# 结构：
+#   sfx_families:
+#     <family_key>:                # kind 名（audio_plan 用）
+#       description: str
+#       gain_db_range: [min, max]  # 相对 VO(-16dB) 的推荐 dB · sfx-mixer 若不指定则用中值
+#       duration_range_s: [min, max]
+#       use_case: [str, ...]       # 常用场景
+#       candidates:                # 具体 wav 文件候选（同 kind 多样本供随机 or 指定）
+#         - id: str                # sfx-mixer 用 id 定位
+#           path: str              # 相对项目根
+#           source: str            # freesound_id / 剪映 / userA
+#           license: CC0 | CC-BY | proprietary
+#           tags: [str, ...]       # 情绪/材质/速度
+#           fetched_at: ISO date | null
+#
+# 音效不存在时 sfx-mixer 的行为：
+#   - 若 candidates 全空 → 打印 gap 报告 · 跳过该 event · **不合成**（禁 aevalsrc）
+#   - 生成 assets/sfx/GAP_REPORT.md 供用户 Freesound 补齐
+
+version: 1
+last_updated: "2026-07-05"
+
+# ─────────────────────────────────────
+# 全局响度基准（memory feedback_dense-vo-no-dead-air）
+# ─────────────────────────────────────
+global:
+  vo_target_db: -16          # loudnorm I=-16
+  sfx_default_gain_db: -12   # 相对 VO 的 dB 差基线
+  sfx_bed_ambient_db: -22    # ambient 铺底最轻
+  sfx_hit_max_db: -8         # hit 打点最响
+  # sfx-mixer 应用 event.gain_db 覆盖 global · 缺省用本 family 中值
+
+# ─────────────────────────────────────
+# 4 大 sfx 家族（memory feedback_sfx-layer-required）
+# ─────────────────────────────────────
+sfx_families:
+
+  # ═══ 1. AMBIENT · 环境铺底 · 全片 loop ═══
+  ambient:
+    description: "全片环境铺底 · 建立场景氛围（办公室 / 深夜卧室 / 户外）· loop 覆盖全片时长"
+    gain_db_range: [-24, -20]
+    duration_range_s: [3.0, 10.0]  # 段落长度 · sfx-mixer 会 loop 到目标长度
+    use_case:
+      - "chaos scene 起片氛围建立"
+      - "非 VO 段填充（禁 3s+ 死区）"
+      - "全片持续铺底至 CTA 前 fade -3dB"
+    candidates:
+      - id: office_daylight_room_tone
+        path: assets/sfx/ambient/office_daylight_room_tone.wav
+        source: freesound_135097
+        license: CC0
+        tags: [白天, 办公室, 室内, 键盘远景, 温暖]
+        fetched_at: "2026-07-05"
+      - id: office_night_desk_lamp
+        path: assets/sfx/ambient/office_night_desk_lamp.wav
+        source: freesound_671455
+        license: CC0
+        tags: [深夜, 卧室, 台灯, 静谧, 单人]
+        fetched_at: "2026-07-05"
+      - id: coffee_shop_daytime
+        path: assets/sfx/ambient/coffee_shop_daytime.wav
+        source: freesound_155665
+        license: CC0
+        tags: [白天, 咖啡厅, 人声远景, 出镜型备选]
+        fetched_at: "2026-07-05"
+
+  # ═══ 2. TICK · 拍点节奏（打字/UI/时钟）═══
+  tick:
+    description: "单发或序列 tick · 用于 UI 点击 · 打字节奏 · 秒表节拍"
+    gain_db_range: [-18, -12]
+    duration_range_s: [0.05, 0.5]
+    use_case:
+      - "M1 chaos 起片 UI tick 拉开"
+      - "打字 14 声序列（tick_seq）"
+      - "秒表/倒计时节奏"
+      - "M4 VO 起 subtle tap 引入"
+    candidates:
+      - id: subtle_ui_tap_soft
+        path: assets/sfx/tick/subtle_ui_tap_soft.wav
+        source: freesound_833601
+        license: CC0
+        tags: [UI, 轻拍, VO 引入]
+        fetched_at: "2026-07-05"
+      - id: keyboard_mechanical_single
+        path: assets/sfx/tick/keyboard_mechanical_single.wav
+        source: freesound_622060
+        license: CC0
+        tags: [机械键盘, 单击, 30ms]
+        fetched_at: "2026-07-05"
+      - id: keyboard_typing_sequence_14
+        path: assets/sfx/tick/keyboard_typing_sequence_14.wav
+        source: freesound_378084
+        license: CC0
+        tags: [机械键盘, 14 声序列, 打字, 0.5s]
+        fetched_at: "2026-07-05"
+      - id: keyboard_enter_key
+        path: assets/sfx/tick/keyboard_enter_key.wav
+        source: freesound_180997
+        license: CC0
+        tags: [回车键, 硬拍, 0.15s]
+        fetched_at: "2026-07-05"
+      - id: metronome_soft_tick
+        path: assets/sfx/tick/metronome_soft_tick.wav
+        source: freesound_243749
+        license: CC0
+        tags: [节拍器, 计时, 单发]
+        fetched_at: "2026-07-05"
+
+  # kind alias: tick_seq → 用 tick 家族里 tags 含 "序列" 的 candidate
+  tick_seq:
+    description: "tick 序列（alias · 走 tick 家族筛序列 tag）"
+    alias_of: tick
+
+  # ═══ 3. WHOOSH · 转场/信息进出 ═══
+  whoosh:
+    description: "段间过渡 whoosh · 信息元素快速进出 · 快切转场"
+    gain_db_range: [-14, -10]
+    duration_range_s: [0.2, 0.6]
+    use_case:
+      - "段间硬切转场"
+      - "UI 元素快速滑入"
+      - "M3 reveal 大字入伴随 whoosh"
+      - "M6 3 段快切之间"
+    candidates:
+      - id: whoosh_transition_soft
+        path: assets/sfx/whoosh/whoosh_transition_soft.wav
+        source: freesound_683096
+        license: CC0
+        tags: [段间, 轻柔, 段落起]
+        fetched_at: "2026-07-05"
+      - id: whoosh_swipe_fast
+        path: assets/sfx/whoosh/whoosh_swipe_fast.wav
+        source: freesound_412595
+        license: CC0
+        tags: [快切, 0.3s, 段位间]
+        fetched_at: "2026-07-05"
+      - id: whoosh_air_pass
+        path: assets/sfx/whoosh/whoosh_air_pass.wav
+        source: freesound_825632
+        license: CC0
+        tags: [气流过, 0.5s, 段位间]
+        fetched_at: "2026-07-05"
+
+  # ═══ 4. HIT · 拍点撞击（重点强调）═══
+  hit:
+    description: "拍点撞击 · 关键信息落地 · 打勾/打叉 · 段位收尾"
+    gain_db_range: [-12, -8]
+    duration_range_s: [0.15, 0.6]
+    use_case:
+      - "M3 大字落地 hit 打点"
+      - "M5 分屏硬切进入"
+      - "M8 打勾 × 8 序列 / 打叉 × 2"
+      - "M9 价值锚落地深长 hit"
+      - "M10 CTA 收尾拍点"
+    candidates:
+      - id: impact_soft_boom
+        path: assets/sfx/hit/impact_soft_boom.wav
+        source: freesound_728515
+        license: CC0
+        tags: [软 boom, 0.3s, 段位收尾]
+        fetched_at: "2026-07-05"
+      - id: impact_hard_cut
+        path: assets/sfx/hit/impact_hard_cut.wav
+        source: freesound_650573
+        license: CC0
+        tags: [硬切, 段位起, 0.3s]
+        fetched_at: "2026-07-05"
+      - id: impact_deep_resonance
+        path: assets/sfx/hit/impact_deep_resonance.wav
+        source: freesound_846670
+        license: CC0
+        tags: [深长, 价值锚, 0.5s]
+        fetched_at: "2026-07-05"
+      - id: check_tick_soft
+        path: assets/sfx/hit/check_tick_soft.wav
+        source: freesound_528561
+        license: CC0
+        tags: [打勾, UI accent, 0.15s]
+        fetched_at: "2026-07-05"
+      - id: cross_click_error
+        path: assets/sfx/hit/cross_click_error.wav
+        source: freesound_445978
+        license: CC0
+        tags: [打叉, UI accent, error, 0.15s]
+        fetched_at: "2026-07-05"
+
+  # kind alias: hit_seq → 用 hit 家族里 tags 含 "打勾"/"UI accent" 的 candidate
+  hit_seq:
+    description: "hit 序列（alias · 走 hit 家族筛 UI accent 序列 tag）"
+    alias_of: hit
+
+  # ═══ 5. RISER · 情感型 · 情绪拉升（默认 off · 教程感重）═══
+  riser:
+    description: "情绪拉升 · 情感型/带货型激活 · 演示/知识型默认 off（memory feedback_sfx-layer-required 万能公式变体）"
+    gain_db_range: [-16, -10]
+    duration_range_s: [1.0, 3.0]
+    use_case:
+      - "情感型 CTA 前 1-2s 拉升"
+      - "带货型价格揭晓前"
+      - "反面正解翻转前"
+    default_enabled_for_types: [emotional, sales, oncam]
+    default_enabled_for_types_not: [demo_dense_vo, knowledge]
+    candidates:
+      - id: riser_short_ascending
+        path: assets/sfx/riser/riser_short_ascending.wav
+        source: freesound_685256
+        license: CC0
+        tags: [拉升, 1.5s, 情感型]
+        fetched_at: "2026-07-05"
+
+# ─────────────────────────────────────
+# GAP 处理策略
+# ─────────────────────────────────────
+gap_handling:
+  when_candidate_not_found:
+    - "sfx-mixer 打印 gap · event 记入 GAP_REPORT.md"
+    - "跳过该 event（不 aevalsrc/sine 合成 · memory feedback_no-synth-bgm）"
+    - "VO + 现有 sfx 继续 mix · 不 fail-close"
+  when_family_empty:
+    - "全 family 无 candidate → sfx layer 整体 off"
+    - "audio_plan.yaml.sfx.enabled=true 且 family 空 → 音画硬门 warn"
+  gap_report_path: assets/sfx/GAP_REPORT.md
+
+# ─────────────────────────────────────
+# 检索关键词（P2 sfx-fetcher / sfx-search-helper 消费）
+# ─────────────────────────────────────
+freesound_search_hints:
+  ambient:
+    office_daylight_room_tone: "office room tone daylight ambience"
+    office_night_desk_lamp: "quiet bedroom night late ambience"
+    coffee_shop_daytime: "coffee shop cafe ambience daytime"
+  tick:
+    subtle_ui_tap_soft: "subtle ui tap soft click"
+    keyboard_mechanical_single: "mechanical keyboard key single click"
+    keyboard_typing_sequence_14: "mechanical keyboard typing sequence"
+    keyboard_enter_key: "keyboard enter key press"
+    metronome_soft_tick: "metronome tick soft"
+  whoosh:
+    whoosh_transition_soft: "whoosh transition swish soft"
+    whoosh_swipe_fast: "whoosh swipe fast transition"
+    whoosh_air_pass: "whoosh air pass transition"
+  hit:
+    impact_soft_boom: "impact soft boom cinematic"
+    impact_hard_cut: "impact hard cut stinger"
+    impact_deep_resonance: "impact deep resonance cinematic"
+    check_tick_soft: "soft click check mark ui"
+    cross_click_error: "error click ui cross"
+  riser:
+    riser_short_ascending: "riser short ascending cinematic tension"
+
+# ─────────────────────────────────────
+# 相关 memory · 使用本 catalog 前必读
+# ─────────────────────────────────────
+memory_refs:
+  - feedback_sfx-layer-required   # 4 类必覆盖 · 万能公式
+  - feedback_no-synth-bgm          # 禁 aevalsrc/sine 合成
+  - feedback_dense-vo-no-dead-air  # VO -16dB · sfx dB 层级
+  - feedback_dense-vo-no-bgm-default  # 密 VO 演示型 BGM off · sfx 不 off
