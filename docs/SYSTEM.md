@@ -109,7 +109,7 @@ Layer 5  反馈修正       rules.yaml → 周报 → 下批选题/标准进化
 
 | 步 | 动作 | 产出 | 门禁 |
 |----|------|------|------|
-| 1 | 立项 | 进 `queue/topics.yaml` | — |
+| 1 | 立项 | 进 `queue/topics.yaml`;先翻 `material/` 真实原矿 | — |
 | 2 | 并行调研 | 记者笔记 + 网络调研 | ≥3 URL、≥2 网络原话 |
 | 3 | **洞察包** | `insights/` 四件套 + external_references | 未完成 → **禁止写稿** |
 | 4 | 留存设计 | `retention_beat_sheet.md` | 视频/强互动图文必跑 |

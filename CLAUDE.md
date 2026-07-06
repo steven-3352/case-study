@@ -207,7 +207,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 标准动作（v2）
 
-1. **立项** — 编导确认选题进 `queue/topics.yaml`
+1. **立项** — 编导确认选题进 `queue/topics.yaml`；**立项前先翻 `material/`(真实内容原矿),优先从真材料提炼钩子/弧线,不从零脑暴;`material/` 没料才允许新脑暴**
 2. **并行深挖** — 记者 + 纪录片导演；带货型加消费者声音 + 选品
 3. **洞察包** — 选题深挖师 + 内核提炼师 + 领域专家 + 事实校验员 → `insights/` 四件套
 4. **留存设计** — 留存与互动设计师 → `retention_beat_sheet.md`（视频/强互动图文）
