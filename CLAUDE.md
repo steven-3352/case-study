@@ -136,7 +136,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 | **纪录片导演** | 故事弧线、改造前后对比 | 叙事大纲：起承转合 + 情绪锚点 |
 | **导演（执行）** | 镜头语言、节奏、信息密度 | 分镜表：画面/口播/字幕/时长（出镜型含机位） |
 | **摄像/视觉** | 画面可拍性、构图、可复用素材 | 画面清单：B-roll 列表、截图需求 |
-| **编剧** | 钩子、逐字稿、字幕节奏 | v0/vA/vB 三版脚本 + 前 3s 大字钩子 |
+| **编剧** | 钩子、逐字稿、字幕节奏 | N 角度锦标赛竞写 + 停划裁判 best-of（`anti_mediocrity_tournament.md`）+ 前 3s 大字钩子 |
 | **视觉设计** | 版面、色彩、品牌一致性；**封面 mock 验收** | 视觉路线 + `design/cover_brief.md` + `design/cover_review.md` |
 | **视觉语言策展师** | 读取 DESIGN.md / 成熟视觉系统，萃取本条可执行的色板、字体、组件、禁用项；把审美口径落成约束 | `design/design_language.md` |
 | **剪辑** | 时长卡控、三平台规格 | 剪辑说明：抖音 45-60s / 小红书 ≤60s / 视频号 60-90s |
@@ -211,7 +211,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 2. **并行深挖** — 记者 + 纪录片导演；带货型加消费者声音 + 选品
 3. **洞察包** — 选题深挖师 + 内核提炼师 + 领域专家 + 事实校验员 → `insights/` 四件套
 4. **留存设计** — 留存与互动设计师 → `retention_beat_sheet.md`（视频/强互动图文）
-5. **脚本三版** — 编剧产出 v0/vA/vB（**只能引用洞察卡 P0/P1，不得新增卖点**）
+5. **脚本锦标赛** — 编剧走**抗平庸锦标赛**：N 个**不同角度**独立并行竞写 → **停划裁判**判"平不平庸"（默认毙，除非有别人写不出的东西）→ 逐拍 best-of 合成（**只能引用洞察卡 P0/P1，不得新增卖点**）。机制与打分表见 `templates/design/anti_mediocrity_tournament.md`（替代易造假的 v0/vA/vB 三版，见 `SCRIPT_REJECT_LOG` 三版造假教训）。按赌注分级：核心脚本上全锦标赛，边角料一稿过。
 6. **视觉路线** — 视觉设计定 P001 / P002 / 新路线；形式选型见 `assets/formats/catalog.yaml`（≥3 种）
 7. **形式策略会** — 形式策略官逐镜比较表达方案，声明数据杠杆、理解成本、制作成本、技术风险 → `design/form_strategy.md`
 8. **视觉语言约束** — 视觉语言策展师从 DESIGN.md / 成熟视觉系统中萃取本条 token、组件、Do/Don't 与逐镜应用 → `design/design_language.md`
@@ -263,7 +263,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - 完播北极星：`templates/design/completion_rate_north_star.md` · `templates/insights/hook_benchmark.md`
 - 铁律：`.cursor/rules/content-outcome-accountability.mdc` · `.cursor/rules/content-prep-multi-agent.mdc`
 - 两道门：`templates/design/content_form_split_gates.md`
-- 门禁：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md`
+- 门禁：`pipeline/gate_check.py` · `templates/design/anti_perfunctory_gates.md`（判合格/应付）· `templates/design/anti_mediocrity_tournament.md`（判平庸/抓人 · 停划裁判）· `pipeline/gate_check_media.py`（成片 ffprobe 体检）
 - fail 登记：`docs/design/FORM_FAIL_LOG.md` · `docs/design/SCRIPT_REJECT_LOG.md`
 - 投后进化：`pipeline/fetch_platform_metrics.py` · `pipeline/evolution_apply.py`
 

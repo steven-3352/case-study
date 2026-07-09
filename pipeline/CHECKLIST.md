@@ -31,6 +31,7 @@
 
 - [ ] **禁止幻灯片冒充成片**：`prototype/qa_shots/`、低保真截图、静态 QA 帧不得直接拼接为 `douyin/video.mp4`
 - [ ] **动态来源**：成片画面来自动态 HTML/GSAP/Canvas/Three、OpenMontage、真实录屏/B-roll/视频生成素材或正式 render pipeline
+- [ ] **成片 ffprobe 体检**：`python3 pipeline/gate_check_media.py <成片.mp4>` PASS（无 ≥1s 黑帧 / 无 ≥3s 静音死区 / 前 6s mean_volume ≥ -25dB / 无爆音）——①确定性闸，只抓技术坏，不判创意（幻灯片/机器音等创意弱靠 ②③）
 - [ ] **全屏**为项目演示（录屏/数据/系统页面/真实截图）— **演示型/知识型默认**
 - [ ] **出镜**符合形态（`docs/DECISIONS.md` Q8）：
   - 演示型 / 知识型（默认）：❌ 真人、❌ 数字人（含小窗、画中画、封面大头）

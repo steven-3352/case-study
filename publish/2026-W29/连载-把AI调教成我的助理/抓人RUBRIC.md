@@ -1,5 +1,7 @@
 # 抓人 RUBRIC · 钩子 + 情绪硬标准
 
+> **⚠️ canonical 已升级至 `templates/design/anti_mediocrity_tournament.md`(系统通用门)。本文件 = EP01 首次实战实例,保留作证;通用规则以 templates 为准。**
+
 > 起因(2026-07-09):EP01 编剧首版"合格但太平",最抓人的洞察反而是用户(非专业)提的。系统缺一道"抓不到人就打回"的门。此表 = 所有创作类 agent(编剧/留存/动画导演)的**最低出工门槛**,也是"停划裁判"的打分表。
 > 归属:先放本连载;验证有效 → 升级进 `templates/` + `pipeline/gate_check`,并写进创作 agent 的 brief。
 
