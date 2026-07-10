@@ -1,0 +1,6 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: ep03_silent.mp4}
+scenes:
+  - {id: s1_dumbfix,   type: html, template: ep03_dumbfix.html,   duration: 7.0, data: {}}
+  - {id: s2_deadends,  type: html, template: ep03_deadends.html,  duration: 7.0, data: {}}
+  - {id: s3_mechanical,type: html, template: ep03_mechanical.html,duration: 7.5, data: {}}
+  - {id: s4_land,      type: html, template: ep03_land.html,      duration: 7.0, data: {}}
