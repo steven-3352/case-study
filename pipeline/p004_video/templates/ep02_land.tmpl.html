@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"><title>EP02 s4 · 落点痛点④+互动</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--red:#e5484d}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("__DESK_B64__");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.78),rgba(6,9,14,.6) 40%,rgba(6,9,14,.72) 70%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .split{position:absolute;left:52px;right:52px;top:360px;display:flex;gap:28px;align-items:stretch;height:620px}
+  .card{flex:1;border-radius:24px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .card.said{background:rgba(19,26,22,.94);border:3px solid rgba(63,185,80,.5);opacity:0}
+  .card.said .lbl{color:var(--muted);font-size:34px;margin-bottom:20px;font-family:"SF Mono",monospace}
+  .card.said .big{color:var(--green);font-size:72px;font-weight:900}
+  .card.said .tick{font-size:96px;color:var(--green);margin-top:10px}
+  .card.ask{background:rgba(26,16,17,.94);border:3px solid rgba(229,72,77,.5);opacity:0;position:relative}
+  .card.ask .lbl{color:var(--muted);font-size:34px;margin-bottom:10px;font-family:"SF Mono",monospace;position:absolute;top:40px;left:0;right:0}
+  .card.ask .q{color:var(--red);font-size:260px;font-weight:900;line-height:1}
+  .vs{position:absolute;left:50%;top:640px;transform:translate(-50%,-50%);z-index:5;
+    width:110px;height:110px;border-radius:50%;background:#0b0e14;border:3px solid var(--muted);
+    display:grid;place-items:center;font-size:40px;font-weight:900;color:var(--muted);font-family:"SF Mono",monospace;opacity:0}
+  .stampzone{position:absolute;right:80px;top:820px;width:250px;height:250px}
+  .stamp{position:absolute;inset:0;transform-origin:center;border:10px solid var(--red);color:var(--red);border-radius:50%;display:grid;place-items:center;text-align:center;font-size:60px;font-weight:900;line-height:1.06;background:rgba(6,8,12,.6);box-shadow:0 0 34px rgba(229,72,77,.25);opacity:0}
+  .stamp small{display:block;font-size:24px;letter-spacing:3px;margin-top:8px;font-family:"SF Mono",monospace}
+  .ink{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;background:var(--red);border-radius:50%;opacity:0}
+  .caption{position:absolute;left:52px;right:52px;top:1130px;font-size:78px;font-weight:900;line-height:1.2;letter-spacing:1px;text-shadow:0 4px 24px rgba(0,0,0,.85);opacity:0}
+  .caption b{color:var(--red)}
+  .cta{position:absolute;left:60px;right:60px;bottom:210px;text-align:center;opacity:0}
+  .cta .q2{font-size:52px;font-weight:800;color:#fff}
+  .cta .act{margin-top:22px;display:inline-block;font-size:46px;font-weight:900;color:#fff;background:var(--red);border-radius:16px;padding:16px 40px}
+</style></head>
+<body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="split">
+      <div class="card said" id="said"><div class="lbl">它 说</div><div class="big">锁好了</div><div class="tick">✓</div></div>
+      <div class="card ask" id="ask"><div class="lbl">我 能 验 证 吗</div><div class="q">?</div></div>
+    </div>
+    <div class="vs" id="vs">VS</div>
+    <div class="stampzone"><i class="ink" id="ink0"></i><i class="ink" id="ink1"></i><i class="ink" id="ink2"></i><i class="ink" id="ink3"></i><i class="ink" id="ink4"></i><i class="ink" id="ink5"></i>
+      <div class="stamp" id="stamp">不敢<br>信<small>NO TRUST</small></div></div>
+    <div class="caption" id="cap">它说锁好了 · <b>我,根本,没法验证</b></div>
+    <div class="cta" id="cta"><div class="q2">你,是不是也被它这么糊弄过?</div><div class="act">评论区打个「1」</div></div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  tl.fromTo("#said",{opacity:0,x:-30},{opacity:1,x:0,duration:.45,ease:"back.out(1.4)"},0.4);
+  tl.fromTo(".said .tick",{scale:0},{scale:1,duration:.35,ease:"back.out(3)"},0.8);
+  tl.fromTo("#ask",{opacity:0,x:30},{opacity:1,x:0,duration:.45,ease:"back.out(1.4)"},1.3);
+  tl.fromTo(".ask .q",{scale:.3,opacity:0},{scale:1,opacity:1,duration:.5,ease:"back.out(2)"},1.7);
+  tl.fromTo("#vs",{opacity:0,scale:.4},{opacity:1,scale:1,duration:.35,ease:"back.out(3)"},2.2);
+  tl.to(".ask .q",{scale:1.12,duration:.5,yoyo:true,repeat:3,ease:"sine.inOut"},2.6);  // 问号不安地跳动
+  // ★落章:不敢信
+  const S=3.6;
+  tl.set("#stamp",{opacity:0,scale:3.2,rotation:-26,yPercent:-150,xPercent:14},S);
+  tl.to("#stamp",{opacity:1,duration:.12},S);
+  tl.to("#stamp",{scale:1.06,rotation:-12,yPercent:4,xPercent:0,duration:.34,ease:"power4.in"},S+.12);
+  tl.to("#stamp",{scale:.9,yPercent:8,duration:.08,ease:"power2.out"},S+.46);
+  tl.to("#stamp",{scale:1,yPercent:0,duration:.28,ease:"back.out(2.2)"},S+.54);
+  tl.to(".split",{x:"+=8",duration:.05,repeat:6,yoyo:true},S+.46);tl.set(".split",{x:0},S+.46+.05*7);
+  const dirs=[[0,-150],[120,-80],[140,60],[40,150],[-110,90],[-140,-40]];
+  dirs.forEach((d,i)=>tl.fromTo("#ink"+i,{opacity:.9,scale:.2,x:0,y:0},{opacity:0,scale:1.6,x:d[0],y:d[1],duration:.5,ease:"power3.out"},S+.47));
+  tl.to("#stamp",{scale:1.035,duration:.12,yoyo:true,repeat:1,ease:"sine.inOut"},S+.95);
+  tl.fromTo("#cap",{opacity:0,y:30},{opacity:1,y:0,duration:.5,ease:"power3.out"},S+.7);
+  tl.fromTo("#cta",{opacity:0,y:24},{opacity:1,y:0,duration:.45,ease:"power2.out"},S+1.5);
+  tl.to(".act",{scale:1.06,duration:.5,yoyo:true,repeat:2,ease:"sine.inOut"},S+2.0);
+  tl.to({},{duration:1.4},S+2.6);
+  registerTimeline(tl);
+</script>
+</body></html>

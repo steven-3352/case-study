@@ -1,4 +1,6 @@
 video: {width: 1080, height: 1920, fps: 30, output_name: ep02_silent.mp4}
 scenes:
-  - {id: s1_ask,      type: html, template: ep02_ask.html,      duration: 6.5, data: {}}
-  - {id: s2_fakefilm, type: html, template: ep02_fakefilm.html, duration: 9.5, data: {}}
+  - {id: s1_ask,      type: html, template: ep02_ask.html,         duration: 6.5, data: {}}
+  - {id: s2_fakefilm, type: html, template: ep02_fakefilm.html,    duration: 9.5, data: {}}
+  - {id: s3_read,     type: html, template: ep02_readnotdone.html, duration: 8.0, data: {}}
+  - {id: s4_land,     type: html, template: ep02_land.html,        duration: 8.0, data: {}}
