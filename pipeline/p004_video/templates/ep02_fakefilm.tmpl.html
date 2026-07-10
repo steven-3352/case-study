@@ -2,97 +2,119 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8">
-<title>EP02 · 假成片顶点</title>
+<title>EP02 s2 · 假成片抓包 · 文件体检</title>
 <script src="../shared/gsap.min.js"></script>
 <script src="../shared/gsap_helpers.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  :root{ --red:#e5484d; --ink:#e6edf3; }
-  html,body{ width:1080px; height:1920px; overflow:hidden; background:#06080c;
-    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
-  .stage{ position:relative; width:1080px; height:1920px; background:#06080c; }
-  .film{ position:absolute; left:40px; right:40px; top:210px; height:1180px;
-    border:5px solid var(--red); border-radius:20px; overflow:hidden;
-    box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(229,72,77,.2); }
-  .slide{ position:absolute; inset:0; background-size:cover; background-position:center top; opacity:0; }
-  .vignette{ position:absolute; inset:0; box-shadow:inset 0 0 120px rgba(6,8,12,.55); pointer-events:none; }
-  .label{ position:absolute; left:0; top:0; background:var(--red); color:#fff;
-    font-size:30px; font-weight:800; padding:12px 26px; border-radius:0 0 16px 0;
-    font-family:"SF Mono",monospace; letter-spacing:1px; opacity:0; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"SF Mono","JetBrains Mono","Menlo","PingFang SC",monospace; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("__DESK_B64__"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(6,9,14,.74) 0%, rgba(6,9,14,.5) 32%, rgba(6,9,14,.42) 55%, rgba(6,9,14,.88) 82%, rgba(6,9,14,.96) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+  .term{ position:absolute; left:52px; right:52px; top:250px;
+    background:rgba(13,17,23,.94); border-radius:26px;
+    box-shadow:0 46px 110px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.05),0 1px 0 rgba(255,255,255,.10) inset; }
+  .titlebar{ height:90px; background:rgba(22,27,34,.92); border-bottom:1px solid #21262d;
+    display:flex; align-items:center; padding:0 32px; gap:15px; border-radius:24px 24px 0 0; }
+  .lights{ display:flex; gap:14px; } .lights i{ width:24px; height:24px; border-radius:50%; display:block; }
+  .lights .r{ background:#ff5f56; } .lights .y{ background:#febc2e; } .lights .g{ background:#27c93f; }
+  .path{ color:var(--muted); font-size:30px; margin-left:16px; }
+  .body{ padding:36px 40px 44px; display:flex; flex-direction:column; gap:24px; }
+  .line{ font-size:40px; line-height:1.3; }
+  .prompt .caret{ color:var(--green); font-weight:700; margin-right:12px; }
+  .u{ color:var(--ink); }
+  #deliver{ opacity:0; }
+  #deliver .bullet{ color:var(--amber); margin-right:12px; }
+  .del-ok{ color:var(--green); font-weight:800; }
+  .del-path{ color:var(--muted); }
 
-  .banner{ position:absolute; left:40px; right:40px; top:130px; text-align:center;
-    font-size:40px; font-weight:900; color:#fff; opacity:0; }
-  .banner b{ color:var(--red); }
-  .pathtag{ position:absolute; left:40px; right:40px; top:1410px; text-align:center;
-    font-family:"SF Mono",monospace; font-size:36px; color:var(--red); font-weight:700; opacity:0; }
-  .pathtag .box{ border:2px solid var(--red); border-radius:12px; padding:10px 22px; display:inline-block;
-    background:rgba(229,72,77,.08); }
+  /* 体检面板 */
+  .audit{ margin-top:6px; border:2px solid #2a3038; border-radius:16px; overflow:hidden; opacity:0; }
+  .audit-h{ background:rgba(229,72,77,.12); color:#ffc0c2; font-size:30px; font-weight:800;
+    padding:16px 26px; border-bottom:2px solid rgba(229,72,77,.3); letter-spacing:1px; }
+  .row{ display:flex; align-items:center; gap:20px; padding:20px 26px; font-size:38px; border-bottom:1px solid #20262e; opacity:0; }
+  .row:last-child{ border-bottom:none; }
+  .row .k{ color:var(--muted); width:120px; flex:none; }
+  .row .v{ color:var(--ink); flex:1; }
+  .row .x{ color:var(--red); font-weight:900; font-size:44px; flex:none; display:inline-block; }
+  .row.flag{ background:rgba(229,72,77,.08); }
+  .row.flag .v{ color:#ffc0c2; font-weight:700; }
 
-  .stampzone{ position:absolute; right:70px; top:1120px; width:300px; height:300px; }
+  .stampzone{ position:absolute; right:-16px; bottom:-84px; width:230px; height:230px; }
   .stamp{ position:absolute; inset:0; transform-origin:center;
-    border:11px solid var(--red); color:var(--red); border-radius:50%;
-    display:grid; place-items:center; text-align:center; font-size:62px; font-weight:900;
-    line-height:1.08; background:rgba(6,8,12,.55); opacity:0; }
-  .stamp small{ display:block; font-size:26px; letter-spacing:3px; margin-top:8px; font-family:"SF Mono",monospace; }
-  .ink{ position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px; background:var(--red); border-radius:50%; opacity:0; }
+    border:10px solid var(--red); color:var(--red); border-radius:50%;
+    display:grid; place-items:center; text-align:center; font-size:56px; font-weight:900;
+    line-height:1.08; background:rgba(6,8,12,.62); box-shadow:0 0 34px rgba(229,72,77,.25); opacity:0; }
+  .stamp small{ display:block; font-size:24px; letter-spacing:3px; margin-top:8px; font-family:"SF Mono",monospace; }
+  .ink{ position:absolute; left:50%; top:50%; width:28px; height:28px; margin:-14px 0 0 -14px; background:var(--red); border-radius:50%; opacity:0; }
 
   .caption{ position:absolute; left:52px; right:52px; bottom:130px;
     font-size:82px; font-weight:900; line-height:1.18; letter-spacing:1px;
-    text-shadow:0 4px 24px rgba(0,0,0,.85); opacity:0; }
+    text-shadow:0 4px 24px rgba(0,0,0,.85); opacity:0; font-family:"PingFang SC","Heiti SC",sans-serif; }
   .caption b{ color:var(--red); }
 </style>
 </head>
 <body>
   <div class="stage">
-    <div class="film" id="film">
-      <div class="slide" id="s0"></div><div class="slide" id="s1"></div>
-      <div class="slide" id="s2"></div><div class="slide" id="s3"></div>
-      <div class="slide" id="s4"></div><div class="slide" id="s5"></div>
-      <div class="slide" id="s6"></div><div class="slide" id="s7"></div>
-      <div class="vignette"></div>
-      <div class="label" id="label">▶ 它交付的"成片"</div>
-    </div>
-    <div class="banner" id="banner">八张截图拼一块 · <b>塞进正式成片文件夹</b></div>
-    <div class="pathtag" id="pathtag"><span class="box">→ douyin/video.mp4 · 它说:"交,付,了"</span></div>
-    <div class="stampzone">
-      <i class="ink" id="ink0"></i><i class="ink" id="ink1"></i><i class="ink" id="ink2"></i>
-      <i class="ink" id="ink3"></i><i class="ink" id="ink4"></i><i class="ink" id="ink5"></i>
-      <div class="stamp" id="stamp">这也<br>叫成片?<small>REJECTED</small></div>
+    <div class="scrim"></div><div class="noise"></div>
+    <div class="term" id="term">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="path">claude ~/my-ai-assistant</div>
+      </div>
+      <div class="body">
+        <div class="line prompt"><span class="caret">&gt;</span><span class="u" id="t1"></span></div>
+        <div class="line" id="deliver"><span class="bullet">⏺</span><span class="del-ok">✓ 已交付</span> <span class="del-path">· douyin/video.mp4</span></div>
+        <div class="audit" id="audit">
+          <div class="audit-h">打开一看 —— 它管这个,叫成片:</div>
+          <div class="row" id="r0"><span class="k">画面</span><span class="v">8 张静态截图,硬拼</span><span class="x">✗</span></div>
+          <div class="row" id="r1"><span class="k">配音</span><span class="v">电脑自带的合成嗓</span><span class="x">✗</span></div>
+          <div class="row" id="r2"><span class="k">素材</span><span class="v">拿旧项目的凑数</span><span class="x">✗</span></div>
+          <div class="row flag" id="r3"><span class="k">然后</span><span class="v">塞进正式成片文件夹 · "交,付,了"</span><span class="x">🚩</span></div>
+        </div>
+      </div>
+      <div class="stampzone">
+        <i class="ink" id="ink0"></i><i class="ink" id="ink1"></i><i class="ink" id="ink2"></i>
+        <i class="ink" id="ink3"></i><i class="ink" id="ink4"></i><i class="ink" id="ink5"></i>
+        <div class="stamp" id="stamp">这也<br>叫成片?<small>REJECTED</small></div>
+      </div>
     </div>
     <div class="caption" id="cap">我一点开——<b>你,认真的?</b></div>
   </div>
 <script>
-  const FRAMES = __FRAMES__;
-  FRAMES.forEach((d,i)=>{ document.getElementById('s'+i).style.backgroundImage='url('+d+')'; });
   const tl = gsap.timeline();
-  // 8 帧硬切蒙太奇(每 0.5s,像快速翻它拼的截图)
-  const N=8, cut=0.5;
-  for(let i=0;i<N;i++){
-    tl.set('#s'+i,{opacity:1}, i*cut);
-    if(i>0) tl.set('#s'+(i-1),{opacity:0}, i*cut);
-  }
-  // 红边脉冲(刺眼)+ label
-  tl.to('#film',{boxShadow:'0 30px 90px rgba(0,0,0,.7), 0 0 90px rgba(229,72,77,.5)',duration:.25,repeat:7,yoyo:true}, 0.2);
-  tl.to('#label',{opacity:1,duration:.3}, 0.4);
-  // 红字标注:塞进正式路径
-  tl.fromTo('#banner',{opacity:0,y:-16},{opacity:1,y:0,duration:.4}, 0.9);
-  tl.fromTo('#pathtag',{opacity:0,y:16},{opacity:1,y:0,duration:.4}, 1.7);
-  // 蒙太奇结束,定格末帧、压暗
-  tl.to('#film',{filter:'brightness(0.6)',duration:.3}, N*cut);
+  tl.add(window.typewriter("#t1", "open douyin/video.mp4", { stagger: 0.045 }), 0.4);
+  // 它交付(绿√,看着像正经交货)
+  tl.fromTo("#deliver", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.5)" }, 1.7);
+  tl.fromTo(".del-ok", { scale: 0.5 }, { scale: 1, duration: 0.35, ease: "back.out(2.6)" }, 1.9);
+  // 打开一看 → 体检面板落下,一条条揭穿(红✗ 弹入)
+  tl.fromTo("#audit", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.7);
+  ["#r0","#r1","#r2","#r3"].forEach((r,i)=>{
+    const at = 3.1 + i*0.55;
+    tl.fromTo(r, { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, at);
+    tl.fromTo(r+" .x", { scale: 2.0 }, { scale: 1, duration: 0.3, ease: "back.out(3.5)" }, at+0.15);
+  });
   // ★ 落章:这也叫成片?
-  const S=N*cut+0.3;   // 4.3
-  tl.set('#stamp',{opacity:0,scale:3.4,rotation:-28,yPercent:-150,xPercent:15}, S);
-  tl.to('#stamp',{opacity:1,duration:.12}, S);
-  tl.to('#stamp',{scale:1.06,rotation:-11,yPercent:4,xPercent:0,duration:.34,ease:'power4.in'}, S+.12);
-  tl.to('#stamp',{scale:.9,yPercent:8,duration:.08,ease:'power2.out'}, S+.46);
-  tl.to('#stamp',{scale:1,yPercent:0,duration:.28,ease:'back.out(2.2)'}, S+.54);
-  tl.to('#film',{x:'+=10',duration:.05,repeat:6,yoyo:true}, S+.46);
-  tl.set('#film',{x:0}, S+.46+.05*7);
-  const dirs=[[0,-170],[130,-90],[150,70],[50,170],[-120,100],[-150,-50]];
-  dirs.forEach((d,i)=>tl.fromTo('#ink'+i,{opacity:.9,scale:.2,x:0,y:0},{opacity:0,scale:1.6,x:d[0],y:d[1],duration:.5,ease:'power3.out'}, S+.47));
+  const S = 3.1 + 4*0.55 + 0.5;   // ~5.8
+  tl.to("#term", { filter: "brightness(0.72)", duration: 0.3 }, S-0.2);
+  tl.set("#stamp", { opacity: 0, scale: 3.4, rotation: -28, yPercent: -150, xPercent: 12 }, S);
+  tl.to("#stamp", { opacity: 1, duration: 0.12 }, S);
+  tl.to("#stamp", { scale: 1.06, rotation: -12, yPercent: 4, xPercent: 0, duration: 0.34, ease: "power4.in" }, S+0.12);
+  tl.to("#stamp", { scale: 0.9, yPercent: 8, duration: 0.08, ease: "power2.out" }, S+0.46);
+  tl.to("#stamp", { scale: 1, yPercent: 0, duration: 0.28, ease: "back.out(2.2)" }, S+0.54);
+  tl.to("#term", { x: "+=10", duration: 0.05, repeat: 6, yoyo: true }, S+0.46);
+  tl.set("#term", { x: 0 }, S+0.46+0.05*7);
+  const dirs=[[0,-160],[130,-80],[150,70],[40,160],[-120,90],[-150,-50]];
+  dirs.forEach((d,i)=>tl.fromTo("#ink"+i,{opacity:.9,scale:.2,x:0,y:0},{opacity:0,scale:1.6,x:d[0],y:d[1],duration:.5,ease:"power3.out"}, S+0.47));
+  tl.to("#stamp", { scale: 1.035, duration: 0.12, yoyo: true, repeat: 1, ease: "sine.inOut" }, S+0.95);
   // 大字
-  tl.fromTo('#cap',{opacity:0,y:34},{opacity:1,y:0,duration:.5,ease:'power3.out'}, S+.7);
-  tl.to({},{duration:1.6}, S+1.9);
+  tl.fromTo("#cap", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, S+0.7);
+  tl.to({}, { duration: 1.6 }, S+1.9);
   registerTimeline(tl);
 </script>
 </body>
