@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP02 · 假成片顶点</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --red:#e5484d; --ink:#e6edf3; }
+  html,body{ width:1080px; height:1920px; overflow:hidden; background:#06080c;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px; background:#06080c; }
+  .film{ position:absolute; left:40px; right:40px; top:210px; height:1180px;
+    border:5px solid var(--red); border-radius:20px; overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(229,72,77,.2); }
+  .slide{ position:absolute; inset:0; background-size:cover; background-position:center top; opacity:0; }
+  .vignette{ position:absolute; inset:0; box-shadow:inset 0 0 120px rgba(6,8,12,.55); pointer-events:none; }
+  .label{ position:absolute; left:0; top:0; background:var(--red); color:#fff;
+    font-size:30px; font-weight:800; padding:12px 26px; border-radius:0 0 16px 0;
+    font-family:"SF Mono",monospace; letter-spacing:1px; opacity:0; }
+
+  .banner{ position:absolute; left:40px; right:40px; top:130px; text-align:center;
+    font-size:40px; font-weight:900; color:#fff; opacity:0; }
+  .banner b{ color:var(--red); }
+  .pathtag{ position:absolute; left:40px; right:40px; top:1410px; text-align:center;
+    font-family:"SF Mono",monospace; font-size:36px; color:var(--red); font-weight:700; opacity:0; }
+  .pathtag .box{ border:2px solid var(--red); border-radius:12px; padding:10px 22px; display:inline-block;
+    background:rgba(229,72,77,.08); }
+
+  .stampzone{ position:absolute; right:70px; top:1120px; width:300px; height:300px; }
+  .stamp{ position:absolute; inset:0; transform-origin:center;
+    border:11px solid var(--red); color:var(--red); border-radius:50%;
+    display:grid; place-items:center; text-align:center; font-size:62px; font-weight:900;
+    line-height:1.08; background:rgba(6,8,12,.55); opacity:0; }
+  .stamp small{ display:block; font-size:26px; letter-spacing:3px; margin-top:8px; font-family:"SF Mono",monospace; }
+  .ink{ position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px; background:var(--red); border-radius:50%; opacity:0; }
+
+  .caption{ position:absolute; left:52px; right:52px; bottom:130px;
+    font-size:82px; font-weight:900; line-height:1.18; letter-spacing:1px;
+    text-shadow:0 4px 24px rgba(0,0,0,.85); opacity:0; }
+  .caption b{ color:var(--red); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="film" id="film">
+      <div class="slide" id="s0"></div><div class="slide" id="s1"></div>
+      <div class="slide" id="s2"></div><div class="slide" id="s3"></div>
+      <div class="slide" id="s4"></div><div class="slide" id="s5"></div>
+      <div class="slide" id="s6"></div><div class="slide" id="s7"></div>
+      <div class="vignette"></div>
+      <div class="label" id="label">▶ 它交付的"成片"</div>
+    </div>
+    <div class="banner" id="banner">八张截图拼一块 · <b>塞进正式成片文件夹</b></div>
+    <div class="pathtag" id="pathtag"><span class="box">→ douyin/video.mp4 · 它说:"交,付,了"</span></div>
+    <div class="stampzone">
+      <i class="ink" id="ink0"></i><i class="ink" id="ink1"></i><i class="ink" id="ink2"></i>
+      <i class="ink" id="ink3"></i><i class="ink" id="ink4"></i><i class="ink" id="ink5"></i>
+      <div class="stamp" id="stamp">这也<br>叫成片?<small>REJECTED</small></div>
+    </div>
+    <div class="caption" id="cap">我一点开——<b>你,认真的?</b></div>
+  </div>
+<script>
+  const FRAMES = __FRAMES__;
+  FRAMES.forEach((d,i)=>{ document.getElementById('s'+i).style.backgroundImage='url('+d+')'; });
+  const tl = gsap.timeline();
+  // 8 帧硬切蒙太奇(每 0.5s,像快速翻它拼的截图)
+  const N=8, cut=0.5;
+  for(let i=0;i<N;i++){
+    tl.set('#s'+i,{opacity:1}, i*cut);
+    if(i>0) tl.set('#s'+(i-1),{opacity:0}, i*cut);
+  }
+  // 红边脉冲(刺眼)+ label
+  tl.to('#film',{boxShadow:'0 30px 90px rgba(0,0,0,.7), 0 0 90px rgba(229,72,77,.5)',duration:.25,repeat:7,yoyo:true}, 0.2);
+  tl.to('#label',{opacity:1,duration:.3}, 0.4);
+  // 红字标注:塞进正式路径
+  tl.fromTo('#banner',{opacity:0,y:-16},{opacity:1,y:0,duration:.4}, 0.9);
+  tl.fromTo('#pathtag',{opacity:0,y:16},{opacity:1,y:0,duration:.4}, 1.7);
+  // 蒙太奇结束,定格末帧、压暗
+  tl.to('#film',{filter:'brightness(0.6)',duration:.3}, N*cut);
+  // ★ 落章:这也叫成片?
+  const S=N*cut+0.3;   // 4.3
+  tl.set('#stamp',{opacity:0,scale:3.4,rotation:-28,yPercent:-150,xPercent:15}, S);
+  tl.to('#stamp',{opacity:1,duration:.12}, S);
+  tl.to('#stamp',{scale:1.06,rotation:-11,yPercent:4,xPercent:0,duration:.34,ease:'power4.in'}, S+.12);
+  tl.to('#stamp',{scale:.9,yPercent:8,duration:.08,ease:'power2.out'}, S+.46);
+  tl.to('#stamp',{scale:1,yPercent:0,duration:.28,ease:'back.out(2.2)'}, S+.54);
+  tl.to('#film',{x:'+=10',duration:.05,repeat:6,yoyo:true}, S+.46);
+  tl.set('#film',{x:0}, S+.46+.05*7);
+  const dirs=[[0,-170],[130,-90],[150,70],[50,170],[-120,100],[-150,-50]];
+  dirs.forEach((d,i)=>tl.fromTo('#ink'+i,{opacity:.9,scale:.2,x:0,y:0},{opacity:0,scale:1.6,x:d[0],y:d[1],duration:.5,ease:'power3.out'}, S+.47));
+  // 大字
+  tl.fromTo('#cap',{opacity:0,y:34},{opacity:1,y:0,duration:.5,ease:'power3.out'}, S+.7);
+  tl.to({},{duration:1.6}, S+1.9);
+  registerTimeline(tl);
+</script>
+</body>
+</html>
