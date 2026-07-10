@@ -1,0 +1,6 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: ep04_silent.mp4}
+scenes:
+  - {id: s1_scatter, type: html, template: ep04_scatter.html, duration: 6.0, data: {}}
+  - {id: s2_heads,   type: html, template: ep04_heads.html,   duration: 6.5, data: {}}
+  - {id: s3_graph,   type: html, template: ep04_graph.html,   duration: 6.5, data: {}}
+  - {id: s4_land,    type: html, template: ep04_land.html,    duration: 6.5, data: {}}
