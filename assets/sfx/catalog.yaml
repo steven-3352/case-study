@@ -89,25 +89,25 @@ sfx_families:
         source: freesound_833601
         license: CC0
         tags: [UI, 轻拍, VO 引入]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: keyboard_mechanical_single
         path: assets/sfx/tick/keyboard_mechanical_single.wav
         source: freesound_622060
         license: CC0
         tags: [机械键盘, 单击, 30ms]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: keyboard_typing_sequence_14
         path: assets/sfx/tick/keyboard_typing_sequence_14.wav
         source: freesound_378084
         license: CC0
         tags: [机械键盘, 14 声序列, 打字, 0.5s]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: keyboard_enter_key
         path: assets/sfx/tick/keyboard_enter_key.wav
         source: freesound_180997
         license: CC0
         tags: [回车键, 硬拍, 0.15s]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: metronome_soft_tick
         path: assets/sfx/tick/metronome_soft_tick.wav
         source: freesound_243749
@@ -136,7 +136,7 @@ sfx_families:
         source: freesound_683096
         license: CC0
         tags: [段间, 轻柔, 段落起]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: whoosh_swipe_fast
         path: assets/sfx/whoosh/whoosh_swipe_fast.wav
         source: freesound_412595
@@ -167,7 +167,7 @@ sfx_families:
         source: freesound_728515
         license: CC0
         tags: [软 boom, 0.3s, 段位收尾]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: impact_hard_cut
         path: assets/sfx/hit/impact_hard_cut.wav
         source: freesound_650573
@@ -185,7 +185,7 @@ sfx_families:
         source: freesound_528561
         license: CC0
         tags: [打勾, UI accent, 0.15s]
-        fetched_at: "2026-07-05"
+        fetched_at: "2026-07-10"
       - id: cross_click_error
         path: assets/sfx/hit/cross_click_error.wav
         source: freesound_445978
