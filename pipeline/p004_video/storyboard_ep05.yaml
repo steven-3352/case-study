@@ -1,0 +1,6 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: ep05_silent.mp4}
+scenes:
+  - {id: s1_seed,   type: html, template: ep05_seed.html,   duration: 6.0, data: {}}
+  - {id: s2_locks,  type: html, template: ep05_locks.html,  duration: 7.0, data: {}}
+  - {id: s3_honest, type: html, template: ep05_honest.html, duration: 6.0, data: {}}
+  - {id: s4_land,   type: html, template: ep05_land.html,   duration: 6.5, data: {}}
