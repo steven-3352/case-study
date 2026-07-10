@@ -1,0 +1,6 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: ep06_silent.mp4}
+scenes:
+  - {id: s1_stance,  type: html, template: ep06_stance.html,  duration: 6.0, data: {}}
+  - {id: s2_crash12, type: html, template: ep06_crash12.html, duration: 7.5, data: {}}
+  - {id: s3_crash3,  type: html, template: ep06_crash3.html,  duration: 7.5, data: {}}
+  - {id: s4_land,    type: html, template: ep06_land.html,    duration: 6.5, data: {}}
