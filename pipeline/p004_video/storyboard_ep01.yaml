@@ -1,0 +1,9 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep01_silent.mp4
+scenes:
+  - {id: s1_chatlog, type: html, template: ep01_chatlog.html, duration: 9.5,  data: {}}
+  - {id: s2_gitscar, type: html, template: ep01_gitscar.html, duration: 8.5,  data: {}}
+  - {id: s3_triquiz, type: html, template: ep01_triquiz.html, duration: 9.5,  data: {}}

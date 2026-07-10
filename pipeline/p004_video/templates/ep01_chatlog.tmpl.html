@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP01 s1 · 聊天记录体 · 失忆</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"SF Mono","JetBrains Mono","Menlo","PingFang SC",monospace; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("__DESK_B64__"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 60% at 50% 34%, rgba(63,185,80,.06), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.72) 0%, rgba(6,9,14,.48) 34%, rgba(6,9,14,.40) 55%, rgba(6,9,14,.86) 82%, rgba(6,9,14,.95) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .termwrap{ position:absolute; left:58px; right:58px; top:300px; }
+  .term{ position:relative;
+    background:rgba(13,17,23,.94); border-radius:26px;
+    box-shadow:0 46px 110px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.05),0 1px 0 rgba(255,255,255,.10) inset; }
+  .titlebar{ height:92px; background:rgba(22,27,34,.92); border-bottom:1px solid #21262d;
+    display:flex; align-items:center; padding:0 34px; gap:16px; border-radius:24px 24px 0 0; }
+  .lights{ display:flex; gap:15px; } .lights i{ width:25px; height:25px; border-radius:50%; display:block; }
+  .lights .r{ background:#ff5f56; } .lights .y{ background:#febc2e; } .lights .g{ background:#27c93f; }
+  .path{ color:var(--muted); font-size:31px; margin-left:18px; }
+  .body{ padding:38px 42px 44px; display:flex; flex-direction:column; gap:28px; }
+  .line{ font-size:42px; line-height:1.34; }
+  .prompt .caret{ color:var(--green); font-weight:700; margin-right:14px; }
+  .u{ color:var(--ink); }
+  .bullet{ color:var(--amber); margin-right:14px; }
+  .a{ color:var(--muted); }
+  .ok{ color:var(--green); font-weight:700; display:inline-block; }
+  .divider{ display:flex; align-items:center; gap:22px; color:var(--muted); font-size:32px; opacity:0; }
+  .divider .l{ flex:1; height:2px; background:#21262d; transform:scaleX(0); transform-origin:center; }
+  #l1,#lai,#l2{ opacity:0; }
+  .punch{ background:rgba(229,72,77,.14); border-left:6px solid var(--red);
+    padding:22px 26px; border-radius:0 14px 14px 0; box-shadow:0 0 40px rgba(229,72,77,.14); opacity:0; }
+  .punch .bullet{ color:var(--red); } .punch .a{ color:#ffc0c2; }
+  .blink{ display:inline-block; width:19px; height:44px; background:var(--ink); vertical-align:-7px; margin-left:6px; }
+
+  /* 盖章 + 墨点四溅 */
+  .stampzone{ position:absolute; right:-22px; bottom:-80px; width:206px; height:206px; }
+  .stamp{ position:absolute; inset:0; transform-origin:center center;
+    border:9px solid var(--red); color:var(--red); border-radius:50%;
+    display:grid; place-items:center; text-align:center; font-size:56px; font-weight:900;
+    line-height:1.06; background:rgba(11,14,20,.66); box-shadow:0 0 34px rgba(229,72,77,.25);
+    opacity:0; will-change:transform; }
+  .stamp small{ display:block; font-size:23px; letter-spacing:3px; margin-top:8px; font-family:"SF Mono",monospace; }
+  .ink{ position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px;
+    background:var(--red); border-radius:50%; opacity:0; }
+  .caption{ position:absolute; left:52px; right:52px; bottom:150px;
+    font-size:76px; font-weight:900; line-height:1.2; letter-spacing:1px;
+    font-family:"PingFang SC","Heiti SC",sans-serif; text-shadow:0 4px 24px rgba(0,0,0,.85); opacity:0; }
+  .caption b{ color:var(--red); }
+  .caption .sub{ display:block; font-size:43px; font-weight:700; color:#c9d1d9; margin-top:20px; opacity:0; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+    <div class="termwrap">
+      <div class="term" id="term">
+        <div class="titlebar">
+          <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+          <div class="path">claude ~/my-ai-assistant</div>
+        </div>
+        <div class="body">
+          <div class="line prompt" id="l1"><span class="caret">&gt;</span><span class="u" id="type1"></span></div>
+          <div class="line" id="lai"><span class="bullet">⏺</span><span class="a">好的,已写入记忆 <span class="ok">✓ Memory updated</span></span></div>
+          <div class="divider" id="div"><span class="l"></span><span>── new session · 第二天 ──</span><span class="l"></span></div>
+          <div class="line prompt" id="l2"><span class="caret">&gt;</span><span class="u" id="type2"></span></div>
+          <div class="line punch" id="punch"><span class="bullet">⏺</span><span class="a">你说的「规矩」…是指哪条?能具体说说吗?<span class="blink" id="blink"></span></span></div>
+        </div>
+        <div class="stampzone">
+          <i class="ink" id="ink0"></i><i class="ink" id="ink1"></i><i class="ink" id="ink2"></i>
+          <i class="ink" id="ink3"></i><i class="ink" id="ink4"></i><i class="ink" id="ink5"></i>
+          <div class="stamp" id="stamp">抓包<small>CAUGHT</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="caption" id="cap">
+      它满口“记住了”。<b>第二天问它——啥?</b>
+      <span class="sub" id="capsub">白纸黑字摆它眼前,它就是不读</span>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+
+  // 1) 用户第一句打字机(逐字)
+  tl.set("#l1", { opacity: 1 }, 0.3);
+  tl.add(window.typewriter("#type1", "记住:出片先过质量门,不能跳。这是死规矩。", { stagger: 0.05 }), 0.3);
+
+  // 2) AI 回复:整块弹入 + Memory updated 绿色盖章式弹一下
+  tl.fromTo("#lai", { opacity: 0, y: 22, scale: 0.98 },
+    { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.5)" }, 1.7);
+  tl.fromTo(".ok", { scale: 0.4, opacity: 0 },
+    { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(3)" }, 2.05);
+
+  // 3) 分隔线:从中间往两边拉开(scaleX)
+  tl.to("#div", { opacity: 1, duration: 0.25 }, 2.9);
+  tl.fromTo("#div .l", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 2.9);
+
+  // 4) 用户第二句打字机
+  tl.set("#l2", { opacity: 1 }, 3.5);
+  tl.add(window.typewriter("#type2", "按之前那条规矩来", { stagger: 0.055 }), 3.5);
+
+  // 5) 逐行亮:前面几行平滑压暗,焦点交给打脸行
+  tl.to(["#l1", "#lai", "#div", "#l2"], { opacity: 0.3, duration: 0.5, ease: "power2.inOut" }, 4.5);
+
+  // 6) 打脸行弹入(下滑 + 微缩放)
+  tl.fromTo("#punch", { opacity: 0, y: 26, scale: 0.99 },
+    { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, 4.7);
+  // 光标持续闪(整段)
+  tl.to("#blink", { opacity: 0, duration: 0.28, repeat: 12, yoyo: true, ease: "steps(1)" }, 5.3);
+
+  // 7) ★ 完整落章动作:高空砸下→加速撞击→回弹→墨点四溅→震屏→二次沉底
+  const S = 5.6;
+  // 7a 悬停(远/大/歪)
+  tl.set("#stamp", { opacity: 0, scale: 3.6, rotation: -34, yPercent: -170, xPercent: 20 }, S);
+  tl.to("#stamp", { opacity: 1, duration: 0.12 }, S);
+  // 7b 加速砸下(power4.in),到达纸面略过冲
+  tl.to("#stamp", { scale: 1.06, rotation: -13, yPercent: 4, xPercent: 0, duration: 0.34, ease: "power4.in" }, S + 0.12);
+  // 7c 撞击回弹:压扁→回正
+  tl.to("#stamp", { scale: 0.9, yPercent: 8, duration: 0.08, ease: "power2.out" }, S + 0.46);
+  tl.to("#stamp", { scale: 1.0, yPercent: 0, duration: 0.28, ease: "back.out(2.2)" }, S + 0.54);
+  // 7d 震屏(撞击瞬间整窗抖)
+  tl.to("#term", { x: "+=9", duration: 0.045, repeat: 6, yoyo: true, ease: "none" }, S + 0.46);
+  tl.set("#term", { x: 0 }, S + 0.46 + 0.045 * 7);
+  // 7e 墨点四溅(六点向外爆开后消失)
+  const dirs = [[0,-150],[120,-80],[140,60],[40,150],[-110,90],[-140,-40]];
+  dirs.forEach((d, i) => {
+    tl.fromTo("#ink" + i, { opacity: 0.9, scale: 0.2, x: 0, y: 0 },
+      { opacity: 0, scale: 1.5, x: d[0], y: d[1], duration: 0.5, ease: "power3.out" }, S + 0.47);
+  });
+  // 7f 二次微弹沉底
+  tl.to("#stamp", { scale: 1.035, duration: 0.12, yoyo: true, repeat: 1, ease: "sine.inOut" }, S + 0.95);
+
+  // 8) 底部大字:主句弹入 → 副句跟上
+  tl.fromTo("#cap", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, S + 0.7);
+  tl.to("#capsub", { opacity: 1, duration: 0.4, ease: "power2.out" }, S + 1.2);
+
+  // 9) 锁尾静止(留够停顿看清)
+  tl.to({}, { duration: 1.8 }, S + 1.8);
+  registerTimeline(tl);
+</script>
+</body>
+</html>
