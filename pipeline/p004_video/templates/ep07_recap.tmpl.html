@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><title>EP07 s1 · 回望</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--red:#e5484d;--amber:#d29922}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("__DESK_B64__");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.78),rgba(6,9,14,.6) 40%,rgba(6,9,14,.72) 70%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .arc{position:absolute;left:52px;right:52px;top:520px;display:flex;flex-direction:column;gap:20px}
+  .step{opacity:0;display:flex;align-items:center;gap:22px;font-size:40px}
+  .step .n{width:64px;height:64px;border-radius:12px;display:grid;place-items:center;font-size:36px;flex:none;background:rgba(255,255,255,.06);border:1px solid #2a3038}
+  .step .t{color:var(--muted)} .step.now .t{color:var(--green);font-weight:900}
+  .step .a{margin:0 8px;color:var(--amber)}
+  .caption{position:absolute;left:52px;right:52px;bottom:220px;text-align:center;font-size:74px;font-weight:900;line-height:1.2;letter-spacing:1px;text-shadow:0 4px 24px rgba(0,0,0,.85);opacity:0}
+  .caption b{color:var(--green)}
+</style></head><body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="arc">
+      <div class="step" id="p1"><div class="n">😵</div><div class="t">被骗</div><span class="a">→</span><div class="t">症状 / 背叛</div></div>
+      <div class="step" id="p2"><div class="n">💡</div><div class="t">醒悟</div><span class="a">→</span><div class="t">机械 &gt; 自觉</div></div>
+      <div class="step" id="p3"><div class="n">🛠️</div><div class="t">重建</div><span class="a">→</span><div class="t">搭团队 + 上锁</div></div>
+      <div class="step" id="p4"><div class="n">🚗</div><div class="t">翻车</div><span class="a">→</span><div class="t">一天翻 3 次</div></div>
+      <div class="step now" id="p5"><div class="n">✅</div><div class="t">现在 · 像个能用的助理了</div></div>
+    </div>
+    <div class="caption" id="cap">6 集 —— 从<b>被骗</b>,到<b>能用</b></div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  ["#p1","#p2","#p3","#p4","#p5"].forEach((p,i)=>tl.fromTo(p,{opacity:0,x:-24},{opacity:1,x:0,duration:.4,ease:"power2.out"},0.4+i*0.5));
+  tl.fromTo("#cap",{opacity:0,y:26},{opacity:1,y:0,duration:.5,ease:"power3.out"},3.2);
+  tl.to({},{duration:1.6},4.2);
+  registerTimeline(tl);
+</script></body></html>

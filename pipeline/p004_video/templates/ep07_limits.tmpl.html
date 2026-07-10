@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><title>EP07 s3 · 效果与局限</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--amber:#d29922;--red:#e5484d}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("__DESK_B64__");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.8),rgba(6,9,14,.66) 40%,rgba(6,9,14,.72) 70%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .green{position:absolute;left:52px;right:52px;top:260px;text-align:center;opacity:0}
+  .green .row{font-family:"SF Mono",monospace;font-size:36px;color:var(--green);margin:6px 0}
+  .green .not{font-size:54px;font-weight:900;color:var(--ink);margin-top:16px}
+  .green .not b{color:var(--amber)}
+  .uhead{position:absolute;left:52px;right:52px;top:560px;text-align:center;font-size:44px;font-weight:800;color:#ffb3b5;opacity:0}
+  .limits{position:absolute;left:56px;right:56px;top:660px;display:flex;flex-direction:column;gap:18px}
+  .lim{opacity:0;display:flex;align-items:center;gap:20px;background:rgba(26,20,14,.9);border:2px solid rgba(210,153,34,.35);border-radius:16px;padding:22px 28px;font-size:38px;font-weight:700}
+  .lim .ic{font-size:44px;flex:none}.lim .k{color:var(--amber);font-family:"SF Mono",monospace;flex:none;width:150px}
+  .caption{position:absolute;left:52px;right:52px;bottom:210px;text-align:center;font-size:62px;font-weight:900;color:var(--muted);opacity:0}
+</style></head><body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="green" id="green">
+      <div class="row">✓ 体检 ERROR 0 · WARN 0</div>
+      <div class="row">✓ 结构零孤立 · 一天十余次零脏改</div>
+      <div class="not">就这些 —— 是"<b>绿</b>",不是"炸裂"</div>
+    </div>
+    <div class="uhead" id="uhead">丑话,说前面 ——</div>
+    <div class="limits">
+      <div class="lim" id="m1"><span class="ic">🌱</span><span class="k">雏形</span>实战时长以"天"计</div>
+      <div class="lim" id="m2"><span class="ic">⚠️</span><span class="k">没 100%</span>行为约束,裁判会漏</div>
+      <div class="lim" id="m3"><span class="ic">🔌</span><span class="k">吃平台</span>换环境 hooks 得重搭</div>
+      <div class="lim" id="m4"><span class="ic">🚧</span><span class="k">还没做</span>多 agent · 语音 = 路线,非现状</div>
+    </div>
+    <div class="caption" id="cap">是路线,不是现状</div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  tl.fromTo("#green",{opacity:0,y:14},{opacity:1,y:0,duration:.5},0.4);
+  tl.fromTo("#uhead",{opacity:0},{opacity:1,duration:.4},1.8);
+  ["#m1","#m2","#m3","#m4"].forEach((m,i)=>tl.fromTo(m,{opacity:0,x:-14},{opacity:1,x:0,duration:.35,ease:"power2.out"},2.3+i*0.5));
+  tl.fromTo("#cap",{opacity:0,y:16},{opacity:1,y:0,duration:.45},4.6);
+  tl.to({},{duration:1.4},5.4);
+  registerTimeline(tl);
+</script></body></html>

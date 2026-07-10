@@ -1,0 +1,6 @@
+video: {width: 1080, height: 1920, fps: 30, output_name: ep07_silent.mp4}
+scenes:
+  - {id: s1_recap,  type: html, template: ep07_recap.html,  duration: 6.5, data: {}}
+  - {id: s2_steps,  type: html, template: ep07_steps.html,  duration: 7.0, data: {}}
+  - {id: s3_limits, type: html, template: ep07_limits.html, duration: 7.5, data: {}}
+  - {id: s4_cta,    type: html, template: ep07_cta.html,    duration: 7.0, data: {}}
