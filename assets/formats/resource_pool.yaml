@@ -1,0 +1,70 @@
+# 资源与采料工具池 · 给「发现的免费资源」一个落脚点
+#
+# 目的：用户/调研随时发现的免费资源（引擎、素材、工具）在这里存档，打上 license + 数据杠杆标签，
+#       下次形式策略官选型自动纳入候选池。你的「多推荐」有了沉淀，不再聊完就散。
+#
+# ⚠️ 铁律 · 免费 ≠ 可商用可外发 ────────────────────────────────
+#   本项目内容要发抖音/小红书涨互动 = 商用。每个资源逐条核 license：
+#     可商用免署名  CC0 / Unlicense / 公有领域          → 直接用
+#     可商用需署名  CC-BY / MIT / Apache               → 可用，短视频署名放简介或片尾
+#     禁商用        CC-BY-NC / 任何 NonCommercial       → 禁用
+#     传染性        GPL / AGPL 资产                      → 慎用/禁用（引擎输出另说，见下）
+#   引擎工具本身 vs 用它产出的内容 vs 引擎里下载的第三方资产，是三层不同 license，分开核。
+# ───────────────────────────────────────────────────────────
+
+# 采料 / 侦察工具（NOT 表现形式 —— 不进 catalog.yaml）
+# 这些工具帮你「拿到」东西，本身不产生画面。
+research_tools:
+  - id: yt-dlp
+    url: https://github.com/yt-dlp/yt-dlp
+    tool_license: Unlicense（工具本身公有领域，可自由使用/商用）
+    use: |
+      ① 视觉侦察：下载赛道标杆短视频，拆解人家前 3s / 画面技法 / 动效节奏，喂给形式策略官
+      ② 拉取明确授权（CC0/CC-BY）的公开素材
+    red_line: |
+      下载的「内容」自带版权，与工具 license 无关。
+      仅限研究拆解，禁止把受版权保护的画面剪进商用成片。
+      合规成片素材只用 CC0/CC-BY 或自拍/自制。
+    data_lever: 供视觉侦察（研究），不直接产生画面
+    status: 候选（未安装 / 用时 pip install yt-dlp）
+
+  - id: agent-reach
+    url: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+    tool_license: 见其仓库
+    use: 拉小红书/B 站/Reddit 公开内容做消费者声音 + 视觉侦察调研
+    red_line: 只读公开社交内容，不爬商品/电商详情页
+    data_lever: 供调研（消费者声音 + 形式侦察）
+    status: 可选安装
+
+# 可商用免费素材池（逐条带 license；用于成片）
+asset_pool:
+  - id: pexels
+    url: https://www.pexels.com
+    license: Pexels License（可商用免署名，禁二次分发原素材本身）
+    use: chaos_broll / broll_demo 真实实拍素材
+    data_lever: completion_3s·信任
+    pipeline_candidates: [pipeline/p004_video/fetch_broll.py]
+    status: 已用
+
+# 引擎 / 3D 资源（engine_3d 家族的候选，逐条核第三方资产 license）
+engine_pool:
+  - id: godot
+    url: https://godotengine.org
+    engine_license: MIT（引擎免费商用，导出内容你全权拥有）
+    asset_license_warning: |
+      Godot AssetLib 里「免费资源」license 各异：
+      CC0/MIT/Apache 可商用；CC-BY 需署名；CC-BY-NC 禁商用；GPL 资产慎用。
+      每用一个资源包，逐个核 license 并回填到本条 assets 列表。
+    use: engine_3d 家族——3D 场景 / 抽象概念具象化 / 前 3s 奇观
+    data_lever: 奇观(completion_3s)·抽象具象化(理解)
+    gate: 用前须走 SYSTEM §4.2 五维打分 + design/motion_tech_plan.md（性能/导出/资产风险）
+    status: 候选（未落地 · 未装）
+    assets: []   # 用到的具体资源包在这里逐条登记 {name, url, license}
+  # 其它引擎（Blender GPL 输出无传染 / Three.js MIT）用时按同结构追加
+
+rules:
+  free_not_equal_commercial: true      # 免费 ≠ 可商用，逐条核 license
+  license_per_asset: true              # 引擎/资源包内每个第三方资产单独核，不整包默认
+  downloaded_content_has_own_rights: true  # yt-dlp 等下载的内容自带版权，仅研究用不入商用片
+  engine_needs_tech_plan: true         # engine_3d 落地前必出 motion_tech_plan.md
+  new_resource_goes_here: true         # 用户发现的新资源先登记本表 + 标 license/数据杠杆，再进候选池

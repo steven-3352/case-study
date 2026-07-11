@@ -1,83 +1,214 @@
-# 表现形式词汇表 · 分镜选型用
+# 表现形式词汇表 · 分镜选型用（视觉形式灵感库）
 #
-# 本文件是「观感类型」词汇，不是「选哪个 HTML 文件套用」。
-# 导演分镜：为本条选题定 ≥3 种不同观感；可新建渲染场景，勿克隆上一条。
+# 本文件是「观感类型」词汇 + 数据杠杆菜单，不是「选哪个 HTML 文件套用」。
+# 导演/形式策略官分镜：为本条选题定 ≥3 种不同「家族」的观感（不是同家族 3 个变体）；
+# 可新建渲染场景，勿克隆上一条。
 # pipeline/*/templates/*.html 仅是历史渲染实现示例；同场景全片 ≤40% 时长、同场景 ≤1 镜。
 # 用语见 templates/README.md
 #
 # ⚠️ 每条 format 的 `pipeline_candidates` 字段是「候选实现之一」，不是「唯一/默认实现」。
-# 完整候选清单（原生 pipeline + OpenMontage/integrations + Grok video / GPT-image-2）
-# 见 docs/SYSTEM.md §4.2 候选实现清单（版本化 · 无默认顺序）。
-# form_competition 3 方案不得同家族。
+#    完整候选清单（原生 pipeline + OpenMontage/integrations + Grok video / GPT-image-2）
+#    见 docs/SYSTEM.md §4.2 候选实现清单（版本化 · 无默认顺序）。form_competition 3 方案不得同家族。
+#
+# ⚠️ 每条 format 带 3 个选型字段（2026-07-11 扩充）：
+#    data_lever = 主要服务的数据指标（completion_3s 停划 / completion_rate 完播 / 理解 / 收藏 / 评论 / 信任 / 奇观）
+#    cost       = 制作成本（低/中/高）
+#    tech_risk  = 技术/导出风险（低/中/高）
+#    没有 data_lever 的镜头不进成片（铁律 7：形式为数据假设服务）。
+#
+# 资源型形式（引擎/素材）另见 assets/formats/resource_pool.yaml —— 免费 ≠ 可商用，逐条核 license。
+
+# ── 家族总览（≥3 方案必须跨 ≥3 家族）──────────────────────────
+# screen        屏幕演示：真实截图 / 录屏 / UI 复刻
+# footage       实拍素材：真实手机/场景/手部操作
+# text_motion   文字/大字动效：黑底 punch / kinetic typography / 痛点堆叠
+# grid_compare  网格与对比：多角色网格 / 前后对比 / 比价 / 成分
+# paper_physical 纸面实体：报纸风 / 备忘录 / 白板手绘 / 实物摆拍
+# comic         漫画手绘：分格漫画
+# data_viz      数据可视化动画：数字滚动 / 条形增长 / 占比环
+# engine_3d     3D/引擎：Blender / Three.js / Godot（资源逐条核 license）
+# meme          梗/拼贴：表情包 / reaction / meme 快切
+# meta          元层自指：「这条就是它做的」
+# ───────────────────────────────────────────────────────────
 
 formats:
+  # ── screen 屏幕演示 ──
+  - id: broll_demo
+    name: 录屏/后台演示
+    family: screen
+    use: 真实项目画面
+    data_lever: 理解·信任
+    cost: 低
+    tech_risk: 低
+    pipeline_candidates: [P001 render_p001, assets/broll/, 真实屏幕录制 QuickTime/OBS, OpenMontage screen demo]
+
+  # ── footage 实拍素材 ──
   - id: chaos_broll
     name: Chaos B-roll
+    family: footage
     use: 前 3s 钩子，真实手机/场景素材
+    data_lever: completion_3s
+    cost: 中          # 要找/拍到真实素材
+    tech_risk: 低
     pipeline_candidates: [P004 type=broll, fetch_broll.py Pexels, 真实拍摄, OpenMontage documentary montage]
-    example: storyboard 01a_chaos · 须真实素材
+    example: storyboard 01a_chaos · 须真实素材（chaos_must_be_real_footage）
 
+  # ── text_motion 文字/大字动效 ──
   - id: punch_black
     name: 黑底大字 Punch
+    family: text_motion
     use: 钩子砸字、CTA 收束
+    data_lever: completion_3s·收束
+    cost: 低
+    tech_risk: 低
     pipeline_candidates: [P004 黑底大字渲染场景, SVG 大字 + CSS animation, OpenMontage 大字场景]
     example: 又是这个 / 问八百遍（每条自拟文案与版式）
 
+  - id: kinetic_typography
+    name: 动效文字 / Kinetic Typography
+    family: text_motion
+    use: 文字随 VO 逐句弹出、强调词放大/变色/位移，把口播"可视化"；密 VO 型完播利器
+    data_lever: completion_3s·理解
+    cost: 中          # 需逐句时间轴对齐 + 动效调校
+    tech_risk: 中     # GSAP/Remotion 时间轴，参考 gsap-core/gsap-timeline skill
+    pipeline_candidates: [P004 + GSAP kinetic 场景, Remotion 字幕动效, After Effects 风 HTML 截帧]
+    example: 参考 WaytoAGI/七七 密字动效；每条自定强调词与节奏，勿套旧文件
+
   - id: pain_stack
     name: 痛点堆叠
+    family: text_motion
     use: 具体问题罗列、重复强调
+    data_lever: 共鸣·理解
+    cost: 低
+    tech_risk: 低
     pipeline_candidates: [P004 痛点堆叠, OpenMontage animated explainer]
 
+  # ── grid_compare 网格与对比 ──
   - id: agent_grid
     name: 多角色/多系统网格
+    family: grid_compare
     use: 展示分工、系统能力
+    data_lever: 理解
+    cost: 中
+    tech_risk: 低
     pipeline_candidates: [P004 网格类渲染场景, OpenMontage animated explainer]
 
   - id: before_after
     name: 改造前后对比
+    family: grid_compare
     use: 反转、信任建立
+    data_lever: 信任·completion_rate
+    cost: 中
+    tech_risk: 低
     pipeline_candidates: [P004 对比类渲染场景, HTML+CSS 静态对比, OpenMontage documentary montage]
-
-  - id: meta_reveal
-    name: 元层自指
-    use: 「这条就是它做的」类证明
-    pipeline_candidates: [P004 元层揭示, OpenMontage cinematic]
-
-  - id: broll_demo
-    name: 录屏/后台演示
-    use: 真实项目画面
-    pipeline_candidates: [P001 render_p001, assets/broll/, 真实屏幕录制 QuickTime/OBS, OpenMontage screen demo]
 
   - id: price_split
     name: 价位锚点分屏
+    family: grid_compare
     use: 带货比价、价值感
+    data_lever: 理解（带货决策）
+    cost: 低
+    tech_risk: 低
     pipeline_candidates: [P005 价位分屏, OpenMontage animated explainer]
 
   - id: ingredients_grid
     name: 成分/卖点网格
+    family: grid_compare
     use: 带货成分拆解
+    data_lever: 理解（带货决策）
+    cost: 低
+    tech_risk: 低
     pipeline_candidates: [P005 成分网格, OpenMontage animated explainer]
 
-  - id: comic_4panel
-    name: 漫画分镜
-    use: 故事化、轻幽默、小红书轮播
-    pipeline_candidates: [P006/P007 漫画渲染, GPT-image-2 漫画风, OpenMontage cinematic]
-    example: capture_carousel.py · 每条单独分镜
-
+  # ── paper_physical 纸面实体 ──
   - id: newspaper_carousel
     name: 报纸风轮播
+    family: paper_physical
     use: 小红书 6–8 张图文
+    data_lever: 收藏（图文）
+    cost: 中
+    tech_risk: 中     # GPT-image 长段落约 5% 乱码
     pipeline_candidates: [P002 p002_carousel_gen.py, GPT-image-2 直调]
 
   - id: memo_text
     name: 备忘录风文字页
+    family: paper_physical
     use: 图文轮播中段、干货沉淀
+    data_lever: 收藏·理解
+    cost: 低
+    tech_risk: 低
     pipeline_candidates: [手工 / P002 混合, HTML 静态渲染, gen_evidence.py 仿真]
+
+  - id: whiteboard_draw
+    name: 白板/手账手绘
+    family: paper_physical
+    use: 逐笔画出概念/流程，亲和去 AI 味，讲解型完播友好
+    data_lever: completion_rate·亲和
+    cost: 中          # 手绘素材或 draw-on 动效
+    tech_risk: 中     # SVG path draw（gsap DrawSVG）或真实手写录屏
+    pipeline_candidates: [SVG path + GSAP DrawSVGPlugin, 真实白板/iPad 手写录屏, Doodly 风 HTML 截帧]
+
+  # ── comic 漫画手绘 ──
+  - id: comic_4panel
+    name: 漫画分镜
+    family: comic
+    use: 故事化、轻幽默、小红书轮播
+    data_lever: 共鸣·completion_rate
+    cost: 中
+    tech_risk: 中     # GPT-image 漫画风一致性
+    pipeline_candidates: [P006/P007 漫画渲染, GPT-image-2 漫画风, OpenMontage cinematic]
+    example: capture_carousel.py · 每条单独分镜
+
+  # ── data_viz 数据可视化动画 ──
+  - id: data_viz_motion
+    name: 数据可视化动画
+    family: data_viz
+    use: 数字滚动上涨、条形/占比环增长、对比条动画；把"数据说话"变可看
+    data_lever: 理解·completion_3s
+    cost: 中
+    tech_risk: 中     # 数据动画时间轴，参考 gsap-utils（mapRange/interpolate）
+    pipeline_candidates: [GSAP 数字滚动 + 条形增长场景, Remotion data-viz, D3/HTML 截帧, Manim 风]
+    example: 每条按真实数据自建，禁编数据（走 fact_check）
+
+  # ── engine_3d 3D/引擎（资源逐条核 license，见 resource_pool.yaml）──
+  - id: engine_3d
+    name: 3D/引擎渲染场景
+    family: engine_3d
+    use: 抽象概念具象化（数据流/模型推理/空间结构）或前 3s 视觉奇观压停划；非"为炫而炫"，须声明数据杠杆
+    data_lever: 奇观(completion_3s)·抽象具象化(理解)
+    cost: 高          # 建模/搭场景/渲染耗时
+    tech_risk: 高     # 导出、性能、资产 license；须走 motion_tech_plan.md
+    pipeline_candidates: [Blender 渲染序列帧, Three.js/Web 3D 截帧, Godot 场景导出]
+    license_note: 引擎本身可商用（Blender GPL 输出无传染 / Three.js MIT / Godot MIT）；第三方模型/贴图/音效逐条核 CC0/CC-BY，禁 CC-BY-NC / GPL 资产。详见 resource_pool.yaml
+    example: 仅当抽象概念看不见、或钩子需奇观时上；说不清数据杠杆不进片
+
+  # ── meme 梗/拼贴 ──
+  - id: meme_collage
+    name: 表情包/梗快切
+    family: meme
+    use: reaction、共鸣、轻松停划；快切表情包/梗图制造节奏
+    data_lever: 共鸣·completion_3s
+    cost: 低
+    tech_risk: 低     # 注意版权：用可商用梗或自制表情，勿盗图
+    pipeline_candidates: [快切剪辑, 自制表情包, 可商用 meme 素材]
+
+  # ── meta 元层自指 ──
+  - id: meta_reveal
+    name: 元层自指
+    family: meta
+    use: 「这条就是它做的」类证明
+    data_lever: 惊喜·信任
+    cost: 中
+    tech_risk: 低
+    pipeline_candidates: [P004 元层揭示, OpenMontage cinematic]
 
 rules:
   min_distinct_formats: 3          # 本条片内 ≥3 种观感，非拼 catalog ID
+  min_distinct_families: 3         # 且这 3 种须跨 ≥3 个 family（不能同家族 3 变体）
   max_single_scene_ratio: 0.40     # 同一渲染场景时长占比上限
   no_clone_previous_topic: true    # 禁止克隆上一条分镜/画面
   chaos_must_be_real_footage: true # 钩子 chaos 禁止 AI 出图
   candidates_no_default: true      # 每条 format 的 pipeline_candidates 无默认顺序；按 SYSTEM §4.2 五维打分
-  no_same_family_3_options: true   # form_competition 3 个候选方案不得同家族（都是 P001 变体 or P004 变体 or OpenMontage 变体）
+  no_same_family_3_options: true   # form_competition 3 个候选方案不得同家族
+  every_shot_needs_data_lever: true # 铁律 7：无 data_lever 的镜头不进成片
+  resource_license_checked: true   # 用第三方资源（engine_3d/素材）须逐条核 license，见 resource_pool.yaml
