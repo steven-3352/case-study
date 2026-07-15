@@ -1,0 +1,2127 @@
+{
+  "date": "2026-07-15",
+  "sources": [
+    {
+      "file": "raw/2026-07-15-bot.md",
+      "origin": "飞书",
+      "segments": [
+        {
+          "time": "07:12",
+          "char_start": 27,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:17",
+          "char_start": 78,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:18",
+          "char_start": 397,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:24",
+          "char_start": 412,
+          "has_error_signal": true
+        },
+        {
+          "time": "07:25",
+          "char_start": 1000,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:25",
+          "char_start": 1039,
+          "has_error_signal": true
+        }
+      ]
+    },
+    {
+      "file": "raw/2026-07-15-desktop.md",
+      "origin": "桌面",
+      "segments": [
+        {
+          "time": "02:48",
+          "char_start": 0,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:50",
+          "char_start": 132,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:50",
+          "char_start": 153,
+          "has_error_signal": true
+        },
+        {
+          "time": "02:50",
+          "char_start": 1019,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:52",
+          "char_start": 1060,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:52",
+          "char_start": 1082,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:52",
+          "char_start": 1103,
+          "has_error_signal": true
+        },
+        {
+          "time": "02:52",
+          "char_start": 1461,
+          "has_error_signal": true
+        },
+        {
+          "time": "02:52",
+          "char_start": 1984,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:53",
+          "char_start": 2002,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:53",
+          "char_start": 2023,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:53",
+          "char_start": 2069,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:53",
+          "char_start": 2564,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 2582,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 2603,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 3504,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 4060,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 4078,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:54",
+          "char_start": 4099,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:55",
+          "char_start": 4154,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:55",
+          "char_start": 4172,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:55",
+          "char_start": 4190,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:56",
+          "char_start": 4273,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:56",
+          "char_start": 4294,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 5483,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6044,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6062,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6083,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6129,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6653,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6671,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:57",
+          "char_start": 6692,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:58",
+          "char_start": 6734,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:58",
+          "char_start": 6752,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 6770,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 6820,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 6841,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 6984,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 7014,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 7036,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 7057,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 7240,
+          "has_error_signal": false
+        },
+        {
+          "time": "02:59",
+          "char_start": 7270,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:00",
+          "char_start": 7292,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:00",
+          "char_start": 7313,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:01",
+          "char_start": 8387,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:01",
+          "char_start": 9127,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:02",
+          "char_start": 9145,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:02",
+          "char_start": 9166,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:02",
+          "char_start": 9353,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:02",
+          "char_start": 9383,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:03",
+          "char_start": 9405,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:03",
+          "char_start": 9426,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:03",
+          "char_start": 9568,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:03",
+          "char_start": 9599,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:05",
+          "char_start": 9621,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:05",
+          "char_start": 9642,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:05",
+          "char_start": 10037,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:05",
+          "char_start": 10067,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:05",
+          "char_start": 10089,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:06",
+          "char_start": 10110,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:06",
+          "char_start": 10885,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:06",
+          "char_start": 11401,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:06",
+          "char_start": 11419,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:07",
+          "char_start": 11440,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:07",
+          "char_start": 11545,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:07",
+          "char_start": 11575,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:07",
+          "char_start": 11597,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:07",
+          "char_start": 11618,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:08",
+          "char_start": 12319,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:08",
+          "char_start": 12935,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:08",
+          "char_start": 12953,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:08",
+          "char_start": 12974,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:08",
+          "char_start": 13033,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:08",
+          "char_start": 13051,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13069,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13089,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13110,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13161,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13191,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13213,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13234,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:11",
+          "char_start": 13290,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:11",
+          "char_start": 13320,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:13",
+          "char_start": 13342,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:13",
+          "char_start": 13363,
+          "has_error_signal": true
+        },
+        {
+          "time": "03:14",
+          "char_start": 14294,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 14881,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 14899,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 14920,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 15005,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 15609,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:14",
+          "char_start": 15627,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:15",
+          "char_start": 15648,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:15",
+          "char_start": 15955,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:15",
+          "char_start": 15973,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:18",
+          "char_start": 15991,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:22",
+          "char_start": 16009,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:23",
+          "char_start": 16028,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:23",
+          "char_start": 16049,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:23",
+          "char_start": 16201,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:23",
+          "char_start": 16231,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:24",
+          "char_start": 16253,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:24",
+          "char_start": 16274,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:24",
+          "char_start": 16430,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:24",
+          "char_start": 16460,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:25",
+          "char_start": 16482,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16503,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16668,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16699,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16721,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16742,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16950,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 16980,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:26",
+          "char_start": 17002,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:27",
+          "char_start": 17023,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:27",
+          "char_start": 18155,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:27",
+          "char_start": 18173,
+          "has_error_signal": false
+        },
+        {
+          "time": "03:30",
+          "char_start": 18191,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:04",
+          "char_start": 18209,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:05",
+          "char_start": 18229,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:05",
+          "char_start": 18250,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:05",
+          "char_start": 18301,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:05",
+          "char_start": 18332,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:05",
+          "char_start": 18354,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:06",
+          "char_start": 24451,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:06",
+          "char_start": 24472,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:06",
+          "char_start": 24644,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:06",
+          "char_start": 24674,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:08",
+          "char_start": 24696,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24717,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24792,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24823,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24845,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24866,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24903,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:10",
+          "char_start": 24933,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:11",
+          "char_start": 24955,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:11",
+          "char_start": 24976,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:11",
+          "char_start": 25857,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:11",
+          "char_start": 25875,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:14",
+          "char_start": 25893,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:16",
+          "char_start": 25915,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:16",
+          "char_start": 25936,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:16",
+          "char_start": 26113,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:17",
+          "char_start": 26143,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26165,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26186,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26281,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26317,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26339,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26375,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26397,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26433,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26455,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:18",
+          "char_start": 26491,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:19",
+          "char_start": 26513,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:19",
+          "char_start": 26534,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:19",
+          "char_start": 26596,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:19",
+          "char_start": 26632,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:20",
+          "char_start": 26654,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:20",
+          "char_start": 26675,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:20",
+          "char_start": 26705,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:21",
+          "char_start": 26727,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:21",
+          "char_start": 26748,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:21",
+          "char_start": 26880,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:21",
+          "char_start": 26910,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:22",
+          "char_start": 26932,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:22",
+          "char_start": 26953,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:22",
+          "char_start": 26983,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:23",
+          "char_start": 27005,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:23",
+          "char_start": 27026,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:23",
+          "char_start": 27056,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27078,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27099,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27212,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27248,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27284,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:24",
+          "char_start": 27306,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:26",
+          "char_start": 27328,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:26",
+          "char_start": 27349,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:28",
+          "char_start": 27380,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:29",
+          "char_start": 27402,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:29",
+          "char_start": 27423,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:29",
+          "char_start": 27528,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:29",
+          "char_start": 27558,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 27580,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 27601,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 28062,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 28098,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 28134,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:31",
+          "char_start": 28156,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:32",
+          "char_start": 28178,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:33",
+          "char_start": 28199,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:33",
+          "char_start": 28250,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:35",
+          "char_start": 28281,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:35",
+          "char_start": 28303,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:35",
+          "char_start": 28324,
+          "has_error_signal": true
+        },
+        {
+          "time": "04:35",
+          "char_start": 28415,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28445,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28467,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28488,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28770,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28806,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28842,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28872,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28894,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28916,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:36",
+          "char_start": 28938,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 28959,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29059,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29090,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29112,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29133,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29164,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29186,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29207,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:37",
+          "char_start": 29238,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:38",
+          "char_start": 29260,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:38",
+          "char_start": 29281,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:38",
+          "char_start": 29318,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:38",
+          "char_start": 29348,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29370,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29391,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29482,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29518,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29540,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:39",
+          "char_start": 29561,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 30397,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31095,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31113,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31134,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31208,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31777,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31795,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:40",
+          "char_start": 31816,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 31998,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 32607,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 32625,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 32646,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 32783,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:41",
+          "char_start": 32813,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 32835,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 32856,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33444,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33474,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33496,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33517,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33639,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:42",
+          "char_start": 33669,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33691,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33712,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33794,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33824,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33846,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33867,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33897,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33919,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 33940,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 34002,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:43",
+          "char_start": 34032,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34054,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34075,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34105,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34127,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34148,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34221,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34251,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34273,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34294,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34324,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:44",
+          "char_start": 34346,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:45",
+          "char_start": 34367,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:45",
+          "char_start": 35734,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:45",
+          "char_start": 36393,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:46",
+          "char_start": 36411,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:46",
+          "char_start": 36432,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:46",
+          "char_start": 36568,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:46",
+          "char_start": 36599,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 36621,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 36642,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 36873,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 37485,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 37503,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 37524,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 37575,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:47",
+          "char_start": 37593,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:51",
+          "char_start": 37611,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:53",
+          "char_start": 37629,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:53",
+          "char_start": 37656,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:53",
+          "char_start": 37677,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:53",
+          "char_start": 37732,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:54",
+          "char_start": 37762,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:54",
+          "char_start": 37784,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:54",
+          "char_start": 37805,
+          "has_error_signal": true
+        },
+        {
+          "time": "04:54",
+          "char_start": 37961,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:54",
+          "char_start": 37991,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:54",
+          "char_start": 38013,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:55",
+          "char_start": 38034,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:55",
+          "char_start": 38225,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:55",
+          "char_start": 38255,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:55",
+          "char_start": 38277,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 38298,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 38577,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 38607,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 38629,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 38650,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 39407,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:56",
+          "char_start": 40002,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40020,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40041,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40140,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40752,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40770,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40791,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 40861,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:57",
+          "char_start": 41414,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 41432,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 41453,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 41485,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 41976,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 41994,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 42015,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 42040,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 42058,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:58",
+          "char_start": 42076,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:59",
+          "char_start": 42098,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:59",
+          "char_start": 42119,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:59",
+          "char_start": 42167,
+          "has_error_signal": false
+        },
+        {
+          "time": "04:59",
+          "char_start": 42197,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:00",
+          "char_start": 42219,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:00",
+          "char_start": 42240,
+          "has_error_signal": true
+        },
+        {
+          "time": "05:00",
+          "char_start": 42740,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:00",
+          "char_start": 43318,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:00",
+          "char_start": 43336,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:00",
+          "char_start": 43357,
+          "has_error_signal": true
+        },
+        {
+          "time": "05:00",
+          "char_start": 43454,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:01",
+          "char_start": 43484,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:01",
+          "char_start": 43506,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:01",
+          "char_start": 43527,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:01",
+          "char_start": 43654,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:01",
+          "char_start": 43684,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43706,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43727,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43831,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43861,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43883,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 43904,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 44018,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 44049,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 44071,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 44092,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:02",
+          "char_start": 44128,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 44158,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 44180,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 44201,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 45097,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 45115,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:03",
+          "char_start": 45133,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:04",
+          "char_start": 45153,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:04",
+          "char_start": 45174,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:04",
+          "char_start": 45272,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:04",
+          "char_start": 45302,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:04",
+          "char_start": 45324,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 45345,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 45916,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 46472,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 46490,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 46511,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 46555,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 47058,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 47076,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 47097,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 47127,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:05",
+          "char_start": 47612,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 47630,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 47651,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 47682,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48168,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48186,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48207,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48233,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48718,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48736,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:06",
+          "char_start": 48757,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 48788,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49293,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49311,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49332,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49358,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49857,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49875,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:07",
+          "char_start": 49896,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 49922,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 50444,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 50462,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 50483,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 50525,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:08",
+          "char_start": 50543,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:10",
+          "char_start": 50561,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:10",
+          "char_start": 50822,
+          "has_error_signal": false
+        },
+        {
+          "time": "05:10",
+          "char_start": 50966,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:08",
+          "char_start": 51031,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:09",
+          "char_start": 51074,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:09",
+          "char_start": 51116,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:09",
+          "char_start": 51137,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:09",
+          "char_start": 51226,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:09",
+          "char_start": 51256,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:10",
+          "char_start": 51278,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:10",
+          "char_start": 51299,
+          "has_error_signal": true
+        },
+        {
+          "time": "07:10",
+          "char_start": 52129,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:10",
+          "char_start": 52147,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:11",
+          "char_start": 52165,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:11",
+          "char_start": 52222,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:11",
+          "char_start": 52243,
+          "has_error_signal": false
+        },
+        {
+          "time": "07:11",
+          "char_start": 52305,
+          "has_error_signal": false
+        }
+      ]
+    }
+  ]
+}
