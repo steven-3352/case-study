@@ -399,3 +399,80 @@ topics:
     status: approved
     note: "W27 D07 dy"
     source: publish/2026-W27/
+
+# ── W30 · 「让AI说真话」系列（源自 Hermes 原矿 raw-export 7-14/7-15 · 小红书一手数据定序 2026-07-15）──
+# 数据来源:agent-reach/opencli 拉小红书真实赞藏 + 评论;详见下方各 note。
+# 排序结论:选题2(致命漏洞)首发 > 选题1(反谄媚) > 选题5(迷茫10问) > 选题3(记忆·谨慎) > 选题4(缓) > 选题6(毙)
+# 漏斗:泛用户搜功能词→刷到可抄干货→软引 W29 连载「把AI调教成我的助理」
+
+  - id: T040
+    project: W30D01
+    series: S4-让AI说真话
+    title: "我让 AI 点评我的计划,它上来说:你这有 3 个致命漏洞"
+    angle: 反谄媚·致命漏洞法(单点) · 冲突开场 · 收藏物=逼AI挑刺的prompt清单
+    format: [video, carousel]
+    platforms: [小红书, 抖音]
+    priority: P0
+    status: approved
+    note: "首发·数据最硬。一手验证:「11句Prompt逼诚实」5881赞/8081收藏、「AI总告诉你想听的」4753赞/6783收藏,均收藏>点赞工具型爆款,'致命漏洞法'已被爆款正文验证。评论区可接住反对声(88赞'太理智啥也启动不了')。源:参谋'我不能顺着你假装记得'+8个坑护栏。差异化:本条主打方法清单,T041主打情绪钩子。"
+    source: publish/2026-W30/
+
+  - id: T041
+    project: W30D02
+    series: S4-让AI说真话
+    title: "别再让 AI 给你建议了——它只会顺着你说"
+    angle: 反谄媚·反直觉否定钩 · 情绪认同 · 收藏物=反谄媚指令(禁用夸赞词/第十人)
+    format: [video, carousel]
+    platforms: [小红书, 抖音]
+    priority: P0
+    status: approved
+    note: "与T040同角度组合拳,做'情绪认同 vs 方法清单'差异化。一手:「让AI说真话」词横跨2025.5→2026.7持续起量(1万/5881/4753),唯一三词各有千赞+爆款的角度。评论金句可用:'捏个人物把想法写成ta的,让AI评价ta'(58赞邪修办法)。"
+    source: publish/2026-W30/
+
+  - id: T042
+    project: W30D03
+    series: S4-让AI说真话
+    title: "千万别问 AI「我该怎么办」——迷茫时问这 10 个问题"
+    angle: 用AI逼问自己·否定式痛点钩 · 收藏物=参谋三步逼问清单(需原创,避开'多角色'红海)
+    format: [video, carousel]
+    platforms: [小红书, 抖音]
+    priority: P1
+    status: backlog
+    note: "天花板最高(「AI帮做决定」3万、「理清思路」1.2万)但爆款集中在'AI扮演N角色'收藏物,与反谄媚顾问团高度重叠。做本条须跳出'多角色'另造10问清单,否则同质。源:参谋三步法(自我画像/定目标/逼问)+干净system prompt。"
+    source: publish/2026-W30/
+
+  - id: T043
+    project: W30D04
+    series: S4-让AI说真话
+    title: "AI 关掉就失忆?3 步让它永久记住你"
+    angle: AI记忆管理·痛点直击 · 收藏物=记忆设置/写设定3步(教程本体用平台通用功能)
+    format: [video, carousel]
+    platforms: [小红书, 抖音]
+    priority: P1
+    status: backlog
+    note: "谨慎·受众坑。流量高(「让AI记住我」1万)但顶流是情感陪伴/人机恋人群(梦角/豆包),非'用AI干活'人群。走工作助理框须明确区隔受众、标题避开人机恋联想。真痛点评论:'回复嗯他问我嗯什么'(17赞)。源:7-14'两个大脑两套记忆面'。"
+    source: publish/2026-W30/
+
+  - id: T044
+    project: W30D05
+    series: S4-让AI说真话
+    title: "我让 AI 记住昨天聊的,它翻遍说:根本没记"
+    angle: AI记忆·反讽钩(造它为不忘事结果它先漏) · 跨对话/跨设备记忆割裂
+    format: [video]
+    platforms: [小红书, 抖音]
+    priority: P2
+    status: backlog
+    note: "缓。与T043同角度但更偏吐槽、收藏物弱,泛工作人群共鸣弱,顶流仍roleplay用户。源:reddit方向记录丢失事件+机械遗忘。"
+    source: publish/2026-W30/
+
+  - id: T045
+    project: W30-killed
+    series: S4-让AI说真话
+    title: "失业在家一天换 3 个方向?先让 AI 判断:你是买方还是卖方"
+    angle: 迷茫·买方≠卖方自检
+    format: [video]
+    platforms: [小红书]
+    priority: P0
+    status: killed
+    note: "数据毙(2026-07-15)。一手:'失业'搜索全是纯职场自媒体(4159/3050/2886赞)、跟AI无关,AI角度切不进;'买方/卖方'框太抽象,评论区无对应诉求。原矿金句'溺水的人先自己上岸别急着开游泳培训班'留作T042内文素材。"
+    source: publish/2026-W30/
