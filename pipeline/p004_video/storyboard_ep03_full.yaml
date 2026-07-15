@@ -1,0 +1,15 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep03_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: ep03_s0_hook,      type: html, template: ep03f_hook.html,       duration: 8.59,  data: {}}
+  - {id: ep03_s1_dumbfix,   type: html, template: ep03f_dumbfix.html,    duration: 12.29, data: {}}
+  - {id: ep03_s2_read,      type: html, template: ep03f_read.html,       duration: 7.97,  data: {}}
+  - {id: ep03_s3_deadends,  type: html, template: ep03f_deadends.html,   duration: 14.78, data: {}}
+  - {id: ep03_s4_mechanical,type: html, template: ep03f_mechanical.html, duration: 12.48, data: {}}
+  - {id: ep03_s5_rule,      type: html, template: ep03f_rule.html,       duration: 10.42, data: {}}
+  - {id: ep03_s6_land,      type: html, template: ep03f_land.html,       duration: 16.00, data: {}}

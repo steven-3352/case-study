@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP04 s0 · 开场钩子 · 当一整个团队</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 60% at 50% 40%, rgba(63,185,80,.08), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.82) 0%, rgba(6,9,14,.6) 34%, rgba(6,9,14,.58) 60%, rgba(6,9,14,.9) 88%, rgba(6,9,14,.97) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .wrap{ position:absolute; left:70px; right:70px; top:400px; text-align:center; }
+  .kick{ font-size:48px; color:var(--muted); font-weight:800; letter-spacing:1px; opacity:0; }
+  .hero{ margin-top:40px; font-size:64px; font-weight:800; line-height:1.2; letter-spacing:1px; color:#c9d1d9; opacity:0; }
+  .hero s{ text-decoration:line-through; text-decoration-thickness:5px; color:var(--muted); text-decoration-color:var(--red); }
+  .big{ margin-top:36px; font-size:120px; font-weight:900; line-height:1.12; letter-spacing:2px;
+    text-shadow:0 6px 30px rgba(0,0,0,.85); opacity:0; }
+  .big b{ color:var(--green); }
+
+  .team{ position:absolute; left:70px; right:70px; top:1090px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+  .tc{ width:132px; height:150px; border-radius:22px; opacity:0;
+    background:rgba(19,26,22,.9); border:2px solid rgba(63,185,80,.4);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    box-shadow:0 16px 44px rgba(0,0,0,.5); }
+  .tc .em{ font-size:66px; }
+  .tc .lb{ font-size:26px; font-weight:800; color:#c9d1d9; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+    <div class="wrap">
+      <div class="kick" id="kick">管 AI 最大的坑 ——</div>
+      <div class="hero" id="hero">别把它当 <s>一个人</s></div>
+      <div class="big" id="big">把它当<br><b>一整个团队</b></div>
+    </div>
+    <div class="team">
+      <div class="tc" id="tc0"><span class="em">🧭</span><span class="lb">参谋长</span></div>
+      <div class="tc" id="tc1"><span class="em">🗂️</span><span class="lb">前台</span></div>
+      <div class="tc" id="tc2"><span class="em">📋</span><span class="lb">项目经理</span></div>
+      <div class="tc" id="tc3"><span class="em">🔬</span><span class="lb">研究员</span></div>
+      <div class="tc" id="tc4"><span class="em">📜</span><span class="lb">史官</span></div>
+      <div class="tc" id="tc5"><span class="em">🚪</span><span class="lb">门卫</span></div>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  tl.fromTo("#kick", { opacity:0, y:18 }, { opacity:1, y:0, duration:0.5, ease:"power2.out" }, 0.15);
+  tl.fromTo("#hero", { opacity:0, y:16 }, { opacity:1, y:0, duration:0.45, ease:"power2.out" }, 1.4);
+  // "一整个团队" 砸出
+  tl.to("#hero", { opacity:0.4, duration:0.4 }, 3.15);
+  tl.fromTo("#big", { opacity:0, scale:0.82, y:24 }, { opacity:1, scale:1, y:0, duration:0.55, ease:"back.out(1.6)" }, 3.15);
+  tl.fromTo("#big b", { scale:1.7 }, { scale:1, duration:0.4, ease:"back.out(3)", transformOrigin:"center" }, 3.55);
+  tl.to("#big", { keyframes:[{ x:-7 },{ x:7 },{ x:-4 },{ x:0 }], duration:0.24, ease:"none" }, 3.6);
+  // 团队成员逐个弹入(可视化"一整个团队")
+  ["#tc0","#tc1","#tc2","#tc3","#tc4","#tc5"].forEach((c,i)=>{
+    tl.fromTo(c, { opacity:0, scale:0.5, y:20 }, { opacity:1, scale:1, y:0, duration:0.36, ease:"back.out(2)" }, 3.9 + i*0.17);
+  });
+  tl.to("#big b", { scale:1.08, duration:0.4, yoyo:true, repeat:1, ease:"sine.inOut", transformOrigin:"center" }, 5.1);
+  tl.to({}, { duration:0.5 }, 5.85);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

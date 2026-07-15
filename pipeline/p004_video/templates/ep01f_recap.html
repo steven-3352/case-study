@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP01 s4 · 共鸣反问 + 互动 · 拉观众</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; --blue:#4c9aff; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 55% at 50% 30%, rgba(76,154,255,.06), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.82) 0%, rgba(6,9,14,.6) 34%, rgba(6,9,14,.58) 60%, rgba(6,9,14,.9) 88%, rgba(6,9,14,.97) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  /* 三症状缩略回顾 */
+  .recap{ position:absolute; left:80px; right:80px; top:250px; display:flex; gap:20px; justify-content:center; }
+  .rc{ flex:1; text-align:center; background:rgba(13,17,23,.8); border:1px solid #21262d;
+    border-radius:16px; padding:24px 10px; opacity:0; }
+  .rc .ico{ font-size:52px; }
+  .rc .lb{ margin-top:10px; font-size:32px; font-weight:800; color:#c9d1d9; }
+
+  /* 反问大字 */
+  .ask{ position:absolute; left:64px; right:64px; top:540px; text-align:center;
+    font-size:104px; font-weight:900; line-height:1.16; letter-spacing:2px;
+    text-shadow:0 6px 30px rgba(0,0,0,.85); opacity:0; }
+  .ask b{ color:var(--amber); }
+
+  /* 评论区互动条 */
+  .commentbar{ position:absolute; left:100px; right:100px; top:940px;
+    background:rgba(13,17,23,.92); border:2px solid #30363d; border-radius:26px;
+    padding:30px 34px; box-shadow:0 26px 70px rgba(0,0,0,.6); opacity:0; }
+  .commentbar .row{ display:flex; align-items:center; gap:22px; }
+  .commentbar .av{ width:70px; height:70px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,#4c9aff,#3fb950); display:grid; place-items:center;
+    font-size:40px; }
+  .commentbar .box{ flex:1; background:#0d1117; border:1px solid #30363d; border-radius:16px;
+    padding:20px 24px; font-size:44px; color:#fff; font-weight:800; }
+  .commentbar .box .cursor{ display:inline-block; width:4px; height:44px; background:#4c9aff;
+    vertical-align:-8px; margin-left:4px; }
+  .commentbar .send{ flex:none; background:var(--blue); color:#fff; font-weight:900; font-size:38px;
+    border-radius:16px; padding:20px 30px; }
+  .commentbar .hint{ margin-top:20px; font-size:34px; color:var(--muted); text-align:center; }
+  .commentbar .hint b{ color:var(--blue); }
+
+  /* 结论 + 承诺 */
+  .swap{ position:absolute; left:64px; right:64px; top:1300px; text-align:center; }
+  .concl{ font-size:72px; font-weight:900; line-height:1.24; letter-spacing:1px;
+    text-shadow:0 5px 24px rgba(0,0,0,.85); opacity:0; }
+  .concl b{ color:var(--green); }
+  .promise{ margin-top:34px; font-size:52px; font-weight:800; color:#fff; opacity:0;
+    text-shadow:0 4px 20px rgba(0,0,0,.85); }
+  .promise b{ color:var(--amber); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+
+    <div class="recap">
+      <div class="rc" id="rc0"><div class="ico">🧠</div><div class="lb">失忆</div></div>
+      <div class="rc" id="rc1"><div class="ico">🗂️</div><div class="lb">乱</div></div>
+      <div class="rc" id="rc2"><div class="ico">📅</div><div class="lb">活在过期</div></div>
+    </div>
+
+    <div class="ask" id="ask">你是不是,<br><b>也天天这样?</b></div>
+
+    <div class="commentbar" id="cbar">
+      <div class="row">
+        <div class="av">🙋</div>
+        <div class="box" id="cbox"><span id="ctype"></span><span class="cursor" id="ccur"></span></div>
+        <div class="send" id="csend">发送</div>
+      </div>
+      <div class="hint" id="chint">评论区扣俩字 → <b>我也是</b></div>
+    </div>
+
+    <div class="swap">
+      <div class="concl" id="concl">不是你不会用 —<br><b>是它天生这样</b></div>
+      <div class="promise" id="promise">那到底咋治?<b>我一条条讲给你听</b></div>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  // 1) 三症状回顾逐个亮(VO"失忆、乱、活在过期")
+  ["#rc0","#rc1","#rc2"].forEach((c,i)=>{
+    tl.fromTo(c, { opacity:0, y:16, scale:0.9 }, { opacity:1, y:0, scale:1, duration:0.4, ease:"back.out(1.6)" }, 0.3 + i*0.9);
+  });
+  // 2) 反问砸实(VO"你是不是也天天这样")
+  tl.fromTo("#ask", { opacity:0, scale:0.9, y:20 }, { opacity:1, scale:1, y:0, duration:0.55, ease:"back.out(1.4)" }, 3.6);
+  tl.to("#ask b", { scale:1.08, duration:0.45, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 4.2);
+  // 3) 评论互动条滑入 + 打字"我也是"(VO"评论区扣俩字我也是")
+  tl.fromTo("#cbar", { opacity:0, y:40 }, { opacity:1, y:0, duration:0.5, ease:"power3.out" }, 7.2);
+  tl.add(window.typewriter("#ctype", "我也是", { stagger:0.28 }), 8.2);
+  tl.to("#ccur", { opacity:0, duration:0.4, repeat:20, yoyo:true, ease:"steps(1)" }, 8.2);
+  tl.to("#csend", { backgroundColor:"#3fb950", scale:1.06, duration:0.2, yoyo:true, repeat:1 }, 9.4);
+  tl.to("#chint b", { scale:1.14, duration:0.5, yoyo:true, repeat:3, ease:"sine.inOut", transformOrigin:"center" }, 9.8);
+  // 4) 结论:不是你不会用(VO"根本不是我的问题")
+  tl.to(["#ask","#cbar"], { opacity:0.28, duration:0.5 }, 13.2);
+  tl.fromTo("#concl", { opacity:0, y:24 }, { opacity:1, y:0, duration:0.55, ease:"power3.out" }, 13.4);
+  tl.fromTo("#concl b", { scale:1.5 }, { scale:1, duration:0.4, ease:"back.out(3)" }, 13.9);
+  // 5) 承诺勾住(VO"那到底咋治,讲给你听")
+  tl.fromTo("#promise", { opacity:0, y:20 }, { opacity:1, y:0, duration:0.5, ease:"power3.out" }, 19.4);
+  tl.to("#promise b", { color:"#ffd27a", scale:1.06, duration:0.5, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 20.0);
+  tl.to({}, { duration:0.8 }, 24.2);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

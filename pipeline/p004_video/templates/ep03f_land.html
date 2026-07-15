@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="utf-8"><title>EP03 s6 · 落点勾EP04</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--amber:#d29922;--red:#e5484d}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("ep01f_desk.jpg");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.78),rgba(6,9,14,.6) 40%,rgba(6,9,14,.72) 70%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .notcode{position:absolute;left:52px;right:52px;top:330px;text-align:center;font-size:58px;font-weight:900;color:#c9d1d9;opacity:0;text-shadow:0 4px 22px rgba(0,0,0,.85)}
+  .notcode s{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:9px;color:var(--muted)}
+  .flow{position:absolute;left:52px;right:52px;top:490px;display:flex;flex-direction:column;align-items:center;gap:30px}
+  .mess{font-size:130px;opacity:0}
+  .arrow{font-size:70px;color:var(--amber);opacity:0}
+  .team{display:flex;gap:22px;opacity:0}
+  .node{width:150px;height:150px;border-radius:20px;background:rgba(19,26,22,.94);border:2px solid rgba(63,185,80,.5);display:grid;place-items:center;font-size:60px}
+  .caption{position:absolute;left:52px;right:52px;top:1080px;text-align:center;font-size:78px;font-weight:900;line-height:1.2;letter-spacing:1px;text-shadow:0 4px 24px rgba(0,0,0,.85);opacity:0}
+  .caption .next{color:var(--muted);font-size:44px;display:block;margin-bottom:12px;font-family:"SF Mono",monospace}
+  .caption b{color:var(--green)}
+  .cta{position:absolute;left:60px;right:60px;bottom:360px;text-align:center;opacity:0}
+  .cta .q2{font-size:46px;font-weight:800;color:#fff}
+  .cta .act{margin-top:20px;display:inline-block;font-size:44px;font-weight:900;color:#fff;background:#1f6feb;border-radius:16px;padding:16px 40px}
+</style></head>
+<body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="notcode" id="notcode">第一步,居然 <s>不是写代码</s></div>
+    <div class="flow" id="flow">
+      <div class="mess" id="mess">🗂️💥</div>
+      <div class="arrow" id="arrow">↓</div>
+      <div class="team" id="team"><div class="node">🧭</div><div class="node">🗃️</div><div class="node">📋</div></div>
+    </div>
+    <div class="caption" id="cap"><span class="next">下 集</span>把它,拆成<b>一家公司</b></div>
+    <div class="cta" id="cta"><div class="q2">你也想自己搭一个 AI 助理?</div><div class="act">评论区扣「同路」</div></div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  tl.fromTo("#flow",{scale:1.0},{scale:1.012,duration:15.0,ease:"sine.inOut"},0);
+  // 一坨乱文件(现状)
+  tl.fromTo("#mess",{opacity:0,scale:.6,rotation:-8},{opacity:1,scale:1,rotation:0,duration:.45,ease:"back.out(1.8)"},1.0);
+  tl.to("#mess",{x:"+=8",duration:.05,repeat:5,yoyo:true},1.6);
+  // 第一步不是写代码
+  tl.fromTo("#notcode",{opacity:0,y:16},{opacity:1,y:0,duration:.5,ease:"power2.out"},4.5);
+  tl.fromTo("#notcode s",{textDecorationColor:"rgba(229,72,77,0)"},{textDecorationColor:"rgba(229,72,77,1)",duration:.35},5.4);
+  // 变成一支团队
+  tl.fromTo("#arrow",{opacity:0,y:-14},{opacity:1,y:0,duration:.35},7.8);
+  tl.fromTo("#team",{opacity:0,y:20},{opacity:1,y:0,duration:.4},8.4);
+  tl.fromTo(".team .node",{scale:0},{scale:1,duration:.35,stagger:.16,ease:"back.out(2.2)"},8.5);
+  // 下集拆公司
+  tl.fromTo("#cap",{opacity:0,y:28},{opacity:1,y:0,duration:.5,ease:"power3.out"},11.0);
+  tl.fromTo("#cap b",{scale:1.4},{scale:1,duration:.4,ease:"back.out(3)"},11.5);
+  // CTA
+  tl.fromTo("#cta",{opacity:0,y:22},{opacity:1,y:0,duration:.45},13.0);
+  tl.to(".act",{scale:1.06,duration:.5,yoyo:true,repeat:2,ease:"sine.inOut"},13.6);
+  tl.to({},{duration:1.0},14.8);
+  registerTimeline(tl);
+</script>
+</body></html>

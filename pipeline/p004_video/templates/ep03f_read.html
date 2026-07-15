@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP03 s2 · 读过·还是没做到</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 55% at 50% 40%, rgba(139,148,158,.06), transparent 55%),
+      linear-gradient(180deg, rgba(6,8,12,.88) 0%, rgba(6,8,12,.7) 34%, rgba(6,8,12,.7) 60%, rgba(4,6,9,.94) 88%, rgba(4,6,9,.98) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .top{ position:absolute; left:80px; right:80px; top:300px; text-align:center;
+    font-size:52px; color:var(--muted); font-weight:800; opacity:0; }
+
+  /* AI 已读那条规矩的气泡 */
+  .read{ position:absolute; left:130px; right:130px; top:470px;
+    background:rgba(13,25,17,.94); border:1px solid rgba(63,185,80,.45); border-radius:22px 22px 22px 6px;
+    padding:30px 34px; box-shadow:0 24px 60px rgba(0,0,0,.6); opacity:0; }
+  .read .who{ font-size:30px; color:var(--muted); margin-bottom:14px; font-family:"SF Mono",monospace; }
+  .read .msg{ font-size:50px; font-weight:900; color:var(--green); display:flex; align-items:center; gap:16px; }
+  .read .msg .ck{ display:inline-grid; place-items:center; width:52px; height:52px; border-radius:50%;
+    background:var(--green); color:#04110a; font-size:34px; flex:none; }
+  .read .again{ margin-top:14px; font-size:36px; color:#7d8590; }
+
+  /* 还是没做到 红字砸下 */
+  .miss{ position:absolute; left:56px; right:56px; top:800px; text-align:center;
+    font-size:118px; font-weight:900; line-height:1.1; letter-spacing:3px; color:var(--red); opacity:0;
+    text-shadow:0 6px 30px rgba(0,0,0,.9); }
+
+  /* 落点:记了,也不算数 */
+  .land{ position:absolute; left:60px; right:60px; top:1120px; text-align:center;
+    font-size:78px; font-weight:900; line-height:1.24; letter-spacing:1px; opacity:0;
+    text-shadow:0 5px 26px rgba(0,0,0,.88); }
+  .land .q{ color:#c9d1d9; }
+  .land b{ color:var(--amber); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+
+    <div class="top" id="top">结果呢?它刚,读过 ——</div>
+
+    <div class="read" id="read">
+      <div class="who">⏺ 你的 AI 助理</div>
+      <div class="msg"><span class="ck" id="ck">✓</span><span>已读那条规矩</span></div>
+      <div class="again" id="again">· 读过 · 又读了一遍</div>
+    </div>
+
+    <div class="miss" id="miss">还是<br>没做到</div>
+
+    <div class="land" id="land"><span class="q">不是没记 ——</span><br>是记了,也 <b>不算数</b></div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  tl.fromTo("#top", { opacity:0, y:14 }, { opacity:1, y:0, duration:0.45, ease:"power2.out" }, 0.2);
+  // 它读过(绿勾)
+  tl.fromTo("#read", { opacity:0, y:22, scale:0.96 }, { opacity:1, y:0, scale:1, duration:0.5, ease:"back.out(1.4)" }, 1.2);
+  tl.fromTo("#ck", { scale:0.3, opacity:0 }, { scale:1, opacity:1, duration:0.4, ease:"back.out(3)" }, 1.6);
+  tl.fromTo("#again", { opacity:0 }, { opacity:1, duration:0.4 }, 2.4);
+  // 还是没做到(红字砸)
+  tl.to("#read", { opacity:0.32, duration:0.4 }, 3.5);
+  tl.fromTo("#miss", { opacity:0, scale:1.5, y:-20 }, { opacity:1, scale:1, y:0, duration:0.5, ease:"power4.in" }, 3.7);
+  tl.to("#miss", { keyframes:[{ x:-8 },{ x:8 },{ x:-5 },{ x:0 }], duration:0.26, ease:"none" }, 4.2);
+  // 落点:记了也不算数
+  tl.to("#miss", { opacity:0.25, y:"-=20", duration:0.5 }, 5.2);
+  tl.fromTo("#land", { opacity:0, y:24 }, { opacity:1, y:0, duration:0.55, ease:"power3.out" }, 5.4);
+  tl.fromTo("#land b", { scale:1.5 }, { scale:1, duration:0.4, ease:"back.out(3)" }, 6.0);
+  tl.to("#land b", { textShadow:"0 0 26px rgba(210,153,34,.7)", scale:1.06, duration:0.5, yoyo:true, repeat:1, ease:"sine.inOut", transformOrigin:"center" }, 6.5);
+  tl.to({}, { duration:0.6 }, 7.5);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

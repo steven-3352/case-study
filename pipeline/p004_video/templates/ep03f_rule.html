@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP03 s5 · 不靠自觉靠机制</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 55% at 50% 34%, rgba(63,185,80,.08), transparent 55%),
+      linear-gradient(180deg, rgba(8,12,16,.72) 0%, rgba(8,12,16,.5) 34%, rgba(8,12,16,.5) 60%, rgba(6,9,12,.86) 88%, rgba(6,9,12,.95) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .head{ position:absolute; left:80px; right:80px; top:270px; text-align:center;
+    font-size:50px; font-weight:800; color:#c9d1d9; opacity:0; }
+  .head b{ color:var(--green); }
+
+  .rows{ position:absolute; left:70px; right:70px; top:420px; display:flex; flex-direction:column; gap:26px; }
+  .row{ display:flex; align-items:center; gap:28px;
+    background:rgba(15,20,26,.9); border:1px solid #2a3038; border-left:6px solid var(--green);
+    border-radius:20px; padding:30px 34px; opacity:0; box-shadow:0 20px 50px rgba(0,0,0,.5); }
+  .row .ic{ font-size:88px; flex:none; width:110px; text-align:center; }
+  .row .tx{ font-size:52px; font-weight:800; line-height:1.24; }
+  .row .tx b{ color:var(--green); }
+  .row .tx .s{ color:var(--muted); font-size:40px; display:block; margin-top:6px; }
+  .row.me{ border-left-color:var(--amber); }
+  .row.me .tx b{ color:var(--amber); }
+
+  .same{ position:absolute; left:60px; right:60px; top:1210px; text-align:center;
+    font-size:132px; font-weight:900; letter-spacing:6px; color:var(--green); opacity:0;
+    text-shadow:0 6px 30px rgba(0,0,0,.85); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+
+    <div class="head" id="head">凭什么它就得听?—— 因为 <b>不靠自觉</b></div>
+
+    <div class="rows">
+      <div class="row" id="r0"><div class="ic">🚦</div><div class="tx">红绿灯 <b>不靠</b>司机自觉<span class="s">红了就是走不了</span></div></div>
+      <div class="row" id="r1"><div class="ic">🦺</div><div class="tx">机器 <b>不戴护具</b> 不启动<span class="s">少一步就是不转</span></div></div>
+      <div class="row me" id="r2"><div class="ic">🤖</div><div class="tx">管记不住的助理 <b>一样</b><span class="s">该做的,让它绕不过</span></div></div>
+    </div>
+
+    <div class="same" id="same">一模一样</div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  tl.fromTo("#head", { opacity:0, y:14 }, { opacity:1, y:0, duration:0.45, ease:"power2.out" }, 0.2);
+  tl.fromTo("#r0", { opacity:0, x:-40 }, { opacity:1, x:0, duration:0.45, ease:"back.out(1.5)" }, 1.0);
+  tl.fromTo("#r1", { opacity:0, x:-40 }, { opacity:1, x:0, duration:0.45, ease:"back.out(1.5)" }, 3.4);
+  tl.fromTo("#r2", { opacity:0, x:-40 }, { opacity:1, x:0, duration:0.45, ease:"back.out(1.5)" }, 6.0);
+  tl.to("#r2", { boxShadow:"0 20px 50px rgba(0,0,0,.5),0 0 44px rgba(210,153,34,.3)", duration:0.5 }, 6.5);
+  // 一模一样
+  tl.fromTo("#same", { opacity:0, scale:1.6, y:-16 }, { opacity:1, scale:1, y:0, duration:0.5, ease:"power4.in" }, 8.4);
+  tl.to("#same", { scale:1.06, duration:0.4, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 8.9);
+  tl.to({}, { duration:0.5 }, 10.0);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep06_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: ep06_s0_hook,     type: html, template: ep06f_hook.html,     duration: 6.59,  data: {}}
+  - {id: ep06_s1_stance,   type: html, template: ep06f_stance.html,   duration: 10.15, data: {}}
+  - {id: ep06_s2_crash1,   type: html, template: ep06f_crash1.html,   duration: 14.47, data: {}}
+  - {id: ep06_s3_fix1,     type: html, template: ep06f_fix1.html,     duration: 6.20,  data: {}}
+  - {id: ep06_s4_crash2,   type: html, template: ep06f_crash2.html,   duration: 11.21, data: {}}
+  - {id: ep06_s5_fix2,     type: html, template: ep06f_fix2.html,     duration: 10.07, data: {}}
+  - {id: ep06_s6_crash3,   type: html, template: ep06f_crash3.html,   duration: 15.67, data: {}}
+  - {id: ep06_s7_boundary, type: html, template: ep06f_boundary.html, duration: 11.60, data: {}}
+  - {id: ep06_s8_land,     type: html, template: ep06f_land.html,     duration: 15.63, data: {}}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP06 s5 · ②修 裁判由此而生 · 回扣EP05</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 55% at 50% 34%, rgba(63,185,80,.07), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.82) 0%, rgba(6,9,14,.6) 34%, rgba(6,9,14,.58) 60%, rgba(6,9,14,.9) 88%, rgba(6,9,14,.97) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .tag{ position:absolute; left:0; right:0; top:360px; text-align:center; opacity:0; }
+  .tag .badge{ display:inline-flex; align-items:center; gap:18px; font-size:50px; font-weight:900; color:#04110a;
+    background:var(--green); border-radius:20px; padding:18px 40px; box-shadow:0 20px 56px rgba(63,185,80,.35); }
+  .tag .badge .ck{ display:inline-grid; place-items:center; width:52px; height:52px; border-radius:50%;
+    background:#04110a; color:var(--green); font-size:38px; }
+
+  /* 两步:当场立规 → 加 Stop 裁判 */
+  .steps{ position:absolute; left:80px; right:80px; top:530px; display:flex; flex-direction:column; gap:22px; }
+  .step{ display:flex; align-items:center; gap:24px; background:rgba(13,17,23,.86); border:1px solid #21262d;
+    border-left:6px solid var(--green); border-radius:18px; padding:26px 30px; opacity:0;
+    box-shadow:0 18px 46px rgba(0,0,0,.5); }
+  .step .n{ font-family:"SF Mono",monospace; font-size:40px; font-weight:900; color:var(--green); flex:none; width:64px; }
+  .step .t{ font-size:46px; font-weight:800; color:var(--ink); }
+  .step .t em{ font-style:normal; color:var(--amber); }
+  .step.judge{ border-left-color:var(--amber); }
+  .step.judge .n{ color:var(--amber); }
+
+  /* 回扣 EP05 金句卡 */
+  .callback{ position:absolute; left:90px; right:90px; top:900px;
+    background:linear-gradient(135deg, rgba(210,153,34,.16), rgba(13,17,23,.92));
+    border:2px solid var(--amber); border-radius:24px; padding:36px 40px; text-align:center;
+    box-shadow:0 26px 70px rgba(0,0,0,.6); opacity:0; }
+  .callback .ep{ font-size:32px; font-weight:900; color:var(--amber); letter-spacing:3px; font-family:"SF Mono",monospace; }
+  .callback .line{ margin-top:18px; font-size:66px; font-weight:900; color:#fff; line-height:1.2; }
+  .callback .line b{ color:var(--amber); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+    <div class="tag" id="tag"><span class="badge"><span class="ck">✓</span>② 修 · 两手都要</span></div>
+    <div class="steps">
+      <div class="step" id="s1"><span class="n">01</span><span class="t">当场<em>立规矩</em> · 一点破就写死</span></div>
+      <div class="step judge" id="s2"><span class="n">02</span><span class="t">加个 <em>⚖️ Stop 裁判</em> 做机械后盾</span></div>
+    </div>
+    <div class="callback" id="cb">
+      <div class="ep">◀ EP05 · 那个裁判</div>
+      <div class="line" id="cbline">就是这么,<b>被逼出来的</b></div>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  tl.fromTo("#tag", { opacity:0, y:16, scale:0.9 }, { opacity:1, y:0, scale:1, duration:0.45, ease:"back.out(1.6)" }, 0.2);
+  tl.fromTo("#s1", { opacity:0, x:-30 }, { opacity:1, x:0, duration:0.45, ease:"back.out(1.4)" }, 1.4);
+  tl.fromTo("#s2", { opacity:0, x:-30 }, { opacity:1, x:0, duration:0.45, ease:"back.out(1.4)" }, 3.2);
+  tl.to("#s2 em", { color:"#ffd27a", scale:1.06, duration:0.4, yoyo:true, repeat:1, ease:"sine.inOut", transformOrigin:"center" }, 3.9);
+  // 回扣 EP05(VO"没错。EP05那个裁判,就是这么被逼出来的")
+  tl.fromTo("#cb", { opacity:0, y:30, scale:0.96 }, { opacity:1, y:0, scale:1, duration:0.55, ease:"back.out(1.4)" }, 5.6);
+  tl.fromTo("#cbline b", { scale:1.6 }, { scale:1, duration:0.4, ease:"back.out(3)", transformOrigin:"center" }, 6.8);
+  tl.to("#cbline b", { scale:1.08, duration:0.5, yoyo:true, repeat:3, ease:"sine.inOut", transformOrigin:"center" }, 7.4);
+  tl.to("#cb", { boxShadow:"0 26px 70px rgba(0,0,0,.6),0 0 50px rgba(210,153,34,.35)", duration:0.6, yoyo:true, repeat:1 }, 7.6);
+  tl.to({}, { duration:1.0 }, 9.9);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

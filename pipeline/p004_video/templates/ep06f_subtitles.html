@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:1080px; height:1920px; background:transparent !important; overflow:hidden; }
+    .sub {
+      position:absolute; left:60px; right:60px; bottom:132px; text-align:center;
+      font-family:"PingFang SC","Heiti SC",sans-serif; font-weight:900;
+      font-size:58px; line-height:1.3; color:#fff; letter-spacing:1px; padding:0 20px;
+      text-shadow:-4px -4px 0 #000,4px -4px 0 #000,-4px 4px 0 #000,4px 4px 0 #000,
+        -4px 0 0 #000,4px 0 0 #000,0 -4px 0 #000,0 4px 0 #000,0 0 26px rgba(0,0,0,.95);
+      opacity:0;
+    }
+    .sub.hot { color:#ff5a5f; }
+  </style>
+</head>
+<body>
+  <div class="sub" id="sub"></div>
+  <script>
+    const lines = [
+      { t:0.0, end:2.15, text:"我做 AI 助理第一天", hot:0 },
+      { t:2.29, end:3.6, text:"翻了 3 次车", hot:1 },
+      { t:3.74, end:4.85, text:"今天全给你看", hot:0 },
+      { t:4.99, end:6.1, text:"包括最蠢那次", hot:1 },
+      { t:6.79, end:8.43, text:"别人发'炸裂'", hot:0 },
+      { t:8.57, end:9.44, text:"我发翻车", hot:1 },
+      { t:9.58, end:10.71, text:"不是凡尔赛", hot:0 },
+      { t:10.85, end:12.23, text:"真有用的部分", hot:0 },
+      { t:12.37, end:14.27, text:"恰恰是它翻过的车", hot:1 },
+      { t:14.41, end:16.3, text:"3 个,全给你看", hot:0 },
+      { t:16.94, end:19.66, text:"第一车:刚上的收工锁", hot:0 },
+      { t:19.8, end:21.1, text:"第一次实战", hot:0 },
+      { t:21.24, end:22.82, text:"就坑了我自己", hot:1 },
+      { t:22.96, end:23.97, text:"它置了闸", hot:0 },
+      { t:24.11, end:26.26, text:"让我去看那份报告", hot:0 },
+      { t:26.4, end:28.84, text:"可那闸把我挡在门外", hot:0 },
+      { t:28.98, end:30.85, text:"我只能……盲签", hot:1 },
+      { t:31.41, end:32.51, text:"修法就一句", hot:0 },
+      { t:32.65, end:34.49, text:"置闸,必须把摘要", hot:0 },
+      { t:34.63, end:35.24, text:"贴脸上", hot:1 },
+      { t:35.38, end:36.97, text:"别让我去别处找", hot:0 },
+      { t:37.61, end:39.11, text:"第二车:它问我", hot:0 },
+      { t:39.25, end:41.69, text:"'要不要记一句日志?'", hot:0 },
+      { t:41.83, end:42.63, text:"屁大的事", hot:0 },
+      { t:42.77, end:44.04, text:"也来烦我一句", hot:1 },
+      { t:44.18, end:46.38, text:"这正好踩了我立的规矩", hot:0 },
+      { t:46.52, end:48.26, text:"'别拿琐事问我'", hot:0 },
+      { t:48.82, end:50.49, text:"我一点破,当场立规", hot:0 },
+      { t:50.63, end:51.69, text:"还给它加了个", hot:0 },
+      { t:51.83, end:53.7, text:"Stop 裁判做后盾", hot:0 },
+      { t:53.84, end:54.51, text:"——没错", hot:0 },
+      { t:54.65, end:56.32, text:"EP05 那个裁判", hot:0 },
+      { t:56.46, end:58.13, text:"就是这么被逼出来的", hot:1 },
+      { t:58.89, end:60.13, text:"第三车,最蠢", hot:1 },
+      { t:60.27, end:61.97, text:"为了把大脑可视化", hot:0 },
+      { t:62.11, end:64.27, text:"我部署了整套笔记系统", hot:0 },
+      { t:64.41, end:66.11, text:"容器、镜像、导入", hot:0 },
+      { t:66.25, end:68.64, text:"全跑通了,图我都看上了", hot:0 },
+      { t:68.78, end:70.25, text:"然后我一拍脑袋", hot:0 },
+      { t:70.39, end:71.86, text:"航母……送快递", hot:1 },
+      { t:72.0, end:73.7, text:"整条,清退,全删", hot:1 },
+      { t:74.56, end:76.74, text:"还好——它在平行仓库里", hot:0 },
+      { t:76.88, end:78.22, text:"就是 EP04", hot:0 },
+      { t:78.36, end:79.92, text:"我写死的那条边界", hot:0 },
+      { t:80.06, end:81.61, text:"删地盘,一了百了", hot:0 },
+      { t:81.75, end:83.3, text:"大脑只摘一条门牌", hot:0 },
+      { t:83.44, end:84.15, text:"那条边界", hot:0 },
+      { t:84.29, end:85.41, text:"真救了我一命", hot:1 },
+      { t:86.16, end:87.24, text:"翻车不可怕", hot:0 },
+      { t:87.38, end:88.96, text:"可怕的是不留痕", hot:1 },
+      { t:89.1, end:89.94, text:"每翻一次", hot:0 },
+      { t:90.08, end:91.41, text:"我立一条规矩", hot:0 },
+      { t:91.55, end:92.63, text:"刻一块墓碑", hot:0 },
+      { t:92.77, end:94.1, text:"系统就硬一分", hot:1 },
+      { t:94.24, end:96.31, text:"到底成没成、值不值", hot:0 },
+      { t:96.45, end:97.29, text:"你也搞?", hot:0 },
+      { t:97.43, end:99.49, text:"下集:复刻 5 步", hot:0 },
+      { t:99.63, end:101.45, text:"坑,我全给你标好", hot:1 }
+    ];
+    const sub = document.getElementById("sub");
+    const tl = gsap.timeline();
+    lines.forEach((line) => {
+      tl.call(() => { sub.textContent = line.text; sub.classList.toggle("hot", !!line.hot); }, [], line.t);
+      tl.fromTo(sub, { opacity:0, y:8 }, { opacity:1, y:0, duration:0.16 }, line.t);
+      tl.to(sub, { opacity:0, duration:0.16 }, line.end - 0.16);
+    });
+    tl.to({}, { duration:0.05 }, 101.594);
+    registerTimeline(tl);
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
+  </script>
+</body>
+</html>

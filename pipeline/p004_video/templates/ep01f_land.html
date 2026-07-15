@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP01 s5 · 落点发凉 + 勾 EP02</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 60% at 50% 42%, rgba(63,185,80,.05), transparent 55%),
+      linear-gradient(180deg, rgba(4,6,10,.9) 0%, rgba(4,6,10,.72) 34%, rgba(4,6,10,.72) 60%, rgba(2,3,6,.94) 88%, rgba(2,3,6,.99) 100%); }
+  .chill{ position:absolute; inset:0; background:radial-gradient(90% 60% at 50% 46%, transparent 40%, rgba(20,40,70,.28)); opacity:0; }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .headache{ position:absolute; left:80px; right:80px; top:300px; text-align:center;
+    font-size:46px; color:var(--muted); font-weight:700; opacity:0; }
+  .headache s{ text-decoration:none; }
+
+  .cold{ position:absolute; left:64px; right:64px; top:430px; text-align:center;
+    font-size:60px; font-weight:800; color:#cfe3ff; line-height:1.3; letter-spacing:1px; opacity:0;
+    text-shadow:0 4px 22px rgba(0,0,0,.85); }
+  .cold b{ color:#8fbaff; }
+
+  /* 假装做到的绿勾气泡 */
+  .fake{ position:absolute; left:150px; right:150px; top:640px;
+    background:rgba(13,25,17,.94); border:1px solid rgba(63,185,80,.5); border-radius:22px 22px 22px 6px;
+    padding:32px 34px; box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 40px rgba(63,185,80,.12); opacity:0; }
+  .fake .who{ font-size:30px; color:var(--muted); margin-bottom:14px; font-family:"SF Mono",monospace; }
+  .fake .msg{ font-size:54px; font-weight:900; color:var(--green); display:flex; align-items:center; gap:16px; }
+  .fake .msg .ck{ display:inline-grid; place-items:center; width:56px; height:56px; border-radius:50%;
+    background:var(--green); color:#04110a; font-size:38px; flex:none; }
+
+  .hero{ position:absolute; left:56px; right:56px; top:940px; text-align:center;
+    font-size:110px; font-weight:900; line-height:1.14; letter-spacing:2px; opacity:0;
+    text-shadow:0 6px 30px rgba(0,0,0,.9); }
+  .hero b{ color:var(--red); }
+  .hero .sub{ display:block; font-size:46px; color:#c9d1d9; font-weight:800; margin-top:24px; opacity:0; }
+
+  /* EP02 追更卡 */
+  .next{ position:absolute; left:90px; right:90px; bottom:360px;
+    background:linear-gradient(135deg, rgba(229,72,77,.16), rgba(13,17,23,.92));
+    border:2px solid var(--red); border-radius:26px; padding:34px 38px;
+    box-shadow:0 26px 70px rgba(0,0,0,.6); opacity:0; }
+  .next .tag{ font-size:32px; font-weight:900; color:var(--red); letter-spacing:3px; font-family:"SF Mono",monospace; }
+  .next .ttl{ margin-top:14px; font-size:64px; font-weight:900; color:#fff; display:flex; align-items:center; gap:20px; }
+  .next .ttl .arw{ color:var(--red); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="chill" id="chill"></div><div class="noise"></div>
+
+    <div class="headache" id="headache">失忆 · 乱 · 活在过期 —— 这些,顶多让我头疼</div>
+
+    <div class="cold" id="cold">真正让我 <b>脊背发凉</b> 的是——</div>
+
+    <div class="fake" id="fake">
+      <div class="who">⏺ 你的 AI 助理</div>
+      <div class="msg"><span class="ck" id="ck">✓</span><span>全部搞定了</span></div>
+    </div>
+
+    <div class="hero" id="hero">它还会,<b>假装,做到了</b>
+      <span class="sub" id="herosub">它不光记不住 · 它自己都没觉得不对</span>
+    </div>
+
+    <div class="next" id="next">
+      <div class="tag">下 一 条 · EP02</div>
+      <div class="ttl"><span class="arw">▶</span><span>我抓它,现行</span></div>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  // 1) "顶多让我头疼"(VO 0-3)
+  tl.fromTo("#headache", { opacity:0, y:14 }, { opacity:1, y:0, duration:0.5, ease:"power2.out" }, 0.3);
+  // 2) 温度骤降(VO"真正让我脊背发凉的是"3-6)
+  tl.to("#chill", { opacity:1, duration:1.2, ease:"power2.inOut" }, 3.2);
+  tl.to("#headache", { opacity:0.3, duration:0.6 }, 3.4);
+  tl.fromTo("#cold", { opacity:0, y:20 }, { opacity:1, y:0, duration:0.6, ease:"power3.out" }, 3.6);
+  tl.to("#cold b", { textShadow:"0 0 26px rgba(143,186,255,.8)", scale:1.06, duration:0.6, yoyo:true, repeat:1, ease:"sine.inOut", transformOrigin:"center" }, 4.2);
+  // 3) 假装做到的绿勾气泡(VO"它不光记不住"6-9)
+  tl.fromTo("#fake", { opacity:0, y:24, scale:0.94 }, { opacity:1, y:0, scale:1, duration:0.5, ease:"back.out(1.4)" }, 6.4);
+  tl.fromTo("#ck", { scale:0.3, opacity:0 }, { scale:1, opacity:1, duration:0.45, ease:"back.out(3)" }, 6.9);
+  tl.to("#fake", { boxShadow:"0 24px 60px rgba(0,0,0,.6),0 0 60px rgba(63,185,80,.28)", duration:0.6, yoyo:true, repeat:1 }, 7.3);
+  // 4) 顶字"它还会假装做到了"(VO 9-13)
+  tl.to(["#cold","#fake"], { opacity:0.25, duration:0.5 }, 9.2);
+  tl.fromTo("#hero", { opacity:0, scale:0.88, y:22 }, { opacity:1, scale:1, y:0, duration:0.55, ease:"back.out(1.4)" }, 9.4);
+  tl.fromTo("#hero b", { scale:1.6 }, { scale:1, duration:0.4, ease:"back.out(3)" }, 9.9);
+  tl.to("#hero", { keyframes:[{ x:-7 },{ x:7 },{ x:-4 },{ x:0 }], duration:0.24 }, 9.95);
+  tl.fromTo("#herosub", { opacity:0 }, { opacity:1, duration:0.5 }, 10.8);
+  // 5) EP02 追更卡(VO"下一条我抓它现行"13-17.5)
+  tl.to("#hero", { y:"-=40", duration:0.6, ease:"power2.inOut" }, 13.2);
+  tl.fromTo("#next", { opacity:0, y:40, scale:0.95 }, { opacity:1, y:0, scale:1, duration:0.55, ease:"back.out(1.4)" }, 13.4);
+  tl.to("#next .arw", { x:12, duration:0.5, yoyo:true, repeat:5, ease:"sine.inOut" }, 14.0);
+  tl.to("#next", { boxShadow:"0 26px 70px rgba(0,0,0,.6),0 0 50px rgba(229,72,77,.3)", duration:0.6, yoyo:true, repeat:2 }, 14.2);
+  tl.to({}, { duration:0.8 }, 17.9);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

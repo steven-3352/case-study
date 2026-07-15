@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP05 s0 · 开场钩子 · 不再信它上锁</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 60% at 50% 40%, rgba(210,153,34,.08), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.84) 0%, rgba(6,9,14,.62) 34%, rgba(6,9,14,.6) 60%, rgba(6,9,14,.9) 88%, rgba(6,9,14,.97) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .wrap{ position:absolute; left:70px; right:70px; top:360px; text-align:center; }
+  .kick{ font-size:46px; color:var(--muted); font-weight:700; letter-spacing:1px; opacity:0; }
+  .hero{ margin-top:30px; font-size:78px; font-weight:900; line-height:1.18; letter-spacing:1px; color:#c9d1d9;
+    text-shadow:0 6px 30px rgba(0,0,0,.8); opacity:0; }
+  .hero b{ color:var(--red); }
+  .turn{ margin-top:40px; font-size:42px; color:var(--muted); font-weight:800; letter-spacing:2px; opacity:0; }
+  .big{ margin-top:30px; font-size:130px; font-weight:900; line-height:1.1; letter-spacing:3px;
+    text-shadow:0 6px 30px rgba(0,0,0,.85); opacity:0; }
+  .big b{ color:var(--amber); }
+  .sub{ margin-top:22px; font-size:56px; font-weight:900; color:#fff; letter-spacing:2px; opacity:0; }
+  .sub b{ color:var(--green); }
+
+  .locks{ position:absolute; left:80px; right:80px; top:1120px; display:flex; gap:28px; justify-content:center; }
+  .lk{ width:150px; height:170px; border-radius:24px; opacity:0;
+    background:rgba(19,26,22,.9); border:2px solid rgba(63,185,80,.4);
+    display:flex; align-items:center; justify-content:center; font-size:88px;
+    box-shadow:0 16px 44px rgba(0,0,0,.5); }
+
+  .foot{ position:absolute; left:70px; right:70px; bottom:360px; text-align:center;
+    font-size:52px; font-weight:900; color:#fff; letter-spacing:1px; opacity:0;
+    text-shadow:0 4px 22px rgba(0,0,0,.85); }
+  .foot b{ color:var(--amber); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+    <div class="wrap">
+      <div class="kick" id="kick">上集,我给它搭了个团队 ——</div>
+      <div class="hero" id="hero">可它,<b>还是骗我</b></div>
+      <div class="turn" id="turn">这集我干脆 ——</div>
+      <div class="big" id="big"><b>不再信它</b></div>
+      <div class="sub" id="sub">给它<b>上锁</b> · 装监控</div>
+    </div>
+    <div class="locks">
+      <span class="lk" id="k0">🔒</span>
+      <span class="lk" id="k1">🔍</span>
+      <span class="lk" id="k2">🔒</span>
+      <span class="lk" id="k3">⚖️</span>
+    </div>
+    <div class="foot" id="foot">4 道它<b>绕不过去</b>的闸</div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  tl.fromTo("#kick", { opacity:0, y:18 }, { opacity:1, y:0, duration:0.5, ease:"power2.out" }, 0.2);
+  // "还是骗我" 砸出
+  tl.fromTo("#hero", { opacity:0, scale:0.86, y:22 }, { opacity:1, scale:1, y:0, duration:0.5, ease:"back.out(1.5)" }, 1.4);
+  tl.fromTo("#hero b", { scale:1.6 }, { scale:1, duration:0.4, ease:"back.out(3)", transformOrigin:"center" }, 1.85);
+  tl.to("#hero", { keyframes:[{ x:-8 },{ x:8 },{ x:-5 },{ x:0 }], duration:0.24, ease:"none" }, 1.9);
+  // 转折 —— 这集我干脆
+  tl.fromTo("#turn", { opacity:0 }, { opacity:1, duration:0.4 }, 3.3);
+  // "不再信它" 冷砸
+  tl.to("#hero", { opacity:0.35, duration:0.4 }, 4.0);
+  tl.fromTo("#big", { opacity:0, scale:0.82, y:24 }, { opacity:1, scale:1, y:0, duration:0.55, ease:"back.out(1.5)" }, 4.1);
+  tl.fromTo("#big b", { scale:1.6 }, { scale:1, duration:0.4, ease:"back.out(3)", transformOrigin:"center" }, 4.5);
+  tl.fromTo("#sub", { opacity:0, y:16 }, { opacity:1, y:0, duration:0.4, ease:"power2.out" }, 5.0);
+  // 4 道锁逐个咔落
+  ["#k0","#k1","#k2","#k3"].forEach((k,i)=>{
+    tl.fromTo(k, { opacity:0, scale:0.4, rotation:-14, y:18 }, { opacity:1, scale:1, rotation:0, y:0, duration:0.34, ease:"back.out(2.2)" }, 5.5 + i*0.22);
+  });
+  // 收尾:绕不过去
+  tl.fromTo("#foot", { opacity:0, y:20 }, { opacity:1, y:0, duration:0.5, ease:"power3.out" }, 6.8);
+  tl.to("#foot b", { scale:1.1, duration:0.4, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 7.3);
+  tl.to({}, { duration:0.5 }, 8.28);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

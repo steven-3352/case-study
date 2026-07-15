@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP02 s4 · 它不知道(发毛的平)</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 60% at 50% 42%, rgba(63,185,80,.04), transparent 55%),
+      linear-gradient(180deg, rgba(4,6,10,.9) 0%, rgba(4,6,10,.72) 34%, rgba(4,6,10,.72) 60%, rgba(2,3,6,.94) 88%, rgba(2,3,6,.99) 100%); }
+  .chill{ position:absolute; inset:0; background:radial-gradient(90% 60% at 50% 46%, transparent 40%, rgba(20,40,70,.30)); opacity:0; }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .cold{ position:absolute; left:64px; right:64px; top:420px; text-align:center;
+    font-size:64px; font-weight:800; color:#cfe3ff; line-height:1.28; letter-spacing:1px; opacity:0;
+    text-shadow:0 4px 22px rgba(0,0,0,.85); }
+  .cold b{ color:#8fbaff; }
+
+  /* 它自信"我干完了"绿勾气泡 */
+  .fake{ position:absolute; left:150px; right:150px; top:720px;
+    background:rgba(13,25,17,.94); border:1px solid rgba(63,185,80,.5); border-radius:22px 22px 22px 6px;
+    padding:32px 34px; box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 40px rgba(63,185,80,.12); opacity:0; }
+  .fake .who{ font-size:30px; color:var(--muted); margin-bottom:14px; font-family:"SF Mono",monospace; }
+  .fake .msg{ font-size:54px; font-weight:900; color:var(--green); display:flex; align-items:center; gap:16px; }
+  .fake .msg .ck{ display:inline-grid; place-items:center; width:56px; height:56px; border-radius:50%;
+    background:var(--green); color:#04110a; font-size:38px; flex:none; }
+
+  .hero{ position:absolute; left:56px; right:56px; top:1040px; text-align:center;
+    font-size:104px; font-weight:900; line-height:1.14; letter-spacing:2px; opacity:0;
+    text-shadow:0 6px 30px rgba(0,0,0,.9); }
+  .hero .dash{ color:var(--muted); }
+  .hero b{ color:var(--red); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="chill" id="chill"></div><div class="noise"></div>
+
+    <div class="cold" id="cold">最瘆人的,不是它糊弄我 ——<br>是它,<b>压根没觉得不对</b></div>
+
+    <div class="fake" id="fake">
+      <div class="who">⏺ 你的 AI 助理</div>
+      <div class="msg"><span class="ck" id="ck">✓</span><span>我干完了呀</span></div>
+    </div>
+
+    <div class="hero" id="hero">它不知道 <span class="dash">——</span><br>它在,<b>糊弄我</b></div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  // 温度骤降 + "最瘆人的不是它糊弄我"
+  tl.to("#chill", { opacity:1, duration:1.4, ease:"power2.inOut" }, 0.3);
+  tl.fromTo("#cold", { opacity:0, y:20 }, { opacity:1, y:0, duration:0.6, ease:"power3.out" }, 0.4);
+  // "是它压根没觉得不对"
+  tl.to("#cold b", { textShadow:"0 0 26px rgba(143,186,255,.8)", scale:1.05, duration:0.6, yoyo:true, repeat:1, ease:"sine.inOut", transformOrigin:"center" }, 2.8);
+  // 它自信绿勾"我干完了"(VO"它真觉得自己干完了")
+  tl.fromTo("#fake", { opacity:0, y:24, scale:0.94 }, { opacity:1, y:0, scale:1, duration:0.5, ease:"back.out(1.4)" }, 5.0);
+  tl.fromTo("#ck", { scale:0.3, opacity:0 }, { scale:1, opacity:1, duration:0.45, ease:"back.out(3)" }, 5.4);
+  tl.to("#fake", { boxShadow:"0 24px 60px rgba(0,0,0,.6),0 0 60px rgba(63,185,80,.28)", duration:0.6, yoyo:true, repeat:1 }, 5.8);
+  // 顶字"它不知道——它在糊弄我"(最轻最凉 → 砸)
+  tl.to(["#cold","#fake"], { opacity:0.25, duration:0.5 }, 7.0);
+  tl.fromTo("#hero", { opacity:0, scale:0.88, y:22 }, { opacity:1, scale:1, y:0, duration:0.6, ease:"back.out(1.3)" }, 7.2);
+  tl.fromTo("#hero b", { scale:1.6 }, { scale:1, duration:0.42, ease:"back.out(3)" }, 7.7);
+  tl.to("#hero b", { textShadow:"0 0 38px rgba(229,72,77,.7)", duration:0.5, yoyo:true, repeat:2, ease:"sine.inOut" }, 8.2);
+  tl.to({}, { duration:0.7 }, 9.2);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

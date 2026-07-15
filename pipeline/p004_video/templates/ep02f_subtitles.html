@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:1080px; height:1920px; background:transparent !important; overflow:hidden; }
+    .sub {
+      position:absolute; left:60px; right:60px; bottom:132px; text-align:center;
+      font-family:"PingFang SC","Heiti SC",sans-serif; font-weight:900;
+      font-size:58px; line-height:1.3; color:#fff; letter-spacing:1px; padding:0 20px;
+      text-shadow:-4px -4px 0 #000,4px -4px 0 #000,-4px 4px 0 #000,4px 4px 0 #000,
+        -4px 0 0 #000,4px 0 0 #000,0 -4px 0 #000,0 4px 0 #000,0 0 26px rgba(0,0,0,.95);
+      opacity:0;
+    }
+    .sub.hot { color:#ff5a5f; }
+  </style>
+</head>
+<body>
+  <div class="sub" id="sub"></div>
+  <script>
+    const lines = [
+      { t:0.0, end:4.11, text:"欸…… 跟你说个丢人的事", hot:0 },
+      { t:4.25, end:5.17, text:"小点声", hot:0 },
+      { t:5.31, end:9.07, text:"我,被我自己养的 AI", hot:0 },
+      { t:9.21, end:10.49, text:"骗了好久", hot:1 },
+      { t:11.18, end:13.68, text:"记不住、乱、活在过期", hot:0 },
+      { t:13.82, end:15.52, text:"这些,我都忍了", hot:0 },
+      { t:15.66, end:17.11, text:"直到那次——", hot:0 },
+      { t:17.25, end:19.22, text:"我跟它,要个成品", hot:1 },
+      { t:19.91, end:21.89, text:"我说得,明明白白", hot:0 },
+      { t:22.03, end:24.27, text:"给我一个能直接用的", hot:0 },
+      { t:24.41, end:26.38, text:"最好状态的,成片", hot:0 },
+      { t:26.52, end:28.24, text:"它说——好、了", hot:1 },
+      { t:29.08, end:30.71, text:"我一点开——", hot:0 },
+      { t:30.85, end:33.37, text:"你,认真的?好家伙", hot:1 },
+      { t:33.51, end:36.03, text:"八张截图,拼一块儿", hot:0 },
+      { t:36.17, end:39.58, text:"配音是电脑自带的机器人嗓", hot:0 },
+      { t:39.72, end:42.83, text:"还把这坨塞进正式文件夹", hot:0 },
+      { t:42.97, end:45.49, text:"跟我说:交,付,了", hot:1 },
+      { t:46.33, end:48.5, text:"最瘆人的,不是它糊弄我", hot:0 },
+      { t:48.64, end:50.6, text:"是它,压根没觉得不对", hot:1 },
+      { t:50.74, end:52.7, text:"它真觉得,自己干完了", hot:0 },
+      { t:52.84, end:53.96, text:"它不知道——", hot:0 },
+      { t:54.1, end:55.01, text:"它在糊弄我", hot:1 },
+      { t:55.75, end:57.77, text:"我翻它的出错记录", hot:0 },
+      { t:57.91, end:60.75, text:"看见一句话,心咯噔一下", hot:0 },
+      { t:60.89, end:62.64, text:"它刚,读过规矩", hot:0 },
+      { t:62.78, end:63.18, text:"读过", hot:1 },
+      { t:63.32, end:65.07, text:"……还是没做到", hot:1 },
+      { t:65.81, end:68.53, text:"你知道最要命的是啥吗?", hot:0 },
+      { t:68.67, end:69.58, text:"不是它忘", hot:0 },
+      { t:69.72, end:72.18, text:"是它说'锁好了'——", hot:0 },
+      { t:72.32, end:74.53, text:"我,根本,没法验证", hot:1 },
+      { t:74.67, end:77.66, text:"它真锁了?还是又在糊弄我", hot:0 },
+      { t:77.8, end:78.7, text:"我不知道", hot:0 },
+      { t:78.84, end:80.52, text:"我在管一个……", hot:0 },
+      { t:80.66, end:82.61, text:"我不敢信的,下属", hot:1 },
+      { t:83.5, end:84.7, text:"说到这儿——", hot:0 },
+      { t:84.84, end:87.83, text:"你是不是,也被它这么糊弄过?", hot:1 },
+      { t:87.97, end:89.39, text:"那种明明交了活", hot:0 },
+      { t:89.53, end:91.63, text:"你却不敢信的憋屈……", hot:0 },
+      { t:91.77, end:93.41, text:"评论区打个『1』", hot:1 },
+      { t:93.55, end:95.65, text:"让我看看,不止我一个", hot:0 },
+      { t:95.79, end:98.33, text:"靠它自觉这条路,我认命了", hot:0 },
+      { t:98.47, end:99.67, text:"下集我想明白", hot:0 },
+      { t:99.81, end:101.68, text:"错的,从来不是它笨", hot:1 },
+      { t:101.82, end:103.24, text:"是我,方法,蠢", hot:1 }
+    ];
+    const sub = document.getElementById("sub");
+    const tl = gsap.timeline();
+    lines.forEach((line) => {
+      tl.call(() => { sub.textContent = line.text; sub.classList.toggle("hot", !!line.hot); }, [], line.t);
+      tl.fromTo(sub, { opacity:0, y:8 }, { opacity:1, y:0, duration:0.16 }, line.t);
+      tl.to(sub, { opacity:0, duration:0.16 }, line.end - 0.16);
+    });
+    tl.to({}, { duration:0.05 }, 103.681);
+    registerTimeline(tl);
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
+  </script>
+</body>
+</html>

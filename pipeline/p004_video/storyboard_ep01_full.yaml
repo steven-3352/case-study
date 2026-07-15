@@ -1,0 +1,14 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep01_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: s0_hook,    type: html, template: ep01f_hook.html,    duration: 8.89,  data: {}}
+  - {id: s1_chatlog, type: html, template: ep01f_chatlog.html, duration: 26.19, data: {}}
+  - {id: s2_gitscar, type: html, template: ep01f_gitscar.html, duration: 11.59, data: {}}
+  - {id: s3_triquiz, type: html, template: ep01f_triquiz.html, duration: 17.63, data: {}}
+  - {id: s4_recap,   type: html, template: ep01f_recap.html,   duration: 24.38, data: {}}
+  - {id: s5_land,    type: html, template: ep01f_land.html,    duration: 18.26, data: {}}

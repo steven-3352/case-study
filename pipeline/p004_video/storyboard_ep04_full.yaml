@@ -1,0 +1,16 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep04_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: ep04_s0_hook,     type: html, template: ep04f_hook.html,     duration: 5.90,  data: {}}
+  - {id: ep04_s1_scatter,  type: html, template: ep04f_scatter.html,  duration: 12.98, data: {}}
+  - {id: ep04_s2_rule3,    type: html, template: ep04f_rule3.html,    duration: 9.04,  data: {}}
+  - {id: ep04_s3_heads,    type: html, template: ep04f_heads.html,    duration: 15.63, data: {}}
+  - {id: ep04_s4_auto,     type: html, template: ep04f_auto.html,     duration: 9.87,  data: {}}
+  - {id: ep04_s5_graph,    type: html, template: ep04f_graph.html,    duration: 15.62, data: {}}
+  - {id: ep04_s6_parallel, type: html, template: ep04f_parallel.html, duration: 12.93, data: {}}
+  - {id: ep04_s7_land,     type: html, template: ep04f_land.html,     duration: 13.47, data: {}}

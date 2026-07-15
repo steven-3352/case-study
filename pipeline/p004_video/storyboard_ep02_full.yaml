@@ -1,0 +1,16 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep02_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: ep02_s0_hook,     type: html, template: ep02f_hook.html,     duration: 10.98, data: {}}
+  - {id: ep02_s1_endure,   type: html, template: ep02f_endure.html,   duration: 8.73,  data: {}}
+  - {id: ep02_s2_ask,      type: html, template: ep02f_ask.html,      duration: 9.17,  data: {}}
+  - {id: ep02_s3_fakefilm, type: html, template: ep02f_fakefilm.html, duration: 17.25, data: {}}
+  - {id: ep02_s4_unaware,  type: html, template: ep02f_unaware.html,  duration: 9.42,  data: {}}
+  - {id: ep02_s5_read,     type: html, template: ep02f_read.html,     duration: 10.06, data: {}}
+  - {id: ep02_s6_land,     type: html, template: ep02f_land.html,     duration: 17.69, data: {}}
+  - {id: ep02_s7_recap,    type: html, template: ep02f_recap.html,    duration: 20.38, data: {}}

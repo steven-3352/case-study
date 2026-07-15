@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><title>EP05 s3 · 闸③+裁判 互锁·打回</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--amber:#d29922;--red:#e5484d}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("ep01f_desk.jpg");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.82),rgba(6,9,14,.64) 34%,rgba(6,9,14,.7) 66%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .hdr{position:absolute;left:52px;right:52px;top:230px;text-align:center;font-size:52px;font-weight:900;letter-spacing:2px;opacity:0}
+  .hdr b{color:var(--green)}.hdr .dim{color:var(--muted);font-weight:800}
+  .cards{position:absolute;left:52px;right:52px;top:360px;display:flex;flex-direction:column;gap:40px}
+  .card{opacity:0;background:rgba(13,18,15,.92);border:2px solid rgba(63,185,80,.4);border-radius:24px;
+    padding:34px 38px;box-shadow:0 22px 60px rgba(0,0,0,.55)}
+  .card.red{border-color:rgba(229,72,77,.45);background:rgba(20,13,13,.92)}
+  .card .top{display:flex;align-items:center;gap:24px}
+  .card .ic{font-size:70px;flex:none}
+  .card .badge{font-size:32px;font-weight:900;font-family:"SF Mono",monospace;color:var(--amber);
+    background:rgba(210,153,34,.14);border:1px solid rgba(210,153,34,.5);border-radius:12px;padding:8px 18px;flex:none;opacity:0}
+  .card.red .badge{color:var(--red);background:rgba(229,72,77,.14);border-color:rgba(229,72,77,.5)}
+  .card .ttl{font-size:50px;font-weight:900;opacity:0}
+  .card .desc{margin-top:22px;font-size:40px;font-weight:700;color:#c9d1d9;line-height:1.4;opacity:0}
+  .card .desc b{color:var(--amber)}
+  .card .desc2{margin-top:14px;font-size:40px;font-weight:800;color:#c9d1d9;line-height:1.4;opacity:0}
+  .card .desc2 b{color:var(--red)}
+  .status{margin-top:26px;display:inline-flex;align-items:center;gap:16px;font-size:40px;font-weight:900;
+    border-radius:14px;padding:14px 26px;opacity:0}
+  .status.on{color:var(--green);background:rgba(63,185,80,.12);border:2px solid rgba(63,185,80,.55)}
+  .status.block{color:var(--red);background:rgba(229,72,77,.12);border:2px solid rgba(229,72,77,.55)}
+</style></head><body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="hdr" id="hdr">🔒 上监控 · <b>4 道锁</b> <span class="dim">③④</span></div>
+    <div class="cards">
+      <div class="card" id="cC">
+        <div class="top"><span class="ic">🔒</span><span class="badge">闸 ③</span><span class="ttl">收工硬互锁</span></div>
+        <div class="desc" id="dC1">不亲口「<b>确认收工</b>」→ 不许提交 · 不许接新活</div>
+        <div class="desc" id="dC2" style="color:var(--muted);font-size:36px">最狠的一道 —— 想糊弄完偷偷溜?</div>
+        <div class="status on" id="sC">🟢 溜不掉</div>
+      </div>
+      <div class="card red" id="cD">
+        <div class="top"><span class="ic">⚖️</span><span class="badge">裁 判</span><span class="ttl">Stop 行为裁判</span></div>
+        <div class="desc" id="dD1">每轮自动审 · 拿本该自己干的<b>琐事,来烦我?</b></div>
+        <div class="desc2" id="dD2">违规 → <b>当场打回,重做</b></div>
+        <div class="status block" id="sD">⛔ 当场打回重做</div>
+      </div>
+    </div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  tl.fromTo(".stage",{scale:1.0},{scale:1.01,duration:22.6,ease:"sine.inOut"},0);
+  tl.fromTo("#hdr",{opacity:0,y:-14},{opacity:1,y:0,duration:.45},0.2);
+  // ── 闸③ (b4 · in-scene 0.2–11.3) ──
+  tl.fromTo("#cC",{opacity:0,x:-34,scale:.97},{opacity:1,x:0,scale:1,duration:.45,ease:"back.out(1.5)"},0.5);
+  tl.fromTo("#cC .ic",{scale:2,rotation:-16},{scale:1,rotation:0,duration:.4,ease:"back.out(3)"},0.7);
+  tl.fromTo("#cC .badge",{opacity:0,scale:.6},{opacity:1,scale:1,duration:.35,ease:"back.out(2.4)"},1.5);
+  tl.fromTo("#cC .ttl",{opacity:0,x:14},{opacity:1,x:0,duration:.4,ease:"power2.out"},1.7);
+  tl.fromTo("#dC1",{opacity:0,y:14},{opacity:1,y:0,duration:.45,ease:"power2.out"},3.4);
+  tl.fromTo("#dC2",{opacity:0,y:14},{opacity:1,y:0,duration:.45,ease:"power2.out"},5.6);
+  tl.fromTo("#sC",{opacity:0,scale:.7},{opacity:1,scale:1,duration:.42,ease:"back.out(2.6)"},8.5);
+  tl.to("#cC",{boxShadow:"0 22px 60px rgba(0,0,0,.55),0 0 46px rgba(63,185,80,.35)",duration:.5,yoyo:true,repeat:1},8.7);
+  // ── 裁判 (b5 · in-scene 11.86–22.6) ──
+  tl.to("#cC",{opacity:.4,duration:.5},11.5);
+  tl.fromTo("#cD",{opacity:0,x:-34,scale:.97},{opacity:1,x:0,scale:1,duration:.45,ease:"back.out(1.5)"},11.9);
+  tl.fromTo("#cD .ic",{scale:2,rotation:-16},{scale:1,rotation:0,duration:.4,ease:"back.out(3)"},12.1);
+  tl.fromTo("#cD .badge",{opacity:0,scale:.6},{opacity:1,scale:1,duration:.35,ease:"back.out(2.4)"},12.9);
+  tl.fromTo("#cD .ttl",{opacity:0,x:14},{opacity:1,x:0,duration:.4,ease:"power2.out"},13.1);
+  tl.fromTo("#dD1",{opacity:0,y:14},{opacity:1,y:0,duration:.45,ease:"power2.out"},15.0);
+  tl.fromTo("#dD2",{opacity:0,y:14},{opacity:1,y:0,duration:.45,ease:"power2.out"},17.2);
+  // "当场打回,重做" 砸实
+  tl.fromTo("#sD",{opacity:0,scale:.6,y:-10},{opacity:1,scale:1,y:0,duration:.42,ease:"power4.in"},19.4);
+  tl.to("#sD",{scale:1.08,duration:.1,yoyo:true,repeat:1},19.8);
+  tl.to("#cD",{boxShadow:"0 22px 60px rgba(0,0,0,.55),0 0 50px rgba(229,72,77,.4)",duration:.5,yoyo:true,repeat:1},19.9);
+  tl.to({},{duration:1.2},22.6);
+  registerTimeline(tl);
+</script></body></html>

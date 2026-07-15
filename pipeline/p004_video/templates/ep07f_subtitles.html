@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:1080px; height:1920px; background:transparent !important; overflow:hidden; }
+    .sub {
+      position:absolute; left:60px; right:60px; bottom:132px; text-align:center;
+      font-family:"PingFang SC","Heiti SC",sans-serif; font-weight:900;
+      font-size:58px; line-height:1.3; color:#fff; letter-spacing:1px; padding:0 20px;
+      text-shadow:-4px -4px 0 #000,4px -4px 0 #000,-4px 4px 0 #000,4px 4px 0 #000,
+        -4px 0 0 #000,4px 0 0 #000,0 -4px 0 #000,0 4px 0 #000,0 0 26px rgba(0,0,0,.95);
+      opacity:0;
+    }
+    .sub.hot { color:#ff5a5f; }
+  </style>
+</head>
+<body>
+  <div class="sub" id="sub"></div>
+  <script>
+    const lines = [
+      { t:0.0, end:1.53, text:"想自己造一个?", hot:0 },
+      { t:1.67, end:4.4, text:"5 步,坑我都替你标好了", hot:1 },
+      { t:5.09, end:6.02, text:"从被它骗", hot:0 },
+      { t:6.16, end:8.96, text:"到想通「机械大于自觉」", hot:0 },
+      { t:9.1, end:10.56, text:"搭团队、上锁", hot:0 },
+      { t:10.7, end:12.69, text:"翻了一路的车——", hot:0 },
+      { t:12.83, end:15.89, text:"到现在,像个能用的助理了", hot:1 },
+      { t:16.03, end:18.83, text:"你想搞一个,我把路铺平", hot:0 },
+      { t:19.52, end:22.43, text:"第一步:一个常驻核心文件", hot:0 },
+      { t:22.57, end:25.47, text:"写清你是谁,开工自动注入", hot:0 },
+      { t:25.61, end:28.26, text:"第二步:铁律加固化流程", hot:0 },
+      { t:28.4, end:31.56, text:"挂个体检脚本,提交前自动跑", hot:0 },
+      { t:32.15, end:36.32, text:"第三步:关键纪律用 hooks", hot:0 },
+      { t:36.46, end:38.62, text:"注入、阻断、裁判", hot:0 },
+      { t:38.76, end:41.2, text:"而且逃生门先建先测", hot:1 },
+      { t:41.34, end:44.65, text:"第四步:结构人格化成组织", hot:0 },
+      { t:44.79, end:47.52, text:"第五步:只报告不擅改", hot:0 },
+      { t:47.66, end:51.25, text:"再硬的约束,也留个自救口子", hot:1 },
+      { t:51.94, end:52.5, text:"效果?", hot:0 },
+      { t:52.64, end:54.84, text:"体检全绿、结构零孤立", hot:0 },
+      { t:54.98, end:57.18, text:"一天十几次提交零脏改", hot:0 },
+      { t:57.32, end:58.35, text:"就……这些", hot:0 },
+      { t:58.49, end:61.15, text:"是「绿」——不是「炸裂」", hot:1 },
+      { t:61.94, end:64.37, text:"丑话说前面:这只是雏形", hot:0 },
+      { t:64.51, end:66.47, text:"实战时长以「天」计", hot:0 },
+      { t:66.61, end:69.04, text:"行为约束没有 100%", hot:0 },
+      { t:69.18, end:69.97, text:"裁判会漏", hot:0 },
+      { t:70.11, end:73.47, text:"hooks 吃平台,换环境重搭", hot:0 },
+      { t:73.61, end:76.04, text:"而且单人、单机、纯文字", hot:0 },
+      { t:76.18, end:79.31, text:"多 agent、语音都还没做", hot:0 },
+      { t:79.45, end:81.18, text:"是路线,不是现状", hot:1 },
+      { t:82.02, end:83.28, text:"我做这一整个连载", hot:0 },
+      { t:83.42, end:84.15, text:"就守一条:", hot:0 },
+      { t:84.29, end:85.9, text:"写成真实记录,是内容", hot:1 },
+      { t:86.04, end:88.0, text:"写成效果炸裂,就是元叙事", hot:1 },
+      { t:89.09, end:89.95, text:"我不求它多牛", hot:0 },
+      { t:90.09, end:90.94, text:"也不求这条爆", hot:0 },
+      { t:91.08, end:92.93, text:"我求的是——真往前走一步", hot:0 },
+      { t:93.07, end:94.26, text:"和真能一起造的人", hot:1 },
+      { t:94.4, end:95.59, text:"你也在折腾这个?", hot:0 },
+      { t:95.73, end:96.42, text:"评论区,见", hot:1 }
+    ];
+    const sub = document.getElementById("sub");
+    const tl = gsap.timeline();
+    lines.forEach((line) => {
+      tl.call(() => { sub.textContent = line.text; sub.classList.toggle("hot", !!line.hot); }, [], line.t);
+      tl.fromTo(sub, { opacity:0, y:8 }, { opacity:1, y:0, duration:0.16 }, line.t);
+      tl.to(sub, { opacity:0, duration:0.16 }, line.end - 0.16);
+    });
+    tl.to({}, { duration:0.05 }, 97.156);
+    registerTimeline(tl);
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
+  </script>
+</body>
+</html>

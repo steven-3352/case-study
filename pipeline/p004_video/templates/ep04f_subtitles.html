@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <script src="../shared/gsap.min.js"></script>
+  <script src="../shared/gsap_helpers.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:1080px; height:1920px; background:transparent !important; overflow:hidden; }
+    .sub {
+      position:absolute; left:60px; right:60px; bottom:132px; text-align:center;
+      font-family:"PingFang SC","Heiti SC",sans-serif; font-weight:900;
+      font-size:58px; line-height:1.3; color:#fff; letter-spacing:1px; padding:0 20px;
+      text-shadow:-4px -4px 0 #000,4px -4px 0 #000,-4px 4px 0 #000,4px 4px 0 #000,
+        -4px 0 0 #000,4px 0 0 #000,0 -4px 0 #000,0 4px 0 #000,0 0 26px rgba(0,0,0,.95);
+      opacity:0;
+    }
+    .sub.hot { color:#ff5a5f; }
+  </style>
+</head>
+<body>
+  <div class="sub" id="sub"></div>
+  <script>
+    const lines = [
+      { t:0.0, end:1.86, text:"管 AI 最大的坑", hot:0 },
+      { t:2.0, end:3.41, text:"别把它当一个人", hot:0 },
+      { t:3.55, end:5.41, text:"我把它当一整个团队", hot:1 },
+      { t:6.1, end:7.07, text:"上集说过", hot:0 },
+      { t:7.21, end:9.86, text:"落地第一步不是写代码", hot:0 },
+      { t:10.0, end:12.64, text:"我先撞上个更蠢的问题", hot:0 },
+      { t:12.78, end:13.76, text:"我的规矩", hot:0 },
+      { t:13.9, end:15.43, text:"散得到处都是", hot:1 },
+      { t:15.57, end:17.38, text:"我自己都找不着", hot:0 },
+      { t:17.52, end:18.49, text:"它更别提", hot:1 },
+      { t:19.08, end:20.28, text:"我一拍脑袋", hot:0 },
+      { t:20.42, end:22.7, text:"与其记哪个文件放啥", hot:0 },
+      { t:22.84, end:24.58, text:"不如立一条规矩", hot:0 },
+      { t:24.72, end:27.53, text:"我只对 3 个头儿说话", hot:1 },
+      { t:28.12, end:29.03, text:"参谋长", hot:1 },
+      { t:29.17, end:31.84, text:"管我是谁、往哪走", hot:0 },
+      { t:31.98, end:32.54, text:"前台", hot:1 },
+      { t:32.68, end:36.4, text:"指路 + 记录归档体检", hot:0 },
+      { t:36.54, end:37.8, text:"项目经理", hot:1 },
+      { t:37.94, end:40.61, text:"管在办项目、派活", hot:0 },
+      { t:40.75, end:43.06, text:"仨人,各带一队", hot:0 },
+      { t:43.75, end:44.65, text:"最爽的是", hot:0 },
+      { t:44.79, end:46.47, text:"我只跟这仨说话", hot:0 },
+      { t:46.61, end:48.81, text:"他们自动把活派下去", hot:1 },
+      { t:48.95, end:51.16, text:"研究员、史官、门卫", hot:0 },
+      { t:51.3, end:52.98, text:"我不用记谁管谁", hot:1 },
+      { t:53.62, end:55.32, text:"这不是我瞎画的", hot:0 },
+      { t:55.46, end:57.69, text:"它自己长出的关系图", hot:0 },
+      { t:57.83, end:61.12, text:"25 节点 · 72 条线", hot:0 },
+      { t:61.26, end:63.49, text:"枢纽是参谋长和前台", hot:0 },
+      { t:63.63, end:65.34, text:"没有一个孤立点", hot:1 },
+      { t:65.48, end:66.39, text:"乱文件夹", hot:0 },
+      { t:66.53, end:68.5, text:"真变成了一支队伍", hot:1 },
+      { t:69.24, end:71.78, text:"还有条边界我写死了", hot:0 },
+      { t:71.92, end:74.17, text:"每个项目平行独立", hot:0 },
+      { t:74.31, end:75.66, text:"不塞进大脑", hot:0 },
+      { t:75.8, end:77.75, text:"大脑只留个门牌", hot:1 },
+      { t:77.89, end:78.95, text:"记住这条", hot:0 },
+      { t:79.09, end:81.33, text:"它后面救了我一命", hot:1 },
+      { t:82.17, end:84.42, text:"团队,是搭好了", hot:0 },
+      { t:84.56, end:87.15, text:"可它还是嘴上答应", hot:0 },
+      { t:87.29, end:88.52, text:"背地敷衍", hot:1 },
+      { t:88.66, end:90.22, text:"组织能治乱", hot:0 },
+      { t:90.36, end:91.59, text:"治不了骗", hot:1 },
+      { t:91.73, end:95.0, text:"下集给它上 4 道锁", hot:1 }
+    ];
+    const sub = document.getElementById("sub");
+    const tl = gsap.timeline();
+    lines.forEach((line) => {
+      tl.call(() => { sub.textContent = line.text; sub.classList.toggle("hot", !!line.hot); }, [], line.t);
+      tl.fromTo(sub, { opacity:0, y:8 }, { opacity:1, y:0, duration:0.16 }, line.t);
+      tl.to(sub, { opacity:0, duration:0.16 }, line.end - 0.16);
+    });
+    tl.to({}, { duration:0.05 }, 95.44);
+    registerTimeline(tl);
+    window.__contentKey = function () {
+      const cs = getComputedStyle(sub);
+      if (parseFloat(cs.opacity) <= 0.001) return "blank";
+      return sub.textContent + "|" + cs.opacity + "|" + cs.transform;
+    };
+  </script>
+</body>
+</html>

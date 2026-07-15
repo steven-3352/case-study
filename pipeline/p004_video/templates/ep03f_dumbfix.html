@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="utf-8"><title>EP03 s1 · 蠢办法</title>
+<script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--ink:#e6edf3;--muted:#8b949e;--green:#3fb950;--amber:#d29922;--red:#e5484d}
+  html,body{width:1080px;height:1920px;overflow:hidden;font-family:"SF Mono","Menlo","PingFang SC",monospace;color:var(--ink)}
+  .stage{position:relative;width:1080px;height:1920px;background-image:url("ep01f_desk.jpg");background-size:cover;background-position:center 62%}
+  .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,14,.74),rgba(6,9,14,.46) 34%,rgba(6,9,14,.42) 55%,rgba(6,9,14,.88) 82%,rgba(6,9,14,.96))}
+  .noise{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .term{position:absolute;left:56px;right:56px;top:440px;background:rgba(13,17,23,.94);border-radius:26px;box-shadow:0 46px 110px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.05),0 1px 0 rgba(255,255,255,.1) inset}
+  .titlebar{height:90px;background:rgba(22,27,34,.92);border-bottom:1px solid #21262d;display:flex;align-items:center;padding:0 32px;gap:15px;border-radius:24px 24px 0 0}
+  .lights{display:flex;gap:14px}.lights i{width:24px;height:24px;border-radius:50%;display:block}.lights .r{background:#ff5f56}.lights .y{background:#febc2e}.lights .g{background:#27c93f}
+  .path{color:var(--muted);font-size:30px;margin-left:16px}
+  .body{padding:40px 40px 46px;display:flex;flex-direction:column;gap:24px}
+  .line{font-size:42px;line-height:1.3}
+  .prompt .caret{color:var(--green);font-weight:700;margin-right:12px}
+  .bullet{color:var(--amber);margin-right:12px}
+  .ok{color:var(--green);font-weight:800}
+  .mem{opacity:0}
+  .fail{opacity:0;font-size:44px;font-weight:800}
+  .fail .x{color:var(--red);font-weight:900;margin-right:14px}
+  .fail .t{color:#ffb3b5}
+</style></head>
+<body>
+  <div class="stage"><div class="scrim"></div><div class="noise"></div>
+    <div class="term" id="term">
+      <div class="titlebar"><div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div><div class="path">claude ~/my-ai-assistant</div></div>
+      <div class="body">
+        <div class="line prompt"><span class="caret">&gt;</span><span id="t1"></span></div>
+        <div class="line mem" id="m1"><span class="bullet">⏺</span><span class="ok">✓ Memory updated</span></div>
+        <div class="line mem" id="m2"><span class="bullet">⏺</span><span class="ok">✓ Memory updated</span> <span style="color:var(--muted)">· 又存了一遍</span></div>
+        <div class="line mem" id="m3"><span class="bullet">⏺</span><span class="ok">✓ Memory updated</span> <span style="color:var(--muted)">· 再存一遍</span></div>
+        <div class="line fail" id="fail"><span class="x">✗</span><span class="t">结果:换个会话,它还是漏。</span></div>
+      </div>
+    </div>
+  </div>
+<script>
+  const tl=gsap.timeline();
+  tl.fromTo("#term",{scale:1.0},{scale:1.012,duration:11.7,ease:"sine.inOut"},0);
+  tl.add(window.typewriter("#t1","把规矩写狠一点,再给我记一遍。",{stagger:.05}),0.4);
+  ["#m1","#m2","#m3"].forEach((m,i)=>{
+    tl.fromTo(m,{opacity:0,y:14},{opacity:1,y:0,duration:.3,ease:"back.out(1.6)"},3.0+i*2.5);
+  });
+  tl.to(["#m1","#m2","#m3"],{boxShadow:"0 0 30px rgba(63,185,80,.25)",duration:.5,yoyo:true,repeat:1},9.6);
+  tl.fromTo("#fail",{opacity:0,x:-12},{opacity:1,x:0,duration:.4,ease:"power2.out"},10.0);
+  tl.fromTo("#fail .x",{scale:2},{scale:1,duration:.3,ease:"back.out(3.5)"},10.15);
+  tl.to({},{duration:1.6},11.7);
+  registerTimeline(tl);
+</script>
+</body></html>

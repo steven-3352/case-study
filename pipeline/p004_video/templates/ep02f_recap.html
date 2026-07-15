@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EP02 s7 · 共鸣反问 + 打个1 + 勾 EP03</title>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --ink:#e6edf3; --muted:#8b949e; --green:#3fb950; --amber:#d29922; --red:#e5484d; --blue:#4c9aff; }
+  html,body{ width:1080px; height:1920px; overflow:hidden;
+    font-family:"PingFang SC","Heiti SC","SF Mono",sans-serif; color:var(--ink); }
+  .stage{ position:relative; width:1080px; height:1920px;
+    background-image:url("ep01f_desk.jpg"); background-size:cover; background-position:center 62%; }
+  .scrim{ position:absolute; inset:0;
+    background:
+      radial-gradient(120% 55% at 50% 26%, rgba(76,154,255,.06), transparent 55%),
+      linear-gradient(180deg, rgba(6,9,14,.84) 0%, rgba(6,9,14,.62) 34%, rgba(6,9,14,.6) 60%, rgba(6,9,14,.9) 88%, rgba(6,9,14,.98) 100%); }
+  .noise{ position:absolute; inset:0; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  /* 反问大字 */
+  .ask{ position:absolute; left:64px; right:64px; top:340px; text-align:center;
+    font-size:92px; font-weight:900; line-height:1.16; letter-spacing:2px;
+    text-shadow:0 6px 30px rgba(0,0,0,.85); opacity:0; }
+  .ask b{ color:var(--amber); }
+  /* 憋屈共鸣小字 */
+  .feel{ position:absolute; left:90px; right:90px; top:640px; text-align:center;
+    font-size:44px; font-weight:800; color:#c9d1d9; line-height:1.32; opacity:0;
+    text-shadow:0 3px 18px rgba(0,0,0,.85); }
+  .feel b{ color:var(--red); }
+
+  /* 评论区互动条 · 打个1 */
+  .commentbar{ position:absolute; left:100px; right:100px; top:820px;
+    background:rgba(13,17,23,.92); border:2px solid #30363d; border-radius:26px;
+    padding:30px 34px; box-shadow:0 26px 70px rgba(0,0,0,.6); opacity:0; }
+  .commentbar .row{ display:flex; align-items:center; gap:22px; }
+  .commentbar .av{ width:70px; height:70px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,#4c9aff,#3fb950); display:grid; place-items:center; font-size:40px; }
+  .commentbar .box{ flex:1; background:#0d1117; border:1px solid #30363d; border-radius:16px;
+    padding:20px 24px; font-size:46px; color:#fff; font-weight:900; }
+  .commentbar .box .cursor{ display:inline-block; width:4px; height:46px; background:#4c9aff;
+    vertical-align:-8px; margin-left:4px; }
+  .commentbar .send{ flex:none; background:var(--blue); color:#fff; font-weight:900; font-size:38px;
+    border-radius:16px; padding:20px 30px; }
+  .commentbar .hint{ margin-top:20px; font-size:34px; color:var(--muted); text-align:center; }
+  .commentbar .hint b{ color:var(--blue); }
+
+  /* 结论 */
+  .swap{ position:absolute; left:64px; right:64px; top:1170px; text-align:center; }
+  .concl{ font-size:76px; font-weight:900; line-height:1.2; letter-spacing:1px;
+    text-shadow:0 5px 24px rgba(0,0,0,.85); opacity:0; }
+  .concl b{ color:var(--green); }
+  .punch{ margin-top:26px; font-size:96px; font-weight:900; color:#fff; opacity:0; letter-spacing:2px;
+    text-shadow:0 5px 26px rgba(0,0,0,.9); }
+  .punch b{ color:var(--red); }
+
+  /* EP03 追更卡 */
+  .next{ position:absolute; left:90px; right:90px; top:1500px;
+    background:linear-gradient(135deg, rgba(76,154,255,.16), rgba(13,17,23,.92));
+    border:2px solid var(--blue); border-radius:26px; padding:30px 36px;
+    box-shadow:0 26px 70px rgba(0,0,0,.6); opacity:0; }
+  .next .tag{ font-size:30px; font-weight:900; color:var(--blue); letter-spacing:3px; font-family:"SF Mono",monospace; }
+  .next .ttl{ margin-top:12px; font-size:58px; font-weight:900; color:#fff; display:flex; align-items:center; gap:18px; }
+  .next .ttl .arw{ color:var(--blue); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scrim"></div><div class="noise"></div>
+
+    <div class="ask" id="ask">你是不是,<br><b>也被它这么糊弄过?</b></div>
+
+    <div class="feel" id="feel">那种明明交了活、<br>你却<b>不敢信</b>的憋屈……</div>
+
+    <div class="commentbar" id="cbar">
+      <div class="row">
+        <div class="av">🙋</div>
+        <div class="box" id="cbox"><span id="ctype"></span><span class="cursor" id="ccur"></span></div>
+        <div class="send" id="csend">发送</div>
+      </div>
+      <div class="hint" id="chint">评论区打个 → <b>『1』</b> 让我看看,不止我一个</div>
+    </div>
+
+    <div class="swap">
+      <div class="concl" id="concl">错的,从来<b>不是它笨</b></div>
+      <div class="punch" id="punch">是我,<b>方法蠢</b></div>
+    </div>
+
+    <div class="next" id="next">
+      <div class="tag">下 一 条 · EP03</div>
+      <div class="ttl"><span class="arw">▶</span><span>不靠它自觉 · 我来治它</span></div>
+    </div>
+  </div>
+<script>
+  const tl = gsap.timeline();
+  // 反问砸实(VO"你是不是也被它这么糊弄过")
+  tl.fromTo("#ask", { opacity:0, scale:0.9, y:20 }, { opacity:1, scale:1, y:0, duration:0.55, ease:"back.out(1.4)" }, 1.6);
+  tl.to("#ask b", { scale:1.06, duration:0.45, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 2.3);
+  // 憋屈共鸣(VO"那种明明交了活你却不敢信的憋屈")
+  tl.fromTo("#feel", { opacity:0, y:16 }, { opacity:1, y:0, duration:0.5, ease:"power2.out" }, 4.4);
+  // 评论互动条滑入 + 打"1"(VO"评论区打个1")
+  tl.fromTo("#cbar", { opacity:0, y:40 }, { opacity:1, y:0, duration:0.5, ease:"power3.out" }, 8.0);
+  tl.add(window.typewriter("#ctype", "1", { stagger:0.1 }), 8.9);
+  tl.to("#ccur", { opacity:0, duration:0.4, repeat:16, yoyo:true, ease:"steps(1)" }, 8.9);
+  tl.to("#csend", { backgroundColor:"#3fb950", scale:1.06, duration:0.2, yoyo:true, repeat:1 }, 10.2);
+  tl.to("#chint b", { scale:1.16, duration:0.5, yoyo:true, repeat:2, ease:"sine.inOut", transformOrigin:"center" }, 10.6);
+  // 认命 → 结论"错的从来不是它笨"(VO"靠它自觉我认命了/错的不是它笨")
+  tl.to(["#ask","#feel","#cbar"], { opacity:0.28, duration:0.5 }, 13.8);
+  tl.fromTo("#concl", { opacity:0, y:22 }, { opacity:1, y:0, duration:0.55, ease:"power3.out" }, 14.2);
+  tl.fromTo("#concl b", { scale:1.4 }, { scale:1, duration:0.4, ease:"back.out(2.8)" }, 14.7);
+  // 打脸自警"是我方法蠢"(VO"是我方法蠢")
+  tl.fromTo("#punch", { opacity:0, scale:0.82, y:18 }, { opacity:1, scale:1, y:0, duration:0.5, ease:"back.out(1.5)" }, 17.2);
+  tl.fromTo("#punch b", { scale:1.6 }, { scale:1, duration:0.42, ease:"back.out(3)" }, 17.55);
+  tl.to("#punch", { keyframes:[{ x:-7 },{ x:7 },{ x:-4 },{ x:0 }], duration:0.24 }, 17.6);
+  // EP03 追更卡
+  tl.fromTo("#next", { opacity:0, y:34, scale:0.96 }, { opacity:1, y:0, scale:1, duration:0.5, ease:"back.out(1.4)" }, 18.2);
+  tl.to("#next .arw", { x:12, duration:0.5, yoyo:true, repeat:4, ease:"sine.inOut" }, 18.8);
+  tl.to("#next", { boxShadow:"0 26px 70px rgba(0,0,0,.6),0 0 50px rgba(76,154,255,.3)", duration:0.6, yoyo:true, repeat:1 }, 19.0);
+  tl.to({}, { duration:0.6 }, 20.0);
+  registerTimeline(tl);
+</script>
+</body>
+</html>

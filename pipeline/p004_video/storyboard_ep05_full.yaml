@@ -1,0 +1,14 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  output_name: ep05_full_silent.mp4
+  voice_volume: 1.0
+  music_volume: 0.0
+scenes:
+  - {id: ep05_s0_hook,    type: html, template: ep05f_hook.html,    duration: 8.48,  data: {}}
+  - {id: ep05_s1_seed,    type: html, template: ep05f_seed.html,    duration: 11.83, data: {}}
+  - {id: ep05_s2_locks12, type: html, template: ep05f_locks12.html, duration: 22.40, data: {}}
+  - {id: ep05_s3_locks34, type: html, template: ep05f_locks34.html, duration: 22.83, data: {}}
+  - {id: ep05_s4_honest,  type: html, template: ep05f_honest.html,  duration: 8.02,  data: {}}
+  - {id: ep05_s5_land,    type: html, template: ep05f_land.html,    duration: 10.92, data: {}}
