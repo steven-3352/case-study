@@ -20,7 +20,7 @@
 - **导出风险:** HTML→PNG序列→ffmpeg合成mp4,是P004已验证的标准链路(见 `pipeline/p004_video/build.py`),导出风险低
 - **可行性结论:** ✅ 可行,复用项目已有 GSAP skills(timeline 技法),不需要新安装依赖
 - **任务清单(交渲染执行方):**
-  1. 写一个独立 HTML 场景(纯黑`#0a0e14`底,mono字体,4行指令文字初始opacity:0)
+  1. 写一个独立 HTML 场景(暖白`#faf9f6`底,mono字体,4行指令文字初始opacity:0)
   2. GSAP timeline:逐行 `fromTo(opacity:0→1, x:偏移→0)`,每行间隔约0.6-0.7s(3s内4行完整显现留余量)
   3. 截帧(`capture_frames.py` 确定性HTML截帧)→ PNG序列 → ffmpeg 合成进④片段
   4. 末尾停留至0:21(指令卡完整静止段),给观众截图时间
@@ -34,7 +34,7 @@
 - **导出风险:** 低——沿用已验证的HTML→PNG序列→ffmpeg合成链路;**唯一风险点不变:滚动的timeline总时长必须对齐VO精确时长**,若VO时长变化只需改一个duration参数重新截帧(成本远低于原录制方案的"重录")
 - **可行性结论:** ✅ 可行,技术路线比原计划更简单更低风险;**执行顺序约束不变但代价降低**:仍需VO精确时长后再定timeline参数,但改参数成本从"重新录制"降为"改一行配置重新截帧"
 - **任务清单:**
-  1. 建自绘长文卡片HTML模板(surface底`#141922`,body字级,真实文本填入,GSAP timeline 驱动滚动+9s急停blur)
+  1. 建自绘长文卡片HTML模板(surface底`#eeece5`,body字级,真实文本填入,GSAP timeline 驱动滚动+9s急停blur)
   2. 先出VO音频(见 `audio_plan.yaml`),拿到②③段精确时长
   3. 按精确时长设置 timeline 总 duration + 9s急停触发点参数
   4. `capture_frames.py` 截帧 → PNG序列 → 按 build.py 标准链路合成
@@ -58,7 +58,7 @@
 | 曾考虑 | 排除理由 |
 |---|---|
 | ②③⑤全部走"真实连续录屏"(不用HTML控速,直接肉眼手动滚动录制) | 手动滚动速度不可控,无法精确对齐9s帧锁接缝点和VO时长;改用 HTML+GSAP timeline 确定性控速滚动(`capture_frames.py`机制,见动效2),同样是"真实文档内容"但节奏完全可控、可复现 |
-| ④用 Remotion TerminalScene(OpenMontage screen-demo synthetic_terminal) | 已在 form_competition/openmontage_brief 判定:终端窗口皮肤与本条"纯黑指令卡"设计冲突,且指令是自然语言非CLI命令,套用牵强 |
+| ④用 Remotion TerminalScene(OpenMontage screen-demo synthetic_terminal) | 已在 form_competition/openmontage_brief 判定:终端窗口皮肤与本条"浅色指令卡"设计冲突,且指令是自然语言非CLI命令,套用牵强 |
 | ⑤分屏用3D翻转转场 | catalog.yaml"eng�3d"家族tech_risk=高且需声明数据杠杆,本条分屏对比的数据杠杆是"信任·completion_rate"(直觉理解为主),3D炫技不服务这个杠杆,反而分散注意力 |
 | ②用GSAP camera pan模拟滚动(即对一张静态长文截图做Ken Burns运镜特效,而非真实滚动渲染文本) | 这是"伪装运镜"而非"真实内容动了"——GSAP camera pan 对**静态截图**做平移缩放,画面里的文字并未真实滚动,只是镜头在动;而动效2采用的方案是 GSAP timeline 驱动**真实渲染文本 DOM 的 scrollTop**,文字本身在滚动,内容 100% 真实可核对。两者都用了GSAP,但前者是"演动感"、后者是"真的在滚",本条采用后者,排除前者 |
 

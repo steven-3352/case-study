@@ -1,0 +1,131 @@
+# 声音方案 · audio_plan.yaml · T043「AI 关掉就失忆?3 步让它永久记住你」
+# 工种: 声音设计师 · 视频形态必跑
+#
+# 本条视觉路线复用 publish/2026-W30/S4系列共享视觉基础设施.md;
+# VO 硬约束(真人声,禁TTS)对全系列成立(同一账号人设),但本条录制内容/emotion_arc/sfx事件点独立设计,不复制T040参数。
+#
+# ── 0. 入口必读(开工前打勾) ─────────────────────────────────────────
+# [x] SYSTEM refs: §3.3 音画三件套 · §2.4b 视频硬门(配音+BGM+字幕)
+# [x] template refs: 本节点已完成 script/T043_录音提词稿.md(定稿版,38.5s·7段,含逐句怎么念)· design/retention_beat_sheet.md · design/motion_storyboard.md(逐秒10字段) · design/storyboard.yaml
+# [x] memory refs: **feedback_no-robot-voice-ontopic-assets(绝对不用机器人/TTS配音)** · feedback_no-synth-bgm(禁ffmpeg合成假BGM/假sfx)
+# [x] 姊妹条 refs: 复用T040的VO硬约束/工种结构,录制内容/sfx事件独立设计
+# [x] 能力清单 refs: FREESOUND_API_KEY 已配(sfx可真实检索下载,非合成)
+# [x] ⚠️ 工作向框定专项:recording_guide 末尾已加"念的时候语气注意别念出暧昧感"提醒(见下),与录音提词稿红线自查呼应
+#
+# ⚠️ 本文件唯一无法由我(Agent)独立完成的环节:VO 必须是真人声,需要用户本人录制。
+#    下方 voice 字段按项目铁律标注为"待真人录制",不填 TTS provider——这不是遗漏,是硬约束。
+
+content_id: T043
+topic_id: T043
+
+voice:
+  engine: human_real_voice   # 硬约束(非模板默认的 minimax/edge):memory feedback_no-robot-voice-ontopic-assets
+  status: pending_user_recording   # 阻塞项:需用户本人录制,Agent 无法代劳
+  persona_fit: |
+    T043 与系列同一账号人设(真实把AI当工作参谋的人),本条是"设备切换后AI失忆"的真实经历转述——
+    第一人称口吻的干货分享,真人声比TTS更贴合"这是我踩过的坑"的可信度,不只是规避红线,也是加分项。
+  script_path: script/T043_录音提词稿.md   # 定稿版,含逐句【怎么念】语气/停顿/重音标注,可直接当录音提词稿
+  recording_guide: |
+    按 T043_录音提词稿.md 各段【怎么念】逐句录(累计时间轴,总时长严格卡在38.5s上沿,语速可比其他条略快):
+    ①0:00-6.5s "用AI干活图的是它记性比人好"平铺自嘲 + 引号内AI的话"没记录不能装记得"用略微生硬机械停顿语气念(制造AI拒绝装懂的反差)
+    ②6.5-12.3s "不是AI坏"放慢加重音带恍然大悟感 + 后半句"两套不相通的记忆互相看不见"语速略快像顺嘴解释
+    ③12.3-17.3s 平稳陈述,语气从"吐槽"转"分析",为解法铺垫
+    ④17.3-27.0s "3步让AI记住你"提速加重像列清单;"第一""第二"处各停顿约0.3-0.5s,给字幕/画面切换(清单卡浮现)留呼吸点——对应 storyboard.yaml 04场景20.8-22.8s的卡片停留窗口
+    ⑤27.0-31.0s 语气干脆利落,"别指望"三字略加重带提醒/警示感
+    ⑥31.0-35.3s 前半句"丢失概率能大幅降低"自信肯定;"但没人敢保证"转诚实、略压低语调,不吹牛(红线安全句,不可念得比文案更绝对)
+    ⑦35.3-38.5s 上扬疑问语气,轻松收尾,邀请互动而非说教
+    ⚠️ **T043专项提醒(本条最高优先级,录之前和录的时候都要注意)**:全篇聚焦"设备/记忆文件/信息同步"这类工作向词汇,
+    念的时候语气务必保持"分享干货/解决问题"的松弛感,**不要念出暧昧感或深情感**——尤其是①段AI回复"没记录不能装记得"
+    和⑦段"你的AI换个地方还认你吗"这两处,容易被下意识带出"被抛弃/被遗忘的委屈语气"或"重逢式深情语气",
+    正确的语气基准是"技术人吐槽机制bug"而非"情感倾诉",录完建议自己回放一遍专门听这两处有没有跑偏。
+  target_duration_s: 38.5    # 严格对齐口播稿已给7段秒数(6.5+5.8+5.0+9.7+4.0+4.3+3.2),卡在区间上沿
+  emotion_arc: 自嘲吐槽(①) → 恍然大悟(②) → 冷静分析(③) → 清单节奏感(④) → 干脆提醒(⑤) → 自信转诚实(⑥) → 轻松发问(⑦)
+
+bgm:
+  enabled: off
+  mood: neutral
+  genre_hint: null
+  source: null
+  volume: 0
+  fade_in_s: 0
+  fade_out_s: 0
+  loop: false
+  benchmark_ref: null
+  hook_0_3s: null
+  notes: |
+    密VO演示/知识型判定:38.5s全片VO连续覆盖,7段之间仅有自然换气停顿(每段间约0.2s,6处过渡合计约1.2s),
+    无任何单处停顿≥3s,VO活跃时长约37.3s/38.5s≈96.9%,远超85%门槛,亦不存在T040那种独立"1s急停死区"或
+    "2s指令卡停留死区"式的设计性静默(本条GSAP动效切点均伴随VO持续,不需要额外静默段落)。
+    按CLAUDE.md §3.3"密VO演示/知识型(VO覆盖≥85%+无3s+死区)→默认无BGM"判定为off,与T040一致(S4系列共性)。
+    段落切换(6处)靠sfx whoosh撑节奏感,不靠BGM。
+    外发命名:*_no_bgm.mp4 直接外发,非预览件。
+
+sfx:
+  enabled: true
+  formula_check:
+    ambient_bed: true       # 全片极轻的工作场景环境垫音,对齐design_language"克制"气质
+    riser_before_hit: true  # 10.8s信号撞墙前置riser、26.9s左右风险条落点前置riser(见下)
+    hit_on_key_moment: true # 10.8s信号撞墙断连 + 15.0s红✕落点 + 24.9s重连成功 + 29.0s三步汇总卡定格 均有hit
+  gain_ref_db: -12
+  events:
+    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 38.5, gain_db: -22, src_rel: assets/sfx/ambient/TBD_room_or_office_tone.wav, note: "全片极轻氛围垫音,工作场景/克制调性;需Freesound检索'minimal office ambience'/'quiet room tone'CC0素材,禁ffmpeg合成"}
+    - {sid: sfx02, kind: whoosh, t_start: 3.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "①设备切换(手机图标→电脑图标)"}
+    - {sid: sfx03, kind: tick, t_start: 4.7, duration: 0.3, gain_db: -13, src_rel: assets/sfx/tick/TBD_message_notify.wav, note: "①AI系统消息条浮现落点,克制的通知感非社交提示音"}
+    - {sid: sfx04, kind: whoosh, t_start: 6.5, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "①→②切换,双面板滑入"}
+    - {sid: sfx05, kind: riser, t_start: 10.0, duration: 0.8, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "②信号点飞行→10.8s撞墙前置riser"}
+    - {sid: sfx06, kind: hit, t_start: 10.8, duration: 0.5, gain_db: -10, src_rel: assets/sfx/hit/TBD_soft_block_hit.wav, note: "②信号撞'⊘'断连符号消散打点(克制的'噗'一声,非爆炸感)"}
+    - {sid: sfx07, kind: whoosh, t_start: 12.3, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "②→③切换,局部放大聚焦"}
+    - {sid: sfx08, kind: hit, t_start: 15.0, duration: 0.4, gain_db: -10, src_rel: assets/sfx/hit/TBD_soft_stamp_hit.wav, note: "③远处灰置目标+红✕定格打点,强化'没做到'的视觉落点"}
+    - {sid: sfx09, kind: whoosh, t_start: 17.3, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "③→④切换,标题砸入"}
+    - {sid: sfx10, kind: tick, t_start: 18.8, duration: 0.3, gain_db: -13, src_rel: assets/sfx/tick/TBD_card_pop.wav, note: "④第①步卡片浮现落点"}
+    - {sid: sfx11, kind: tick, t_start: 22.8, duration: 0.3, gain_db: -13, src_rel: assets/sfx/tick/TBD_card_pop.wav, note: "④第②步卡片浮现落点(与sfx10同音色,呼应清单节奏感)"}
+    - {sid: sfx12, kind: hit, t_start: 24.9, duration: 0.6, gain_db: -10, src_rel: assets/sfx/hit/TBD_positive_connect_chime.wav, note: "④手机—电脑连接线虚线转实线'重连成功'打点,与sfx06(断连)形成音色对照——同一动作母题的正反两次呼应,是本条独立设计的音画因果闭环"}
+    - {sid: sfx13, kind: tick, t_start: 27.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/tick/TBD_card_pop.wav, note: "⑤第③步卡片浮现落点"}
+    - {sid: sfx14, kind: hit, t_start: 29.0, duration: 0.5, gain_db: -9, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑤三步完整清单卡汇总定格,本条收藏物核心落点,音量可比其他hit更明显(仍不超VO-8dB)"}
+    - {sid: sfx15, kind: whoosh, t_start: 31.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑤→⑥切换,风险条场景"}
+    - {sid: sfx16, kind: riser, t_start: 32.8, duration: 0.6, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "风险条收缩过程持续到接近条尾的前置riser"}
+    - {sid: sfx17, kind: whoosh, t_start: 35.3, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑥→⑦切换,评论区mock浮入"}
+    - {sid: sfx18, kind: hit, t_start: 37.3, duration: 0.4, gain_db: -11, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑦问句焦点框描边落点,克制的确认感非重锤"}
+  note_no_diegetic_recording: |
+    本条与T040不同,全片无真实屏幕录制(raw)素材,不存在diegetic原声环节;
+    ①段AI系统消息浮现的"通知感"音效(sfx03)是设计音效而非录制原声,需明确克制音量(-13dB),
+    不可做成社交软件的清脆提示音效(避免情感陪伴联想,呼应design_language工作向框定要求)。
+
+subtitles:
+  srt_path: pending    # 待VO真人录制定稿后,按精确时间戳生成
+  burn: true
+  style: |
+    对齐 D01-让AI说真话致命漏洞/design/design_language.md 字体层级(本系列复用同一套token):
+    display字级(72-88px)用于①钩子AI回复大字punch/④"3步让AI记住你"标题/⑥"丢失概率↓";
+    body字级(30-34px)用于常规字幕行;mono/data字级(32-36px)仅用于④⑤清单卡本体(非常规字幕)。
+    主画面叠字,ink色(#1c1e22)深字,不用纯黑刺眼。
+  hook_first_3s: true
+
+outputs:
+  video_raw: publish/2026-W30/D04-AI失忆/成片/T043_raw.mp4          # 无BGM工程件(本条bgm本就off,raw=publish同一份)
+  video_publish: publish/2026-W30/D04-AI失忆/成片/T043_no_bgm.mp4   # 外发命名:*_no_bgm.mp4 直接外发(非预览件)
+  vo_mp3: publish/2026-W30/D04-AI失忆/成片/audio/T043_vo_human.mp3  # 真人录制,非TTS产物
+
+qc:
+  - "VO 必须是真人声,任何 TTS(含 MiniMax 情绪版)产出一律拒收,录制前二次确认(memory feedback_no-robot-voice-ontopic-assets)"
+  - VO 清晰可辨,前 6s RMS 落在 -13~-23 dB
+  - bgm.enabled=off:全程无音乐是设计,已在 notes 记明密VO依据(VO覆盖≈96.9%,无3s+死区)
+  - "sfx 硬门:sfx.enabled=true 且 formula_check 三项全为 true(本条已满足)"
+  - "sfx 覆盖:每次场景切换(6处)均有 whoosh;关键落点(10.8s断连/15.0s红✕/24.9s重连/29.0s清单汇总)均有 hit;已核对无遗漏"
+  - "sfx 音量:所有 events[].gain_db ≤ -9(本条最响的29.0s hit=-9dB,符合)"
+  - "sfx 合规:所有 src_rel 标注为 TBD_ 前缀,production阶段须真实走 Freesound CC0 检索,严禁 ffmpeg aevalsrc/sine 合成占位——这是计划文档,不是已完成的素材清单"
+  - "本条无真实录制(raw)素材,①段系统消息通知音需为设计sfx而非社交软件提示音效,见 note_no_diegetic_recording"
+  - 前 3s 钩子字幕可见,与 design_language 字体层级一致
+  - 外发使用 video_publish(T043_no_bgm.mp4),非 video_raw
+  - "**T043专项红线**:录音回放后需专门检查①段AI回复语气 与 ⑦段CTA问句语气,确认未念出'被抛弃式委屈感'或'重逢式深情感',字幕文字亦不得在渲染时被替换为更煽情的措辞"
+  - "**T043专项红线**:画面/字幕全程不出现'reddit'及任何具体真实项目/平台名称,概括为'某次临时对话'/'某个方向'"
+
+blocking_dependency:
+  what: VO 真人录制(voice.status=pending_user_recording)
+  who: 用户本人(persona_anchor要求第一人称真实经历转述,不可代录/不可TTS)
+  why_blocking: |
+    与T040不同,本条 storyboard.yaml 各 scene 的 duration 已锁定对齐口播稿给定秒数(非待VO确定),
+    真正阻塞的是:GSAP timeline 内部子段切点(②信号撞墙精确帧、④⑤清单卡逐行显现精确间隔、⑥风险条收缩曲线)
+    需要按真人录制的实际语速/停顿位置做微调,才能让画面变化与VO重音/停顿精确对齐(见 recording_guide 中
+    "第一""第二"停顿处对应清单卡浮现窗口的标注)。这是"参数微调"而非"结构性阻塞",风险低于T040。
+  next_action: 用户按 script/T043_录音提词稿.md + 本文件 voice.recording_guide 录制7段VO,回放后重点自查专项红线两处
