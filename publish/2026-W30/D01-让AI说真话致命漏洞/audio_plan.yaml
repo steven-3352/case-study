@@ -1,0 +1,111 @@
+# 声音方案 · audio_plan.yaml · T040 让AI说真话·致命漏洞法
+# 工种: 声音设计师 · 视频形态必跑
+#
+# ── 0. 入口必读(开工前打勾) ─────────────────────────────────────────
+# [x] SYSTEM refs: §3.3 音画三件套 · §2.4b 视频硬门(配音+BGM+字幕)
+# [x] template refs: 本节点已完成 script/脚本锦标赛_口播定稿v1.md(v4采用)· design/retention_beat_sheet.md(v3同步)· design/motion_storyboard.md(逐秒9字段)
+# [x] memory refs: **feedback_no-robot-voice-ontopic-assets(绝对不用机器人/TTS配音,连MiniMax情绪版都被一票否决)** · feedback_no-synth-bgm(禁ffmpeg合成假BGM/假sfx)
+# [x] 姊妹条 refs:按用户 2026-07-16 要求,本条不参照任何历史选题的 audio_plan 做借鉴
+# [x] 能力清单 refs: FREESOUND_API_KEY 已配(sfx可真实检索下载,非合成)
+#
+# ⚠️ 本文件唯一无法由我(Agent)独立完成的环节:VO 必须是真人声,需要用户本人录制。
+#    下方 voice 字段按项目铁律标注为"待真人录制",不填 TTS provider——这不是遗漏,是硬约束。
+
+content_id: T040
+topic_id: T040
+
+voice:
+  engine: human_real_voice   # 硬约束(非模板默认的 minimax/edge):memory feedback_no-robot-voice-ontopic-assets
+                              # 用户原话"绝对不用机器人配音"——TTS(含MiniMax情绪版)一票否决,EP02曾因此被判"很差"
+  status: pending_user_recording   # 阻塞项:需用户本人录制,Agent 无法代劳
+  persona_fit: |
+    T040 的 persona_anchor 是"一个真实把AI当参谋、被AI当场挑出过致命漏洞的人"(topic_brief.md skin)——
+    第一人称真实证言的内容,真人声比任何TTS都更贴合"这是真实经历"的核心主张,不只是规避红线,也是加分项。
+  script_path: script/脚本锦标赛_口播定稿v1.md   # v4 采用版(见文件§八),含逐句【怎么念】语气/停顿/重音标注,可直接当录音提词稿
+  recording_guide: |
+    按 v4 各段【怎么念】逐句录:
+    ①"差点冲动辞职"重顿+"三千字"上挑自嘲(4s)
+    ②"甩回来三千多字"快念被砸到感+"不是没看出问题"压低笃定+"埋进废话里"一字一顿(5s)
+    ③(v4新)"跟体检报告一样"平述+"写得挺全"轻带+"最想知道的那句"停半拍+"它没说"落地(5s)
+    ④"后来我多打一句"轻叙事+指令部分放慢逐句咬清,方便观众截屏跟读(7s)
+    ⑤"真闭嘴了"解气轻快+三句放慢像被戳穿+"没验证过"钉重音(8s)
+    ⑥"别啥事都这么用"转沉稳像叮嘱朋友(5s)
+    ⑦"拿走"干脆+结尾问句上扬真诚发问(4s)
+  target_duration_s: 38      # 按v4字数校验(212字·5.5-6字/s),与 retention_beat_sheet 逐段时间轴对齐
+  emotion_arc: 自嘲后怕(①) → 冷静揭穿(②③) → 叙事沉稳(④) → 解气打脸(⑤) → 温和叮嘱(⑥) → 真诚发问(⑦)
+
+bgm:
+  enabled: off
+  mood: neutral
+  genre_hint: null
+  source: null
+  volume: 0
+  fade_in_s: 0
+  fade_out_s: 0
+  loop: false
+  benchmark_ref: null
+  hook_0_3s: null
+  notes: |
+    密VO演示/知识型判定:38s全片仅2处VO停顿(0:09-0:10急停1s、0:19-0:21指令卡停留2s),
+    均<3s死区门槛;VO连续覆盖时长约35s/38s≈92%,远超85%门槛。
+    按CLAUDE.md §3.3"密VO演示/知识型(VO覆盖≥85%+无3s+死区)→默认无BGM"判定为 off。
+    两处停顿靠 sfx(急停用hit·指令卡停留用ambient持续)撑氛围,不靠BGM。
+    外发命名:*_no_bgm.mp4 直接外发,非预览件。
+
+sfx:
+  enabled: true
+  formula_check:
+    ambient_bed: true       # 全片极轻的证据感环境垫音(见events ambient01),对齐design_language"克制"气质
+    riser_before_hit: true  # 9s急停前置riser、26s金句放大前置riser
+    hit_on_key_moment: true # 9s急停锁定 + 26s金句放大 + 34s CTA指令卡再现 均有hit
+  gain_ref_db: -12
+  events:
+    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 38.0, gain_db: -22, src_rel: assets/sfx/ambient/TBD_room_or_office_tone.wav, note: "全片极轻氛围垫音,证据/克制调性;需 Freesound 检索'minimal office ambience'/'quiet room tone'CC0素材,禁ffmpeg合成"}
+    - {sid: sfx02, kind: whoosh, t_start: 4.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "①→②切换(夸夸截图→长文滚动)"}
+    - {sid: sfx03, kind: tick, t_start: 4.0, duration: 4.5, gain_db: -15, src_rel: assets/sfx/tick/TBD_scroll_tick.wav, note: "②滚动过程持续轻微tick,强化'字好多'压迫感,音量克制不抢VO"}
+    - {sid: sfx04, kind: riser, t_start: 7.5, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "②滚动减速→9s急停前置riser"}
+    - {sid: sfx05, kind: hit, t_start: 9.0, duration: 0.5, gain_db: -10, src_rel: assets/sfx/hit/TBD_soft_freeze_hit.wav, note: "9s帧锁急停定格打点(非爆炸感,克制的'咔'一声)"}
+    - {sid: sfx06, kind: whoosh, t_start: 14.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "③→④切换"}
+    - {sid: sfx07, kind: tick, t_start: 16.0, duration: 3.0, gain_db: -14, src_rel: assets/sfx/tick/TBD_typewriter_click.wav, note: "④GSAP逐行打字机每行落字配click,呼应④本身就是typing动效"}
+    - {sid: sfx08, kind: whoosh, t_start: 21.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "④→⑤切换,分屏初现"}
+    - {sid: sfx09, kind: riser, t_start: 25.0, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "左侧回顾→右侧金句放大前置riser"}
+    - {sid: sfx10, kind: hit, t_start: 26.0, duration: 0.8, gain_db: -9, src_rel: assets/sfx/hit/TBD_impact_stinger.wav, note: "全片完播顶点·金句'你要卖的能力自己没验证过'放大落点,音量可比其他hit更明显(仍不超VO-8dB)"}
+    - {sid: sfx11, kind: whoosh, t_start: 29.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑤→⑥切换,反高潮承接"}
+    - {sid: sfx12, kind: hit, t_start: 34.0, duration: 0.6, gain_db: -11, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑦指令卡再现落点,克制的确认感非重锤"}
+  note_typing_flash_diegetic: |
+    0:14-0:16"真实打字闪回"是真实屏幕录制素材,其键盘敲击声/发送提示音来自录制本身的原声(diegetic),
+    不额外加合成sfx——这段声音的真实性本身就是证据的一部分,叠加设计音效反而会露馅显得是摆拍。
+
+subtitles:
+  srt_path: pending    # 待VO真人录制定稿后,按精确时间戳生成
+  burn: true
+  style: |
+    对齐 design_language.md 字体层级:display字级(72-88px)用于①钩子/⑤右侧金句大字,
+    body字级(30-34px)用于常规字幕行,mono/data字级仅用于④指令卡本体(非常规字幕)。
+    主画面叠字,ink色(#f2f4f7)微灰白,不用纯白刺眼。
+  hook_first_3s: true
+
+outputs:
+  video_raw: publish/2026-W30/D01-让AI说真话致命漏洞/成片/T040_raw.mp4          # 无BGM工程件(本条bgm本就off,raw=publish同一份)
+  video_publish: publish/2026-W30/D01-让AI说真话致命漏洞/成片/T040_no_bgm.mp4   # 外发命名:*_no_bgm.mp4 直接外发(非预览件)
+  vo_mp3: publish/2026-W30/D01-让AI说真话致命漏洞/成片/audio/T040_vo_human.mp3  # 真人录制,非TTS产物
+
+qc:
+  - "VO 必须是真人声,任何 TTS(含 MiniMax 情绪版)产出一律拒收,录制前二次确认(memory feedback_no-robot-voice-ontopic-assets)"
+  - VO 清晰可辨,前 6s RMS 落在 -13~-23 dB
+  - bgm.enabled=off:全程无音乐是设计,已在 notes 记明密VO依据(VO覆盖≈92%,两处停顿均<3s)
+  - "sfx 硬门:sfx.enabled=true 且 formula_check 三项全为 true(本条已满足)"
+  - "sfx 覆盖:每次场景切换(①→②等7处)均有 whoosh;关键金句(26s)+ CTA(34s)均有 hit;已核对无遗漏"
+  - "sfx 音量:所有 events[].gain_db ≤ -8(本条最响的26s hit=-9dB,符合)"
+  - "sfx 合规:所有 src_rel 标注为 TBD_ 前缀,表示尚未实际下载/命名,production阶段须真实走 Freesound CC0 检索,严禁 ffmpeg aevalsrc/sine 合成charge占位——这是计划文档,不是已完成的素材清单"
+  - 0:14-0:16 真实打字闪回的音效是录制原声(diegetic),不叠加合成sfx,已在 note_typing_flash_diegetic 说明
+  - 前 3s 钩子字幕可见,与 design_language 字体层级一致
+  - 外发使用 video_publish(T040_no_bgm.mp4),非 video_raw
+
+blocking_dependency:
+  what: VO 真人录制(voice.status=pending_user_recording)
+  who: 用户本人(persona_anchor要求第一人称真实证言,不可代录/不可TTS)
+  why_blocking: |
+    motion_tech_plan.md 已标注硬顺序依赖——②③"长文滚动+9s帧锁急停"的 Playwright 录制速度
+    必须按VO精确时间戳来定,不能反过来先录屏定长再配音。VO不录制,②③的录制参数无法最终确定。
+  next_action: 用户按 script/脚本锦标赛_口播定稿v1.md §八 v4版 + 本文件 voice.recording_guide 录制7段VO
