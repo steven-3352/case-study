@@ -1,0 +1,139 @@
+# 声音方案 · audio_plan.yaml · T044「我让 AI 记住昨天聊的,它翻遍说:根本没记」
+# 工种: 声音设计师 · 视频形态必跑
+#
+# 本条视觉路线复用S4系列共享基础设施(publish/2026-W30/S4系列共享视觉基础设施.md),
+# 镜头设计独立完成——本文件的 sfx 事件时间轴按本条 storyboard.yaml/motion_tech_plan.md 的
+# 独立时序编排,仅字幕字体层级 token(display/body/mono)复用 T040 design_language.md。
+#
+# ── 0. 入口必读(开工前打勾) ─────────────────────────────────────────
+# [x] SYSTEM refs: §3.3 音画三件套 · §2.4b 视频硬门(配音+BGM+字幕)
+# [x] template refs: 本节点已完成 script/T044_录音提词稿.md(定稿版,36.6s精确分段)· design/retention_beat_sheet.md · design/motion_storyboard.md(逐秒10字段)· design/storyboard.yaml
+# [x] memory refs: **feedback_no-robot-voice-ontopic-assets(绝对不用机器人/TTS配音,连MiniMax情绪版都被一票否决)** · feedback_no-synth-bgm(禁ffmpeg合成假BGM/假sfx)
+# [x] 复用 T040 audio_plan.yaml 硬约束(voice.engine=human_real_voice,禁TTS),本条录制内容/emotion_arc独立撰写
+# [x] 能力清单 refs: FREESOUND_API_KEY 已配(sfx可真实检索下载,非合成)
+# [x] **工作向框定自查:recording_guide 是否已提醒"避免暧昧感"?——见下方 voice.recording_guide 末尾专项提醒**
+#
+# ⚠️ 本文件唯一无法由我(Agent)独立完成的环节:VO 必须是真人声,需要用户本人录制。
+#    下方 voice 字段按项目铁律标注为"待真人录制",不填 TTS provider——这不是遗漏,是硬约束。
+
+content_id: T044
+topic_id: T044
+
+voice:
+  engine: human_real_voice   # 硬约束(非模板默认的 minimax/edge):memory feedback_no-robot-voice-ontopic-assets
+                              # 用户原话"绝对不用机器人配音"——TTS(含MiniMax情绪版)一票否决
+  status: pending_user_recording   # 阻塞项:需用户本人录制,Agent 无法代劳
+  persona_fit: |
+    T044 的 persona_anchor 延续 S4 系列"一个真实把AI当参谋、被AI亲身验证过局限的人"——
+    本条是第一人称真实事件复盘("我造它就是为了不忘事,它自己先漏了"),真人声的自嘲感、
+    停顿感、释然感是TTS无法复刻的核心情绪载体,尤其③段"情绪最重的一句"必须靠真人语气
+    的细微停顿和笑意才能立住,这是本条比T040/T043更依赖"真人声演绎精度"的地方。
+  script_path: script/T044_录音提词稿.md   # 定稿版,含逐句【怎么念】语气/停顿/重音标注,可直接当录音提词稿
+  target_duration_s: 36.6   # 按脚本7段精确分段秒数累加(4.8+7.5+4.2+6.3+4.3+6.3+3.2=36.6);
+                              # 脚本页脚"约36.7s"是6字/s粗估值,与精确累加值差0.1s——以36.6s为
+                              # storyboard.yaml/motion_tech_plan.md 的 timeline 总时长控制目标,
+                              # 0.1s 差异在真人朗读的自然语速浮动范围内,不需要额外校准
+  recording_guide: |
+    按 script/T044_录音提词稿.md 逐句【怎么念】录制(7段,与 storyboard.yaml scenes 01-07 一一对应):
+    ①(4.8s)平铺陈述带自嘲,重音落"不用我自己记",为反转埋伏笔
+    ②(7.5s)前半句复述语气正常语速;"没有这条线"用略生硬、机械停顿的语气念,制造"AI诚实拒绝装懂"的反差感
+    ③(4.2s)语速放慢,"我造它就是为了不忘事"加重音短停顿;"它自己先漏了"带一点无奈自嘲笑意——**全片情绪最重的一句,不要念得太平**
+    ④(6.3s)语气从"吐槽"转"分析","不是它坏了"清晰肯定念出(撇清恶意),"是流程还没补上"平稳收尾
+    ⑤(4.3s)"挺讽刺"和"挺庆幸"两处对比重音,整体释然、不委屈的语气,不要念出抱怨感
+    ⑥(6.3s)语速略提,像随口分享一个小习惯,不是列教程;"答不上来才是真信号"这句重音收尾
+    ⑦(3.2s)上扬疑问语气,轻松收尾,邀请互动而非说教
+
+    ⚠️ **专项提醒(录制前必读,与 script §红线自查画面侧同步执行)**:
+    念的时候语气注意别念出暧昧感——尤其 ⑤"它没顺着我瞎编,漏了就老实认"这句,如果用偏
+    温柔/深情的语气念,容易被听成"夸伴侣诚实"式的情感语调;⑥"现在我学乖了"开头也要避免
+    撒娇/俏皮的语气。全篇保持"跟朋友聊自己踩过的一个坑"的平实叙事语气,不用"深情""温柔"
+    "暧昧"任何一种带情感投射色彩的声音处理,情绪落点靠"自嘲/释然/随口分享"这几种**工作向
+    情绪**表达,不靠"温柔"这种关系向情绪表达。
+  emotion_arc: 自嘲铺垫(①) → 反差惊讶(②) → 崩溃自嘲(③·情绪顶点) → 坦然分析(④) → 释然庆幸(⑤) → 随口分享技巧(⑥) → 轻松发问(⑦)
+
+bgm:
+  enabled: off
+  mood: neutral
+  genre_hint: null
+  source: null
+  volume: 0
+  fade_in_s: 0
+  fade_out_s: 0
+  loop: false
+  benchmark_ref: null
+  hook_0_3s: null
+  notes: |
+    密VO演示/知识型判定:36.6s全片VO连续覆盖7段,无独立静默停顿段(③"帧锁定格"是画面侧的
+    视觉定格手法,VO在③段仍在持续念白"我愣了一下——我造它就是为了不忘事,它自己先漏了",
+    不是VO停顿,是画面比VO慢半拍的情绪强化处理);全片仅有极短的段落呼吸间隙(<0.3s×6处
+    段落切换),累计<2s,远低于3s死区门槛。VO连续覆盖时长约35s/36.6s≈95.6%,远超85%门槛。
+    按CLAUDE.md §3.3"密VO演示/知识型(VO覆盖≥85%+无3s+死区)→默认无BGM"判定为 off。
+    情绪节奏靠 sfx(帧锁定格hit·流程图节点click·双通道同步确认hit)撑氛围,不靠BGM。
+    外发命名:*_no_bgm.mp4 直接外发,非预览件。
+
+sfx:
+  enabled: true
+  formula_check:
+    ambient_bed: true       # 全片极轻的工作场景环境垫音(见events ambient01),对齐design_language"克制"气质
+    riser_before_hit: true  # 12.3s帧锁反转前置riser、31.3s核心句落地前置riser
+    hit_on_key_moment: true # 12.3s帧锁反转 + 20.7s坦然结论 + 25.5s信任落点 + 31.3s核心句落地 均有hit
+  gain_ref_db: -12
+  events:
+    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 36.6, gain_db: -22, src_rel: assets/sfx/ambient/TBD_room_or_office_tone.wav, note: "全片极轻氛围垫音,工作场景/克制调性;需 Freesound 检索'minimal office ambience'/'quiet room tone'CC0素材,禁ffmpeg合成"}
+    - {sid: sfx02, kind: whoosh, t_start: 4.8, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "①→②切换(AI助理主界面→真实事件还原)"}
+    - {sid: sfx03, kind: tick, t_start: 6.8, duration: 3.8, gain_db: -15, src_rel: assets/sfx/tick/TBD_scroll_tick.wav, note: "②两段列表扫描持续轻微tick(聊天记录6.8-9.0s+笔记9.0-10.6s),强化'AI在认真找'的悬念递进,音量克制不抢VO"}
+    - {sid: sfx04, kind: riser, t_start: 11.3, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "反转揭晓'没有这条线'落定→12.3s帧锁前置riser"}
+    - {sid: sfx05, kind: hit, t_start: 12.3, duration: 0.5, gain_db: -10, src_rel: assets/sfx/hit/TBD_soft_freeze_hit.wav, note: "12.3s帧锁定格打点(非爆炸感,克制的'咔'一声),同时承载'反转揭晓落定'与'情绪冻结'双重信号"}
+    - {sid: sfx06, kind: whoosh, t_start: 16.5, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "③→④切换(崩溃点题→机制说明,硬切新场景)"}
+    - {sid: sfx07, kind: tick, t_start: 16.5, duration: 4.2, gain_db: -14, src_rel: assets/sfx/tick/TBD_typewriter_click.wav, note: "④AI补充消息逐行显现+三节点流程图逐点亮起,每次文字/节点落点配click,呼应kinetic reveal节奏"}
+    - {sid: sfx08, kind: hit, t_start: 20.7, duration: 0.5, gain_db: -12, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "④结论'不是它坏了/是流程还没补上'落定,克制的确认感,不是重锤(呼应'坦然分析'而非'甩锅辩解'的语气)"}
+    - {sid: sfx09, kind: whoosh, t_start: 22.8, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "④→⑤切换(机制说明→情绪落点)"}
+    - {sid: sfx10, kind: hit, t_start: 25.5, duration: 0.5, gain_db: -11, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑤'它没顺着我瞎编,漏了就老实认'信任落点,柔和确认感,呼应'释然庆幸'语气"}
+    - {sid: sfx11, kind: whoosh, t_start: 27.1, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑤→⑥切换(情绪落点→差异化收藏物)"}
+    - {sid: sfx12, kind: riser, t_start: 30.3, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "双通道同步确认→31.3s核心句落地前置riser"}
+    - {sid: sfx13, kind: hit, t_start: 31.3, duration: 0.8, gain_db: -9, src_rel: assets/sfx/hit/TBD_impact_stinger.wav, note: "全片最响一击·收藏物核心句'答不上来才是真信号'落地,音量可比其他hit更明显(仍不超VO-8dB)"}
+    - {sid: sfx14, kind: whoosh, t_start: 33.4, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑥→⑦切换,CTA开场"}
+    - {sid: sfx15, kind: hit, t_start: 35.0, duration: 0.5, gain_db: -11, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑦问句焦点框强调落点,克制确认感,邀请感非说教感"}
+  note_no_diegetic_sound: |
+    与T043相同(区别T040):本条无真实屏幕录制素材,全部为自绘HTML场景,不存在"录制原声"这
+    一诊断性声音来源,所有声音均需按上表真实走 Freesound CC0 检索,严禁合成占位。
+
+subtitles:
+  srt_path: pending    # 待VO真人录制定稿后,按精确时间戳生成
+  burn: true
+  style: |
+    对齐 design_language.md 字体层级:display字级(72-88px)用于①②③⑤⑥的大字punch/金句,
+    body字级(30-34px)用于常规字幕行(如②打字内容、④AI补充消息文字)。
+    本条无指令卡类内容,mono/data字级仅在⑥"抓包验证法"标签处小范围点缀使用(非主字幕字级),
+    与T040④/T043④⑤"整卡mono字体"用法不同——呼应本条"轻量收尾"而非"清单式收藏物"的定位。
+    主画面叠字,ink色(#1c1e22)深字压在暖白/浅暖灰底上,不做反色白字(浅色画布无需反色)。
+    ③段字幕节奏放慢,匹配"情绪最重的一句"的念白停顿,不追求与其他段落一致的匀速滚动感。
+  hook_first_3s: true
+
+outputs:
+  video_raw: publish/2026-W30/D05-AI记岔了/成片/T044_raw.mp4          # 无BGM工程件(本条bgm本就off,raw=publish同一份)
+  video_publish: publish/2026-W30/D05-AI记岔了/成片/T044_no_bgm.mp4   # 外发命名:*_no_bgm.mp4 直接外发(非预览件)
+  vo_mp3: publish/2026-W30/D05-AI记岔了/成片/audio/T044_vo_human.mp3  # 真人录制,非TTS产物
+
+qc:
+  - "VO 必须是真人声,任何 TTS(含 MiniMax 情绪版)产出一律拒收,录制前二次确认(memory feedback_no-robot-voice-ontopic-assets)"
+  - VO 清晰可辨,前 6s RMS 落在 -13~-23 dB
+  - "VO 录制语气自查:全篇尤其⑤⑥两段,确认未念出暧昧/撒娇/深情等关系向语气,统一为'跟朋友聊踩过的坑'的平实叙事语气(见 voice.recording_guide 专项提醒)"
+  - bgm.enabled=off:全程无音乐是设计,已在 notes 记明密VO依据(VO覆盖≈95.6%,无3s+死区)
+  - "sfx 硬门:sfx.enabled=true 且 formula_check 三项全为 true(本条已满足)"
+  - "sfx 覆盖:每次场景切换(①→②等6处)均有 whoosh;关键节点(12.3s帧锁/20.7s结论/25.5s信任/31.3s核心句)均有 hit;已核对无遗漏"
+  - "sfx 音量:所有 events[].gain_db ≤ -8(本条最响的31.3s hit=-9dB,符合)"
+  - "sfx 合规:所有 src_rel 标注为 TBD_ 前缀,表示尚未实际下载/命名,production阶段须真实走 Freesound CC0 检索,严禁 ffmpeg aevalsrc/sine 合成占位——这是计划文档,不是已完成的素材清单"
+  - 前 3s 钩子字幕可见,与 design_language 字体层级一致
+  - "工作向框定:字幕/画面文案逐句核对无'想念/陪伴/记住我'类措辞残留,评论区mock为工作协作软件方框样式"
+  - 外发使用 video_publish(T044_no_bgm.mp4),非 video_raw
+
+blocking_dependency:
+  what: VO 真人录制(voice.status=pending_user_recording)
+  who: 用户本人(persona_anchor要求第一人称真实证言,不可代录/不可TTS)
+  why_blocking: |
+    motion_tech_plan.md 已标注:②搜索列表扫描节奏、③帧锁定格瞬间、④流程图节点亮起时机、
+    ⑥双通道同步确认瞬间,均需与VO精确时长对齐(sfx事件表已按script给定分段秒数预排,VO
+    录制完成后只需微调场景内部sub_beats切点,不需要重新定scenes总duration,与T043处理方式
+    一致,不同于T040需要VO录制后才能定duration)。
+  next_action: 用户按 script/T044_录音提词稿.md 定稿版 + 本文件 voice.recording_guide(含"避免暧昧感"专项提醒)录制7段VO
