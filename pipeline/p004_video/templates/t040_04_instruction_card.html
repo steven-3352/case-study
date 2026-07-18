@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  :root{
+    --canvas:#faf9f6; --surface:#eeece5; --ink:#1c1e22; --muted:#767b85; --accent:#c0392b;
+    --font:"SF Pro Text","Source Han Sans SC","PingFang SC",sans-serif;
+    --mono:"SF Mono","Source Han Sans SC","PingFang SC",monospace;
+  }
+  body{background:var(--canvas);}
+  .canvas{background:var(--canvas);}
+  .card{position:absolute;left:70px;right:70px;top:560px;background:var(--surface);
+    border:1px solid rgba(28,30,34,.10);border-radius:16px;padding:64px 56px;
+    box-shadow:0 4px 20px rgba(28,30,34,.08);}
+  .line{font-family:var(--mono);font-weight:500;font-size:34px;line-height:1.65;color:var(--ink);
+    margin-bottom:20px;min-height:56px;}
+  .caption{position:absolute;right:96px;bottom:120px;font-family:var(--font);font-size:24px;
+    color:var(--muted);opacity:0;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="card">
+    <div class="line" id="l1"></div>
+    <div class="line" id="l2"></div>
+    <div class="line" id="l3"></div>
+    <div class="line" id="l4"></div>
+  </div>
+  <div class="caption" id="cap">↓可截图拿走</div>
+</div>
+<script>
+  const tl = gsap.timeline({paused:true});
+  // 4行指令逐行显现,间隔0.75s对齐 sfx07 tick 序列,3s内完整显现
+  tl.add(window.typewriter("#l1", "①禁止先夸,禁止说“很有前景”“你的优势在于”这类话", {stagger:0.018}), 0.0);
+  tl.add(window.typewriter("#l2", "②只讲最致命的那一个,不要罗列一堆小建议凑数", {stagger:0.018}), 0.75);
+  tl.add(window.typewriter("#l3", "③一句话点破,再用两三句说清为什么它最致命", {stagger:0.018}), 1.5);
+  tl.add(window.typewriter("#l4", "④如果有一个根本没被验证、却决定成败的假设,优先指它", {stagger:0.018}), 2.25);
+  // 3-5s 停留,caption 淡入给截图时间
+  tl.to("#cap", {opacity:1, duration:.4}, 3.0);
+  tl.to({}, {duration:1.6}, 3.4);
+  registerTimeline(tl);
+</script>
+</body></html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  :root{
+    --canvas:#faf9f6; --surface:#eeece5; --ink:#1c1e22; --muted:#767b85; --accent:#c0392b;
+    --font:"SF Pro Text","Source Han Sans SC","PingFang SC",sans-serif;
+    --mono:"SF Mono","Source Han Sans SC","PingFang SC",monospace;
+  }
+  body{background:var(--canvas);}
+  .canvas{background:var(--canvas);}
+  .thumb{position:absolute;left:70px;right:70px;top:260px;background:var(--surface);
+    border:1px solid rgba(28,30,34,.10);border-radius:14px;padding:32px 36px;opacity:0;transform:translateY(-20px);
+    box-shadow:0 4px 20px rgba(28,30,34,.08);}
+  .thumb .row{font-family:var(--mono);font-weight:500;font-size:22px;line-height:1.7;color:var(--muted);}
+  .thumb .tag{position:absolute;right:24px;top:-16px;background:var(--accent);color:#faf9f6;
+    font-family:var(--font);font-size:20px;padding:6px 16px;border-radius:20px;}
+  .comment-mock{position:absolute;left:70px;right:70px;top:560px;background:#fff;
+    border:1px solid rgba(28,30,34,.10);border-radius:16px;padding:36px 36px 36px 96px;opacity:0;
+    box-shadow:0 4px 20px rgba(28,30,34,.08);}
+  .comment-mock .avatar{position:absolute;left:32px;top:36px;width:48px;height:48px;border-radius:50%;
+    background:var(--surface);border:1px solid rgba(28,30,34,.10);}
+  .comment-mock .name{font-family:var(--font);font-size:22px;color:var(--muted);margin-bottom:10px;}
+  .comment-mock .text{font-family:var(--font);font-weight:600;font-size:30px;color:var(--ink);line-height:1.5;}
+  .focus-box{position:absolute;inset:-8px -8px -8px -8px;border:3px solid var(--accent);border-radius:12px;opacity:0;}
+  .cta{position:absolute;left:70px;right:70px;top:900px;font-family:var(--font);font-weight:800;
+    font-size:52px;line-height:1.35;color:var(--ink);text-align:center;opacity:0;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="thumb" id="thumb">
+    <div class="tag">已保存</div>
+    <div class="row">①禁止先夸,禁止说套话</div>
+    <div class="row">②只讲最致命的那一个</div>
+    <div class="row">③一句话点破,说清原因</div>
+    <div class="row">④优先指没验证过的假设</div>
+  </div>
+  <div class="comment-mock" id="comment" style="position:absolute;">
+    <div class="avatar"></div>
+    <div class="name">评论区 · 置顶</div>
+    <div class="text" id="commentText"></div>
+    <div class="focus-box" id="focusBox"></div>
+  </div>
+  <div class="cta" id="cta">你最近想让 AI 挑哪个刺?</div>
+</div>
+<script>
+  const data = window.getData();
+  const tl = gsap.timeline({paused:true});
+  tl.fromTo("#thumb", {opacity:0, y:-20}, {opacity:1, y:0, duration:.5, ease:"power2.out"}, 0);
+  tl.to({}, {duration:.5}, .5);
+  tl.fromTo("#comment", {opacity:0}, {opacity:1, duration:.5}, 1.2);
+  tl.add(window.typewriter("#commentText", "指令放这条评论了,直接复制拿走", {stagger:0.02}), 1.5);
+  tl.fromTo("#focusBox", {opacity:0}, {opacity:1, duration:.4}, 2.3);
+  tl.fromTo("#cta", {opacity:0, y:16}, {opacity:1, y:0, duration:.5, ease:"power2.out"}, 2.8);
+  tl.to({}, {duration:.7}, 3.3);
+  registerTimeline(tl);
+</script>
+</body></html>

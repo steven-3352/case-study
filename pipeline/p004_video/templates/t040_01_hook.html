@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  :root{
+    --canvas:#faf9f6; --surface:#eeece5; --ink:#1c1e22; --muted:#767b85; --accent:#c0392b;
+    --font:"SF Pro Text","Source Han Sans SC","PingFang SC",sans-serif;
+  }
+  body{background:var(--canvas);}
+  .canvas{background:var(--canvas);}
+  .bubble-wrap{position:absolute;left:80px;right:80px;top:620px;height:360px;}
+  .bubble{background:var(--surface);border:1px solid rgba(28,30,34,.10);border-radius:16px;
+    padding:48px 44px;font-family:var(--font);font-size:34px;line-height:1.5;color:var(--ink);
+    box-shadow:0 4px 20px rgba(28,30,34,.08);opacity:0;position:absolute;left:0;right:0;top:0;}
+  .bubble .tag{display:block;font-size:22px;color:var(--muted);margin-bottom:14px;}
+  .smash{position:absolute;left:60px;right:60px;top:760px;text-align:center;opacity:0;}
+  .smash .l1{font-family:var(--font);font-weight:800;font-size:56px;color:var(--ink);line-height:1.25;}
+  .smash .l2{font-family:var(--font);font-weight:900;font-size:84px;color:var(--accent);line-height:1.15;margin-top:24px;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="bubble-wrap">
+    <div class="bubble" id="b1"><span class="tag">AI · 刚才</span>你这个想法很有见地,思路很清楚。</div>
+    <div class="bubble" id="b2"><span class="tag">AI · 刚才</span>你的优势在于执行力强,坚持下去就行。</div>
+  </div>
+  <div class="smash" id="smash">
+    <div class="l1">上个月我差点冲动辞职——</div>
+    <div class="l2">就因为 AI 夸了我三千字</div>
+  </div>
+</div>
+<script>
+  const tl = gsap.timeline({paused:true});
+  // 0:00-0:02 夸夸截图快闪,硬切无过渡(set 瞬间切换,非 tween)
+  tl.set("#b1", {opacity:1}, 0);
+  tl.set("#b1", {opacity:0}, 0.9);
+  tl.set("#b2", {opacity:1}, 0.9);
+  tl.set("#b2", {opacity:0}, 1.95);
+  // 0:02-0:04 大字砸入,无fade,快速punch后定格
+  tl.set("#smash", {opacity:1}, 2.0);
+  tl.fromTo("#smash", {scale:1.14}, {scale:1, duration:.16, ease:"power2.out"}, 2.0);
+  tl.to({}, {duration: 1.84}, 2.16);
+  registerTimeline(tl);
+</script>
+</body></html>

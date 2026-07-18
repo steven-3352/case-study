@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/gsap_helpers.js"></script>
+<style>
+  :root{
+    --canvas:#faf9f6; --surface:#eeece5; --ink:#1c1e22; --muted:#767b85; --accent:#c0392b;
+    --font:"SF Pro Text","Source Han Sans SC","PingFang SC",sans-serif;
+  }
+  body{background:var(--canvas);}
+  .canvas{background:var(--canvas);}
+  /* 长文卡片视口:固定裁切窗口,内部长文靠 translateY 模拟滚动 */
+  .viewport{position:absolute;left:60px;right:60px;top:280px;height:1240px;overflow:hidden;
+    background:var(--surface);border:1px solid rgba(28,30,34,.10);border-radius:16px;
+    box-shadow:0 4px 20px rgba(28,30,34,.08);}
+  .longtext{position:absolute;left:0;right:0;top:0;padding:48px 44px;}
+  .sec{margin-bottom:52px;}
+  .sec h3{font-family:var(--font);font-weight:700;font-size:38px;color:var(--ink);margin-bottom:14px;}
+  .sec p{font-family:var(--font);font-weight:400;font-size:32px;line-height:1.55;color:var(--ink);}
+  .sec.dimmable{transition:none;}
+  .conclusion h3{color:var(--ink);}
+  .hedge{position:relative;}
+  .redbox{position:absolute;left:-14px;right:-14px;top:-10px;bottom:-10px;
+    border:3px solid var(--accent);border-radius:8px;opacity:0;pointer-events:none;}
+  .redbox::before,.redbox::after{content:"";position:absolute;width:24px;height:24px;border:3px solid var(--accent);}
+  .redbox::before{left:-3px;top:-3px;border-right:none;border-bottom:none;}
+  .redbox::after{right:-3px;bottom:-3px;border-left:none;border-top:none;}
+</style></head>
+<body>
+<div class="canvas">
+  <div class="viewport">
+    <div class="longtext" id="longtext">
+      <div class="sec dimmable"><h3>结论(开头判断)</h3>
+        <p>方向有机会,但现在直接辞职风险偏高。你会 AI 工具、脚本、剪辑,这是基础能力;但你自己的账号 4 周涨粉几乎为零,说明你目前还没有验证"内容结果能力"和"获客能力"。</p></div>
+      <div class="sec dimmable"><h3>一、这个方案哪里可行</h3>
+        <p>中小商家确实需要内容,但缺人、缺方法、缺执行——不会拍、不会写选题、不会剪、请全职新媒体成本太高。所以你这种"轻量 AI 内容代运营"有市场。</p></div>
+      <div class="sec dimmable"><h3>二、主要问题在哪里</h3>
+        <p>"会 AI 工具"不是核心卖点,很多人都会用 AI。自己账号 4 周涨粉为零,是一个警讯——你需要补齐选题判断、账号定位、平台理解、数据复盘四项能力。</p></div>
+      <div class="sec dimmable"><h3>三、先做一个验证模型</h3>
+        <p>用 30 天时间,拿到 2 个付费试点客户,做出 1-2 个小案例,再决定是否辞职。先选一个垂直行业,不要什么客户都接。</p></div>
+      <div class="sec dimmable"><h3>四、包装成更具体的产品</h3>
+        <p>套餐一基础陪跑版 2980 元/月;套餐二标准代运营版 4980-6980 元/月;套餐三增长顾问版 9800 元/月起——前期没案例不太好卖。</p></div>
+      <div class="sec dimmable"><h3>五、前期不要承诺这些</h3>
+        <p>不要承诺一个月涨粉多少、一定成交多少单、一定带来多少咨询——平台流量和成交受很多因素影响,包括产品、价格、老板配合、素材质量。</p></div>
+      <div class="sec dimmable"><h3>六、现在最应该做的 5 件事</h3>
+        <p>做一个样板账号,而不是泛泛做自己的账号;做 3 个免费/低价案例换真实数据;设计一套标准工作流,否则接 3-5 个客户会被拖死。</p></div>
+      <div class="sec dimmable"><h3>七、辞职条件</h3>
+        <p>已经有 2 个以上付费客户,不是免费客户;连续 2 个月副业收入达到工资的 50%-70%;有至少 3-6 个月生活费储备;有 1-2 个能展示的数据案例。</p></div>
+      <div class="sec dimmable"><h3>八、2 万目标怎么拆</h3>
+        <p>第 1 个月验证,拿到 1-2 个低价客户;第 2 个月优化,做到 2-3 个客户;第 3 个月冲 2 万,3-5 个客户。</p></div>
+      <div class="sec conclusion"><h3>结论</h3>
+        <p>你的方案不是不行,<span class="hedge" id="hedge">但现在更适合"副业验证",不适合马上辞职 All in。<span class="redbox" id="redbox"></span></span></p></div>
+    </div>
+  </div>
+</div>
+<script>
+  const tl = gsap.timeline({paused:true});
+  // 0-3s(全片4-7s):建立,匀速偏快滚动
+  tl.to("#longtext", {y:-1720, duration:3, ease:"power1.out"}, 0);
+  // 3-5s(全片7-9s):转折,滚动减速,精确停在 5.0s = lock_at_s(全片9s帧锁)
+  tl.to("#longtext", {y:-2360, duration:2, ease:"power3.out"}, 3);
+  // 5-6s:急停维持定格(无新动作)
+  tl.to({}, {duration:1}, 5);
+  // 6-8s:红框锁定致命句 + 周围文字降至35%不透明度
+  tl.to(".dimmable", {opacity:.35, duration:.6}, 6);
+  tl.fromTo("#redbox", {opacity:0}, {opacity:1, duration:.6}, 6);
+  // 8-10s:收束,维持定格
+  tl.to({}, {duration:2}, 8);
+  registerTimeline(tl);
+</script>
+</body></html>

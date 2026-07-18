@@ -60,18 +60,18 @@ sfx:
     hit_on_key_moment: true # 9s急停锁定 + 26s金句放大 + 34s CTA指令卡再现 均有hit
   gain_ref_db: -12
   events:
-    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 38.0, gain_db: -22, src_rel: assets/sfx/ambient/TBD_room_or_office_tone.wav, note: "全片极轻氛围垫音,证据/克制调性;需 Freesound 检索'minimal office ambience'/'quiet room tone'CC0素材,禁ffmpeg合成"}
-    - {sid: sfx02, kind: whoosh, t_start: 4.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "①→②切换(夸夸截图→长文滚动)"}
-    - {sid: sfx03, kind: tick, t_start: 4.0, duration: 4.5, gain_db: -15, src_rel: assets/sfx/tick/TBD_scroll_tick.wav, note: "②滚动过程持续轻微tick,强化'字好多'压迫感,音量克制不抢VO"}
-    - {sid: sfx04, kind: riser, t_start: 7.5, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "②滚动减速→9s急停前置riser"}
-    - {sid: sfx05, kind: hit, t_start: 9.0, duration: 0.5, gain_db: -10, src_rel: assets/sfx/hit/TBD_soft_freeze_hit.wav, note: "9s帧锁急停定格打点(非爆炸感,克制的'咔'一声)"}
-    - {sid: sfx06, kind: whoosh, t_start: 14.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "③→④切换"}
-    - {sid: sfx07, kind: tick, t_start: 16.0, duration: 3.0, gain_db: -14, src_rel: assets/sfx/tick/TBD_typewriter_click.wav, note: "④GSAP逐行打字机每行落字配click,呼应④本身就是typing动效"}
-    - {sid: sfx08, kind: whoosh, t_start: 21.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "④→⑤切换,分屏初现"}
-    - {sid: sfx09, kind: riser, t_start: 25.0, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/TBD_short_tension_riser.wav, note: "左侧回顾→右侧金句放大前置riser"}
-    - {sid: sfx10, kind: hit, t_start: 26.0, duration: 0.8, gain_db: -9, src_rel: assets/sfx/hit/TBD_impact_stinger.wav, note: "全片完播顶点·金句'你要卖的能力自己没验证过'放大落点,音量可比其他hit更明显(仍不超VO-8dB)"}
-    - {sid: sfx11, kind: whoosh, t_start: 29.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/TBD_soft_swish.wav, note: "⑤→⑥切换,反高潮承接"}
-    - {sid: sfx12, kind: hit, t_start: 34.0, duration: 0.6, gain_db: -11, src_rel: assets/sfx/hit/TBD_soft_confirm_hit.wav, note: "⑦指令卡再现落点,克制的确认感非重锤"}
+    - {sid: sfx01, kind: ambient, t_start: 0.0, duration: 38.0, gain_db: -22, src_rel: assets/sfx/ambient/office_daylight_room_tone.wav, note: "全片极轻氛围垫音,证据/克制调性;catalog真实CC0素材(freesound_135097),白天办公室基调呼应'真实工作场景'"}
+    - {sid: sfx02, kind: whoosh, t_start: 4.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "①→②切换(夸夸截图→长文滚动)"}
+    - {sid: sfx03, kind: tick, t_start_seq: [4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.6, 8.3], duration_each: 0.12, gain_db: -15, src_rel: assets/sfx/tick/metronome_soft_tick.wav, note: "②滚动过程离散轻微tick序列(非连续loop,因单发素材0.05s<mixer 5s loop门槛,改t_start_seq展开为9发离散tick);间隔4.0→7.0均匀0.5s,7.0之后拉宽至0.6/0.7s呼应'减速'节拍;音量克制不抢VO"}
+    - {sid: sfx04, kind: riser, t_start: 7.5, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/riser_short_ascending.wav, note: "②滚动减速→9s急停前置riser"}
+    - {sid: sfx05, kind: hit, t_start: 9.0, duration: 0.5, gain_db: -10, src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "9s帧锁急停定格打点(非爆炸感,克制的'咔'一声,选soft_boom而非hard_cut)"}
+    - {sid: sfx06, kind: whoosh, t_start: 14.0, duration: 0.3, gain_db: -13, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "③→④切换"}
+    - {sid: sfx07, kind: tick, t_start_seq: [16.0, 16.75, 17.5, 18.25], duration_each: 0.3, gain_db: -14, src_rel: assets/sfx/tick/keyboard_mechanical_single.wav, note: "④GSAP逐行打字机4行指令逐行落字配单click(非连续roll,因'每行落字配click'本质是4个离散事件,改t_start_seq展开,每0.75s一发对齐4行reveal节奏)"}
+    - {sid: sfx08, kind: whoosh, t_start: 21.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "④→⑤切换,分屏初现"}
+    - {sid: sfx09, kind: riser, t_start: 25.0, duration: 1.0, gain_db: -14, src_rel: assets/sfx/riser/riser_short_ascending.wav, note: "左侧回顾→右侧金句放大前置riser"}
+    - {sid: sfx10, kind: hit, t_start: 26.0, duration: 0.8, gain_db: -9, src_rel: assets/sfx/hit/impact_deep_resonance.wav, note: "全片完播顶点·金句'你要卖的能力自己没验证过'放大落点,选deep_resonance(价值锚定位tag),音量可比其他hit更明显(仍不超VO-8dB)"}
+    - {sid: sfx11, kind: whoosh, t_start: 29.0, duration: 0.4, gain_db: -13, src_rel: assets/sfx/whoosh/whoosh_transition_soft.wav, note: "⑤→⑥切换,反高潮承接"}
+    - {sid: sfx12, kind: hit, t_start: 34.0, duration: 0.6, gain_db: -11, src_rel: assets/sfx/hit/impact_soft_boom.wav, note: "⑦指令卡再现落点,克制的确认感非重锤,复用soft_boom(与sfx05同素材但场景不同,听感差异可接受)"}
   note_typing_flash_diegetic: |
     0:14-0:16"真实打字闪回"是真实屏幕录制素材,其键盘敲击声/发送提示音来自录制本身的原声(diegetic),
     不额外加合成sfx——这段声音的真实性本身就是证据的一部分,叠加设计音效反而会露馅显得是摆拍。
@@ -97,7 +97,7 @@ qc:
   - "sfx 硬门:sfx.enabled=true 且 formula_check 三项全为 true(本条已满足)"
   - "sfx 覆盖:每次场景切换(①→②等7处)均有 whoosh;关键金句(26s)+ CTA(34s)均有 hit;已核对无遗漏"
   - "sfx 音量:所有 events[].gain_db ≤ -8(本条最响的26s hit=-9dB,符合)"
-  - "sfx 合规:所有 src_rel 标注为 TBD_ 前缀,表示尚未实际下载/命名,production阶段须真实走 Freesound CC0 检索,严禁 ffmpeg aevalsrc/sine 合成charge占位——这是计划文档,不是已完成的素材清单"
+  - "sfx 合规:所有 src_rel 已接 assets/sfx/catalog.yaml 真实 CC0 素材(2026-07-18 落地),已核对文件存在于磁盘;严禁 ffmpeg aevalsrc/sine 合成"
   - 0:14-0:16 真实打字闪回的音效是录制原声(diegetic),不叠加合成sfx,已在 note_typing_flash_diegetic 说明
   - 前 3s 钩子字幕可见,与 design_language 字体层级一致
   - 外发使用 video_publish(T040_no_bgm.mp4),非 video_raw
