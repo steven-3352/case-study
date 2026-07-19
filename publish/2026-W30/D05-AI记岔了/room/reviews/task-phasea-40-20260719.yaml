@@ -1,0 +1,67 @@
+review_task: task-phasea-40-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: W30D05
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - design/design_language.md
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/visual_originality_gate.md
+  - pipeline/p004_video/shared/w30_d05.css
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_evidence_pair.html
+  - pipeline/p004_video/templates/d05_w30_causality.html
+  - pipeline/p004_video/templates/d05_w30_write_check.html
+  - pipeline/p004_video/templates/d05_w30_retest.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+reviews:
+  - role: 留存与互动设计师
+    reviewer_id: phasea40-d05-retention-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      0–2秒用“最危险的不是AI没写”制造风险缺口，第二镜立即兑现“文件在/入口不读”和“写入≠可读”；证物对、因果门槛、01–03工位、局部通过/待原件形成逐层验收。后段没有虚假大团圆，而以缺一张原件不签通过制造可信回报。夹具、插槽、尺标、工位切换、回路和盖章覆盖各镜，设计节拍符合2–4秒变化；三句QA卡是清晰的收藏物。
+    deductions: |-
+      (-3) 首2秒只提出风险缺口，完整冲突要到第二镜开始才出现，3秒内兑现依赖转场与第二镜首个动作准确贴合；(-3) 尾屏缺直接评论问题，评论主要依靠专业认同；(-2) 44秒对泛AI受众偏长，17秒后连续三步验收需依赖动作持续支撑。
+    remediation: "Phase B核0–3秒是否已完整出现‘文件在/入口不读’，并核17–37秒无连续低变化；评论只加具体故障现象选择，不改成泛问句。"
+  - role: 形式策略官
+    reviewer_id: phasea40-d05-form-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      八镜把QA逻辑拆成风险、冲突证物、因果门槛、01/02查验、03复问、部分通过/待原件和三联卡，结构完整且形式服务理解、信任、完播和收藏。尤其repaired镜用绿色通过证与黄色待验槽并列，像素层明确拒绝把缺失原件包装成修复成功；D04解释路径，D05验收路径，内容与形式职责分离成立。
+    deductions: |-
+      (-2) 最终MiniMax runtime尚未回填，6–7秒工位镜的持续动作只能按模板时间轴预判；(-2) 三联卡把方法压成短词，复现时仍需结合前镜理解验收标准；(-1) 评论杠杆未形成模板内命令。
+    remediation: "真实TTS后核每个工位动作覆盖完整VO；尾卡必须保留‘证据缺一张，不签通过’和适用范围，不得为提速删除。"
+  - role: 视觉语言策展师
+    reviewer_id: phasea40-d05-visual-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      安全黄、机械夹具、方章、证物槽、检验尺和QA工位构成强一致的工业验收语言，与D04的绿红访问拓扑显著不同。状态色严格对应报警、待验和通过；标题62–82px、证物32–48px、范围28px，整体高对比。模板没有聊天气泡、虚构后台、假百分比、黑底大红字或旧模板换字，静默观看仍可读出“写入≠可读→双证据→三步→一项待验”。
+    deductions: |-
+      (-3) causality镜使用CSS渐变尺标，虽有语义但需防止最终观感像装饰性仪表盘；(-2) repaired双栏在窄屏上信息密度较高，证书与状态文案需实片核遮挡和停留。
+    remediation: "Phase B逐帧核尺标语义、双栏文字与证书位置；若像仪表盘或文字拥挤，应简化刻度而不是缩字。"
+overall:
+  score: 94.0
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90，form v3 Phase A通过；仅允许进入真实MiniMax timing与预渲染门禁，0–3秒兑现、工位持续运动和双栏可读性由Phase B继续fail-closed审核。"

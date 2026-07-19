@@ -1,0 +1,60 @@
+review_task: task-phasea-36-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - GAP_REPORT.md
+  - meta.yaml
+  - pipeline_config.yaml
+  - script/T043_配音稿_v2.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea36-d04-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    evidence: |-
+      原矿证据链可回查：desktop raw第29-35行记录journal与commit `ced86c9`；第83-99行记录旧bot四项注入源及目标记录不在读集；第187行明确两个入口同机同仓库，排除跨设备同步因果；bot raw第3-24行保留原失败入口逐字回答。三条官方URL只用于说明不同产品有各自上下文机制，external_references明确不能替本项目证明因果。
+    deductions: |-
+      (-4) raw export将当时工具输出净化为“工具结果”，仓库没有对应hermes.py版本或commit对象供二次代码审计；(-3) 官方URL缺抓取快照与段落坐标；(-3) queue提出的情感陪伴受众池没有附原始帖子/API evidence，仍是B级选题假设。
+    remediation: "只说‘我在当时自建bot代码中查到’，不要说官方产品机制；若对受众池做发布决策，补平台原始数据。"
+  - role: 记者
+    reviewer_id: phasea36-d04-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      当前pipeline与配音稿逐项忠于原矿：记录存在且有提交、旧bot只读四类来源、目标journal未注入、内容未消失而是读取路径缺失。第五句明确只适用于自建工作助理；第6-7句的共同可读面与长期结论升格可在desktop raw第193-205行的规范状态模型回查。未再出现所有AI、换设备必忘、永久记忆或丢失率主张。
+    deductions: |-
+      (-2) “电脑端能找到”应展示脱敏原矿摘录，不能让自绘X光图冒充产品日志；(-2) commit细节需显示短hash或从口播删掉；(-1) “入口读集”对非工程观众需口语解释。
+    remediation: "画面标‘真实原文摘录/路径还原’，首次出现读集时解释为‘每次回答前实际拿到哪些文件’。"
+  - role: 选题深挖师
+    reviewer_id: phasea36-d04-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    evidence: |-
+      “同一条记录，一个入口看得见、一个入口看不见”是具体且反直觉的工作场景；查落盘、查读集、找共同可读面比泛讲AI失忆更有可信度。进阶搭建者能从中带走“先查信息落点和读取路径”的诊断视角，且选题与情感陪伴受众明确切割。
+    deductions: |-
+      (-4) topic_brief仍承诺“跨入口记忆排查三问”，当前pipeline实际交付“共同可读面+长期结论升格”，收藏物定义未同步；(-3) 工程术语使受众窄，普通AI用户共鸣有限；(-2) reddit记录的现实损失没有展开，情绪钉子偏弱；(-1) 与D05共享同一事故，连续发布有重复风险。
+    remediation: "统一topic brief为‘共同可读面决策卡’，或恢复三问但不要两套并存；D04只解释根因与信息归位，把验收步骤留给D05。"
+overall:
+  score: 91.7
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；外发前统一topic brief中的收藏物名称，范围始终限定自建系统。"

@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 内核提炼师
+artifact: insights/core_message.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea49-d04-core-v3-w30d04-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 内核提炼师 · 核心稳定为“内容存在，但该入口不可读”，价值落在长期结论进入共同可读面，而不是让模型更努力。口播
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-3) “AI失忆”标题皮肤仍需要范围镜持续纠偏；(-2) 共同可读面的修法适用于本架构，不能直接复制为所有产品通则。 改法：发布文案必须保留自建助理范围，不能把共同可读面写成通用永久记忆方案。
+    依据：核心稳定为“内容存在，但该入口不可读”，价值落在长期结论进入共同可读面，而不是让模型更努力。口播与范围镜都限定自建工作助理，拒绝所有AI、跨设备必忘和永久记忆外推。CTA收集入口名，与工作流场景直接相关且不预设评论者拥有相同根因。
+- reviewer_id: phasea43-d04-core-v3-w30d04-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-43-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-43-20260719 · 内核提炼师 · 核心命题始终是“内容存在，但对该入口不可用”，修法则是把长期项目结论升格到两个入口都会读的共同位
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-3) 标题仍借“AI失忆”作为选题皮肤，必须依靠23秒边界镜持续纠偏；(-2) “桌面能读”只应指本案例入口可读，不可延伸为所有桌面客户端。
+    改法：发布标题与正文必须保留自建助理范围，不得改成跨设备AI失忆通论。 依据：核心命题始终是“内容存在，但对该入口不可用”，修法则是把长期项目结论升格到两个入口都会读的共同位置。它没有把问题归因于设备同步、模型永久记忆或平台普遍机制；口播与边界镜两次限定为这套自建工作助理。CTA询问入口名，能收集真实使用场景而非泛情绪回应。
+avg_score: 95.0
+pass: true
+scorecard_phase: pre_render

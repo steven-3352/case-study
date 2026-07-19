@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效分镜师
+artifact: design/storyboard.yaml
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea24-d02-motion-accident-rewind-w30d02-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-24-20260719
+  reviewed_at: '2026-07-19'
+  angle: 事故板倒放、路径因果扣合、模板节奏、关键帧安全区与证据分层
+  score: 94
+  verdict: pass
+  notes: 已对照七镜分镜与全部D02模板，并逐张查看刚重生的accident_hook和autopsy_paths关键帧。首镜约0.5秒已出现未来失败终点与逆向箭头，3.2秒帧完整扣合“失败原因、已给事实、信息缺口”及三项具体材料，首屏不是抽象方法宣讲；虚线黄色缺口与红色事实路径编码明确。14至21秒真实路径镜按原因、支持事实、原因、计划缺失四步顺序入场，四段均完整显示、没有合成两轮原话，底部持续标Round
+    1短摘。随后双轮票据把差异收束为“原因到依据”，Prompt票据和四选一CTA分别承担收藏与评论，整体每4至10秒换场且镜内有2至4秒节拍变化。扣(-6)：首镜0.5秒时三节点尚未全部入场，3秒停划仍依赖“未来事故”标题先撑住；路径镜文字密度高，7秒内观众更可能读结构而非逐字读完四段；原motion
+    storyboard末注仍写“两轮结构归纳”，而当前更安全的实际画面已改成Round 1逐字短摘，文档措辞存在轻微滞后。后渲染须重点核字幕遮挡、短摘阅读窗和Prompt脚注真机可读性。
+- reviewer_id: phasea18-d02-motion-storyboard-w30d02-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-18-20260719
+  reviewed_at: '2026-07-19'
+  angle: 事故板七镜递进、具体路径与证据边界、Prompt到投票CTA的认知负荷曲线
+  score: 93
+  verdict: pass
+  notes: 分镜从未来事故直接起手，不再设置竞猜或延迟揭晓；4至14秒只补测试事实并诚实承认普通回答已经严格，14秒才进入真实Round 1倒推路径，避免把两轮不同原因拼成固定三死因。21秒明确“具体原因与排序不完全一致”，随后用完整修订Prompt兑现收藏价值，最后以“小事别用”先划边界，再用辞职、副业、创业、转行四个具体选项降低评论成本。核对全部data字段可见首屏、路径类型、双轮短哈希、Prompt四行与CTA选项均进入对应DOM，画面层级和底部字幕在抽查终帧中无重叠溢出。扣(-7)：4至14秒事实板与普通风险板连续使用纸面清单，纵向事故语法短暂中断，可能形成中段视觉降速；具体修正：只用同一红轴或反向箭头残影做转场连续性，不新增未经证据支持的节点，并在9秒硬切处检查whoosh与tick不会同时抢口播。
+avg_score: 93.5
+pass: true
+scorecard_phase: pre_render

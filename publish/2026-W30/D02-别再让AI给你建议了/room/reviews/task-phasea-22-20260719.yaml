@@ -1,0 +1,55 @@
+review_task: task-phasea-22-20260719
+reviewer_agent_id: task-phasea-22-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - insights/premortem_ab_evidence.md
+  - insights/persona_ab_evidence.md
+  - insights/fact_check.md
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/retention_beat_sheet.md
+  - pipeline/p004_video/shared/w30_evidence.css
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea22-d02-douyin-failure-rewind
+    reviewer_agent_id: task-phasea-22-20260719
+    review_mode: independent
+    angle: "抖音首屏动作性、4秒方法兑现、中段防塌、收藏和低门槛评论"
+    score: 93
+    verdict: pass
+    notes: |-
+      “半年后已经失败，先别救”在首句同时提供反常识冲突和动作指令；首镜0.5秒内启动倒放，节点、事实卡与信息缺口在约2.15秒完成第一次扣合，不把方法回报拖到结尾。七镜主构图从事故轴、事实证物、普通风险单、真实路径、双轮票据、Prompt长票到四选一便签持续切换，结尾“辞职/副业/创业/转行”显著降低评论成本。收藏段使用45px正文、四行编号和至少4秒全文常驻，并常驻“修订版未单独A/B”，既可抄又不牺牲可信度。扣(-7)：14至28秒连续两镜解释实验路径和双轮边界，方法受众之外的观众可能在28秒收藏物出现前流失；9至14秒风险清单和14至21秒路径卡都以文本条目为主，局部视觉语法重复；全片目标43秒且无BGM，节奏能量较依赖TTS重音与CC0打点，必须在Phase B听成片而不能仅凭模板判定。
+
+  - role: 纪录片导演
+    reviewer_id: phasea22-d02-premortem-evidence-ethics
+    reviewer_agent_id: task-phasea-22-20260719
+    review_mode: independent
+    angle: "真实调用证据、失败假设伦理、原文与编辑版分离、结论边界"
+    score: 96
+    verdict: pass
+    notes: |-
+      影片没有沿用已被两轮反向结果否定的“小林人称更客观”命题，而是回到另一次双轮复合Prompt实验。Round 1路径四条文字均可在082eb54f原始响应中逐字找到，且画面标注“Round 1逐字短摘·不代表两轮原因相同”；21至28秒同时显示082eb54f与e5061fad，并明确具体原因和排序不完全一致。首镜把“半年后失败”标成方法假设和“不是结果预测”，虚构计划也在首次案例镜常驻披露；可抄Prompt进一步增加“已给事实/信息缺口”时，画面明确称其为根据实验问题修订且未单独A/B，没有伪造一次不存在的新实验。扣(-4)：Round 1原始B响应本身含“唯一能力证据是负面的”等模型判断，短摘镜虽标原文但部分观众仍可能把它当事实结论；双轮票据只展示哈希和共同结构，没有同屏展示Round 2不同首因，观众对“原因和排序变了”的理解主要依赖旁白；短哈希提供审计锚点但无法让信息流观众现场复核全文。
+
+  - role: 编剧
+    reviewer_id: phasea22-d02-spoken-premortem-method
+    reviewer_agent_id: task-phasea-22-20260719
+    review_mode: independent
+    angle: "标题兑现、口语推进、方法交付、复合干预边界、结尾互动"
+    score: 94
+    verdict: pass
+    notes: |-
+      口播用“先别救，往回查它怎么死的”把标题“别再让AI给你建议了”转成可执行动作；随后先承认普通问法已经够严格，再用Round 1具体示例说明“原因后跟依据”，并主动说第二轮原因与排序改变，避免制造普通问法无效或新方法更准的虚假冲突。可抄段完整包含失败假设、排序标准、三个原因、事实/缺口标签和暂缓建议，结尾用四类高投入计划完成使用边界与评论闭环。扣(-6)：21秒句“稳定的只有”虽然紧接“两轮”，口语上仍容易被听成普遍规律，需要画面中的“双轮真实调用”持续限定义；28至38秒一句承载五层指令，真实TTS若不在分号和“每个标明”处停顿会偏密；“小事别用”提供边界但没有定义投入阈值，观众可能按自己的尺度理解。内容层可通过，修订Prompt不得在发布文案中改称已验证原Prompt。

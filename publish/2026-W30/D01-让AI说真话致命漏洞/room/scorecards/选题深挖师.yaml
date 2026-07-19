@@ -1,0 +1,32 @@
+status: pass
+review_source: independent_agent_tasks
+role: 选题深挖师
+artifact: insights/topic_brief.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea20-r03-w30d01-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-20-20260719
+  reviewed_at: '2026-07-19'
+  angle: 高赌注决策共鸣、首屏选择张力、可复制收益与评论闭环
+  score: 92
+  verdict: pass
+  notes: 选题已从证据不支持的“AI 只会夸”改成更真实的决策困境：全面分析并非无用，但辞职或重投入前，观众需要先知道哪个前提最值得现实核查。0至3秒让观众比较真实开头，随后用控制变量、虚构计划事实、完整
+    Prompt、双轮票据和诚实对照逐层兑现；“只找一个没验证、却决定成败的前提”是可直接复制的收藏物，末尾“有人真的愿意付费吗”示例也降低了抽象评论门槛。扣(-8)：A
+    只有中性标题，B 直接出现“最致命的漏洞”和完整核心假设，选择答案很明显，竞猜更像注意力导向而非真正悬念；项目名与 Prompt 的“最致命”也可能被只看片头的观众误读成模型确认了唯一真相。可执行修正：保留当前游标到答案点才落
+    B 的时序，结果镜必须持续显示“本组调用·优先核查项”，封面和正文继续用“核查顺序”而非“AI 终于说真话”。
+- reviewer_id: phasea12-r03-w30d01-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-12-20260719
+  reviewed_at: '2026-07-19'
+  angle: 高成本决策场景的共鸣、单点观众收益与收藏互动闭环
+  score: 92
+  verdict: pass
+  notes: 选题已从“AI 只会夸”的失真冲突收窄为辞职或重投入前的核查顺序问题，真实受众痛点是全面建议很多却不知道先验证什么；影片给出的“只找一个没验证、却决定成败的前提”可直接复用，双轮证据、诚实对照和人类拍板边界使内容既有反差也不卖万能药。扣(-8)：项目名与完整
+    Prompt 仍使用“最致命漏洞”，可能让只看前半段的观众误解为模型确认了唯一客观真相；结尾开放题也要求观众自行抽象前提，评论成本略高。可执行修正：结果镜常驻“本组调用的优先核查项”，CTA
+    画面保留“有人真的愿意付费吗”示例，并补能力、获客、现金流三个低成本入口。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render

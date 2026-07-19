@@ -1,0 +1,42 @@
+status: pass
+review_source: independent_agent_tasks
+role: 视觉设计
+artifact: douyin/video.mp4
+artifact_sha256: d639086b101f0ca62d0cb4c7995e9ecd60ed2d273753c16781bbbce3f2ab4bde
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb06-d01-visual-w30d01-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_06
+  reviewed_at: '2026-07-19'
+  angle: task06 · visual · 最终 MP4 独立复验
+  score: 94
+  verdict: pass
+  notes: '原始1080x1920帧确认：A/B开头原文、Round 1省略声明、495913db/8b8d8507两枚短哈希、完整Prompt及最终评论问题均未裁切。米白纸面、黑字、红色风险与绿色验证形成稳定语义配色；主标题、证据正文、烧录字幕的字号层级清楚。字幕黑底位于下方安全区，未遮挡Prompt正文、哈希或CTA交互区。首镜B列虽信息更多，但关键句仍能在手机竖屏识别；24.5s
+    Prompt镜具备约5s静止阅读窗。
+
+
+    扣分与改法：
+
+    -2：首镜B原文比标题和字幕小一档，缩屏观看时观众更可能只读到‘最致命的漏洞’而跳过后半证据。
+
+    -2：Prompt纸面上半部信息密、下半部留白大，视觉重心偏上，收藏镜的版面利用率一般。
+
+    -2：全片持续使用纸张/表单语汇，证据感强但材质与空间层次变化有限。'
+- reviewer_id: phaseb05-d01-visual-design-w30d01-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task05 · visual · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '米白纸面、黑字、红色问题与绿色诚实边界建立了清晰且不单调的证据桌视觉；A/B、控制锁、编号事实、Prompt、双轮哈希与CTA均有不同轮廓，47.96s内没有卡片套卡片或视觉语义混淆。抽查0.5s、8.0s、22.0s、31.0s、37.0s、46.5s可见主标题、烧录字幕和核心结论均在画布内，字幕黑底对比足够，CTA输入框没有被字幕遮住。
+
+
+    扣分：(-3) 0-3.82s的两栏原文正文在手机自然观看尺寸偏小，观众主要靠标题和A/B标签完成任务，证据原文的即时可读性有限；(-2) 20.98-28.98s完整Prompt正文多且灰色次级句对比偏弱，必须暂停才适合逐字抄；(-2)
+    双轮票据底部短哈希及限定说明字号较小；(-1) 多场景采用大面积留白，配合长冻结会放大“模板静态页”观感。改法：首屏只保留两份首句并放大20%-25%，把删节说明压成同一条脚注；Prompt用逐行高亮提高自然播放可扫读性；双轮哈希保持可核验但提升对比。当前无溢出、遮挡或不可辨认的主信息。'
+avg_score: 93.0
+pass: true
+scorecard_phase: post_render

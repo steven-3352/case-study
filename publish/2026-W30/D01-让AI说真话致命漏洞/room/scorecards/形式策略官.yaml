@@ -1,0 +1,31 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式策略官
+artifact: design/form_strategy.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea21-r03-w30d01-form-strategy
+  review_mode: independent
+  reviewer_agent_id: task-phasea-21-20260719
+  reviewed_at: '2026-07-19'
+  angle: 形式对停划、理解、收藏、信任和评论的数据假设及真实模板落实
+  score: 93
+  verdict: pass
+  notes: 已逐项对照 form_strategy、storyboard 和当前 HTML 模板。0至3秒用两份 Round 1 原文开头和游标制造选择任务，游标在大部分时长来回移动并只在尾段落到
+    B，服务停划且没有过早泄底；随后双栏差异、变量锁、虚构计划事实、8秒完整 Prompt、双轮短哈希票据、“A 也发现”诚实印章和开放核查槽依次服务理解、收藏、信任与评论。各镜每3至8秒切换，Prompt
+    有至少4秒可读静止，模板数据和 storyboard 文案一致，形式承诺已落实到实际 DOM/GSAP。扣(-7)：首屏 A 仅是中性标题而 B 自带“最致命的漏洞”，答案仍然较明显，竞猜张力更多来自阅读比较而非真正不确定；完整
+    Prompt 字量较大，最终收藏效率仍依赖 TTS 后字幕隐藏与真机可读性，当前只能评 Phase A。可执行修正：保持游标最后约0.3秒才落 B、Prompt
+    镜隐藏普通字幕并保证静止；后渲染必须抽帧核字号/遮挡和实际停留，不得仅凭模板通过宣布形式门完成。
+- reviewer_id: phasea15-d01-system-coherence-w30d01-form-strategy
+  review_mode: independent
+  reviewer_agent_id: task-phasea-15-20260719
+  reviewed_at: '2026-07-19'
+  angle: 全片形式是否持续服务停划、理解、收藏、信任和评论五个数据杠杆
+  score: 92
+  verdict: pass
+  notes: 八镜均能明确对应数据杠杆：原文辨认服务3秒停划，锁与事实票服务理解，完整指令服务收藏，带短哈希的双轮票据和“A也发现了”服务信任，最后核查槽服务评论；没有为了展示技术而插入无关B-roll或商业模型UI。16至24秒有意降低运动、24秒重新聚拢证据、30秒用诚实边界制造第二次认知变化，中段不依赖单一字幕墙维持。扣(-8)：全片证据纸张与卡片占比仍高，24至35秒若只按模板默认动作渲染，票据到印章可能产生连续看板感；具体修正：双轮段必须保留原文短摘的逐行框选和向心汇入，诚实边界则用整版替换而非再叠一张卡，确保两段运动语法不同。
+avg_score: 92.5
+pass: true
+scorecard_phase: pre_render

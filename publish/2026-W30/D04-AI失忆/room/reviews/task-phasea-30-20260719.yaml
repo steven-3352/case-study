@@ -1,0 +1,55 @@
+review_task_id: task-phasea-30-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+phase: phase_a
+project_id: W30D04
+content_id: T043
+content_version: v2
+form_version: v2
+read_only_review: true
+reviewed_artifacts:
+  - meta.yaml
+  - GAP_REPORT.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - script/T043_配音稿_v2.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+roles:
+  - role: 网络调研员
+    angle: "跨产品记忆机制资料、平台兴趣证据与自建案例边界"
+    score: 90
+    verdict: pass
+    notes: |-
+      外部参考选用 OpenAI Memory FAQ、Claude Code memory 和 Anthropic context 官方文档，并只用于说明不同产品会构造不同上下文；文档明确不让这些网络资料替自建 Hermes 案例证明因果。`hook_benchmark.md` 标记为 `agent_hypothesis`，当前脚本也没有把“永久记忆”“换设备必忘”等队列旧主张带回成片。
+
+      扣分：(-4) 官方资料没有记录访问日期、页面版本、作者/更新时间和逐条引用位置；(-4) 没有可回查的抖音/小红书工作流记忆样本或评论语料，无法验证工作人群是否会理解“入口读集”；(-2) `queue/topics.yaml` 的“1万”和17赞评论未给原链接、截图或采样口径，v2 正确地没有采用，但也因此缺平台需求依据。可执行改法：补官方页面元数据与存档摘录；采集至少5条“跨入口找不到记录”的工作流内容及评论原话，严格排除情感陪伴样本；无法补齐时保持网络背景 B 级，不写市场普遍性。
+
+  - role: 记者
+    angle: "journal落盘、commit、旧入口原话和代码读集的事故链复核"
+    score: 95
+    verdict: pass
+    notes: |-
+      原始导出可逐项回查：`2026-07-14-desktop.md` 29-35 记录目标 journal 与 commit `ced86c9`；83-99 列出飞书 `build_system` 的四项读集并指出目标 reddit journal 不在其中；187 明确两个入口同机、同仓库、同磁盘；`2026-07-14-bot.md` 7 保留旧入口“没有记录”的原话。v2 配音把结论限定为这套自建工作助理的读取路径缺口，不再使用“永久记住”“所有 AI”“换设备失忆”。
+
+      扣分：(-2) 洞察包引用“raw export 行1102-1104”时实际指向 desktop 记录对飞书日志的转述，最原始的 bot 逐字回答在 `2026-07-14-bot.md` 7-24，来源坐标应优先指向后者；(-2) “桌面能读”来自桌面会话对文件和代码的检查记录，成片自绘界面必须清楚标“脱敏摘录”，不能伪装产品截图；(-1) readset 是事故时点快照，修复后已发生变化，应在画面标“修复前”。可执行改法：事实表同时列 bot 原话和 desktop 代码检查双来源；路径图常驻“修复前/自建 Hermes/2026-07-14”。
+
+  - role: 选题深挖师
+    angle: "从拟人化失忆转向可复现读集排查的观众收益"
+    score: 93
+    verdict: pass
+    notes: |-
+      v2 的冲突具体且可视化：同一条已落盘记录，一端找得到、另一端说没有；根因不是抽象“模型记性”，而是入口没有注入目标来源。观众拿走的三问“写到哪/入口读什么/修后能否从原入口取回”能迁移到自建 Agent、知识库和多入口工作流；范围镜与结尾都限制为自建工作助理，避免消费级 AI 教程误导。路径 X 光、读集扫描和三枚探针也与 D03 的问题轨道、D05 的验收台有任务差异。
+
+      扣分：(-3) “入口读集”是工程术语，普通办公用户需要在首个术语出现时翻译成“这个入口每次实际带给模型的资料清单”；(-2) 受众较窄，与队列原先“让AI永久记住你”的大流量人群不是同一群，平台天花板尚无样本验证；(-2) 与 D05 共用同一事故，若连续发布容易被看成一条内容拆两次。可执行改法：D04发布只讲“为什么两个入口答案不同”，不要提前完整演示 D05 的 QA 验收流程；标题和封面保持“同一记录/一个入口看不见”，不用“失忆/永久”。
+overall:
+  score: 92.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；事故原件和范围边界可回查，允许进入后续Phase A。"

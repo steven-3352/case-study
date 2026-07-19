@@ -1,0 +1,31 @@
+status: pass
+review_source: independent_agent_tasks
+role: 选题深挖师
+artifact: insights/topic_brief.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea20-r03-w30d02-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-20-20260719
+  reviewed_at: '2026-07-19'
+  angle: 重大决定的事故复盘共鸣、结构化收益、收藏价值与互动成本
+  score: 93
+  verdict: pass
+  notes: 选题抓住“AI 已经列出很多风险，但我仍不知道失败路径和依据是什么”的真实使用困境；第一帧直接站到六个月后的失败现场，4秒内给出能力证据、四周零涨粉和获客缺口，不依赖竞猜。中段先承认普通问法已够严格，再展示
+    Round 1 的真实“原因→事实/缺口”路径和双轮差异，最后给出可暂停抄取的修订 Prompt，并以“小事别用”限制过度分析；辞职、副业、创业、转行四选一显著降低评论成本。扣(-7)：项目名“别再让
+    AI 给你建议了”仍比实际边界绝对，21至28秒的“两轮不同/稳定结构”偏抽象，且固定“三个原因”容易被观众误当成方法本质而非本次可操作格式。可执行修正：封面和标题优先采用“重大决定，先别急着要建议”，双轮镜必须保留两枚真实短哈希与差异限定；发布说明可注明原因数量按计划复杂度调整，但不得改动本片所展示的未复测修订版事实状态。
+- reviewer_id: phasea12-r03-w30d02-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-12-20260719
+  reviewed_at: '2026-07-19'
+  angle: 事前验尸的受众场景、结构收益与不制造虚假因果链
+  score: 91
+  verdict: pass
+  notes: 选题面向辞职、副业、创业、转行等高赌注计划，首屏直接站到“六个月后失败”的现场并回查原因，内容收益不是让 AI 更凶，而是把回答组织成“失败原因→依据类型”；普通问法已经严格、两轮内容不同、整组复合干预和小事别用均进入口播，避免了虚假反派与万能药。可复制版补上“已给事实/信息缺口”二分，也正面修复了原实验指令只要求现有事实却被模型迫使使用缺口的矛盾。扣(-9)：标题“别再让
+    AI 给你建议了”仍比正文适用边界绝对，且复制版固定要求倒推三个原因，观众可能误把“三个”当方法本质或稳定结果。可执行修正：封面和标题收窄为“重大决定，先别急着要建议”，Prompt
+    可写“倒推三个最关键原因（数量可按计划调整）”，但不得把两轮具体原因与排序合并展示。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render

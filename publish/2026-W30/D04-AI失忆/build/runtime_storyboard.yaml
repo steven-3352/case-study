@@ -1,0 +1,92 @@
+video:
+  fps: 30
+  width: 1080
+  height: 1920
+scenes:
+- id: w30d04__record_hook
+  template: d04_w30_record_hook.html
+  duration: 2.0
+  type: html
+  data:
+    eyebrow: 同一台机器 · 同一仓库
+    title: '同一条记录
+
+      一端有 · 一端没有'
+    path: journal / project record
+    subtitle: 同一条项目记录。
+    scene_duration: 2.0
+- id: w30d04__conflict
+  template: d04_w30_conflict.html
+  duration: 3.92
+  type: html
+  data:
+    record: reddit 调研记录 · 已存在
+    desktop: 电脑端：找得到
+    bot: 飞书端：我这边没有记录
+    subtitle: 电脑端能找到，飞书端却回：我这边没有记录。
+    scene_duration: 3.92
+- id: w30d04__write_proof
+  template: d04_w30_write_proof.html
+  duration: 6.32
+  type: html
+  data:
+    path: journal/2026-07-13-…md
+    commit: commit ced86c9
+    verdict: 内容确实已落盘
+    subtitle: 我查的不是模型记性，是代码。内容确实已经写进 journal 文件，还进了提交记录。
+    scene_duration: 6.32
+- id: w30d04__readset
+  template: d04_w30_readset.html
+  duration: 8.12
+  type: html
+  data:
+    sources:
+    - SELF.md
+    - rules/guidance.md
+    - projects/index.md
+    - 当天 -bot.md 标题
+    title: 飞书入口每轮实际读集
+    subtitle: 问题出在入口读集：这个 bot 每轮只读 SELF、规则、项目索引和当天 bot 标题。
+    scene_duration: 8.12
+- id: w30d04__missing_path
+  template: d04_w30_missing_path.html
+  duration: 5.17
+  type: html
+  data:
+    present: 目标 journal 在磁盘
+    missing: 不在入口注入列表
+    result: 模型拿不到
+    subtitle: 那份调研记在另一个 journal。桌面能读，飞书入口根本没注入。
+    scene_duration: 5.17
+- id: w30d04__boundary
+  template: d04_w30_boundary.html
+  duration: 6.82
+  type: html
+  data:
+    truth: 读取路径漏了一块
+    scope: 仅限这套自建工作助理
+    not_claim: 不是所有 AI 跨设备都会忘
+    subtitle: 所以这次不是内容消失，是读取路径漏了一块。这个结论只适用于我这套自建工作助理。
+    scene_duration: 6.82
+- id: w30d04__checklist
+  template: d04_w30_shared_surface.html
+  duration: 7.0
+  type: html
+  data:
+    temporary: 临时记录 · journal
+    canonical: 共同可读面 · projects index
+    readers:
+    - 桌面入口
+    - 飞书入口
+    subtitle: 修法不是让模型更努力，而是把要共享的项目结论，放进两个入口都会读取的共同位置。
+    scene_duration: 7.0
+- id: w30d04__close
+  template: d04_w30_close.html
+  duration: 6.2
+  type: html
+  data:
+    wrong: 临时记录 ≠ 长期结论
+    right: 你在哪个入口断过档？
+    cta: 评论留入口名
+    subtitle: 临时记录留在 journal，长期结论再升格。你在哪个入口遇到过断档？评论留个入口名。
+    scene_duration: 6.2

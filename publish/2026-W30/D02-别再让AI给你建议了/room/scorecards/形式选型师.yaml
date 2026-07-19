@@ -1,0 +1,28 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式选型师
+artifact: design/form_competition.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea23-d02-format-selection-w30d02-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-23-20260719
+  reviewed_at: '2026-07-19'
+  angle: 事故板直接倒放是否比A/B竞猜、聊天录屏或手部证物更贴合事前验尸方法
+  score: 94
+  verdict: pass
+  notes: 事前验尸的核心动作就是先假设未来失败、再沿原因回查事实或缺口；事故板把方法本身变成首屏动作，3秒内已完成一次倒推，不需要复用D01竞猜外环。中段只把真实双轮调用作为证据，明确“原因和排序不同、结构稳定、不代表提高准确率”，没有把编辑版Prompt伪装成已验证输入。相较聊天录屏，事故板让因果与依据类型在竖屏内可读；相较手部证物，它减少剧情包装对实验边界的干扰。Prompt收藏与四选一CTA也分别服务收藏和评论。扣(-6)：4至14秒的两页基线解释仍接近知识清单，事故感会短暂减弱；具体改法：用同一逆向轴完成场景交接，不增加新的卡片皮肤或A/B标签，并保持14秒真实路径为全片中段最强视觉回报。
+- reviewer_id: phasea15-d02-format-fit-w30d02-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-15-20260719
+  reviewed_at: '2026-07-19'
+  angle: 未来事故倒放是否比竞猜、聊天录屏或风险清单更贴合事前验尸方法
+  score: 93
+  verdict: pass
+  notes: 当前版本取消A/B猜谜，第一帧直接给“6个月后·计划失败”，箭头从未来向现在倒放；0.8秒起依次出现能力证据、四周零涨粉和获客缺口，3秒内已经完成一次“失败原因到事实/缺口”的可读扣合。14至21秒再用纵向红线展示Round
+    1两条逐字路径，21至28秒以双轮响应签收束到组织结构，形式顺着方法本身推进。它与D01的横向双回答、变量锁和核查槽明显隔离。扣(-7)：4至14秒连续使用事实签和普通风险纸，视觉语言短暂回到常规证据看板；具体修正：最终转场保留事故红轴残影，让事实签和普通风险都像被吸回同一时间轴，而不是两个独立列表页。
+avg_score: 93.5
+pass: true
+scorecard_phase: pre_render

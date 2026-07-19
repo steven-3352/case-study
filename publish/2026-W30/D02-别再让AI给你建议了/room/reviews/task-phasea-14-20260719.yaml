@@ -1,0 +1,52 @@
+review_task: task-phasea-14-20260719
+reviewer_agent_id: task-phasea-14-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - publish/T041_publish.md
+  - insights/premortem_ab_evidence.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea14-d02-retention-path
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "事故钩子3秒停划、具体倒推兑现时点、中段证据回报与收藏评论"
+    score: 88
+    verdict: fail
+    notes: |-
+      “假设半年后已经失败，往回查它怎么死的”具备强场景和抖音首屏冲突，垂直事故板也与D01左右对照明显区分；28秒完整Prompt服务收藏，末尾四选一降低评论成本，整体视觉每4至7秒切换。扣(-12)：首屏承诺“往回查”，但4至14秒先解释虚构计划和普通问法，第一条具体“原因→事实/缺口”路径直到14秒才出现，storyboard所写“4秒内兑现第一次逆推”并未在内容层兑现；9至14秒的普通风险又与D01核心能力风险高度相似，容易形成中段既视感。具体修正：在0至4秒就闪现一条“失败：接不到客户←缺口：没写获客路径”，4秒后再补案例；普通问法压到一句屏幕基线，把节省时长给两条真实倒推路径。
+
+  - role: 纪录片导演
+    reviewer_id: phasea14-d02-tested-vs-rewritten
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "复合干预归因、双轮原文结构、实测Prompt与发布Prompt的证据伦理"
+    score: 89
+    verdict: fail
+    notes: |-
+      实验保留两轮A/B的原始响应、完整脱敏请求、response id、返回模型、usage和SHA256，也诚实承认A已经严格、两轮B具体原因与排序不同，结论仅限整组复合指令改变组织方式；路径模板还明确“整组Prompt干预·非单变量”，事实伦理基础扎实。扣(-11)：实测B要求“指出哪条现有事实”，成片可抄版本却新增“已给事实/信息缺口”分类并删去可能性与破坏性排序、不要先说优点等条件；HTML脚注虽说明改写，发布正文和置顶评论未明确“以下是依据实测暴露问题后改写、尚未单独复测”，观众容易把双轮证据归给最终Prompt。具体修正：要么补跑最终逐字Prompt双轮，要么在发布正文、Prompt画面标题和置顶评论统一标“改写版·未单独复测”，并把原实验Prompt入口留在证据说明。
+
+  - role: 编剧
+    reviewer_id: phasea14-d02-title-oral-contract
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "标题承诺收窄、事故叙事推进、MiniMax听感及Prompt读听一致"
+    score: 88
+    verdict: fail
+    notes: |-
+      成片口播已从“别再让AI给建议”收窄为“小事别用，重大决定先验失败路径”，并主动说普通回答已经严格、不更准、不预测未来；句长大体可供MiniMax在43秒内清晰朗读，Prompt段使用“更严谨地抄这句”也隐约承认它是改写版。扣(-12)：实际发布候选1写“同一计划问AI两遍”，但证据是两轮A/B共四次调用；候选3“这句Prompt不让AI补建议，只让它倒推死因”仍是跨模型、跨调用的绝对化标题，未收窄到本次观察；14至28秒两句各约50字，TTS连续解释组织结构和实验边界，事故叙事会变成说明书。具体修正：删候选1和3，使用“同一虚构计划跑两轮A/B，B先按死因→依据组织”；把14至28秒拆为“先假设失败。每条死因，紧跟事实或缺口。两轮原因不同，结构相同”，并让画面明确最终可抄Prompt是改写版。

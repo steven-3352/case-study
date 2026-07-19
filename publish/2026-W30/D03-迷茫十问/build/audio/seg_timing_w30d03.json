@@ -1,0 +1,88 @@
+{
+  "engine": [
+    "minimax"
+  ],
+  "total": 48.74,
+  "segments": [
+    {
+      "id": "test_hook",
+      "window": 2.83,
+      "vo_dur": 2.71,
+      "start": 0.0,
+      "seg_dur": 2.83,
+      "emotion": "serious",
+      "speed": 1.04,
+      "text": "同一个迷茫问题，我跑了两轮。"
+    },
+    {
+      "id": "split_proof",
+      "window": 6.35,
+      "vo_dur": 6.23,
+      "start": 2.83,
+      "seg_dur": 6.35,
+      "emotion": "serious",
+      "speed": 1.04,
+      "text": "普通问法首答内就给建议；加上流程后，它只问一个问题：你现在靠什么活着？"
+    },
+    {
+      "id": "claim_boundary",
+      "window": 6.35,
+      "vo_dur": 6.23,
+      "start": 9.18,
+      "seg_dur": 6.35,
+      "emotion": "neutral",
+      "speed": 1.04,
+      "text": "差别只支持到这里：回答顺序变了，不代表更准，也不代表真能帮你找到方向。"
+    },
+    {
+      "id": "survival_gate",
+      "window": 7.72,
+      "vo_dur": 7.6,
+      "start": 15.53,
+      "seg_dur": 7.72,
+      "emotion": "neutral",
+      "speed": 1.04,
+      "text": "这份流程先收四类生存事实：靠什么活、还能撑多久、真正做过什么、过去放弃过什么。"
+    },
+    {
+      "id": "target_gate",
+      "window": 5.04,
+      "vo_dur": 4.92,
+      "start": 23.25,
+      "seg_dur": 5.04,
+      "emotion": "neutral",
+      "speed": 1.04,
+      "text": "再问两件事：你最怕什么；三个月后，什么状态算没白过。"
+    },
+    {
+      "id": "action_gate",
+      "window": 6.23,
+      "vo_dur": 6.11,
+      "start": 28.29,
+      "seg_dur": 6.23,
+      "emotion": "neutral",
+      "speed": 1.04,
+      "text": "最后逼到行动：你是买方还是卖方、第一个真实用户是谁、这周最小验证什么。"
+    },
+    {
+      "id": "tenth_gate",
+      "window": 6.0,
+      "vo_dur": 5.62,
+      "start": 34.52,
+      "seg_dur": 6.0,
+      "emotion": "serious",
+      "speed": 1.04,
+      "text": "九问之后还有第十问：现在，你能不能说出一个之前没有的具体下一步？"
+    },
+    {
+      "id": "prompt_exit",
+      "window": 8.22,
+      "vo_dur": 8.1,
+      "start": 40.52,
+      "seg_dur": 8.22,
+      "emotion": "neutral",
+      "speed": 1.04,
+      "text": "完整指令放在画面上。你最卡哪一问，评论留个数字；AI 先问事实，拍板和验证还是你自己。"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 记者
+artifact: insights/fact_check.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea55-d03-reporter-v3-w30d03-reporter
+  review_mode: independent
+  reviewer_agent_id: task-phasea-55-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-55-20260719 · 记者 · 可发布事实链可逐项回查：普通问法两轮首答进入观察/建议，流程问法两轮首答都先问“你现在靠什么活着
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-3) “最后逼到行动”容易被听成已发生行动结果，证据只支持Prompt包含三类行动问题；(-2) “同一个问题”实际是同一情境下的两种提示版本，发布文案需避免误称完全相同输入；(-1)
+    只测单模型和单情境。 改法：禁写更准、更有用、理清方向、产生行动或单句有效；可写范围限定为本组调用中的首答组织变化。 依据：可发布事实链可逐项回查：普通问法两轮首答进入观察/建议，流程问法两轮首答都先问“你现在靠什么活着”；干预是整组流程，不能拆给单句归因。脚本第二段主动声明“不代表更准，也不代表真能找到方向”，画面边界同时列出不代表更有用；第10问标为编辑补充、待真人结果验证。
+- reviewer_id: phasea46-d03-reporter-v3-w30d03-reporter
+  review_mode: independent
+  reviewer_agent_id: task-phasea-46-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-46-20260719 · 记者 · 最新口播准确说“普通问法首答内给建议”，没有夸成第一字就给完整方案；紧接着明确“只支持回答顺序变
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) “最后逼到行动”仍可能被误听为已产生行动结果，实际只是Prompt中的三类问题；(-2) 第10问的编辑属性只在画面、不在口播；(-1)
+    CTA没有给九问逐项编号，评论数字存在轻微解释成本。 改法：最终字幕不得遮挡第10问待验标签；发布文案只写组织变化，不写更有效或能找到方向。 依据：最新口播准确说“普通问法首答内给建议”，没有夸成第一字就给完整方案；紧接着明确“只支持回答顺序变了”，并排除更准和找到方向。第10问在画面标“编辑补充·待真人结果验证”，结尾把拍板与现实验证交还用户。CTA“最卡哪一问，评论留数字”只收集观众自述，不冒充结果数据。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

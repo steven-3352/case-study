@@ -1,0 +1,55 @@
+review_task: task-phasea-15-20260719
+reviewer_agent_id: task-phasea-15-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - publish/T041_publish.md
+  - insights/premortem_ab_evidence.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+reviews:
+  - role: 形式选型师
+    reviewer_id: phasea15-d02-format-fit
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "未来事故倒放是否比竞猜、聊天录屏或风险清单更贴合事前验尸方法"
+    score: 93
+    verdict: pass
+    notes: |-
+      当前版本取消A/B猜谜，第一帧直接给“6个月后·计划失败”，箭头从未来向现在倒放；0.8秒起依次出现能力证据、四周零涨粉和获客缺口，3秒内已经完成一次“失败原因到事实/缺口”的可读扣合。14至21秒再用纵向红线展示Round 1两条逐字路径，21至28秒以双轮响应签收束到组织结构，形式顺着方法本身推进。它与D01的横向双回答、变量锁和核查槽明显隔离。扣(-7)：4至14秒连续使用事实签和普通风险纸，视觉语言短暂回到常规证据看板；具体修正：最终转场保留事故红轴残影，让事实签和普通风险都像被吸回同一时间轴，而不是两个独立列表页。
+
+  - role: 留存与互动设计师
+    reviewer_id: phasea15-d02-retention-payoff
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "事故首屏即时兑现、14至28秒证据推进、Prompt阅读行为与四选一评论摩擦"
+    score: 92
+    verdict: pass
+    notes: |-
+      首屏不再承诺后拖延，3秒内就显示具体原因、已给事实和信息缺口；4秒交代测试计划，9秒承认普通回答已经够严格，14秒给真实倒推路径，21秒交代两轮原因不同但结构稳定，回报每4至7秒升级且各镜内部用stagger保持2至4秒变化。28至38秒全文先展开，再用黄色背景轮换高亮四行关键词，文字本身始终不移动，末段留出稳定阅读；38秒用辞职、副业、创业、转行四选一把评论成本压到一个词。扣(-8)：9至14秒三项普通风险与D01“能力未验证”有内容重叠，可能造成中段既视感；具体修正：该段只承担“普通回答已经严格”的基线，渲染时三项快速横向扫过，不延长停留，也不重复放大第一项。
+
+  - role: 形式策略官
+    reviewer_id: phasea15-d02-system-coherence
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "倒推骨架、证据边界、收藏版披露和使用边界能否组成一致的数据假设"
+    score: 94
+    verdict: pass
+    notes: |-
+      形式链条从未来事故钩子开始，依次补计划事实、普通回答基线、原因到依据、双轮限定、可复制指令和适用边界，每个高级镜头分别服务停划、理解、完播、信任、收藏或评论。Prompt画面底部明确“根据实测暴露问题修订、此修订版未单独A/B”，发布置顶评论也同步披露，避免把双轮证据错误归给编辑版；全文常驻配合逐行高亮，收藏行为有清晰静止面。扣(-6)：21至28秒双票据只显示轮次和短哈希，若字幕与口播不同步，观众可能只看到技术凭证而错过“原因不同、结构稳定”的核心；具体修正：结论句必须在两张票据完成落位后占据最大字号，限定语同时常驻，短哈希保持次级层级。

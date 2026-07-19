@@ -1,0 +1,62 @@
+review_task: task-phasea-36-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: W30D05
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - GAP_REPORT.md
+  - meta.yaml
+  - pipeline_config.yaml
+  - script/T044_配音稿_v2.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea36-d05-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 88
+    verdict: fail
+    evidence: |-
+      原始材料足以支持两块独立事实：desktop raw第1813-1824、1854-1863、1894-1895行记录一条新事实从Feishu MEMO写入INBOX、升格projects并出托盘；旧入口失败与旧读集也有raw支持。当前fact_check采取更严格边界，明确“原入口复问旧事实成功”缺少可签字的逐字原件，因此只能待验，pipeline与配音稿已按此拒签。
+    deductions: |-
+      (-5) 当前topic_brief末句仍写“真数据回问通过”，与fact_check“原入口复问缺逐字原件、禁止写已通过”直接冲突；(-3) GAP_REPORT写“修复和闭环验收均可回查”范围过宽，没有区分写入升格闭环与原入口复问验收；(-2) bot raw 10:42虽出现一次能答reddit的逐字对话，但现证据包没有保存与修复版本、注入配置、请求hash的绑定，不能替代当前规定的可签验收原件；(-2) 官方URL仍无快照和段落定位。
+    remediation: "将topic brief改成‘新事实写入升格通过；原入口复问待逐字原件’，GAP_REPORT同样拆开两类验收；补一轮带时间、配置版本、完整问答与hash的原入口复问后再签通过。"
+  - role: 记者
+    reviewer_id: phasea36-d05-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      当前生产口播已经与严格事实边界对齐：答不上只是报警；根因需要落盘和读集双证；新事实写入与升格跑通，但原入口复问缺逐字原件，因此明确“我不签通过”。scene data分别标“写入升格｜通过”和“原入口复问｜待原件”，结尾再次强调证据缺一张不宣布修好。没有“翻遍记录”、AI自曝根因、换设备万能测试或跨产品外推。
+    deductions: |-
+      (-2) 首句“最危险”是无比较基线的最高级判断，应收窄为“最容易误判的一种情况”；(-2) “落盘回执”在原矿里实际对应文件、commit和INBOX落条，画面应具体呈现；(-2) 上游topic brief的相反结论仍可能污染发布文案。
+    remediation: "首句改为‘我最容易误判的不是没写，而是写了却没被读’；只从pipeline v2生成发布文案，并先修正topic brief。"
+  - role: 选题深挖师
+    reviewer_id: phasea36-d05-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    evidence: |-
+      “AI说记住了，不算验收”命中Agent/知识库搭建者的真实工作风险，三步“查落盘、查读集、修后回问”有明确复现价值。最有力量的不是成功案例，而是写入升格已通过仍因缺原入口逐字证据拒签，体现工程验收标准；与D04的根因解释可形成“为什么断/怎么验”分工。
+    deductions: |-
+      (-3) 与D04共享事故和前两张证物，连续发布仍有重复感；(-2) 读集、升格等术语提高理解门槛；(-2) topic brief错误写成回问通过，会破坏“缺证拒签”这一独特选题价值；(-2) 受众主要是工作流搭建者，泛平台流量上限有限。
+    remediation: "把‘拒签’作为标题与中段核心，而不是普通三步清单；用‘正式记录’解释升格，并确保所有上游摘要都停在待验。"
+overall:
+  score: 91.0
+  verdict: fail
+  blocking_issues:
+    - "topic_brief仍声称真数据回问通过，与fact_check及生产口播的缺原件拒签结论冲突。"
+    - "GAP_REPORT未拆分写入升格闭环与原入口复问验收，证据范围表述过满。"
+  release_condition: "网络调研员未达90；统一证据包为‘写入升格通过/原入口复问待验’并补可签原件后重审。"

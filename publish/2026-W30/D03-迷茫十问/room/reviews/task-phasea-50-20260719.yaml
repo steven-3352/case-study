@@ -1,0 +1,50 @@
+review_task: task-phasea-50-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - insights/questions_ab_evidence.md
+  - insights/fact_check.md
+  - design/form_strategy.md
+  - design/form_competition.md
+  - design/visual_originality_gate.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/templates/d03_w30_*.html
+reviews:
+  - role: 事实校验员
+    reviewer_id: phasea50-d03-fact-checker-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "双轮API原件、像素主张、复合干预边界与第十问标注"
+    score: 96
+    verdict: pass
+    evidence: |-
+      两轮普通问法首答均在同一回复内给建议，两轮流程组首答均只先问“你现在靠什么活着”，questions_ab_evidence保留请求、response id与SHA256。production只说“回答顺序变了”，第二镜像素写“双轮同方向·只证明组织变化”，边界镜逐项否定更准、更有用、能找到方向。第十问像素明确“编辑补充·待真人结果验证”，没有把未跑完的真人多轮包装成有效性证据。
+    deductions: |-
+      (-1) 首屏“先建议↔先问事实”是摘要，不是原文逐字截图，需保留“摘要/双轮”标签。(-1) “加上流程后”代表九问、逐问等待、不假设等复合干预，不能拆归因到某一句。(-1) 出口票规则“第10问验收具体下一步”需持续保留编辑补充层级。(-1) 压力结果验证像素无遮挡，不验证事实来源本身。
+    fix: "发布包继续保留复合干预和不证明效用的边界；任何裁切版不得删掉第十问的编辑补充标识。"
+  - role: 形式选型师
+    reviewer_id: phasea50-d03-format-selector-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "纵向三关相对候选形式的停划、理解、完播、收藏与原创性"
+    score: 94
+    verdict: pass
+    evidence: |-
+      纵向三关诊断轨道把“先收事实再建议”的时序直接转成令牌穿门动作，比九张便利贴更能表达逐个问与等待，也比真人情景表演更符合无真人效用证据和不本人录音约束。首答汇流、四列闸、双靶窄门、三节点轨、第十问终检和出口票均为内容专属构图，与D01双栏、D02事故轴及D04/D05形式不撞。1.5x下最大动作间隔约2.5s，出口票315帧压力最大连续相同41帧=1.367s且无遮挡。
+    deductions: |-
+      (-2) 出口票同屏九问、四规则、CTA和边界，规则24px更适合暂停收藏而非自然播放。(-1) 首屏仍短暂使用A/B摘要，需确保立即汇轨而不退化成竞猜双栏。(-1) 轨道连续三镜若令牌视觉权重过高，可能产生形式重复。(-1) 静态storyboard末镜时长仍未同步production。(-1) 真机可读性尚需最终成片抽检。
+    fix: "保持首答双块只作瞬时证物并快速汇轨；末镜优先收藏层级，必要时删次级词；真机抽检24px规则。"
+overall:
+  score: 95.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "两角色均通过；事实边界与像素一致，纵向三关是当前候选中最能同时服务时序理解和Prompt收藏的形式。"

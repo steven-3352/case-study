@@ -1,0 +1,70 @@
+review_task: task-phaseb-07-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/video_no_bgm.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  sha256: d639086b101f0ca62d0cb4c7995e9ecd60ed2d273753c16781bbbce3f2ab4bde
+  duration_s: 47.96
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；综合响度约-17.4 LUFS；true peak约-0.5 dBTP"
+  first_3s: "实际逐秒抽查0s/1s/2s/3s：A/B原文、问题和游标均已出现，游标移动但3s内不落到B，不提前泄底。"
+  longest_low_change: "自动freezedetect低差异区间最长约3.50s（0.33-3.83s，因纸面底图稳定而触发）；逐秒人工核验可见游标持续位移。排除该渐变运动后，最长真正静置约3.07s（42.63-45.70s），仍在2-4s变化约束内。"
+  rhythm_sampling: "按约3s间隔检查全片contact sheet，并重点检查20.98-28.98s收藏段与41.57-47.96s CTA。"
+  subtitle_check: "实际读取SRT并核对烧录字幕；14条从0.000s连续覆盖至47.960s，无尾句截断。"
+  cover_check: "实际查看1080x1920封面；主问题、A/B与原文均存在，底部字幕条贴近平台UI高干扰区。"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "60%-69%"
+  completion_rate: "30%-37%"
+  rationale: |-
+    3s预测建立在0s即给A/B原文、单一选择题和持续游标位移上；下限考虑两栏原文字号偏小，用户可能只能读标题而不能核对证据。完播预测建立在3.82s揭晓、9.70s控制变量、15.45s计划事实、20.98s可复制Prompt、28.98s双轮证据、41.57s边界与CTA的连续回报上；下限考虑47.96s片长、21-29s文字阅读负荷及中后段理性证据密度。该区间是发布前B级估算，不是投后真实数据，也不证明实际平台表现。
+  grade: B
+  go_no_go: go
+reviews:
+  - role: 留存与互动设计师
+    reviewer_id: phaseb07-d01-retention-interaction
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    notes: |-
+      0.00-3.00s把观看动作压缩成“哪份开头就给核心假设”的二选一，游标在两栏之间移动而不提前落到答案，既有参与任务也有悬念；3.82-9.70s立即揭晓右边并解释差异，没有拖延。15.45-20.98s用“四周几乎没涨粉”的具体失败事实承接共鸣，20.98-28.98s完整交付可复制Prompt，是明确收藏段；28.98-41.57s用双轮和普通问法对照兑现证据，41.57-47.96s以“最没验证的前提是什么”引导评论。
+
+      扣分：(-3) 首屏两栏原文在手机端偏小，低注意力用户未必能独立完成选择；(-3) 20.98-28.98s收藏段依赖暂停阅读，且视觉主体连续是纸面指令；(-2) CTA是开放式理性问题，评论门槛高于选项题。改法：投后若3s低于60%，下一版放大B首句并把A压成一行；若收藏高但评论低，置顶评论给“我的前提是____”填空模板。当前无阻断项。
+  - role: 编导
+    reviewer_id: phaseb07-d01-director
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    notes: |-
+      成片叙事为“先猜-揭晓-交代控制变量-落具体计划-交付Prompt-双轮复核-诚实限定-评论”，每段都有新的信息职责。全片实际抽帧可见A/B桌面、控制锁、事实卡、Prompt纸、双轮票据、结论印章和评论框持续换形；最长真正静置约42.63-45.70s的3.07s，未超过4s。配音0s进入，声轨连续，字幕完整到47.96s；“普通问法其实也发现了它”保留反夸大边界，没有把Prompt包装成发现真相的唯一手段。
+
+      扣分：(-3) 47.96s对单一技巧仍偏长，15.45-28.98s连续两段以纸面阅读为主；(-2) 35.15-41.57s对差异的解释较抽象，情绪张力低于前段；(-2) 尾段6.39s同时承担方法边界和评论收口，回味稍短。改法：若投后24s到达率掉点明显，优先各压事实卡和Prompt静置0.8s，不删双轮证据与诚实限定。当前可发布。
+  - role: 平台表现分析师
+    reviewer_id: phaseb07-d01-platform-performance
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      1080x1920、H.264/AAC、烧录字幕和独立SRT满足抖音交付；封面主问题在缩略图层级清楚，且与首镜A/B任务一致。0-3s选择服务3s完播，20.98-28.98s完整Prompt服务收藏，41.57-47.96s问题服务评论，指标杠杆有明确像素落点。发布前估算3s完播60%-69%、完播率30%-37%，综合B级，可外发后用真实数据校准。
+
+      扣分：(-3) 封面B栏正文虽真实但缩略图阅读成本高；(-2) 封面底部字幕条位于抖音标题/UI易遮挡区；(-3) 47.96s使40%完播不稳；(-2) 无本账号同题材同长度近期基线，预测只能是B级。改法：发布文案首行复述“同模型同计划，只换问法”，投后重点看3s、21s、29s到达、完播、收藏与评论；不得把上述区间写成投后实测。
+overall:
+  score: 91.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；pre_publish_forecast为B级发布前估算，可外发，投后指标待回填。"

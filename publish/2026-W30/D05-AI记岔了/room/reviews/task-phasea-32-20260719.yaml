@@ -1,0 +1,64 @@
+review_task: task-phasea-32-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T044_配音稿_v2.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+reviews:
+  - role: 内核提炼师
+    reviewer_id: phasea32-d05-core-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "报警与根因的证据门槛、读写验收价值与D04分工"
+    score: 91
+    verdict: pass
+    evidence: |-
+      “答不上只能报警，不能直接叫失忆”是本条最有价值的判定边界；将根因证据门槛锁为“已落盘+原入口读集不含该来源”，比旧稿“换设备/隔天复测”严谨得多。“查落盘、查读集、修后回问”是可执行的工程验收收藏物，也明确限定自建工作流。
+    deductions: |-
+      (-4) D04当前口播已完整说出同三步，因此D05自身内核虽成立，但作为连续第二条的新信息量不足；必须先从D04移除验收法。(-3) “最危险的”是情绪化排他判断，本案没有危险度对照数据；“最容易误判的”更精确。(-2) “修后从原入口回问同一事实”是正确验收标准，但当前原始导出对该同一问题的修后回复展示不如新事实闭环完整，内核应区分“标准”与“已展示证物”。
+    fix: "先将D04收窄为故障解剖；D05保留完整三步验收。钩子改‘最容易误判的，不是AI没写，是文件在、入口却不读’。"
+  - role: 事实校验员
+    reviewer_id: phasea32-d05-fact-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "落盘回执、旧读集、原入口回归与新事实闭环证物分层"
+    score: 85
+    verdict: fail
+    evidence: |-
+      raw export足以支持两张核心证物：29-35行的journal/commit回执，以1102-1104行的旧入口“没有记录”。66、83-99行也支持“目标来源不在旧入口读集”。1010行支持近三天跨文件摘要进入新读侧，1813-1824、1854-1863和1894-1896行支持一条新真实事实从飞书写入INBOX、桌面升格到canonical并出托盘的闭环。
+    deductions: |-
+      (-6) `repaired`像素写“旧：只读当天 bot 标题”，与真实旧读集不符；旧bot还读SELF、guidance和projects index，只是journal索引局限于当天`-bot.md`标题。该简写会把代码根因画错。(-5) 口播和像素声称“修后从原入口回问同一条事实/真实数据回问通过”，但引用的最完整证物是另一条新事实的MEMO→INBOX→canonical闭环；当前审核材料没有同等清晰地展示原reddit问句修复后的直接回复原文。(-2) “把近三天摘要和升格流程接进读集”混合了两个方向：近三天摘要/INBOX注入属读侧，MEMO→INBOX→canonical属写回与升格流程。(-2) 事实表的“修复后真实闭环通过”粒度过粗，未分“旧问题回归”和“新事实端到端写回”两类验证。
+    fix: "将before改为‘旧journal索引：仅当天 -bot.md 标题；另读SELF/rules/projects’。将结果拆成两层：有原问题直接回归证物才写‘原入口同事实回问通过’；现有证物只写‘新事实写入→INBOX→canonical闭环通过’。读侧与写回升格分句。"
+  - role: 形式选型师
+    reviewer_id: phasea32-d05-form-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "黑黄QA验收台三方案竞争、证物分层与D04画面差异"
+    score: 93
+    verdict: pass
+    evidence: |-
+      三方案比较了QA验收台、D04访问X光图续集和真实终端排障vlog；明确否决B的同质风险，并将C的脱敏真证物嵌入A。黑黄夹具、检验尺、01/02/03工位和合格证把观看任务锁在“执行检查”，与D04的横向读写拓扑在主构图上分离成立。首屏直接盖“写入≠可读”服务3s，三工位服务完播/收藏，合格证与范围条服务信任。
+    deductions: |-
+      (-3) `evidence_pair`使用“两张真实证物”但又要求自绘容器不冒充截图，必须在证物槽常驻“真实日志摘录/代码检查摘录·合成排版”，否则可信度依赖观众猜测。(-2) 黑黄工业语汇容易在全片42s变成一种单色工具皮肤，设计语言必须用真实证物的白/深色文本层与绿色合格态打破一调。(-2) D04尚未删除同三步问题时，即使画面不同，连续观看仍会感到内容重复；形式无法单独修复内容分工。
+    fix: "修正事实层像素后保留QA台方向；证物槽明示‘真实摘录·合成排版’，范围条常驻。D04删除三步排查后，D05的三工位才成为唯一方法交付。"
+overall:
+  score: 89.7
+  verdict: fail
+  blocking_issues:
+    - "旧读集像素被错误简化为‘只读当天bot标题’。"
+    - "原失败事实回归与新事实写回闭环证物未分层，‘真实数据回问通过’超出当前直接展示的证据。"
+  release_note: "内核与形式选型通过；事实校验85分，需修正读集与验收证物分层后再审。"

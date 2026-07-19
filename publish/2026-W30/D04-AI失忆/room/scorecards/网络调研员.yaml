@@ -1,0 +1,31 @@
+status: pass
+review_source: independent_agent_tasks
+role: 网络调研员
+artifact: insights/external_references.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea55-d04-network-v3-w30d04-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-55-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-55-20260719 · 网络调研员 · 本案核心来源是raw export中的落盘记录、飞书端原话、同机同仓库说明和build_syst
+  score: 91
+  verdict: pass
+  notes: 扣(-9)。 (-4) 没有公开平台用户样本验证“入口断档”的普遍发生率；(-3) 外部产品文档不能支撑当前自建bot的修法；(-2) 受众原话大多来自单次项目事故。
+    改法：发布文案必须把来源写成自建工作助理真实排查，不得借外部Memory文档泛化为所有AI或跨设备规律。 依据：本案核心来源是raw export中的落盘记录、飞书端原话、同机同仓库说明和build_system代码读集，事实校验均给出行号，属于A层项目一手材料。OpenAI
+    Memory FAQ与Claude Code文档只提供“不同产品上下文机制不同”的背景，未替本地代码读集证明因果。形式参考明确是agent_hypothesis，不冒充热门案例。
+- reviewer_id: phasea46-d04-network-v3-w30d04-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-46-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-46-20260719 · 网络调研员 · raw-export可回查目标journal及commit ced86c9、桌面代码检查得到的四
+  score: 93
+  verdict: pass
+  notes: 扣(-7)。 (-3) 外部链接只有URL与转述，没有抓取快照和精确引文定位；(-2) hook benchmark是形式假设，不是平台热门样本；(-2)
+    事件来自单一自建系统，受众面天然偏窄。 改法：所有发布口径保留‘自建工作助理’范围；不得扩写成所有AI或跨设备失忆规律。 依据：raw-export可回查目标journal及commit
+    ced86c9、桌面代码检查得到的四项入口读集、目标journal不在注入列表，以及旧飞书入口“我这边没有记录”的现场。两端同机同仓库也在原始记录中，因此当前内容把因果放在入口读集而非网络同步是有依据的。外部Memory文档只说明不同产品有各自上下文机制，没有替本案例证明因果。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render

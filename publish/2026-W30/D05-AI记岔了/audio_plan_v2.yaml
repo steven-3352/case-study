@@ -1,0 +1,18 @@
+status: ready_after_content_gate
+content_id: W30D05
+content_version: v2
+form_version: v3
+voice: {engine: minimax, model: speech-2.8-turbo, voice_id: "Chinese (Mandarin)_Sincere_Adult", fallback_engine: none, script_path: script/T044_配音稿_v2.md, speed: 1.04, production_rule: "strict_provider=true；实际 timing 驱动分镜"}
+bgm: {enabled: false, rationale: "QA 验收型密 VO；机械盖章与警报 SFX 保持能量"}
+sfx:
+  enabled: true
+  events:
+    - {sid: room, kind: ambient, t_start: 0, duration: 42, gain_db: -24}
+    - {sid: alarm, kind: hit, t_start: 0, scene_sid: alarm, offset: 0.2, duration: 0.3, gain_db: -10}
+    - {sid: evidence, kind: whoosh, t_start: 5, scene_sid: evidence_pair, offset: 0.1, duration: 0.4, gain_db: -14}
+    - {sid: reject, kind: hit, t_start: 11, scene_sid: causality, offset: 0.5, duration: 0.2, gain_db: -12}
+    - {sid: checks, kind: tick_seq, t_start: 17, scene_sid: write_check, offset_seq: [0.5, 2.3], duration_each: 0.1, gain_db: -16}
+    - {sid: retest, kind: whoosh, t_start: 24, scene_sid: retest, offset: 0.0, duration: 0.4, gain_db: -14}
+    - {sid: repaired, kind: hit, t_start: 30, scene_sid: repaired, offset: 0.4, duration: 0.2, gain_db: -12}
+    - {sid: qa, kind: hit_seq, t_start: 36, scene_sid: qa_card, offset_seq: [0.5, 1.7, 2.9], duration_each: 0.1, gain_db: -15}
+subtitles: {burn: false, srt_path: douyin/subtitles.srt, max_lines: 2}

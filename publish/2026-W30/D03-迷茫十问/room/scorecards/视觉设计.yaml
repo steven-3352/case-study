@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 视觉设计
+artifact: douyin/video.mp4
+artifact_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb10-d03-visual-design-w30d03-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_07
+  reviewed_at: '2026-07-19'
+  angle: task10 · visual · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '黑白基底配蓝、绿、黄、红四类功能色，证物、边界、三关和第10问的层级清楚；全分辨率关键帧中主标题、双栏、字幕和CTA均在安全画布内。47s完整九问实际可辨，编号01-09同时补足评论留数字的对应关系。
+
+
+    扣分：(-3) 末镜九问、四条规则、CTA与烧录字幕同屏，手机自然播放必须暂停；(-2) 多镜大面积浅色留白配黑框，视觉质感偏工具说明页；(-2) 首屏封面没有直接出现“迷茫”主词，只在烧录字幕中补足；(-2)
+    封面底部字幕靠近抖音UI区。最小改法：投后若封面点击弱，另做不带烧录字幕且主标题含“迷茫”的封面版本；成片当前无溢出阻断。'
+- reviewer_id: phaseb11-d03-visual-design-w30d03-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task11 · visual · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '蓝色纵轨、四列生存门、双靶边界门、三节点行动轨、第10问黄牌和出口票建立了连续且可辨的视觉语法。关键帧中主标题、卡片、边界章、01-09问题、四条规则、CTA和烧录字幕均在画布内，无裁切、遮挡或重叠；第10问的红色“编辑补充·待真人结果验证”清晰可见。
+
+
+    扣分：(-3) 40.52-48.73s出口票同屏承载九问、四规则、CTA与字幕，完整阅读必须暂停；(-2) 出口票正文虽可辨，但自然播放手机尺寸仍偏小；(-2)
+    首屏和封面大面积留白，视觉冲击主要靠排版而非证物细节；(-2) 封面底部烧录字幕贴近抖音UI干扰区。改法：后续封面导出不带烧录字幕；出口票保持当前字号与编号，不得缩字，平台文案提示暂停收藏。当前主信息无像素阻断。'
+avg_score: 91.0
+pass: true
+scorecard_phase: post_render

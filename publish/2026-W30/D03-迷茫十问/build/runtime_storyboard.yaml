@@ -1,0 +1,106 @@
+video:
+  fps: 30
+  width: 1080
+  height: 1920
+scenes:
+- id: w30d03__test_hook
+  template: d03_w30_test_hook.html
+  duration: 2.83
+  type: html
+  data:
+    eyebrow: 同题 · 双轮实测
+    title: '同一个问题
+
+      两种首答顺序'
+    counter: 先建议 ↔ 先问事实
+    subtitle: 同一个迷茫问题，我跑了两轮。
+    scene_duration: 2.83
+- id: w30d03__split_proof
+  template: d03_w30_split_proof.html
+  duration: 6.35
+  type: html
+  data:
+    left: 首答内：给出建议
+    right: 首答：只问一个事实
+    question: 你现在靠什么活着？
+    proof: 双轮同方向 · 只证明组织变化
+    subtitle: 普通问法首答内就给建议；加上流程后，它只问一个问题：你现在靠什么活着？
+    scene_duration: 6.35
+- id: w30d03__claim_boundary
+  template: d03_w30_boundary.html
+  duration: 6.35
+  type: html
+  data:
+    observed: 回答顺序变了
+    not_claims:
+    - 不代表更准
+    - 不代表更有用
+    - 不代表能找到方向
+    subtitle: 差别只支持到这里：回答顺序变了，不代表更准，也不代表真能帮你找到方向。
+    scene_duration: 6.35
+- id: w30d03__survival_gate
+  template: d03_w30_survival_gate.html
+  duration: 7.72
+  type: html
+  data:
+    gate: 第一关 · 生存事实
+    questions:
+    - 靠什么活？
+    - 还能撑多久？
+    - 真正做过什么？
+    - 放弃过什么？
+    subtitle: 这份流程先收四类生存事实：靠什么活、还能撑多久、真正做过什么、过去放弃过什么。
+    scene_duration: 7.72
+- id: w30d03__target_gate
+  template: d03_w30_target_gate.html
+  duration: 5.04
+  type: html
+  data:
+    gate: 第二关 · 目标边界
+    questions:
+    - 你最怕什么？
+    - 三个月后怎样算没白过？
+    subtitle: 再问两件事：你最怕什么；三个月后，什么状态算没白过。
+    scene_duration: 5.04
+- id: w30d03__action_gate
+  template: d03_w30_action_gate.html
+  duration: 6.23
+  type: html
+  data:
+    gate: 第三关 · 本周验证
+    questions:
+    - 买方还是卖方？
+    - 第一个真实用户是谁？
+    - 这周最小验证什么？
+    subtitle: 最后逼到行动：你是买方还是卖方、第一个真实用户是谁、这周最小验证什么。
+    scene_duration: 6.23
+- id: w30d03__tenth_gate
+  template: d03_w30_tenth_gate.html
+  duration: 6.0
+  type: html
+  data:
+    count: 第 10 问
+    question: 你能说出一个之前没有的具体下一步吗？
+    note: 编辑补充 · 待真人结果验证
+    subtitle: 九问之后还有第十问：现在，你能不能说出一个之前没有的具体下一步？
+    scene_duration: 6.0
+- id: w30d03__prompt_exit
+  template: d03_w30_prompt_exit.html
+  duration: 8.22
+  type: html
+  data:
+    groups:
+    - name: 生存事实 4问
+      text: 01 现在靠什么活？ 02 钱还能撑多久？ 03 真正做过并会的是什么？ 04 过去放弃过什么，为什么？
+    - name: 目标边界 2问
+      text: 05 现在最怕的一件事是什么？ 06 三个月后什么状态算没白过？
+    - name: 行动验证 3问
+      text: 07 我是买方还是卖方？ 08 第一个真实用户是谁？ 09 这周能做的最小验证是什么？
+    rules:
+    - 逐个问并等待
+    - 事实没齐先不建议
+    - 最后给选择题+建议
+    - 第10问验收具体下一步
+    boundary: 最卡哪一问？评论留数字 · 人来拍板
+    subtitle: 完整指令放在画面上。你最卡哪一问，评论留个数字；AI 先问事实，拍板和验证还是你自己。
+    scene_duration: 8.22

@@ -1,0 +1,55 @@
+review_task: task-phasea-25-20260719
+reviewer_agent_id: task-phasea-25-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - insights/premortem_ab_evidence.md
+  - insights/persona_ab_evidence.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+  - pipeline/p004_video/out/frames/accident_hook/frame_0000.png
+  - pipeline/p004_video/out/frames/accident_hook/frame_0060.png
+  - pipeline/p004_video/out/frames/accident_hook/frame_0119.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0060.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0140.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0209.png
+  - pipeline/p004_video/out/frames/experiment_evidence/frame_0209.png
+  - pipeline/p004_video/out/frames/boundary_cta/frame_0149.png
+reviews:
+  - role: 编导
+    reviewer_id: phasea25-d02-director-reverse-autopsy
+    reviewer_agent_id: task-phasea-25-20260719
+    review_mode: independent
+    angle: "事故倒推叙事、口播可听性、证据段防塌、方法交付和使用边界"
+    score: 94
+    verdict: pass
+    notes: |-
+      七镜从“半年后失败”逆向启动，先给虚构计划的冲突事实，再承认普通问法已经严格，随后用Round 1真实路径解释“原因后跟依据”，用双轮票据收窄为组织结构，最后交付修订Prompt并以四类高投入计划收口。叙事没有依赖竞猜或延迟揭晓，每4至7秒都有事实、路径、实验边界或可抄方法的新回报；事故轴、证物签、路径轨和双轮响应签让抽象方法保持同一视觉语法。口播明确说“第二轮原因和排序变了”，避免把两轮拼成一个稳定原因清单；“小事别用”与辞职/副业/创业/转行选项形成低门槛评论闭环。扣(-6)：21至38秒连续两句分别承载实验限定和五段Prompt指令，是全片听觉负荷最高区；“稳定的只有”必须依赖同屏的“双轮真实调用”才能避免被听成普遍规律；无BGM的43秒结构很依赖TTS在“变了/稳定的只有”“三个原因/每个标明”处做明显停顿。Phase A编导通过，实际可听性仍须在成片后试听确认。
+
+  - role: 纪录片导演
+    reviewer_id: phasea25-d02-documentary-source-integrity
+    reviewer_agent_id: task-phasea-25-20260719
+    review_mode: independent
+    angle: "复合实验边界、原文与修订稿分离、证据来源标注、制作契约一致性"
+    score: 88
+    verdict: fail
+    notes: |-
+      最新脚本和像素实现大部分边界是正确的：影片舍弃已被证伪的人称假设；Round 1四段路径可在082eb54f原文逐字找到并明确“不代表两轮原因相同”；双轮票据显示082eb54f与e5061fad，同时写“具体原因与排序不完全一致·不代表提高准确率”；首镜将失败设定标成“不是结果预测”，案例镜也披露虚构计划。尤其可抄模板已明确写“根据实测暴露问题修订·补信息缺口标注·此修订版未单独A/B”，没有在像素层伪造验证。
+
+      但完整制作契约仍有两处相互冲突的来源标注，按纪录性门禁必须fail：一是design/motion_storyboard.md把28至38秒修订后的可抄Prompt来源写成“实验输入”，与fact_check、脚本和模板的“编辑修订版、未单独A/B”直接矛盾；二是同文末尾仍要求路径标“两轮结构归纳”，而当前14至21秒画面实际且正确地使用Round 1逐字短摘。若下游据该分镜生成发布说明或再次改片，会把编辑稿误报为实测输入，或把单轮原文误报为两轮归纳。另扣分项是两轮画面未同屏展示Round 2不同首因，观众对“原因和排序变了”主要依赖旁白。可执行修正：把Prompt镜来源改为“根据双轮响应暴露的信息缺口问题修订的编辑版·未单独A/B”；把文末路径要求改为“Round 1逐字短摘并标不代表两轮原因相同”，同时把“实验输入”只保留给原始B组完整Prompt。修正后需对最新motion_storyboard与模板再做一次独立纪录性复核。

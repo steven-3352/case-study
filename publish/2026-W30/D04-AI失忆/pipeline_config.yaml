@@ -1,0 +1,41 @@
+content_id: W30D04
+paths: {root_rel: publish/2026-W30/D04-AI失忆}
+audio_plan_rel: audio_plan_v2.yaml
+tts:
+  provider: minimax
+  voice_id: "Chinese (Mandarin)_Reliable_Executive"
+  base_speed: 1.03
+  segments:
+    - {sid: record_hook, target_start: 0, target_dur: 2, emotion: serious, text: "同一条项目记录。"}
+    - {sid: conflict, target_start: 2, target_dur: 3, emotion: serious, text: "电脑端能找到，飞书端却回：我这边没有记录。"}
+    - {sid: write_proof, target_start: 5, target_dur: 6, emotion: neutral, text: "我查的不是模型记性，是代码。内容确实已经写进 journal 文件，还进了提交记录。"}
+    - {sid: readset, target_start: 11, target_dur: 7, emotion: neutral, text: "问题出在入口读集：这个 bot 每轮只读 SELF、规则、项目索引和当天 bot 标题。"}
+    - {sid: missing_path, target_start: 18, target_dur: 5, emotion: neutral, text: "那份调研记在另一个 journal。桌面能读，飞书入口根本没注入。"}
+    - {sid: boundary, target_start: 23, target_dur: 6, emotion: serious, text: "所以这次不是内容消失，是读取路径漏了一块。这个结论只适用于我这套自建工作助理。"}
+    - {sid: checklist, target_start: 29, target_dur: 7, emotion: neutral, text: "修法不是让模型更努力，而是把要共享的项目结论，放进两个入口都会读取的共同位置。"}
+    - {sid: close, target_start: 36, target_dur: 6, emotion: neutral, text: "临时记录留在 journal，长期结论再升格。你在哪个入口遇到过断档？评论留个入口名。"}
+scenes:
+  - id: record_hook
+    template: d04_w30_record_hook.html
+    data: {eyebrow: "同一台机器 · 同一仓库", title: "同一条记录\n一端有 · 一端没有", path: "journal / project record"}
+  - id: conflict
+    template: d04_w30_conflict.html
+    data: {record: "reddit 调研记录 · 已存在", desktop: "电脑端：找得到", bot: "飞书端：我这边没有记录"}
+  - id: write_proof
+    template: d04_w30_write_proof.html
+    data: {path: "journal/2026-07-13-…md", commit: "commit ced86c9", verdict: "内容确实已落盘"}
+  - id: readset
+    template: d04_w30_readset.html
+    data: {sources: ["SELF.md", "rules/guidance.md", "projects/index.md", "当天 -bot.md 标题"], title: "飞书入口每轮实际读集"}
+  - id: missing_path
+    template: d04_w30_missing_path.html
+    data: {present: "目标 journal 在磁盘", missing: "不在入口注入列表", result: "模型拿不到"}
+  - id: boundary
+    template: d04_w30_boundary.html
+    data: {truth: "读取路径漏了一块", scope: "仅限这套自建工作助理", not_claim: "不是所有 AI 跨设备都会忘"}
+  - id: checklist
+    template: d04_w30_shared_surface.html
+    data: {temporary: "临时记录 · journal", canonical: "共同可读面 · projects index", readers: ["桌面入口", "飞书入口"]}
+  - id: close
+    template: d04_w30_close.html
+    data: {wrong: "临时记录 ≠ 长期结论", right: "你在哪个入口断过档？", cta: "评论留入口名"}

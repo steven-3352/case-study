@@ -1,0 +1,71 @@
+review_task: task-phasea-31-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - queue/topics.yaml
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-15-bot.md
+  - raw-export/raw/2026-07-15-desktop.md
+  - insights/questions_ab_evidence.md
+  - insights/external_references.md
+  - insights/fact_check.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - script/T042_配音稿_v2.md
+source_audit:
+  api_evidence: "双轮A/B保留脱敏请求、完整原始响应、requested/returned time、response id、model、usage及request/response/content SHA256。"
+  raw_evidence: "三步九问可回查raw-export/raw/2026-07-15-bot.md第36-53及92-109行附近；第十问来自同文件第128-131行的验收信号，经编辑改成问句。"
+  external_urls:
+    - https://platform.openai.com/docs/guides/prompt-engineering
+    - https://platform.claude.com/docs/en/docs/build-with-claude/prompt-engineering/overview
+    - https://code.claude.com/docs/en/memory
+  boundary: "真实实验只比较首答组织；未完成真人全流程、行动结果或48h效用验证。"
+  stale_artifact_warning: "publish/T042_publish.md为v2之前的旧发布包，仍含‘只会顺着焦虑瞎给方案、越答越飘’等v2禁用主张；本轮不把它当v2产物，外发前必须替换。"
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea31-d03-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    evidence: |-
+      核心证据不是二手教程，而是仓库内两轮真实API调用。A两轮首答均进入观察/方案，B两轮都遵从“每次只问一个”并先问“你现在靠什么活着”；请求体与模型固定，响应ID和三类hash齐全。三条官方URL只被用作“模型可遵循明确约束”的机制背景，external_references明确不拿网页替实验结果背书；hook_benchmark也标为agent_hypothesis，没有伪造热门样本。
+    deductions: |-
+      (-4) 三个官方页面只有URL和少量转述，没有抓取日期、页面快照或段落定位；(-3) 选题原始流量依据仍停留在queue note，没有可复核的平台帖子URL/API返回；(-2) 实验只用一个模型和一个情境，不能形成跨模型网络结论。
+    remediation: "若发布文案要出现任何平台普遍性表述，先补官方页面抓取时间/原文定位；否则继续保持‘我在同一模型跑了两轮’的个案口径。"
+  - role: 记者
+    reviewer_id: phasea31-d03-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      v2配音稿忠实使用可核事实：同题双轮、普通问法首屏给方案、复合流程首答只问一个事实。第二句立即声明“只支持回答顺序变化”，并明确排除更准和找到方向；第七句把拍板与现实验证归还给人。九问逐项可在7月15日bot原矿找到，第十问有来源且在稿件红线中标为编辑补充。
+    deductions: |-
+      (-2) “普通问法第一屏就给方案”应继续限定为本次同模型双轮，不能在封面省掉实验范围；(-2) “九问之后还有第十问”口播没有直接念出“编辑补充”，需画面常驻标注；(-1) 旧publish文件仍存在，容易被误用成发布文案。
+    remediation: "成片实验票据常驻‘同模型/同情境/双轮’，第十问旁标‘编辑补充·未验证效用’，并让旧publish包在外发门前失效替换。"
+  - role: 选题深挖师
+    reviewer_id: phasea31-d03-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    evidence: |-
+      v2把泛化的“AI帮你找方向”收窄成一个可观察冲突：信息不足时，首答先建议还是先收事实。钉子场景“失业、三方向来回跳、没有付费用户”具体，九问提供可收藏对象，实验反差提供停划，边界声明提供可信度；没有借题宣称职业建议效果。
+    deductions: |-
+      (-3) 目标受众仍较宽，失业/职业选择与项目决策的压力等级不同；(-2) 九问信息量大，若画面只做清单容易退化为收藏拼盘；(-2) 第十问在70%后揭示的留存假设尚无用户测试。
+    remediation: "首发锚定‘失业后在三个项目间跳’这一场景；用真实A/B首答推动叙事，九问只作为后半段证物，不把列表本身当核心冲突。"
+overall:
+  score: 93.0
+  verdict: pass
+  blocking_issues: []
+  invalidated_artifacts:
+    - publish/T042_publish.md
+  release_condition: "v2内容三角色通过；旧发布包不得外发，且不得把首答顺序变化写成效用提升。"

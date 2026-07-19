@@ -1,0 +1,33 @@
+status: pass
+review_source: independent_agent_tasks
+role: 事实校验员
+artifact: insights/fact_check.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea24-d02-fact-compound-two-round-w30d02-fact
+  review_mode: independent
+  reviewer_agent_id: task-phasea-24-20260719
+  reviewed_at: '2026-07-19'
+  angle: 两套双轮原件、复合干预归因、Round 1逐字路径、哈希与修订披露
+  score: 97
+  verdict: pass
+  notes: 已实际核对premortem两轮A/B的固定材料、请求元数据、原始响应和完整哈希，也复核persona实验的否证判定。082eb54f、e5061fad与两轮B响应SHA256前八位一致；Round
+    1画面的“唯一的能力证据是负面的”“做过4周自己的账号，涨粉几乎为零”“完全没有获客这一环节”“依据是计划中的缺失”均可在原文回查。模板常驻“整组Prompt干预·非单变量”，双轮证据镜明确原因与排序不完全一致且不代表提高准确率；修订Prompt脚注还明示补入信息缺口标注且未单独A/B。扣(-3)：口播“没写获客，就标信息缺口”是忠实概括，不是逐字引语；“更严谨”属于编辑判断而非新实验比较结论。必须保留原文短摘标签和修订版脚注，禁止把差异归因到“假设失败”单句。
+- reviewer_id: phasea21-r02-w30d02-fact
+  review_mode: independent
+  reviewer_agent_id: task-phasea-21-20260719
+  reviewed_at: '2026-07-19'
+  angle: 两组实验的否证结论、复合干预归因、原文路径与修订版披露
+  score: 95
+  verdict: pass
+  notes: 已核对两轮 persona A/B 的四份原文，支持 `fail_hypothesis_unstable_effect`；也核对 premortem
+    两轮 A/B 的请求体、UTC、response id、returned model、usage 与完整 SHA256。事前验尸 B 同时改变失败前提、任务方向、排序、事实锚定及禁止项，当前模板在真实路径镜常驻“整组
+    Prompt 干预·非单变量”，没有拆给任何一句。Round 1 画面的四段文字均可回查原文，082eb54f、e5061fad 与两轮 B SHA256
+    前八位一致；双轮镜明确具体原因和排序不同且“不代表提高准确率”。最终 Prompt 画面还明确写“根据实测暴露问题修订·补信息缺口·此修订版未单独 A/B”。扣(-5)：Round
+    1 B 原文把“支持事实”与“计划中的缺失”分层，但成片口播将其压缩为“没写获客，就标信息缺口”，属于忠实编辑概括而非逐字引语；“更严谨”也尚无新实验支持相对优越性。可执行修正：原文镜继续保留逐字短摘披露，Prompt
+    镜不得移除未复测脚注；发布阶段禁止写成单变量实验、准确率提升或真实失败预测。
+avg_score: 96.0
+pass: true
+scorecard_phase: pre_render

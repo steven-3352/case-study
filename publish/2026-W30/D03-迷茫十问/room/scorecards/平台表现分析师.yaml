@@ -1,0 +1,34 @@
+status: pass
+review_source: independent_agent_tasks
+role: 平台表现分析师
+artifact: douyin/video.mp4
+artifact_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb10-d03-platform-performance-w30d03-platform-analyst
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_07
+  reviewed_at: '2026-07-19'
+  angle: task10 · platform-analyst · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '1080x1920 H.264/AAC、独立SRT和1080x1920封面满足抖音交付。0-3s顺序反差服务停划，15.53-34.52s九问结构服务理解，40.52s后完整Prompt服务收藏，43.77s后数字CTA服务评论。发布前预测3s完播61%-69%、完播29%-36%，B级，go。
+
+
+    扣分：(-3) 48.73s使高完播不稳；(-3) 首个实质证物到3s后才出现；(-2) 封面和末镜信息策略更偏收藏而非即时消费；(-2) 无本账号同题材基线。独立SRT尾长7ms及机械断行不阻断发布，但上传外挂字幕前应人工重排；预测不得写成投后实测。'
+- reviewer_id: phaseb12-d03-platform-performance-w30d03-platform-analyst
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_12
+  reviewed_at: '2026-07-19'
+  angle: task12 · platform-analyst · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '1080x1920 H.264/AAC、封面、烧录字幕与独立SRT齐全。首屏顺序反差服务3s停划，三关结构服务理解，完整01-09 Prompt服务收藏，数字CTA服务评论，发布前评级B、go。
+
+
+    扣分：(-3) 首个实质证物到3s后才完整出现；(-3) 48.73s使高完播不稳；(-2) 末镜须暂停阅读；(-2) 无账号同题材真实基线。SRT尾长7ms与机械断行不阻断成片，但外挂字幕上传前应人工重排。'
+avg_score: 90.0
+pass: true
+scorecard_phase: post_render

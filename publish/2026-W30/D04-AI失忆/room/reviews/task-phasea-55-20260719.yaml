@@ -1,0 +1,67 @@
+review_task: task-phasea-55-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - pipeline_config.yaml
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/topic_brief.md
+  - insights/domain_notes.md
+  - insights/hook_benchmark.md
+  - insights/external_references.md
+  - pipeline/p004_video/templates/d04_w30_record_hook.html
+  - pipeline/p004_video/templates/d04_w30_conflict.html
+  - pipeline/p004_video/templates/d04_w30_write_proof.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_missing_path.html
+  - pipeline/p004_video/templates/d04_w30_boundary.html
+  - pipeline/p004_video/templates/d04_w30_shared_surface.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea55-d04-network-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    evidence: |-
+      本案核心来源是raw export中的落盘记录、飞书端原话、同机同仓库说明和build_system代码读集，事实校验均给出行号，属于A层项目一手材料。OpenAI Memory FAQ与Claude Code文档只提供“不同产品上下文机制不同”的背景，未替本地代码读集证明因果。形式参考明确是agent_hypothesis，不冒充热门案例。
+    deductions: |-
+      (-4) 没有公开平台用户样本验证“入口断档”的普遍发生率；(-3) 外部产品文档不能支撑当前自建bot的修法；(-2) 受众原话大多来自单次项目事故。
+    remediation: "发布文案必须把来源写成自建工作助理真实排查，不得借外部Memory文档泛化为所有AI或跨设备规律。"
+  - role: 记者
+    reviewer_id: phasea55-d04-reporter-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      报道链条完整且可复核：目标journal已落盘并提交，飞书入口回复无记录，代码显示每轮只注入SELF、guidance、projects index和当天bot标题，目标journal不在读集。因此可写“内容存在但入口不可读”。脚本紧接着限定“只适用于我这套自建工作助理”，画面也明确“不是所有AI跨设备都会忘”。
+    deductions: |-
+      (-3) “根本没注入”是本次代码状态结论，不应扩展到未来版本；(-2) 共同可读面是架构建议，不是已有跨产品A/B效果结论。
+    remediation: "禁写所有AI、换设备必忘、永久记住和丢失率降低；修法只表述为本架构的信息分层原则。"
+  - role: 选题深挖师
+    reviewer_id: phasea55-d04-topic-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      “同一记录一端有、一端没有”是具体且可复述的故障冲突，能击中跨入口做长期项目的进阶用户。内容从拟人化的“AI失忆”深入到信息落点与入口读集，并交付临时journal与共同可读面的分层原则；CTA让观众只留入口名，能收集下一轮真实断档场景。
+    deductions: |-
+      (-3) 工程术语会缩窄大众覆盖面；(-2) 标题“AI失忆”存在泛化风险；(-1) 共鸣强度尚无投后评论验证。
+    remediation: "标题皮肤必须由首屏同一记录冲突和范围镜迅速纠偏；后续选题以入口评论而非假设热度决定。"
+overall:
+  score: 93.3
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；本案可作为自建助理入口读集故障发布，不得扩展为跨产品、跨设备或永久记忆结论。"

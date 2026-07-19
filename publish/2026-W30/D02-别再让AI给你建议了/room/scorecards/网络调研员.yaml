@@ -1,0 +1,34 @@
+status: pass
+review_source: independent_agent_tasks
+role: 网络调研员
+artifact: insights/external_references.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea20-r01-w30d02-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-20-20260719
+  reviewed_at: '2026-07-19'
+  angle: premortem 一手定义来源、补充方法语境与 AI 效果外推边界
+  score: 94
+  verdict: pass
+  notes: 已实际核对 external_references、两轮 persona 否证实验、premortem 原始响应和当前脚本。Gary Klein
+    2007 年 HBR《Performing a Project Premortem》被正确用作“先假设失败、再生成失败原因”的直接方法语境；腾讯云、人人都是产品经理、少数派和
+    PCWorld 只补充反方核查与反谄媚需求，没有被写成 AI Prompt 准确率证据。文档明确否决人称替换命题，并把 D02 结论限定为本模型、本计划、整组复合指令的双轮输出组织观察。扣(-6)：HBR
+    是 premortem 方法来源而非 AI Prompt 效果研究，其余四条仍缺完整作者、标题、发布日期或抓取回执，仓库也没有可复核的抖音原生 benchmark。可执行修正：外部资料继续只作
+    B 级语境，任何“更准、提高完播、能预测失败”的说法都不得进入发布文案；平台表现只能由 forecast 和投后数据验证。
+- reviewer_id: phasea12-r01-w30d02-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-12-20260719
+  reviewed_at: '2026-07-19'
+  angle: premortem 一手方法来源、补充语境分级与实验外推边界
+  score: 92
+  verdict: pass
+  notes: 外部来源已补入 Gary Klein 2007 年 HBR《Performing a Project Premortem》作为直接方法语境，并把其余中文文章和
+    PCWorld 明确降为补充背景；文档逐项写清“不证明更准、更凶、能预测失败或提升留存”，也声明 D02 结论只能来自独立双轮实验，来源分级没有用 B 级网页冒充效果验证。扣(-8)：除
+    HBR 外的四条来源仍缺作者、完整标题与访问回执，且 HBR 摘要为方法定义语境，不是 AI Prompt 有效性研究；当前也没有可复核的抖音原生样本。可执行修正：补齐来源元数据及抓取证据，平台
+    hook 继续标 agent_hypothesis，任何效果预测只能进入 forecast 而不能写成事实。
+avg_score: 93.0
+pass: true
+scorecard_phase: pre_render

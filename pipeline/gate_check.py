@@ -16,8 +16,11 @@ phase:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import pathlib
 import re
+import shutil
+import subprocess
 import sys
 from dataclasses import dataclass, field
 
@@ -561,9 +564,12 @@ def _check_palette_neon(png: pathlib.Path, errors: list[str]) -> None:
     """
     try:
         from pipeline.gate_check_palette import analyze, is_real_screenshot
-    except Exception as e:
-        errors.append(f"禁霓虹色门: 无法 import gate_check_palette ({e})")
-        return
+    except ImportError:
+        try:
+            from gate_check_palette import analyze, is_real_screenshot
+        except Exception as e:
+            errors.append(f"禁霓虹色门: 无法 import gate_check_palette ({e})")
+            return
     if is_real_screenshot(png):
         return
     ratio, top5 = analyze(png)
@@ -588,6 +594,68 @@ def check_motion_wow(day_dir: pathlib.Path, errors: list[str]) -> None:
     phase_b_block = text.split("复验")[-1] if "复验" in text else ""
     if re.search(r"- \[ \]", phase_b_block):
         errors.append("motion_wow Phase B 复验项仍有 [ ] 未勾选")
+
+
+def check_motion_density(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """正式 MP4 不得出现超过 4 秒的连续像素冻结。"""
+    video = day_dir / "douyin" / "video.mp4"
+    if not video.exists():
+        return
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        errors.append("动效密度门: 找不到 ffmpeg，无法执行 freezedetect")
+        return
+    proc = subprocess.run(
+        [
+            ffmpeg, "-i", str(video), "-vf",
+            "freezedetect=noise=-45dB:d=4.01", "-an", "-f", "null", "-",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        errors.append(f"动效密度门: ffmpeg freezedetect 失败（exit={proc.returncode}）")
+        return
+    durations = [float(x) for x in re.findall(r"freeze_duration:\s*([\d.]+)", proc.stderr)]
+    if durations:
+        errors.append(
+            f"动效密度门 FAIL: 最长连续冻结 {max(durations):.2f}s > 4.00s "
+            "（freezedetect -45dB；须按真实 TTS 时长重排语义动作）"
+        )
+
+
+def _sha256(path: pathlib.Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def check_phase_b_artifact_identity(day_dir: pathlib.Path, errors: list[str]) -> None:
+    """Phase B scorecards and forecast must refer to the current canonical MP4."""
+    video = day_dir / "douyin" / "video.mp4"
+    if not video.exists():
+        return
+    current = _sha256(video)
+    score_dir = day_dir / "room" / "scorecards"
+    for path in score_dir.glob("*.yaml") if score_dir.exists() else []:
+        card = _read_yaml(path)
+        if str(card.get("scorecard_phase") or "") != "post_render":
+            continue
+        reviewed = str(card.get("artifact_sha256") or "").lower()
+        if reviewed != current:
+            errors.append(
+                f"{path.name}: Phase B artifact_sha256 缺失或与当前 video.mp4 不一致；"
+                "终片变化后旧评审自动失效"
+            )
+    forecast = _read_text(day_dir / "design" / "pre_publish_forecast.md")
+    match = re.search(r"artifact_sha256\s*[:：]\s*`?([0-9a-fA-F]{64})", forecast)
+    if not match or match.group(1).lower() != current:
+        errors.append(
+            "pre_publish_forecast 缺少当前 video.mp4 的 artifact_sha256；"
+            "终片变化后须重新预测"
+        )
 
 
 def check_evidence(day_dir: pathlib.Path, errors: list[str]) -> None:
@@ -1226,6 +1294,8 @@ def gate_check(
         check_script_review(day_dir, phase="post_render", errors=errors)
         check_cover_review(day_dir, errors=errors)
         check_motion_wow(day_dir, errors=errors)
+        check_motion_density(day_dir, errors=errors)
+        check_phase_b_artifact_identity(day_dir, errors=errors)
 
     elif phase == "approve":
         check_gap_report_status(day_dir, errors, phase=phase)
@@ -1234,6 +1304,8 @@ def gate_check(
         check_script_review(day_dir, phase="post_render", errors=errors)
         check_cover_review(day_dir, errors=errors)
         check_motion_wow(day_dir, errors=errors)
+        check_motion_density(day_dir, errors=errors)
+        check_phase_b_artifact_identity(day_dir, errors=errors)
         check_evidence(day_dir, errors=errors)
         check_discussion_phase_b(day_dir, errors=errors)
         check_form_strategy(day_dir, errors=errors)

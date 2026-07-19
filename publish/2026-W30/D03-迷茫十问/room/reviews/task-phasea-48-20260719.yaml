@@ -1,0 +1,71 @@
+review_task: task-phasea-48-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+independent_from: task-phasea-47-20260719
+reviewed_artifacts:
+  - design/storyboard.yaml
+  - design/motion_tech_plan.md
+  - design/motion_storyboard.md
+  - pipeline_config.yaml
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/w30_d03_d05_hook_smoke.yaml
+  - pipeline/p004_video/templates/d03_w30_test_hook.html
+  - pipeline/p004_video/templates/d03_w30_split_proof.html
+  - pipeline/p004_video/templates/d03_w30_boundary.html
+  - pipeline/p004_video/templates/d03_w30_survival_gate.html
+  - pipeline/p004_video/templates/d03_w30_target_gate.html
+  - pipeline/p004_video/templates/d03_w30_action_gate.html
+  - pipeline/p004_video/templates/d03_w30_tenth_gate.html
+  - pipeline/p004_video/templates/d03_w30_prompt_exit.html
+  - pipeline/p004_video/out/frames/smoke_d03_prompt_stress
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea48-d03-motion-tech-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "10.5秒压力实证、8镜D比例时间轴与绝对seek"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8个模板均为paused GSAP timeline，读取`scene_duration`、注册`registerTimeline`，capture以逐帧绝对`totalTime` seek，架构确定。修后boundary用动态gap分布三条边界；tenth_gate在D的22%/48%/72%/86%落动作；prompt_exit在10%起逐组三问、38%起逐条规则、68%边界、84%收束。压力storyboard已在data显式注入`scene_duration: 10.5`，315帧哈希复算为83个变化run，最长连续相同41帧=1.367s，低于4s硬门。
+    deductions: |-
+      (-2) 当前压力实证只覆盖最密集的出口票，正式MiniMax timing后的全8镜最终MP4仍需Phase B跑freezedetect。(-2) motion storyboard未逐项写出模板里的D百分比。(-2) 正式seg timing尚未归档到本项目build。
+    fix: "Phase B以正式runtime storyboard重跑8镜并归档每镜最大freeze；将关键比例拍点回填分镜。"
+  - role: 动效设计师
+    reviewer_id: phasea48-d03-motion-design-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "1.5x语义变化、完整九问可读性与收藏停留"
+    score: 93
+    verdict: pass
+    evidence: |-
+      三关过程镜有持续令牌/beam，边界和第十问已按D比例贯穿扩窗。10.5秒出口票依次出现三组完整问题、四条执行规则、评论边界和落影，相邻变化远低于4s。末帧原尺寸核验九问正文30px、规则24px，分别兑现motion tech门槛；所有内容在票面内，无文字溢出、卡片互遮或字幕遮挡。
+    deductions: |-
+      (-3) 出口票信息密度仍高，30px/24px是收藏卡而非自然扫读字级，需要真实手机缩放复核。(-2) 最终字幕合成后的底部安全区尚未实片验证。(-2) 规则区最后稳定截图停留需由真实VO窗口确认。
+    fix: "Phase B做手机尺寸停帧和字幕叠加核验，确保最终稳定态不少于可截图所需时间。"
+  - role: 动效分镜师
+    reviewer_id: phasea48-d03-motion-board-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜一对一任务、比例拍点与后段回报"
+    score: 93
+    verdict: pass
+    evidence: |-
+      8镜保持首镜顺序反转、双轮证物、证据边界、4+2+3问题、第10问和完整出口票的一对一任务。最易冻结的镜3/7/8已有比例拍点，镜4–6有连续运动；第10问和出口票在后段形成独立回报，runtime能按真实窗口替换名义时长。
+    deductions: |-
+      (-3) 分镜表仍未显式列22%/48%/72%等拍点。(-2) 正式TTS镜间切点表未生成。(-2) 首镜到双轮证物的运动接力需在最终MP4复核。
+    fix: "正式timing后输出8镜窗口/动作事件表，并核首镜到证物镜的切点连续性。"
+overall:
+  score: 93.3
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；10.5秒压力最大相同帧1.367s，字号与绝对seek通过，D03 Phase A pass。"

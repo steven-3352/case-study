@@ -1,0 +1,69 @@
+review_task: task-phasea-48-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+independent_from: task-phasea-47-20260719
+reviewed_artifacts:
+  - design/storyboard.yaml
+  - design/motion_tech_plan.md
+  - design/motion_storyboard.md
+  - pipeline_config.yaml
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_evidence_pair.html
+  - pipeline/p004_video/templates/d05_w30_causality.html
+  - pipeline/p004_video/templates/d05_w30_write_check.html
+  - pipeline/p004_video/templates/d05_w30_retest.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea48-d05-motion-tech-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜QA比例分拍、绝对seek和1.5x冻结风险"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8模板全部使用paused GSAP、动态D、registerTimeline和绝对seek。alarm最终按12%/30%/62%/82%分拍；evidence_pair、write_check、repaired、qa_card分别用6%–84%的比例事件覆盖窗口，1.5x下相邻语义动作最大约2s。causality与retest还有贯穿D的尺标和回路运动，所有镜均低于4s门槛。
+    deductions: |-
+      (-2) 正式form v3最终MP4的freezedetect尚待Phase B。(-2) 分镜未显式记录比例拍点。(-2) 正式timing下SFX偏移需实测，尽管scene_sid重算架构正确。
+    fix: "正式VO后生成8镜runtime并归档freeze、seek和SFX同步结果。"
+  - role: 动效设计师
+    reviewer_id: phasea48-d05-motion-design-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "QA语义动作、绿黄状态权重与可读性"
+    score: 93
+    verdict: pass
+    evidence: |-
+      第二镜标题已锁为“文件在，不等于入口能读”，夹具、双事实和盖章按D比例出现。后续证物A/B、因果尺、01/02工位、03回问、绿证/黄槽和三联卡均按信息顺序分拍；绿证只签新事实，黄槽后出现并再次强调，未造成整体验收通过的误导。正文主要35–48px，状态层级清楚。
+    deductions: |-
+      (-3) 双证物正文30px略低于motion tech书面32px门槛，需Phase B手机实片证明或统一字号。(-2) 字幕叠加安全区尚未核最终成片。(-2) 绿黄同级停留需最终像素复核。
+    fix: "Phase B核证物30px可读性、字幕安全区和绿黄状态同级权重。"
+  - role: 动效分镜师
+    reviewer_id: phasea48-d05-motion-board-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜QA工位序列、比例拍点与事实边界"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8镜完整覆盖误判警报、写入不等于可读、双证物、报警/根因、01/02、03回问、局部通过/待验和三联卡。修后镜2/3/5/7/8按D比例推进，镜4/6持续运动，既满足1.5x节奏又保持每镜单焦点；后段黄槽和范围卡兑现不替证据签字。
+    deductions: |-
+      (-2) 分镜表未写比例百分比。(-2) 正式seg timing/切点表未生成。(-2) repaired镜仍未展开INBOX中间节点，复现粒度略粗。
+    fix: "正式timing后回填动作事件表；Phase B可补INBOX节点但不得改变局部通过边界。"
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；8镜比例分拍、绝对seek和1.5x冻结门通过，D05 Phase A pass。"

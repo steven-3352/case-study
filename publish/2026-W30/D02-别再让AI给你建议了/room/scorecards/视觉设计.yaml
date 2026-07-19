@@ -1,0 +1,42 @@
+status: pass
+review_source: independent_agent_tasks
+role: 视觉设计
+artifact: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb06-d02-visual-w30d02-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_06
+  reviewed_at: '2026-07-19'
+  angle: task06 · visual · 最终 MP4 独立复验
+  score: 94
+  verdict: pass
+  notes: '原始帧确认事故线三节点、四周零涨粉、没写获客路径、082eb54f/e5061fad双哈希、四步修订Prompt、“未单独A/B”披露及四选一CTA全部在安全区内。红色用于失败原因与路径，黄色用于事实/缺口证据，绿色用于边界披露，语义映射稳定。字幕采用高对比黑底，与主画面保留明确间距；40.5s
+    Prompt正文和免责声明未被字幕遮挡，50.5s四宫格按钮文字无溢出。
+
+
+    扣分与改法：
+
+    -2：Prompt镜四步集中在上半部，后半页留白较大，信息密度与版面重心不完全均衡。
+
+    -2：19-35s大量使用细线、票据和小号哈希，手机端能辨认结构，但实验细节需停顿才能读全。
+
+    -2：整体纸面米白背景一致性高，同时也降低了七个场景之间的材质反差。'
+- reviewer_id: phaseb05-d02-visual-design-w30d02-visual
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task05 · visual · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '红色事故箭头、黑色结构线、黄色事实高亮与米白纸面形成明确的原因/事实/缺口编码；首屏不用说明卡，直接让观众看到未来失败倒查。风险清单、竖向真实路径、双轮票据、四步Prompt和四选一各有独立构图。抽查0.5s、3.5s、14.0s、20.0s、30.0s、36.0s、48.0s确认主文本、字幕与CTA无重叠，Prompt四步在暂停状态可读，底部事实边界仍留在安全区内。
+
+
+    扣分：(-2) 19.29-27.39s逐字路径卡信息密度高，事实长句在自然播放中需要字幕辅助；(-2) 双轮哈希和“具体原因与排序不完全一致”限定字号偏小；(-2)
+    34.88-46.95s底部“修订版本未单独A/B”是关键事实边界，但对普通手机观看过小，主要依赖主动暂停；(-2) 52.48s整体以米白文档页为主，虽构图变换充分，素材质感仍偏单一。改法：把“未单独A/B”提升为Prompt标题旁的常驻红章；路径长句拆成“原因/事实/缺口”三块大字；双轮限定放大为票据下方主结论。当前主信息无溢出或遮挡。'
+avg_score: 93.0
+pass: true
+scorecard_phase: post_render

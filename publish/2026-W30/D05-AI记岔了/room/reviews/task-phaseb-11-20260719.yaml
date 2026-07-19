@@ -1,0 +1,82 @@
+review_task: task-phaseb-11-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_b
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/video_no_bgm.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  sha256: b75b844329adbf9cc87300da4129ed391f0a8206da16e76c7f2e7c4e1faa6417
+  duration_s: 55.233
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；-17.0 LUFS integrated；-0.4 dBTP true peak"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长完整低变化区间10.367-13.733s，共3.367s；其余完整检出均<=2.700s，片尾未闭合段约3.067s"
+  silence_scan: "实际执行 silencedetect=n=-45dB:d=1.5；全片无>=1.5s静音"
+  visual_sampling: "实际检查每3s全片contact sheet，并以0.5s、3.0s、10.0s、20.9s、29.2s、35.9s、40.5s、45.0s、53.0s关键帧复核"
+  subtitle_check: "实际读取16条SRT并核烧录字幕；0.000-55.260s连续覆盖，无间隙或时间重叠；片尾仅比MP4容器长约27ms，不构成可感知截断"
+  cover_check: "实际查看1080x1920封面；AI说没记录先别判它没写与文件在不等于入口能读形成双层反误判；底部烧录字幕位于平台UI高干扰区"
+  content_boundary_check: "35.86-45.38s实际成片明确新事实写入和升格通过，但原入口复问缺逐字原件并拒绝签通过；45.38s再限定只验收这套自建工作流，未把局部通过包装成整体修复"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "62%-71%"
+  completion_rate: "29%-36%"
+  rationale: "0秒即给AI说没记录但未必没写的反误判，3.15秒兑现文件在但入口不读；双证物、因果尺、三步QA和绿黄验收槽持续提供新回报，01/02/03数字CTA低门槛。下限考虑55.23秒片长和21秒后连续工程验收步骤。该区间为B级发布前估算。"
+  grade: B
+  go_no_go: go
+reviews:
+  - role: 视觉设计
+    reviewer_id: phaseb11-d05-visual-design
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    score: 93
+    verdict: pass
+    notes: |-
+      黑黄警戒带、证物槽、红黄绿因果尺、01/02工位、03复测表和绿黄签证槽构成强识别的工业QA视觉；警示色都对应报警、待验或通过，不是无语义装饰。全片关键帧中“写入+升格通过”和“原入口复问待原件”并列可读，黄槽没有被误染成绿色，CTA与烧录字幕无重叠。
+
+      扣分：(-2) 35.86-45.38s双结果卡与长字幕同时出现，手机自然观看需要主动扫读；(-2) 证物摘要和末镜验收卡的小字适合暂停，非自然播放逐字阅读；(-2) 后半段多个白底工位连续，构图节奏趋同；(-1) 封面底部烧录字幕贴近抖音UI区。改法：封面单独导出不带字幕；后续把绿/黄结论各自提前半秒落字，保持待原件黄槽与拒签状态。当前无视觉阻断。
+  - role: 编剧
+    reviewer_id: phaseb11-d05-writer
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    score: 95
+    verdict: pass
+    notes: |-
+      文案从“没记录不等于没写”进入双证物，再把根因判断约束为写入位置和入口读集，21.08s给出可复现的01落盘、02读集、03原入口回问。35.86s后严格区分新事实写入/升格已通过与原入口复问缺逐字原件，44.19s明确不签通过，最终限定只验收自建工作流并再次强调证据缺一张不能宣布修好。
+
+      扣分：(-2) “AI记岔了”的选题皮肤仍容易人格化，幸而成片正文持续纠偏；(-2) 03“修后回问”在出现待原件前有短暂完成态语感；(-1) journal、读集、升格对非工程用户仍需画面辅助。改法：发布标题使用“AI说没记录，先查写入和读集”，不得写成已修复或永久记忆方案。当前事实边界完整。
+  - role: 留存与互动设计师
+    reviewer_id: phaseb11-d05-retention-interaction
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      0-3.15s反误判钩子直接命中“AI说没记录”的真实挫败，3.15-13.75s用文件在和双证物持续兑现；13.75s因果尺重构问题，21.08s起01/02/03形成可记忆清单，35.86s绿黄分槽提供可信高潮。末尾数字CTA只需评论01/02/03，并把三步验收卡留作收藏资产。
+
+      扣分：(-3) 55.23s是三条中最长，完播压力明显；(-3) 21.08-35.86s连续工程步骤，泛用户中段可能流失；(-2) 10.37-13.73s双证物静置3.37s，接近4秒上限；(-1) 最后9.85s同时承担范围、CTA和三步复盘，信息较密。改法：投后重点看3s、14s、21s、36s、45s到达率；若21-36s掉点，压缩工位停留但不删原入口复问和待原件拒签。当前通过。
+  - role: 编导
+    reviewer_id: phaseb11-d05-director
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    score: 93
+    verdict: pass
+    notes: |-
+      8镜按误判警报、入口夹具、双证物、因果尺、01/02工位、03复测、绿黄验收、三步CTA推进，调查逻辑与视觉工位完全对应。配音0秒进入，SRT连续覆盖到片尾；最关键的35.86-45.38s没有制造全修好结局，而是让一项通过、一项因缺逐字原件待验，随后明确拒签。
+
+      扣分：(-2) 55.23s对单一事故验收方法偏长；(-2) 21.08-35.86s三步流程的情绪波形较平；(-2) 第7镜字幕与双证书同时竞争注意力；(-1) D04/D05若相邻发布会因共享事故产生题材重复感。改法：发布排期避免D04/D05相邻；下一版把QA 01/02各压0.5-0.8s，不删03和黄槽拒签。当前成片叙事与证据边界均通过。
+overall:
+  score: 93.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "四角色均>=90；SHA绑定正确，写入与升格局部通过、原入口复问待原件和拒签状态、字幕音频及关键画面通过；pre_publish_forecast为B级。"

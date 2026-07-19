@@ -1,0 +1,30 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式选型师
+artifact: design/form_competition.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea50-d05-format-selector-v3-w30d05-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-50-20260719
+  reviewed_at: '2026-07-19'
+  angle: QA验收台相对D04续集/终端vlog的任务匹配、收藏与原创性
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-1) 工业警示纹和机械动作需克制，不能盖过当前证物。(-1) qa scope 28px偏小。(-1) 绿/黄状态必须继续配文字，不能只靠颜色。(-1)
+    storyboard末两镜时长仍过期。(-1) 比例动画在极端TTS拉长时会与固定SFX offset产生提前量。 改法：保持每镜单工位赢家；提高scope字号；最终TTS后按具体像素动作校准QA三击，并同步末两镜时长。
+    依据：黄色QA验收台把D05的核心任务从“解释根因”转换成“如何验收”：夹具表达写入不等于可读，检验尺区分报警与根因，01-03工位交付收藏清单，绿证+黄槽承载部分通过/拒签结局，三联卡承接评论。相较继续使用D04访问拓扑，它显著降低连续两条同质感；相较终端vlog，它对普通AI工具受众更可读且隐私风险更低。1.5x最大动作间隔约2.31s，无>4s冻结。
+- reviewer_id: phasea49-d05-form-v3-w30d05-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 形式选型师 · 黄色QA验收台让报警、证据门槛和签字状态成为可见动作，优于复用D04访问拓扑，也比终端排障vlo
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) 因果尺需避免最终观感像装饰仪表盘；(-2) 正式MiniMax runtime 1.5倍压力尚未生成；(-1) 双栏结果镜在字幕叠加后仍需核手机可读性。
+    改法：Phase B核尺标语义、双栏文字、黄槽停留和三联卡字幕安全区；任何把黄槽改绿均使审核失效。 依据：黄色QA验收台让报警、证据门槛和签字状态成为可见动作，优于复用D04访问拓扑，也比终端排障vlog更适合移动端。夹具、双证物槽、因果尺、01–03工位、绿证/黄槽和三联卡各自承担一个验收阶段；repaired模板标题直接写“一项通过，一项仍待原件”，绿色与黄色状态没有替缺证结果签字。
+avg_score: 95.0
+pass: true
+scorecard_phase: pre_render

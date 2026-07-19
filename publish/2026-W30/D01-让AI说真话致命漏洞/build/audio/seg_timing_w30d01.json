@@ -1,0 +1,88 @@
+{
+  "engine": [
+    "minimax"
+  ],
+  "total": 47.96,
+  "segments": [
+    {
+      "id": "ab_guess",
+      "window": 3.82,
+      "vo_dur": 3.7,
+      "start": 0.0,
+      "seg_dur": 3.82,
+      "emotion": "serious",
+      "speed": 1.0,
+      "text": "只看开头，哪份直接给出一个核心假设？"
+    },
+    {
+      "id": "compare_first_line",
+      "window": 5.88,
+      "vo_dur": 5.76,
+      "start": 3.82,
+      "seg_dur": 5.88,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "右边。左边先做计划评估，右边开头就给出核心假设。"
+    },
+    {
+      "id": "controlled_reveal",
+      "window": 5.75,
+      "vo_dur": 5.63,
+      "start": 9.7,
+      "seg_dur": 5.75,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "这不是两套模型：同一个模型，同一份虚构计划，只换了问法。"
+    },
+    {
+      "id": "plan_facts",
+      "window": 5.53,
+      "vo_dur": 5.41,
+      "start": 15.45,
+      "seg_dur": 5.53,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "这个人想辞职做代运营，可自己的账号做了四周，几乎没涨粉。"
+    },
+    {
+      "id": "prompt_save",
+      "window": 8.0,
+      "vo_dur": 6.3,
+      "start": 20.98,
+      "seg_dur": 8.0,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "别只问你觉得怎么样。加一句：只找一个没验证、却决定成败的前提。"
+    },
+    {
+      "id": "two_round_result",
+      "window": 6.17,
+      "vo_dur": 6.05,
+      "start": 28.98,
+      "seg_dur": 6.17,
+      "emotion": "serious",
+      "speed": 1.0,
+      "text": "我跑了两轮。模型都优先指出：他要卖的核心能力，还没有被结果验证。"
+    },
+    {
+      "id": "honest_difference",
+      "window": 6.42,
+      "vo_dur": 6.3,
+      "start": 35.15,
+      "seg_dur": 6.42,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "普通问法其实也发现了它；区别是，这个问法把核查顺序放在第一句。"
+    },
+    {
+      "id": "boundary_cta",
+      "window": 6.39,
+      "vo_dur": 6.27,
+      "start": 41.57,
+      "seg_dur": 6.39,
+      "emotion": "neutral",
+      "speed": 1.0,
+      "text": "AI负责提问，不替你拍板。你准备重投的计划，最没验证的前提是什么？"
+    }
+  ]
+}

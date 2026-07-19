@@ -1,0 +1,72 @@
+review_task: task-phaseb-06-20260719
+reviewer_agent_id: /root/phaseb_review_06
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+inspection:
+  actual_mp4_checked: true
+  sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+  duration_s: 52.48
+  video: "H.264 High, 1080x1920, yuv420p, 30fps, 1572 frames"
+  audio: "AAC LC mono 48kHz; integrated -17.3 LUFS; true peak -1.0 dBFS"
+  visual_sampling: "按2.5s等距抽查全片21格，并以原始1080x1920检查2.5s、23.5s、40.5s、50.5s关键帧"
+  freeze_scan: "freezedetect n=-45dB/d=0.5；最长低变化段2.333-6.300s为3.967s，另有6.70-9.77s为3.07s、24.67-27.40s为2.73s；均属已完整展开的阅读态，无黑帧/挂死"
+  silence_scan: "silencedetect -45dB/0.25s；所有检出均<=0.610s，尾部52.210-52.480s为0.270s自然收尾"
+  subtitle_and_prompt: "15条SRT覆盖0.000-52.480s；与烧录字幕及场景边界逐段相符。40.5s原始帧确认修订Prompt四步、暂停可抄及‘未单独A/B’披露未裁切"
+  tts_and_sync: "最终MP4使用MiniMax speech-2.8-turbo / Chinese (Mandarin)_Sincere_Adult；0s起声，6.30s测试计划、12.56s普通基线、19.29s真实路径、27.39s双轮限定、34.88s Prompt、46.95s CTA均与画面换场对齐，末句完整"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb06-d02-motion
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      最终MP4首镜用逆向红线把“6个月后计划失败”依次接到失败原因、已给事实、信息缺口，0s口播即启动；6.30s换到虚构计划，12.56s普通风险逐项列入，19.29s沿红色路径把原因接到事实/缺口，27.39s双轮票据揭示原因排序变化，34.88s Prompt四行依次显现并轮换关键词高亮，46.95s四选一CTA继续完成末段互动。各场切点与MiniMax分段时间一致，没有字幕先于语义或动效晚于口播的明显错位。
+
+      -45dB冻结扫描的最长段为2.333-6.300s共3.967s，属于首镜三节点完全展开后的阅读态；全片等距抽帧没有黑帧、闪屏或布局抖动。音频最长低电平仅0.610s，节奏连续。
+    deductions:
+      - "-3：首镜信息在约2.33s已基本展开，随后到6.30s约3.97s低变化，虽卡在4s上限内，但钩子后半段动效回报偏弱。"
+      - "-2：19.29-34.88s连续采用路径与票据式理性说明，场景虽切换，运动语汇相近。"
+      - "-3：34.88-46.95s Prompt镜以逐行进入和关键词高亮为主，12s收藏段的空间运动变化有限。"
+    blocking_issues: []
+  - role: 视觉设计
+    reviewer_id: phaseb06-d02-visual
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      原始帧确认事故线三节点、四周零涨粉、没写获客路径、082eb54f/e5061fad双哈希、四步修订Prompt、“未单独A/B”披露及四选一CTA全部在安全区内。红色用于失败原因与路径，黄色用于事实/缺口证据，绿色用于边界披露，语义映射稳定。字幕采用高对比黑底，与主画面保留明确间距；40.5s Prompt正文和免责声明未被字幕遮挡，50.5s四宫格按钮文字无溢出。
+    deductions:
+      - "-2：Prompt镜四步集中在上半部，后半页留白较大，信息密度与版面重心不完全均衡。"
+      - "-2：19-35s大量使用细线、票据和小号哈希，手机端能辨认结构，但实验细节需停顿才能读全。"
+      - "-2：整体纸面米白背景一致性高，同时也降低了七个场景之间的材质反差。"
+    blocking_issues: []
+  - role: 编剧
+    reviewer_id: phaseb06-d02-writer
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      0s直接把观众放进“半年后辞职计划已经失败”的具体后果，6.30s交代四周几乎零涨粉却想辞职做代运营、月入两万，场景真实且风险明确。12.56s先承认普通问法已足够严格，19.29s再给第一轮真实摘录，27.39s说明第二轮原因和排序变化，只将稳定观察收窄为“失败原因后跟依据、不先给建议”。34.88s交付的Prompt明确标为根据实测问题修订且未单独A/B，未把复合干预包装成单变量有效性结论；46.95s补“小事别用”边界和辞职/副业/创业/转行四选一。
+
+      MiniMax口播与15条SRT逐句一致，信息转折处均有自然短停顿；音频从0s开始、无异常长静音、52.48s末句完整。Prompt需要暂停抄写，但屏幕明确给出“暂停可抄”。
+    deductions:
+      - "-2：项目标题‘别再让AI给你建议了’比成片‘高风险计划先倒推、小事别用’的适用边界更绝对。"
+      - "-2：19.29-34.88s先讲Round 1、再讲Round 2、再讲稳定结构，证据严谨但首次观看认知负荷偏高。"
+      - "-1：52.48s总时长较长，收藏Prompt到46.95s才完整结束，低耐心观众可能错过边界与CTA。"
+    blocking_issues: []
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "第二份独立Phase B复核三角色均>=90；最终MP4像素、-45dB冻结/静音、MiniMax口播时间轴、字幕与Prompt阅读均通过。"

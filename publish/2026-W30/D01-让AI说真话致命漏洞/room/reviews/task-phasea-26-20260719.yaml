@@ -1,0 +1,36 @@
+review_task: task-phasea-26-20260719
+reviewer_agent_id: task-phasea-26-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/out/frames/prompt_save/frame_0000.png
+  - pipeline/p004_video/out/frames/prompt_save/frame_0090.png
+  - pipeline/p004_video/out/frames/prompt_save/frame_0120.png
+  - pipeline/p004_video/out/frames/prompt_save/frame_0239.png
+reviews:
+  - role: 动效设计师
+    reviewer_id: phasea26-d01-prompt-motion-window
+    reviewer_agent_id: task-phasea-26-20260719
+    review_mode: independent
+    angle: "Prompt高亮时窗、完整静止阅读时长与字幕层级"
+    score: 97
+    verdict: pass
+    notes: |-
+      最新Prompt模板将全文入场与关键语义高亮统一限制在reveal窗内：本镜D=8s、reveal=3.4s、hold=4s，四行文字约2.62s前全部入场，最后一行高亮回落约3.06s结束，早于3.4s reveal边界，不会侵占后续静止阅读窗。重生目录共240帧，第90、120和239帧SHA1完全相同，证明3.0s至切镜前的完整画面实际稳定约5.0s，超过最低4s要求。终帧可见四行Prompt全文、顶部字幕、标题、暂停可抄和静止提示各在独立层级，无遮挡、截断或溢出。扣(-3)：长文本是主动暂停型收藏镜，不暂停的用户在约5s内仍难逐字读完；但视觉动效本身已满足设计门禁。
+
+  - role: 动效分镜师
+    reviewer_id: phasea26-d01-prompt-storyboard-regeneration
+    reviewer_agent_id: task-phasea-26-20260719
+    review_mode: independent
+    angle: "Prompt收藏镜的入场、高亮、静置三段契约与240帧再生验收"
+    score: 96
+    verdict: pass
+    notes: |-
+      16至24秒收藏镜的分镜动作已形成清晰三段：纸面与四行文本先建立，约2.15至3.06s完成短促逐行高亮，3.4s起全文完全静置到8s切镜。这一顺序与旁白“核心就两件事”的提炼关系成立，高亮只负责引导扫读，不在收藏阅读期持续抢视线。240帧于模板修改后重生，文件时间晚于模板保存；抽查reveal边界、中段静置与最终帧，后半段像素一致，且未见字幕压住Prompt、行间互相覆盖或底部提示出界。扣(-4)：本镜依赖观众识别“暂停可抄”后主动操作，完播杠杆弱于实验证据镜；但作为分镜契约，入场、引导和阅读的时间边界已全部兑现。

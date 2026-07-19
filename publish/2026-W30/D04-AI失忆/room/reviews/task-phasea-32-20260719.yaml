@@ -1,0 +1,63 @@
+review_task: task-phasea-32-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+reviews:
+  - role: 内核提炼师
+    reviewer_id: phasea32-d04-core-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "内容存在但入口不可读的机制解释，以及与D05验收内核的分工"
+    score: 88
+    verdict: fail
+    evidence: |-
+      v2已从泛化“AI换设备失忆”改成一个可回查的自建bot案例：文件已写入，飞书入口的`build_system`读集未包含目标journal，因而回答“没有记录”。“不是内容消失，是读取路径漏了一块”是清晰、可复现且限定于本系统的核心结论。
+    deductions: |-
+      (-7) 第6句将内容交付为“写到哪/入口读什么/修后回问”三步排查，而D05的整条核心和收藏物就是同一三步验收。两条连发时，D04已把D05的方法回报提前交付，“解释 vs 验收”只停留在文档命名，没有在口播价值上切开。(-3) 结尾“看写入回执，再看读取清单”继续覆盖D05第一、二步，让D05只剩一个“修后回问”差量。(-2) 对普通AI用户而言，“SELF/guidance/projects”是工程实例而非通用收藏物，内核需更明确锁定自建助理受众。
+    fix: "D04只做‘故障解剖’：保留写入证物、四项读集、缺失断点与项目边界；删除三步排查清单和验收式结尾，改用‘写入不等于这个入口拿得到’收口。把完整验收方法留给D05。"
+  - role: 事实校验员
+    reviewer_id: phasea32-d04-fact-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "raw export事件原话、代码读集与项目范围边界"
+    score: 95
+    verdict: pass
+    evidence: |-
+      raw export 29-35行支持调研已落journal并有commit `ced86c9`；83-99行的代码检查支持当时入口每轮注入SELF、guidance、projects index和当天`-bot.md`标题，且目标journal与CLI私有记忆不在读集；1102-1104行支持飞书入口原回复“我这边没有记录”。口播第5句明确限定自建工作助理，未泛化所有AI产品。
+    deductions: |-
+      (-3) `pipeline_config`首屏直接显示“reddit调研记录”，而素材策略要求脱敏真实项目名；二者尚未形成唯一像素口径。(-2) “电脑端能找到”来自桌面端查文件后的事实，不是两个相同问句的产品A/B；画面不得把它做成同Prompt跨端模型对照。
+    fix: "首屏用‘某调研记录’或明确保留reddit为已授权真实摘录，二者必须选一；画面标注‘桌面文件检查 vs 飞书bot回复’，不写为模型A/B。"
+  - role: 形式选型师
+    reviewer_id: phasea32-d04-form-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "访问X光图三方案竞争、真实证物层和D03/D05画面去同质"
+    score: 92
+    verdict: pass
+    evidence: |-
+      三方案比较了访问X光图、双设备孤岛动画和真实终端全片。否决B的理由是证据明确两端同机同仓，设备断线会把真实读集原因画错；C作局部真证物而不做全片，兼顾可读性。横向路径拓扑、扫描探针与项目范围框与D03纵向闸机、D05黑黄QA工位在主构图和观看任务上均已分开。
+    deductions: |-
+      (-3) 形式层虽与D05分开，但`checklist`场景的“三枚排查探针”和D05“三工位验收”对应同三个问题，后半段观看任务仍有实质重复。(-3) 真实日志原句仅规划为“情景还原”，必须在像素上常驻“真实日志摘录·非原界面截图”，否则X光合成层容易被误解为真后台。(-2) 41s中读集与缺失路径连续12s，必须在真实TTS timing下检验代码字号与1.5倍停留，当前仅是设计承诺。
+    fix: "删除D04的三探针方法镜，用‘读集断点放大+本项目边界’完成解释收口；将三步验收完整留给D05。真实摘录与合成解释层在所有帧明示分层。"
+overall:
+  score: 91.7
+  verdict: fail
+  blocking_issues:
+    - "D04口播与镜头已交付D05同一三步验收法，两条内容分工未达发布级差异化。"
+  release_note: "事实与形式选型通过；内核88分，需从D04删除三步验收内容后再审。"

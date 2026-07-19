@@ -7,6 +7,8 @@
 
 ## 洞察与编排（Layer 2 门禁）
 
+- [ ] 可实验的核心 claim 已先完成 Stage 0 evidence spike，保留输入/输出/模型/参数/时间/哈希与 claim boundary
+- [ ] 派 reviewer 前已建立 `角色 × content_version × form_version × Phase` 覆盖矩阵，无重复碰运气或漏岗
 - [ ] `GAP_REPORT.md` 完成且无 blocking；若为 `draft_self_generated` / `blocked_before_*`，禁止进入下一阶段
 - [ ] `insights/topic_brief.md` 完成：受众、钉子场景、≥5 条原话
 - [ ] `insights/core_message.md` 完成：P0 ≥ 3 条 + 价值锚 + 钩子
@@ -40,10 +42,14 @@
 - [ ] **封面**：`design/cover_review.md` 为 **pass**（视觉设计对 render 产出 PNG 签字）
 - [ ] **封面反例**：禁止纯黑金渐变回落场景直接外发（`templates/design/cover_standards.md`）
 - [ ] **配音**：`audio_plan.yaml` 已填；口播 MP3 已生成并与脚本对齐
+- [ ] **TTS 小样**：provider/voice/emotion 已用 5–10s 单句 dry-run；生产配置 `strict_provider: true`，无静默回退
 - [ ] **配音质量**：不得用 macOS `say` / 系统默认 TTS 冒充生产级配音；临时音频只能放 `_build/`，不得发布
-- [ ] **BGM**：成片含背景音乐；**外发默认** `*_with_bgm.mp4`（非裸 `p004_*.mp4`）
+- [ ] **BGM 条件件**：密 VO 演示/知识型（VO ≥85% 且无 3s+ 死区）默认可无 BGM；其他形态默认有 BGM。命名遵循 `*_with_bgm.mp4` / `*_no_bgm.mp4`
 - [ ] **字幕**：SRT + 烧录/叠字；前 3s 钩子大字可见
-- [ ] 人工听 30s：VO 清晰，BGM 不盖人声
+- [ ] **真实时长驱动**：runtime storyboard 来自最终 VO timing；各镜已做 1.0×/1.5× 压力测试
+- [ ] **并行隔离**：frame/audio/cache/concat 路径含 `content_id`，逐场景路径含 `scene_id`
+- [ ] **机器 QC 先于 Phase B**：黑帧、静音、规格、字幕/音轨通过；`freezedetect` 最长连续冻结 ≤4.00s
+- [ ] 人工听 30s：VO 清晰；有 BGM 时不盖人声
 - [ ] 抖音版 45–60s / 小红书 ≤60s
 
 ## 图文（如有）
@@ -87,6 +93,7 @@
 - [ ] metrics.csv 已预填一行（publish_date 待填）
 - [ ] 周包：`gate_check.py` pass；`pre_publish_forecast` 形式门 pass（若适用）
 - [ ] 周包：scorecard Phase A/B 各工种 ≥90（`room/scorecards/`），且不是 `draft_self_generated` / 单 Agent 草稿
+- [ ] Phase B scorecard 与 forecast 记录当前 `douyin/video.mp4` SHA-256；哈希变化后旧结论已作废并重审
 
 ## 路人测试（Phase 0 必须，Phase 1 建议）
 

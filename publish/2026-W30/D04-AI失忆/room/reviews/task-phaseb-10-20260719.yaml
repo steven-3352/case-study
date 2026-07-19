@@ -1,0 +1,84 @@
+review_task: task-phaseb-10-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_b
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  video_sha256: 50be03a5857d22e1171b57b38328881bd6ee00bf5609bcbeed9cd6541e578917
+  duration_s: 45.550
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；综合响度约-16.88 LUFS；true peak约-0.26 dBTP"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长35.000-38.167s，共3.167s；其余检出段均<=2.700s"
+  silencedetect: "实际执行 silencedetect=n=-45dB:d=1.5；无>=1.5s静音"
+  blackdetect: "实际执行blackdetect=d=0.1:pix_th=0.10；未检出黑帧段"
+  visual_sampling: "实际检查约4s间隔全片contact sheet，并复核1.0s、4.5s、16.0s、44.0s全分辨率关键帧"
+  subtitle_check: "14条SRT从0.000s连续覆盖至45.550s，无重叠或尾句截断；第2条把句号挤到独立行，烧录字幕实际帧正常。"
+  cover_check: "实际查看1080x1920封面；同一记录一端有一端没有主冲突清楚，画面留白很大，底部烧录字幕处于UI高干扰区。"
+  content_boundary_check: "成片明确结论只适用于这套自建工作助理，并显示‘不是所有AI跨设备都会忘’；未承诺永久记忆或泛化平台。"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "66%-74%"
+  completion_rate: "33%-41%"
+  rationale: |-
+    3s预测依据首屏0s即出现“同一条记录/一端有·一端没有”，2s转入电脑端与飞书端冲突；下限考虑标题偏工程项目记录，泛人群相关性有限。完播预测依据落盘证物、真实代码读集、缺失路径、范围纠偏、共同可读面和入口CTA逐层破案；下限考虑12-25s术语密集和45.55s片长。无账号真实基线，故为B级估算。
+  grade: B
+  go_no_go: go
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb10-d04-motion-designer
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    notes: |-
+      8镜通过记录分叉、落盘票据、读集扫描、断线路径、范围框、共同可读面连线和CTA逐步定位故障，路径运动与因果理解一致。最长低变化3.167s，低于4s硬线；全片无黑帧、渲染撕裂或错位。
+
+      扣分：(-3) 25.53-32.35s边界镜的大框先空后填，早段视觉回报偏弱；(-3) 35.00-38.17s共同可读面出现3.167s低变化，连线到位后缺少阅读引导；(-2) 多个镜头以节点淡入为主，动作语言略单一。最小改法：若投后29-39s掉点，在边界框和共同面加入逐行高亮/路径脉冲，不增加装饰线。
+  - role: 视觉设计
+    reviewer_id: phaseb10-d04-visual-design
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      绿代表可读/共同面、红代表断点、橙代表扫描，颜色语义稳定；代码读集、文件节点和入口节点在手机画布上清晰，16s实际帧的四项来源可读。结尾问题与绿色评论按钮突出，无字幕遮挡。
+
+      扣分：(-3) 首屏和封面大面积空白，缩略图冲击力依赖单一标题；(-2) 44s标题“入口断档要点名”换行落成孤立“名”，不够精致；(-2) 边界镜红色次级文案对比偏浅；(-2) 封面底部字幕位于平台UI区。最小改法：后续封面移除烧录字幕并增加一条红色断点线；成片主信息当前仍清楚，不阻断。
+  - role: 编导
+    reviewer_id: phaseb10-d04-director
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    notes: |-
+      叙事遵循故障调查顺序：同记录冲突→落盘与commit→飞书实际读集→目标journal缺失→只限自建助理→共同可读面→入口评论。5.92s后每一段都提供新的因果证物，第7镜是唯一修法高潮，第8镜不混入D05的三步QA。
+
+      扣分：(-3) 12.24-25.53s连续解释SELF、guidance、index、journal，非工程观众认知负荷高；(-2) 共同可读面是架构建议而非已经A/B验证的结果；(-2) 尾段从原则到CTA略快。最小改法：投后若中段到达下降，优先把四项读集口播压成“实际只读四个固定来源”，保留像素证物和范围边界。
+  - role: 平台表现分析师
+    reviewer_id: phaseb10-d04-platform-performance
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      抖音规格、音轨、烧录字幕、独立SRT和封面完整。0-3s端侧冲突服务停划，5.92-25.53s证物链服务完播，32.35-39.35s共同可读面服务收藏，42.67s后入口名CTA降低评论门槛。发布前预测3s完播66%-74%、完播33%-41%，B级，go。
+
+      扣分：(-3) 工程术语限制泛人群覆盖；(-2) 45.55s仍偏长；(-2) 封面空白与底部字幕削弱缩略图效率；(-2) SRT第2条句号孤行需在外挂字幕上传前修排；无真实账号基线再扣(-0)。当前烧录字幕正常，SRT问题不构成成片阻断。
+overall:
+  score: 91.8
+  verdict: pass
+  blocking_issues: []
+  go_no_go: go
+  release_note: "四角色均>=90；SHA绑定正确，最长低变化3.167s，范围边界、音频、字幕和路径画面检查通过。"

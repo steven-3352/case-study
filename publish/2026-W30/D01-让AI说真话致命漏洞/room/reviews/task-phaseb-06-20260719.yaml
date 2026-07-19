@@ -1,0 +1,72 @@
+review_task: task-phaseb-06-20260719
+reviewer_agent_id: /root/phaseb_review_06
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+inspection:
+  actual_mp4_checked: true
+  sha256: d639086b101f0ca62d0cb4c7995e9ecd60ed2d273753c16781bbbce3f2ab4bde
+  duration_s: 47.96
+  video: "H.264 High, 1080x1920, yuv420p, 30fps, 1435 frames"
+  audio: "AAC LC mono 48kHz; integrated -17.4 LUFS; true peak -0.5 dBFS"
+  visual_sampling: "按2.5s等距抽查全片20格，并以原始1080x1920检查1.5s、24.5s、31.5s、44.0s关键帧"
+  freeze_scan: "freezedetect n=-45dB/d=0.5；最长低变化段0.333-3.833s为3.50s，另有9.70-14.63s内按锁点拆分的1.50s与3.43s、42.63-45.70s为3.07s；均有场内信息任务或字幕推进，无黑帧/挂死"
+  silence_scan: "silencedetect -45dB/0.25s；27.155-29.128s为最长1.973s阅读留白，其余均<=0.587s"
+  subtitle_and_prompt: "14条SRT覆盖0.000-47.960s；与烧录字幕及场景边界逐段相符。24.5s原始帧确认完整Prompt、暂停可抄提示与口播短句同时可读"
+  tts_and_sync: "最终MP4使用MiniMax speech-2.8-turbo / Chinese (Mandarin)_Sincere_Adult；0s起声，3.82s答案揭晓、9.70s控制变量、20.98s Prompt、28.98s双轮证据、41.57s边界CTA均与画面换场对齐，末句完整"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb06-d01-motion
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      最终MP4而非模板抽查：0-3.82s游标在A/B两栏间移动且未提前落到答案；3.82s答案hit后，两栏从“先评估”与“第一句给核心假设”形成即时对比。9.70-15.45s三把控制锁依次闭合，15.45-20.98s三张事实卡逐项进入，28.98-35.15s双轮票据与短哈希同时出现，35.15-41.57s从“普通问法也发现”压到“核查顺序第一句”，42.63s后评论框继续输入，信息任务持续变化。场景切点与MiniMax分段起点一致，答案、事实、证据、边界都没有抢跑或滞后。
+
+      freezedetect在-45dB阈值下检出多段0.5-3.5s低变化，主要来自纸面布局的刻意阅读停留，而不是渲染挂死；全片等距抽帧无黑帧、闪帧或元素跳位。
+    deductions:
+      - "-4：20.98-28.98s Prompt镜后半段以静置阅读为主，24.80-26.90s及27.17-28.97s低变化，动效密度明显低于前半片。"
+      - "-2：27.155-29.128s有1.973s低电平留白，虽服务暂停抄写，但转入双轮证据前的节奏回弹不够强。"
+      - "-2：42.63-45.70s约3.07s低变化，CTA输入动效细，信息流首看不一定能感知。"
+    blocking_issues: []
+  - role: 视觉设计
+    reviewer_id: phaseb06-d01-visual
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      原始1080x1920帧确认：A/B开头原文、Round 1省略声明、495913db/8b8d8507两枚短哈希、完整Prompt及最终评论问题均未裁切。米白纸面、黑字、红色风险与绿色验证形成稳定语义配色；主标题、证据正文、烧录字幕的字号层级清楚。字幕黑底位于下方安全区，未遮挡Prompt正文、哈希或CTA交互区。首镜B列虽信息更多，但关键句仍能在手机竖屏识别；24.5s Prompt镜具备约5s静止阅读窗。
+    deductions:
+      - "-2：首镜B原文比标题和字幕小一档，缩屏观看时观众更可能只读到‘最致命的漏洞’而跳过后半证据。"
+      - "-2：Prompt纸面上半部信息密、下半部留白大，视觉重心偏上，收藏镜的版面利用率一般。"
+      - "-2：全片持续使用纸张/表单语汇，证据感强但材质与空间层次变化有限。"
+    blocking_issues: []
+  - role: 编剧
+    reviewer_id: phaseb06-d01-writer
+    reviewer_agent_id: /root/phaseb_review_06
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      成片从低门槛A/B选择进入，3.82s即兑现答案；随后用“同模型、同计划、只换问法”交代控制变量，再用四周几乎零涨粉的虚构计划落地风险。20.98s给可执行问法，28.98s补双轮证据，35.15s主动承认普通问法也发现同一风险，最终只保留“核查顺序放在第一句”的窄结论。该叙事没有把单次模型输出冒充客观真相，也没有把AI写成决策者；结尾“最没验证的前提是什么”与方法直接闭环。
+
+      MiniMax口播逐段与SRT文本一致，语句长度和停顿支持理解；0s起声、末句不截断。SRT第3条换行把中文逗号放到下一行开头，但烧录帧整体仍可读，不影响语义。
+    deductions:
+      - "-2：片名/视觉仍保留‘致命漏洞法’的强口径，虽然正文已严谨收窄，首次期待与最终结论之间仍有轻微张力。"
+      - "-2：20.98-28.98s屏幕完整Prompt比口播交付的核心短句更长，首次观看需要暂停才能消化全部限定。"
+      - "-1：47.96s承载一个Prompt技巧略长，中段控制变量与计划事实可再合并约1s。"
+    blocking_issues: []
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "第二份独立Phase B复核三角色均>=90；最终MP4像素、-45dB冻结/静音、MiniMax口播时间轴、字幕与Prompt阅读均通过。"

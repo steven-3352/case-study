@@ -1,0 +1,13 @@
+project_id: W30D02
+content_id: W30D02
+content_version: v3
+form_version: v4
+phase: approve
+status: approved
+review_source: independent_agent_tasks
+decision: ready_for_external_release
+tts_allowed: true
+render_allowed: true
+pre_publish_forecast: B
+publish_candidate: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf

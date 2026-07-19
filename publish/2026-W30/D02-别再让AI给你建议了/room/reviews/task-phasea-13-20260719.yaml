@@ -1,0 +1,39 @@
+review_task_id: task-phasea-13-20260719
+reviewer_agent_id: task-phasea-13-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+phase: pre_render
+project_id: W30D02
+content_id: T041
+read_only_review: true
+roles:
+  - role: 内核提炼师
+    reviewer_id: phasea13-d02-method-contract
+    reviewer_agent_id: task-phasea-13-20260719
+    review_mode: independent
+    angle: "事前验尸的结构增量、事实与缺口双组件及收藏物合同一致性"
+    score: 83
+    pass: false
+    verdict: fail
+    notes: |-
+      最新口播已经把价值收窄为“失败原因到依据”的组织方式，不声称更准、更凶或预测未来，也承认普通问法已经严格；“小事别用”使应用场景有边界。但当前canonical内核仍写“用计划里的现有事实倒推死因”，并把“每条引用现有事实”列为P0，和脚本、分镜、Prompt票已采用的“已给事实/信息缺口”双组件正面冲突。扣(-9)：核心价值锚未覆盖信息缺口。扣(-5)：P0仍把原实验Prompt要求当作成片收藏物硬要求。扣(-3)：新收藏Prompt删掉原实验中的“可能性+破坏性排序”，却没有说明这是为了可执行性做的编辑版。修正：统一内核为“每个原因标清已给事实或信息缺口”，并明确屏幕Prompt是基于实测暴露问题修订的编辑版，而非原Prompt原样复刻。
+  - role: 事实校验员
+    reviewer_id: phasea13-d02-original-versus-revision
+    reviewer_agent_id: task-phasea-13-20260719
+    review_mode: independent
+    angle: "Round 1具体示例、复合干预归因与修订Prompt是否被实测的证据边界"
+    score: 80
+    pass: false
+    verdict: fail
+    notes: |-
+      两轮证据原件具备完整UTC、response id、returned model、usage、脱敏请求、原始响应及SHA256；`082eb54f`和`e5061fad`也准确对应两轮B内容哈希。Round 1确实明确区分“支持事实”和“计划中的缺失”，因此脚本说依据可能来自事实或关键信息缺口有原文观察支撑。扣(-10)：画面把“计划没有获客环节”“没写客户从哪来、怎么谈成”标作“Round 1原文结构短摘”，但原文分别是“计划中完全没有‘获客’这一环节”及更长说明，当前属于编辑概括而非逐字短摘。扣(-6)：原B Prompt只要求引用现有事实，成片新增“事实/信息缺口”的修订Prompt尚未重新A/B实测。扣(-4)：事实核查仍概括“两轮B都事实锚定”，没有显式记录Round 1第三项是缺口。修正：把画面标签改成“Round 1编辑概括”并同时给一条真正逐字摘录；将新Prompt明确标“根据实测修订·未单独验证”，或补跑同参数双轮后再主张其输出结构。
+  - role: 形式选型师
+    reviewer_id: phasea13-d02-autopsy-separation
+    reviewer_agent_id: task-phasea-13-20260719
+    review_mode: independent
+    angle: "纵向事故倒放的骨架隔离、依据类型可视化与十秒收藏物阅读节奏"
+    score: 90
+    pass: true
+    verdict: pass
+    notes: |-
+      D02从“6个月后失败”直接起镜，以横轴逆行箭头、纵向红轨、实心事实签和空心虚线缺口签组织信息，不使用D01的A/B竞猜、变量锁或向心汇流，姊妹条骨架隔离充分。4秒事故钩后按5、5、7、7、10、5秒推进，镜内的节点倒放、事实stagger、四行路径、双轮票与逐行Prompt高亮大体能维持2至4秒一次焦点变化。Prompt为四行45px短句，约6秒内完成展开与轮换高亮，随后仍留约4秒完整净帧，收藏可读性成立。扣(-4)：14至21秒实际只有两组原因到依据，storyboard却写“三条失败路径”，承诺数量不一致。扣(-3)：四行路径约3秒全部出现后到切镜存在接近4秒的平台期。扣(-3)：form_strategy仍使用20至41秒旧窗口，与storyboard的21至43秒偏移。修正：统一为两条具体路径或补足第三条；让红轨在后半段逐项回亮事实签/缺口签，并把所有策略时间码同步到43秒版本。

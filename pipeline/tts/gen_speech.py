@@ -24,6 +24,15 @@ except ImportError:
     yaml = None  # type: ignore
 
 CFG_PATH = pathlib.Path(__file__).resolve().parent / "config.yaml"
+MINIMAX_EMOTIONS = {"happy", "sad", "angry", "fearful", "disgusted", "surprised", "neutral"}
+MINIMAX_EMOTION_ALIASES = {"serious": "neutral", "calm": "neutral", "confident": "neutral"}
+
+
+def normalize_minimax_emotion(emotion: str | None) -> str | None:
+    if not emotion:
+        return None
+    normalized = MINIMAX_EMOTION_ALIASES.get(emotion, emotion)
+    return normalized if normalized in MINIMAX_EMOTIONS else "neutral"
 
 
 def load_config(path: pathlib.Path) -> dict:
@@ -146,6 +155,7 @@ def _synth_minimax(
     emotion/speed 为本段覆盖值（render 按内容弧线逐段传入）；缺省读 config。
     """
     m = cfg.get("minimax", {})
+    emotion = normalize_minimax_emotion(emotion)
     if m.get("mode", "async") == "async":
         from pipeline.tts.minimax_client import synth_async
 
@@ -225,16 +235,23 @@ def synthesize_text(
     out_mp3.parent.mkdir(parents=True, exist_ok=True)
     cfg = load_config(config_path.resolve())
     provider = cfg.get("provider", "edge")
+    strict_provider = bool(cfg.get("strict_provider", False))
     try:
         if provider == "volcengine" and _synth_volcengine(text, cfg, out_mp3):
             return "volcengine"
         if provider == "minimax" and _synth_minimax(text, cfg, out_mp3, emotion=emotion, speed=speed):
             return "minimax"
         if provider not in ("edge", "volcengine", "minimax"):
+            if strict_provider:
+                raise RuntimeError(f"未知 TTS provider: {provider}")
             print(f"  ⚠ 未知 provider {provider}，回落 edge")
         elif provider != "edge":
+            if strict_provider:
+                raise RuntimeError(f"{provider} 凭证缺失或未返回音频")
             print(f"  ⚠ {provider} 凭证缺失，回落 edge")
     except Exception as e:  # noqa: BLE001 — 自然 TTS 失败回落 edge
+        if strict_provider:
+            raise RuntimeError(f"{provider} 合成失败；strict_provider 禁止回退") from e
         print(f"  ⚠ {provider} 合成失败回落 edge：{e}")
     rate, pitch, volume = pick_tts_params(cfg, jitter=cfg.get("jitter", False))
     synthesize(text, cfg["voice"], rate, pitch, volume, out_mp3)

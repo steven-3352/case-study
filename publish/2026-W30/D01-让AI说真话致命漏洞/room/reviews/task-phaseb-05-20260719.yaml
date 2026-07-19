@@ -1,0 +1,64 @@
+review_task: task-phaseb-05-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_b
+review_generation: final_rerender_only
+prior_phase_b_scores_invalidated: true
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - design/实测_致命漏洞法.md
+inspection:
+  actual_mp4_checked: true
+  video_sha256: d639086b101f0ca62d0cb4c7995e9ecd60ed2d273753c16781bbbce3f2ab4bde
+  duration_s: 47.96
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz; -17.3 LUFS integrated; -0.5 dBFS true peak"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长冻结0.333-3.833s，共3.50s；次长6.233-9.700s，共3.467s；均未超过4s硬边界"
+  silence_scan: "实际执行 silencedetect=n=-45dB:d=1.5；仅27.155-29.128s检出1.973s低电平留白"
+  visual_sampling: "实际检查约3.5s间隔全片contact sheet，并以0.5s、2.8s、8.0s、16.5s、22.0s、31.0s、37.0s、46.5s全分辨率关键帧复核"
+  subtitle_check: "实际读取14条SRT并核烧录字幕；0.000-47.960s连续覆盖，无时间重叠、尾句截断或画面越界"
+  fact_boundary_check: "核对双轮原始响应、495913db/8b8d8507短哈希、同模型同计划问法差异；成片明确说普通问法也发现风险，只声称优先顺序变化，不声称找到客观真实漏洞"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb05-d01-motion-designer
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      0.00-3.82s把A/B原文和选择任务直接放在首屏，游标没有提前落在B上泄题；3.82s、9.70s、15.45s、20.98s、28.98s、35.15s、41.57s均有明确场景换形，控制锁、事实卡、Prompt纸张、双轮票据、诚实结论和评论框形成连续视觉任务。关键动效都服务理解或收藏，不是无意义装饰；30fps成片无黑帧、撕裂或错位。
+
+      扣分：(-3) -45dB/1.5s冻结扫描显示首屏0.333-3.833s连续3.50s、6.233-9.700s连续3.467s，已经贴近4s上限，A/B卡的小字号又需要主动阅读；(-3) 27.167-28.967s画面冻结与27.155-29.128s音频低电平留白重叠，虽可理解为“暂停可抄”，但没有进度或保存反馈时容易被误判成停住；(-3) 29.667-39.467s间连续出现2.50s、2.967s、2.50s、1.833s多段静止，双轮证据段节奏偏机械。改法：下一版在Prompt停顿加入不遮字的描边完成态或保存刻度；首屏每1.5-2s用游标扫读/重点下划线提供微变化；双轮票据用哈希逐字落印代替整页静置。当前最长冻结未越4s，不构成阻断。
+
+  - role: 视觉设计
+    reviewer_id: phaseb05-d01-visual-design
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 92
+    verdict: pass
+    notes: |-
+      米白纸面、黑字、红色问题与绿色诚实边界建立了清晰且不单调的证据桌视觉；A/B、控制锁、编号事实、Prompt、双轮哈希与CTA均有不同轮廓，47.96s内没有卡片套卡片或视觉语义混淆。抽查0.5s、8.0s、22.0s、31.0s、37.0s、46.5s可见主标题、烧录字幕和核心结论均在画布内，字幕黑底对比足够，CTA输入框没有被字幕遮住。
+
+      扣分：(-3) 0-3.82s的两栏原文正文在手机自然观看尺寸偏小，观众主要靠标题和A/B标签完成任务，证据原文的即时可读性有限；(-2) 20.98-28.98s完整Prompt正文多且灰色次级句对比偏弱，必须暂停才适合逐字抄；(-2) 双轮票据底部短哈希及限定说明字号较小；(-1) 多场景采用大面积留白，配合长冻结会放大“模板静态页”观感。改法：首屏只保留两份首句并放大20%-25%，把删节说明压成同一条脚注；Prompt用逐行高亮提高自然播放可扫读性；双轮哈希保持可核验但提升对比。当前无溢出、遮挡或不可辨认的主信息。
+
+  - role: 编剧
+    reviewer_id: phaseb05-d01-writer
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 94
+    verdict: pass
+    notes: |-
+      0-9.70s先让观众判断再揭晓，9.70-20.98s补控制变量和虚构计划事实，20.98-28.98s交付可复制Prompt，28.98-41.57s用两轮短哈希与“普通问法也发现了它”完成证据和反夸大，41.57-47.96s以“AI负责提问，不替你拍板”收边界并抛出单问题CTA。事实核对确认495913db、8b8d8507对应两轮B响应；“模型都优先指出”是可观察结果，没有写成客观真漏洞或泛化到所有模型。
+
+      扣分：(-2) 47.96s只承载一个问法技巧，中段控制变量与三条计划事实解释略长；(-2) 20.98s口播“加一句”会让部分观众理解成严格的单句增量实验，而实际A/B是整段用户问法替换，虽随后完整展示B指令且没有拆句因果归因，仍可更精确；(-2) 末尾“重投的计划”用词不如辞职/创业等具体高风险场景直观。改法：后续口播改为“把普通评价请求换成这个单点问法”；CTA改为“你最想辞掉工作去做的那件事，哪个前提还没验证？”；不要删“双轮”和“普通问法也发现”两处诚实限定。
+overall:
+  score: 92.3
+  verdict: pass
+  blocking_issues: []
+  release_note: "最终重渲染成片三角色均>=90；最长冻结3.50s，事实边界与字幕音频检查通过。"

@@ -1,0 +1,64 @@
+review_task: task-phasea-43-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/topic_brief.md
+  - pipeline/p004_video/templates/d04_w30_record_hook.html
+  - pipeline/p004_video/templates/d04_w30_write_proof.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_missing_path.html
+  - pipeline/p004_video/templates/d04_w30_boundary.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 编导
+    reviewer_id: phasea43-d04-director-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      八镜按故障调查顺序推进：首镜2秒交代“同一记录一端有、一端没有”，第二镜给两入口冲突，随后用落盘与commit、四项读集、缺失journal完成因果证明，再用独立范围镜限制到自建助理，尾段给共同可读面和“评论留入口名”。首屏冲突、根因揭示、工程修法和互动都有明确落点，CTA也已在close模板像素化。
+    deductions: |-
+      (-2) 11–23秒连续代码读集与路径解释对非技术用户有理解压力；(-2) close从共同可读面切到入口评论，信息目标稍多；(-1) 最终MiniMax timing未生成，长镜动作与口播贴合仍待验证。
+    remediation: "保留写入证据→读集→缺失路径的顺序，不得为提速跳过任一因果节点；Phase B核中段理解负荷。"
+  - role: 内核提炼师
+    reviewer_id: phasea43-d04-core-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      核心命题始终是“内容存在，但对该入口不可用”，修法则是把长期项目结论升格到两个入口都会读的共同位置。它没有把问题归因于设备同步、模型永久记忆或平台普遍机制；口播与边界镜两次限定为这套自建工作助理。CTA询问入口名，能收集真实使用场景而非泛情绪回应。
+    deductions: |-
+      (-3) 标题仍借“AI失忆”作为选题皮肤，必须依靠23秒边界镜持续纠偏；(-2) “桌面能读”只应指本案例入口可读，不可延伸为所有桌面客户端。
+    remediation: "发布标题与正文必须保留自建助理范围，不得改成跨设备AI失忆通论。"
+  - role: 事实校验员
+    reviewer_id: phasea43-d04-fact-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 96
+    verdict: pass
+    evidence: |-
+      当前主张均能回到raw export：目标journal已落盘且进入commit ced86c9，旧飞书入口回复无记录，代码检查显示当时读集只有SELF、guidance、projects index和当天bot标题，目标journal不在注入列表。口播据此只说读取路径漏了一块，并明确结论仅适用于自建工作助理；外部文档没有被拿来替本案例证明因果。
+    deductions: |-
+      (-2) 文件路径和commit是编辑摘录而非真实后台截图，最终画面必须维持自绘证物属性；(-2) 没有跨产品对照，因此“所有AI/跨设备都会忘”仍是硬禁区。
+    remediation: "画面不得冒充飞书或Claude官方后台；任何删去范围镜的变更都使本审核失效。"
+overall:
+  score: 95.3
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90，content v2/form v3 Phase A通过；真实TTS后核中段读集负荷、范围镜可读性和CTA落点。"

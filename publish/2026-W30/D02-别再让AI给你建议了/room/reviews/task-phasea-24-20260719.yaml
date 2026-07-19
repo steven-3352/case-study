@@ -1,0 +1,56 @@
+review_task_id: task-phasea-24-20260719
+reviewer_agent_id: phasea_review_24
+review_mode: independent
+reviewed_at: "2026-07-19"
+phase: pre_render
+project_id: W30D02
+content_id: T041
+read_only_review: true
+reviewed_artifacts:
+  - insights/persona_ab_evidence.md
+  - insights/premortem_ab_evidence.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - script/T041_录音提词稿.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+  - pipeline/p004_video/out/frames/accident_hook/frame_0015.png
+  - pipeline/p004_video/out/frames/accident_hook/frame_0095.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0050.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0160.png
+  - pipeline/p004_video/out/frames/autopsy_paths/frame_0205.png
+roles:
+  - role: 内核提炼师
+    reviewer_id: phasea24-d02-core-premortem-evidence
+    reviewer_agent_id: phasea_review_24
+    angle: "人称假设否证后的新价值锚、复合指令收益与高赌注边界"
+    score: 95
+    verdict: pass
+    notes: |-
+      已重新核对persona双轮实验与premortem双轮实验。前者两轮方向相反，不支持“把我改成小林会更客观”，当前脚本已完全弃用；后者支持的最小内核是：在本次复合指令下，输出先按失败路径组织原因，再跟依据，并且不先给建议。视频没有伪造普通问法很软的反差，反而明确它已经够严格；观众拿到的是重大决定前可执行的事前验尸结构，而非另一份泛建议。结尾“小事别用”及辞职、副业、创业、转行四选一同时限制过度分析并降低评论门槛。扣(-5)：“稳定的只有”容易被听成统计稳定性，实质只是双轮共同观察；修订版Prompt新增“已给事实/信息缺口”，其价值合理但未独立A/B。后续文案必须继续写“本次双轮共同结构”，不得称更准、更客观、更狠或能预测真实失败。
+
+  - role: 事实校验员
+    reviewer_id: phasea24-d02-fact-compound-two-round
+    reviewer_agent_id: phasea_review_24
+    angle: "两套双轮原件、复合干预归因、Round 1逐字路径、哈希与修订披露"
+    score: 97
+    verdict: pass
+    notes: |-
+      已实际核对premortem两轮A/B的固定材料、请求元数据、原始响应和完整哈希，也复核persona实验的否证判定。082eb54f、e5061fad与两轮B响应SHA256前八位一致；Round 1画面的“唯一的能力证据是负面的”“做过4周自己的账号，涨粉几乎为零”“完全没有获客这一环节”“依据是计划中的缺失”均可在原文回查。模板常驻“整组Prompt干预·非单变量”，双轮证据镜明确原因与排序不完全一致且不代表提高准确率；修订Prompt脚注还明示补入信息缺口标注且未单独A/B。扣(-3)：口播“没写获客，就标信息缺口”是忠实概括，不是逐字引语；“更严谨”属于编辑判断而非新实验比较结论。必须保留原文短摘标签和修订版脚注，禁止把差异归因到“假设失败”单句。
+
+  - role: 动效分镜师
+    reviewer_id: phasea24-d02-motion-accident-rewind
+    reviewer_agent_id: phasea_review_24
+    angle: "事故板倒放、路径因果扣合、模板节奏、关键帧安全区与证据分层"
+    score: 94
+    verdict: pass
+    notes: |-
+      已对照七镜分镜与全部D02模板，并逐张查看刚重生的accident_hook和autopsy_paths关键帧。首镜约0.5秒已出现未来失败终点与逆向箭头，3.2秒帧完整扣合“失败原因、已给事实、信息缺口”及三项具体材料，首屏不是抽象方法宣讲；虚线黄色缺口与红色事实路径编码明确。14至21秒真实路径镜按原因、支持事实、原因、计划缺失四步顺序入场，四段均完整显示、没有合成两轮原话，底部持续标Round 1短摘。随后双轮票据把差异收束为“原因到依据”，Prompt票据和四选一CTA分别承担收藏与评论，整体每4至10秒换场且镜内有2至4秒节拍变化。扣(-6)：首镜0.5秒时三节点尚未全部入场，3秒停划仍依赖“未来事故”标题先撑住；路径镜文字密度高，7秒内观众更可能读结构而非逐字读完四段；原motion storyboard末注仍写“两轮结构归纳”，而当前更安全的实际画面已改成Round 1逐字短摘，文档措辞存在轻微滞后。后渲染须重点核字幕遮挡、短摘阅读窗和Prompt脚注真机可读性。

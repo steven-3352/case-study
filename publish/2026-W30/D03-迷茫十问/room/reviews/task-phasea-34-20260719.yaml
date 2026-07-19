@@ -1,0 +1,65 @@
+review_task: task-phasea-34-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T042_配音稿_v2.md
+  - design/retention_beat_sheet.md
+  - design/form_strategy.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+  - insights/questions_ab_evidence.md
+  - docs/SYSTEM.md
+  - templates/design/completion_rate_north_star.md
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea34-d03-platform-native-v2
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "抖音0-3s证据冲突、40s信息节奏与完整Prompt收藏动作"
+    score: 88
+    verdict: fail
+    evidence: |-
+      名义40s落在抖音38-45s默认区间，真实时长又声明由最终MiniMax timing驱动；三道闸门每5-6s换一次主构图，第十问约70%出现，完整九问+四条执行规则在出口票汇总，具备收藏价值。首屏也计划用真实A/B首答标签而不是泛情绪大字，方向正确。
+    deductions: |-
+      (-5) `storyboard.yaml` 第一镜名义6s，违反项目“第1镜duration≤4s”的首镜门；即使内部有标签撞入，也缺独立场景级硬切保证。(-4) 配音前句“同一个迷茫问题，我跑了两轮”先讲实验手续，按当前6s段落，0-3s口播未必来得及兑现“普通首答给建议/流程首答只问事实”，与retention表的0-3s承诺不一致。(-2) 末镜收藏信息同时放三组九问、四条规则和边界，1080x1920自然播放容易缩字，需明确暂停态与置顶评论承接。(-1) 40s内连续出现九问与四条规则，首次观看的信息负荷偏高。
+    fix: "把首镜拆成≤4s：0s直接说‘普通问法首答内给建议；加流程后只先问一题’，实验轮数移到证据脚注或下一镜。末镜只保留完整可执行Prompt主卡+暂停提示，九问全文同步置顶评论。"
+
+  - role: 纪录片导演
+    reviewer_id: phasea34-d03-documentary-director-v2
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "真实对照开场、证据边界转折、三关推进与第十问回报"
+    score: 92
+    verdict: pass
+    evidence: |-
+      故事弧完整：真实首答冲突建立问题，第二镜立即限制“只证明顺序变化”，中段从生存事实推进到目标边界和本周验证，后段用第十问提供新回报，最终回到人类拍板。画面语法由A/B标签汇入单轨，再依次变为四列闸、双靶窄门、三节点加速轨和终检门，不是同一清单卡连续朗读；没有虚构真人效用结果。
+    deductions: |-
+      (-3) 6-11s连续讲三条“不代表”，在40s片中较早进入防御性说明，若禁行杆只是逐条落字会压低故事势能；(-2) 九问流程没有真实人物完成多轮的情节，观众看到的是方法结构而非结果故事；(-2) 三关均以抽象令牌推进，若动作节奏不足会显得像信息图演示；(-1) “买方还是卖方”缺一句场景翻译，职业迷茫用户可能掉出叙事。
+    fix: "边界镜保留但压成一句主结论+三枚快速禁行章；令牌每过一关必须带一个具体回答占位，不新增效果结论；给‘买方/卖方’加画面释义‘想使用它/能向别人交付它’。"
+
+  - role: 编剧
+    reviewer_id: phasea34-d03-writer-v2
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "逐句A/B证据精度、首句停划和九问到人类拍板的口播闭环"
+    score: 90
+    verdict: pass
+    evidence: |-
+      七段口播逻辑清晰，主动说“不代表更准/能找到方向”，第十问明确为编辑补充，结尾“先问事实、最后建议；人来拍板验证”与实验边界一致。九问分4+2+3组织，完整Prompt包含逐问等待与事实未齐不建议，不是只给空泛问题清单。
+    deductions: |-
+      (-4) 首句约49字且先说“两轮”，不满足项目首3秒钩子句≤12字的写作门，口播和视觉首屏任务不同步。(-2) “加上流程后”没有在口播中提示是九问+逐问等待+不假设等整组复合干预，容易被听成单一九问效果。(-2) 第6句问“能不能说出具体下一步”但实验只测首答，虽称编辑补充，仍应避免让观众误以为已跑到该节点。(-2) “买方还是卖方”对泛职业迷茫受众略显突兀，缺口语释义。
+    fix: "首句改为短冲突：‘同一问题：一个首答内给建议，一个只先问事实。’第二句再交代双轮与整组流程干预。第十问前保留‘编辑补充、尚待真人多轮验证’的清晰边界。"
+overall:
+  score: 90.0
+  verdict: fail
+  blocking_issues:
+    - "第一镜6s且首句未在0-3s口播兑现核心冲突。"
+  release_note: "纪录片导演与编剧通过；平台原生策划未过90，需把首镜压到4s内并让0-3s口播直接兑现A/B冲突后重审。"

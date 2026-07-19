@@ -1,0 +1,69 @@
+review_task: task-phasea-51-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+supersedes_review: task-phasea-38-20260719
+reviewed_artifacts:
+  - script/T044_配音稿_v2.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/retention_beat_sheet.md
+  - design/motion_storyboard.md
+  - insights/fact_check.md
+  - insights/core_message.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_evidence_pair.html
+  - pipeline/p004_video/templates/d05_w30_causality.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea51-d05-platform-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "误判hook、三工位收藏和01/02/03评论CTA"
+    score: 95
+    verdict: pass
+    evidence: |-
+      0秒“AI说没记录，先别判它没写”制造反常识但不夸大，2秒即用“文件在≠入口能读”兑现；没有延迟答案骗完播。中段把观众任务转成三步QA工位，01/02/03编号既是收藏结构也是CTA选项。末镜“你卡在哪一步？评论留01、02或03”只需输入两位数字，互动摩擦最低；“证据缺一张不签通过”同时强化信任。
+    deductions: |-
+      (-2) 工程受众以外的人可能不熟悉落盘/读集。(-2) 双证物镜仍是合成摘要而非原图，需靠来源标签保持信任。(-1) 44秒密VO接近抖音知识类上限，最终语速需核。
+    fix: "发布文案用普通语言解释落盘/读集；Phase B核44秒真实VO和CTA稳定停留。"
+  - role: 纪录片导演
+    reviewer_id: phasea51-d05-documentary-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "报警/根因/验收三层证据和局部通过边界"
+    score: 95
+    verdict: pass
+    evidence: |-
+      叙事将“答不上”降为报警，只有“已落盘+不在入口读集”才称本案根因，再用原入口同事实回问和新事实闭环定义修复验收。第6段主动披露新事实写入/升格已跑通，但原入口复问没有逐字原件，因此“不签通过”；绿证和黄槽在像素上同级呈现。raw证据与fact_check支持该收窄结论，且范围只限自建工作流。
+    deductions: |-
+      (-2) 新事实写入、INBOX、升格证据分散在长raw导出，资产索引必须保留坐标。(-2) 双证物槽应常驻“真实摘录·合成排版”或来源类型。(-1) “接入近三天摘要和升格流程”把读侧与写侧压成一句，机制略简化。
+    fix: "最终asset log固定raw行号和来源类型；不得在封面把局部通过概括成已修好。"
+  - role: 编剧
+    reviewer_id: phasea51-d05-writer-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "反误判开场、三步QA推进和8镜声画契约"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8段/8镜逐一对应：误判钩子、写入不等于可读、证物、因果门槛、01/02、03回问、局部结果、数字CTA。每段增加一个验收条件，镜7用“不签通过”形成可信反高潮，镜8把三步压成可保存卡并邀请数字回答。脚本v2和pipeline文本逐段一致，没有旧稿的“翻遍”“永久记住”或泛AI失忆承诺。
+    deductions: |-
+      (-2) 第4、5段术语密度较高，需TTS停顿辅助。(-2) 第6段长句同时包含已通过与待验，必须保证黄槽信息不被吞。(-2) storyboard镜7/8名义各6秒而TTS target各7秒，依赖runtime覆盖。
+    fix: "正式TTS重点试听第6段转折停顿，确保‘但原入口复问…我不签通过’成为主重音。"
+overall:
+  score: 94.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；反误判hook、三步QA、局部通过边界和数字CTA形成完整8镜故事，D05 Phase A pass。"

@@ -1,0 +1,55 @@
+review_task: task-phasea-19-20260719
+reviewer_agent_id: task-phasea-19-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - insights/premortem_ab_evidence.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/retention_beat_sheet.md
+  - design/audio_plan.yaml
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+reviews:
+  - role: 编导
+    reviewer_id: phasea19-d02-premortem-narrative-arc
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "未来事故开场、证据回扣、双轮边界、收藏与投票闭环"
+    score: 93
+    verdict: pass
+    notes: |-
+      首句直接把观众置于“半年后已经失败”的未来事故，不再用真假竞猜拖延；首屏把“能力证据为负→4周几乎零涨粉”与“获客路径缺失”落成具体路径，4至14秒再交代虚构案例和普通问法基线。14秒用Round 1逐字短摘兑现依据类型，21秒主动承认第二轮原因和排序变化，随后才提炼稳定的组织结构，证据与结论顺序正确。28秒修订Prompt和38秒四选一投票分别服务收藏、评论。扣(-7)：9至14秒三项风险清单是全片最平的一镜，叙事动作从事故倒放暂时退回目录式罗列；21至28秒画面只有两张哈希票和共同结构，没有同屏露出两轮不同首因，观众对“原因和排序变了”主要依赖口播；脚本头写目标41秒而storyboard/audio plan为43秒，虽由真实TTS驱动，文档口径仍需在渲染后统一。
+
+  - role: 平台原生策划
+    reviewer_id: phasea19-d02-douyin-accident-board-native
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "首3秒具体回报、竖屏路径可读、节奏变化、收藏与低门槛互动"
+    score: 93
+    verdict: pass
+    notes: |-
+      “先别救，往回查它怎么死的”具备冲突和动作感，首镜不是抽象标题：三列节点、竖向连接线、事实卡和“不是结果预测”在3秒内完成首次方法展示。后续事实签、风险表、倒推轨、双轮票据、长Prompt票和便签投票每5至10秒更换主构图，镜内也有stagger、路径展开、关键词轮换；结尾四选一显著降低评论成本。Prompt全文以45px竖排常驻并明确“修订版未单独A/B”，收藏价值与可信度兼顾。扣(-7)：全片约43秒且14至28秒连续两镜都是证据解释，非目标受众可能在进入可抄Prompt前流失；普通风险镜与倒推路径镜都使用文本列表，视觉语法有局部重复；无BGM方案依赖TTS表演和CC0打点保持能量，必须在成片阶段验证首6秒响度与中段不塌。
+
+  - role: 编剧
+    reviewer_id: phasea19-d02-script-method-boundary
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "标题承诺、方法表述、双轮证据边界、可抄指令与口语节奏"
+    score: 95
+    verdict: pass
+    notes: |-
+      脚本从“别救，先查死因”建立鲜明方法，到普通问法“已经够严格”形成诚实基线，再以“失败原因后面跟依据，而且不先给建议”给出可复述差异，标题“别再让AI给你建议了”得到兑现。可抄版新增“已给事实/信息缺口”，同时在事实护栏和模板脚注明确它是根据实验问题修订、未单独A/B，没有冒充原始被测Prompt；也没有声称更准、更凶或预测现实失败。扣(-5)：28秒长句包含时间假设、双维排序、三个原因、依据分类和禁建议五层指令，TTS一口气读会偏密，应靠标点停顿分层；“稳定的只有”是对两轮样本的描述，成片必须继续让“这两轮/这组调用”的视觉限定常驻，避免被听成普遍规律。

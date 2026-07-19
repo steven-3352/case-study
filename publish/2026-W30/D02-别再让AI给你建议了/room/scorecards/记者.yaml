@@ -1,0 +1,34 @@
+status: pass
+review_source: independent_agent_tasks
+role: 记者
+artifact: insights/fact_check.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea20-r02-w30d02-reporter
+  review_mode: independent
+  reviewer_agent_id: task-phasea-20-20260719
+  reviewed_at: '2026-07-19'
+  angle: Round 1 原文路径、双轮差异、复合干预归因与修订版 Prompt 披露
+  score: 94
+  verdict: pass
+  notes: 已回查两轮 A/B 的请求体和未删改响应。画面中的“你唯一的能力证据是负面的”“支持事实：计划明确写着‘做过4周自己的账号，涨粉几乎为零’”“计划中完全没有‘获客’这一环节”及“计划中的缺失”均来自
+    Round 1 B 原文；082eb54f、e5061fad 准确对应两轮 B 内容 SHA256 前八位。脚本明确说第二轮原因与排序变化，只保留“失败原因→依据、不先给建议”的窄观察；模板常驻“整组
+    Prompt 干预·非单变量”，双轮镜写“不代表提高准确率”。最终可抄版新增“已给事实/信息缺口”，Prompt 画面脚注明示“根据实测暴露问题修订·未单独
+    A/B”，置顶评论也重复该披露，没有冒充原始实测输入。扣(-6)：口播“稳定的只有”是对两轮输出的编辑归纳，不是统计稳定性结论；“更严谨”也属于编辑判断，尚无新一轮实验比较修订版与原版。可执行修正：正式字幕和发布包继续保留“本次双轮观察到”“修订版未单独
+    A/B”，不得升级成方法普遍有效、原因更真实或预测更准确。
+- reviewer_id: phasea12-r02-w30d02-reporter
+  review_mode: independent
+  reviewer_agent_id: task-phasea-12-20260719
+  reviewed_at: '2026-07-19'
+  angle: 实测原 Prompt、严谨复制版与双轮原因边界的公开表述
+  score: 92
+  verdict: pass
+  notes: 实验原件完整保存两轮 A/B 的 UTC、response id、returned_model、usage、脱敏请求体、未删改响应及完整 SHA256；原
+    B Prompt 明确要求“三个原因、引用计划现有事实”，而当前口播用“更严谨地抄这句”清楚标出发布版已修订为“每个标明已给事实或信息缺口”，没有把修订稿冒充原始实测指令。中段只展示
+    Round 1 两条具体原因及其事实/缺口依据，并常驻“不代表两轮原因相同”；随后又明说两轮具体原因和排序不完全一样，因此没有合成固定三段链。扣(-8)：发布正文和置顶评论虽给出修订版，却未像口播一样明确写“这是基于实测暴露问题后的严谨版”，截图脱离视频时仍可能被误认成原
+    Prompt。可执行修正：在置顶评论前加“严谨改写版”，证据镜继续显示 Round 1 标签与短哈希，禁止删除差异限定。
+avg_score: 93.0
+pass: true
+scorecard_phase: pre_render

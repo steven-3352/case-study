@@ -1,0 +1,65 @@
+review_task: task-phasea-38-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - script/T044_配音稿_v2.md
+  - design/storyboard.yaml
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - insights/fact_check.md
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea38-d05-platform-native-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "抖音0-3s风险冲突、44s QA节奏、三步收藏与评论"
+    score: 87
+    verdict: fail
+    evidence: |-
+      新增2s独立首镜满足duration<=4s，黑黄QA视觉与D04路径拓扑有区分；后续双证物、因果检验尺、01/02/03工位、绿证+黄槽和三联卡形成清晰的收藏链。配置、脚本和形式结局已统一为“写入升格通过、原入口复问缺原件、不签整体验收”。
+    deductions: |-
+      (-5) 首屏0-2s只给“最危险的不是AI没写”，真正的“文件在/入口不读”到第二镜才出现；alarm模板第二事实按动画约在绝对3.05s出现，未在0-3s完整兑现冲突。(-2) “最危险”无对照基线，是态度大于证据的最高级。(-2) storyboard alarm镜仍写5s而pipeline目标3s，名义总长46s与target 44s不一致。(-2) 前11s与D04仍重复落盘/无记录，D05独有的“不签字”身份出现偏晚。(-2) 末镜可收藏但没有低成本评论问题。
+    fix: "首屏2s直接写并说‘文件在，入口却不读’，把‘别急着判失忆’作为副句；让两事实在2.5s前同时落像素。storyboard alarm镜同步为3s，并在12s前亮出‘证据缺一不签字’。"
+  - role: 纪录片导演
+    reviewer_id: phasea38-d05-documentary-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "双证物、报警与根因分界、三步验收和拒签结局"
+    score: 93
+    verdict: pass
+    evidence: |-
+      故事任务区别于D04：不是再解释读取路径，而是建立验收纪律。双证物触发报警，检验尺区分现象与根因，三工位交付查落盘/查读集/修后回问，结尾以绿证和黄槽明确“部分子项通过、整体拒签”。缺原件不强行胜利的结局真实且有戏剧反差。
+    deductions: |-
+      (-2) 2s风险标题与下一镜标题重复“最危险”，存在二次开场。(-2) 前11s与D04共享证物，验收者身份抛出不够早。(-1) 第5句讲回问标准时，画面若把回路接通会被误读为已通过。(-1) 多次盖章若用同一成功音效，会破坏部分通过/待验差异。(-1) 44s到默认时长上沿。
+    fix: "首镜直接成为QA夹具动作的第一拍；第3镜亮出待验槽，第5镜只画‘验收标准’而非接通，成功音效仅用于已证子项，最终不出总合格证。"
+  - role: 编剧
+    reviewer_id: phasea38-d05-writer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "最高级证据、三步语义、部分通过结局与范围边界"
+    score: 89
+    verdict: fail
+    evidence: |-
+      “journal已落盘/原入口无记录/目标不在读集/新事实写入升格已跑通”均有证据，稿件明确修复后原入口复问没有逐字原件，因此不签通过；“查落盘、查读集、修后回问”和“证据缺一张别宣布修好”是具体、可传播的收藏句，范围也限定自建系统。
+    deductions: |-
+      (-3) “最危险”是没有比较数据支持的最高级，事实只能支持“容易误判”或“一个高风险”。(-2) “我那次抓包”通常指网络数据包捕获，现有证据是raw export与代码检查，容易夸大取证方式。(-2) “第三步修后从原入口回问”语法像已完成动作，下一段才说没留原件，形成先通过后撤回的瞬时误读。(-2) “接入近三天摘要和升格流程”把读侧摘要与写侧升格压在一起，普通观众难分。(-1) 工程词连续出现，缺一次口语翻译。(-1) 首个2s分句没有独立完整冲突。
+    fix: "改为‘最容易误判的是：文件在，入口却不读’；把‘抓包’改‘翻出当时记录’；第5句改‘第三步本来应该从原入口回问’，第6句分别说清写入升格已证、原入口复问缺证。"
+overall:
+  score: 89.7
+  verdict: fail
+  blocking_issues:
+    - "0-3s未完整音画同步兑现‘文件在/入口不读’，第二事实约在3s后才出现。"
+    - "首句‘最危险’与‘抓包’超出现有证据可稳妥支持的措辞。"
+  release_note: "纪录片导演通过；平台原生策划87、编剧89，需重写首屏与证据措辞后重审。"

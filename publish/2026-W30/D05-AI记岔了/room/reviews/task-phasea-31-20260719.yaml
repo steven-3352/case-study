@@ -1,0 +1,68 @@
+review_task: task-phasea-31-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: W30D05
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - queue/topics.yaml
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - insights/external_references.md
+  - insights/fact_check.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - script/T044_配音稿_v2.md
+source_audit:
+  raw_evidence: "desktop raw第29-35、83-99行支持落盘与旧读集；第1010行支持近3天列表含reddit；第1813-1824、1854-1863、1894-1896行支持真实MEMO写入升格闭环；bot raw 08:26与10:42两段分别保留修复前失败和修复后原入口答出reddit背景。"
+  external_urls:
+    - https://code.claude.com/docs/en/memory
+    - https://help.openai.com/en/articles/8590148-memory-faq
+    - https://platform.claude.com/docs/en/docs/build-with-claude/prompt-engineering/overview
+  boundary: "证据支持自建系统的读写验收方法；不证明所有AI的记忆行为。"
+  stale_artifact_warning: "publish/T044_publish.md为v2前旧包，仍含‘翻遍记录、AI自己坦白、换设备答不上才是真信号’，已被GAP_REPORT作废；本轮不视为v2产物。"
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea31-d05-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    evidence: |-
+      外部官方文档只承担“写入/记忆与回答上下文是不同层”的背景，核心证据来自两份raw：08:26旧入口答无记录，desktop检查定位旧读集缺失，修复后近三天列表含reddit，10:42同一Feishu入口能答出此前调研背景；另有一条真实MEMO从手机落INBOX、桌面升格canonical并出托盘的闭环记录。
+    deductions: |-
+      (-4) 官方URL同样缺抓取时间和段落快照；(-3) 工具输出在raw中被净化，近三天读集的实际列表和代码diff不能在本仓二次执行；(-3) 当前fact_check没有直接列出bot raw 10:42的修复后回答坐标，证据索引不完整。
+    remediation: "在fact evidence中补‘08:26失败/10:42成功’的bot raw坐标与响应全文hash；成片不要借官方产品名暗示跨产品通用。"
+  - role: 记者
+    reviewer_id: phasea31-d05-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    evidence: |-
+      v2撤回“翻遍记录”和“AI自己坦白根因”，把答不上降为报警信号，并要求落盘与读集同时对上。三步验收与真实修复过程方向一致；原矿也确有修复前Feishu失败、修复后Feishu答出reddit背景，以及新事实MEMO写入升格闭环两类成功证据。
+    deductions: |-
+      (-5) 第六句“把近三天摘要和升格流程接进读集后，用真实数据回问通过”把两次不同验收压成一次：reddit原入口回问验证近三天读集，MEMO真数据验证写入到升格闭环；原矿没有证明二者作为一个联合干预共同导致同一次回问；(-3) “写入回执”是编辑术语，原矿证物实际是文件/提交/INBOX落条，画面应具体化；(-2) 旧publish包保留大量已禁叙事，误发会直接事实翻车。
+    remediation: "把第六句拆成两句：‘近三天摘要接入后，原失败入口回问reddit答出；另用一条新事实跑通MEMO到canonical。’两张验收票据分开展示，不写联合因果。"
+  - role: 选题深挖师
+    reviewer_id: phasea31-d05-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    evidence: |-
+      “AI说记住了，不算验收”比旧版拟人翻车故事更强，观众成果清楚：得到查落盘、查读集、修后回问的验收法。D04解释读取路径为什么断，D05要求用证物证明修复，分工成立；首屏“文件明明在，入口根本不读”具备矛盾和工程共鸣。
+    deductions: |-
+      (-3) D04/D05仍共享相同事故和两张证物，连续发布可能产生重复感；(-2) “读集/canonical/升格”术语对普通用户门槛高；(-2) 三步检查表若缺真实前后回答，会退化成普通工程清单。
+    remediation: "D05首屏直接盖‘写入通过/读取失败’两枚验收章，中段用修复前后Feishu原回答作为主证据；把canonical口播译成‘两边都读的正式记录’，技术词只留小字。"
+overall:
+  score: 91.0
+  verdict: pass
+  blocking_issues: []
+  invalidated_artifacts:
+    - publish/T044_publish.md
+  release_condition: "v2三角色勉强通过；第六句须拆分两次验收，旧发布包不得外发。"

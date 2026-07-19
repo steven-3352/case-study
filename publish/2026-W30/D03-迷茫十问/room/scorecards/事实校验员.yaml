@@ -1,0 +1,32 @@
+status: pass
+review_source: independent_agent_tasks
+role: 事实校验员
+artifact: insights/fact_check.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea50-d03-fact-checker-v3-w30d03-fact
+  review_mode: independent
+  reviewer_agent_id: task-phasea-50-20260719
+  reviewed_at: '2026-07-19'
+  angle: 双轮API原件、像素主张、复合干预边界与第十问标注
+  score: 96
+  verdict: pass
+  notes: 扣(-4)。 (-1) 首屏“先建议↔先问事实”是摘要，不是原文逐字截图，需保留“摘要/双轮”标签。(-1) “加上流程后”代表九问、逐问等待、不假设等复合干预，不能拆归因到某一句。(-1)
+    出口票规则“第10问验收具体下一步”需持续保留编辑补充层级。(-1) 压力结果验证像素无遮挡，不验证事实来源本身。 改法：发布包继续保留复合干预和不证明效用的边界；任何裁切版不得删掉第十问的编辑补充标识。
+    依据：两轮普通问法首答均在同一回复内给建议，两轮流程组首答均只先问“你现在靠什么活着”，questions_ab_evidence保留请求、response
+    id与SHA256。production只说“回答顺序变了”，第二镜像素写“双轮同方向·只证明组织变化”，边界镜逐项否定更准、更有用、能找到方向。第十问像素明确“编辑补充·待真人结果验证”，没有把未跑完的真人多轮包装成有效性证据。
+- reviewer_id: phasea43-d03-fact-v3-w30d03-fact
+  review_mode: independent
+  reviewer_agent_id: task-phasea-43-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-43-20260719 · 事实校验员 · questions_ab_evidence保留两轮A/B请求、完整响应、response
+    id与
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-3) 第10问来自编辑合并且没有真人完成全流程后的结果，只能作为待验标准；(-2) 单模型、单情境、双轮不支持普遍化。 改法：保留模型/情境/双轮范围；任何删掉编辑补充或把组织变化写成效用提升的版本均使本审核失效。
+    依据：questions_ab_evidence保留两轮A/B请求、完整响应、response id与SHA256；两轮普通问法均在首答内进入建议，两轮复合流程均先问“你现在靠什么活着”。口播准确使用“首答内给建议”，没有夸成首字即给方案；第三镜逐项否定更准、更有用和找到方向，干预单位也保持为整组流程。
+avg_score: 95.5
+pass: true
+scorecard_phase: pre_render

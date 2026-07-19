@@ -1,0 +1,63 @@
+review_task: task-phasea-44-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d04_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea44-d04-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "1.5x路径动作间隔、GSAP seek、freeze硬门和runtime时基"
+    score: 89
+    verdict: fail
+    evidence: |-
+      当前8镜全部使用paused timeline和registerTimeline，runtime按真实TTS重建duration并按scene_sid重算SFX。write_proof、boundary、shared_surface和close已改为D比例动作；readset由扫描光束从0.8s持续到D-0.4s。hook字体降至76px并加入white-space:pre-line，两行标题不会再挤成单行，技术计划也已更新为8镜。
+    deductions: |-
+      (-6) d04_w30_missing_path仍使用固定早段动作：result从2.1-2.4s出现，下一次line淡化在D-1s。1.5x时D=7.5s，淡化从6.5s开始，中间4.10s像素不变，超过freezedetect>4.00s硬门。(-2) storyboard close仍5s而production目标6s，video target41s与目标窗口合计42s不一致。(-1) 1.5x数学审查没有仓库内自动报告。(-1) 静态t_start与runtime起点双写。(-1) 最终成片freeze尚未实测。
+    fix: "把missing/result/line末段改为D比例分布，例如result在D*.45、stop脉冲D*.68、line淡化D*.84，确保任意相邻可见动作<4s；同步close与总时长后重审。"
+  - role: 动效设计师
+    reviewer_id: phasea44-d04-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "hook换行、路径X光层级、文字容量与长镜语义动作"
+    score: 92
+    verdict: pass
+    evidence: |-
+      hook现以76px两行呈现“一端有/一端没有”，首屏层级稳定。文件证物、分叉断点、双节点验真、四源扫描、挡回、范围缩回、共同可读面与CTA保持统一路径X光语言；主要字号30-62px，四源分时扫描，长镜动作服务读取关系而非装饰。
+    deductions: |-
+      (-3) missing_path在1.5x中段仍有4.1s无变化，观看上会显停滞。(-2) readset四项工程路径与字幕并存，有认知拥挤。(-1) shared_surface纵向跨度大，需要保证焦点按上中下单向移动。(-1) close错误句、提问和CTA三层同屏。(-1) 自绘证物需常驻合成排版标识。(-1) 最终字幕合成后的安全区尚未抽检。(-1) close名义/生产时长仍不同步。
+    fix: "给missing中段增加端口拒绝脉冲或文件回弹；读集仅高亮当前源；close先淡出错误句再放大CTA；最终字幕抽帧核安全区。"
+  - role: 动效分镜师
+    reviewer_id: phasea44-d04-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜音画节拍、1.5x最大空档、SFX对象和结尾停留"
+    score: 89
+    verdict: fail
+    evidence: |-
+      8段VO与8镜映射完整。除missing_path外，1.5x的比例镜最大动作间隔约1.8-2.3s，扫描镜由连续beam覆盖；SFX通过scene_sid跟随真实段起点，scan/list使用序列音支撑多节点，首镜到冲突镜的对象连续性也因hook换行修复而更清楚。
+    deductions: |-
+      (-5) missing_path在1.5x下存在2.4-6.5s的4.10s空档，分镜未满足每2-4s变化和freeze硬门。(-2) close production 6s、storyboard 5s。(-1) list三声tick与D比例的p1/canon/readers在1.5x下逐渐偏离，需按实际TTS听检。(-1) close hit offset0.2s早于D*.08首对象约0.72s。(-1) 最终TTS/成片尚未验证。(-1) 共同可读面末段稳定收藏态略短。
+    fix: "重排missing镜内动作以消除4.10s空档；同步close时长；按实际TTS把list/close SFX对齐具体像素对象，并保留稳定收藏态。"
+overall:
+  score: 90.0
+  verdict: fail
+  blocking_issues:
+    - "missing_path在1.5x下仍有约4.10s无像素变化，超过4.00s冻结硬门。"
+  release_note: "动效设计师通过；动效技术导演与动效分镜师各89，修复missing_path比例节拍后重审。"

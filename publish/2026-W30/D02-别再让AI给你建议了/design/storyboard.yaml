@@ -1,111 +1,69 @@
-# storyboard.yaml · T041 别再让AI给你建议了——它只会顺着你说(抖音)
-#
-# ⚠️ 状态：draft_provisional —— 本文件按 pipeline/p004_video/build.py + capture_frames.py
-#    的真实 schema 编写(结构可直接被 build.py 消费)。视觉路线复用 S4 系列共享视觉基础设施
-#    （见 publish/2026-W30/S4系列共享视觉基础设施.md），色板/字体/组件 token 照抄
-#    publish/2026-W30/D01-让AI说真话致命漏洞/design/design_language.md §2-3，
-#    scenes 内容/画面机制完全独立设计（未照抄T040任一镜头）。
-#    以下字段等 audio_plan.yaml 的真人 VO 录制完成后才能定稿(motion_tech_plan.md 硬依赖)：
-#      - scenes[02_zoom_reveal].duration(需精确对齐VO②段真实时长)
-#      - scenes[05_dual_model_funnel].data.funnel_collapse_at_s(需精确对齐VO"分析秒收成一句"落点)
-#    其余静态镜(01/06/07)的 duration 亦按定稿口播稿段落时长估时，VO定稿后需核对微调。
-#    HTML 模板(t041_*.html)尚未实际编写，本文件是渲染前的结构规划，不是可直接跑的成片输入。
-#
-# 时长口径：口播稿逐段已标注时长 4+4+6+6+5+6+5=36.0s，与 audio_plan.yaml target_duration_s 对齐；
-#    脚本文件自身"约35.3秒"是6字/s粗估口径，本文件以逐段精确标注为准，不改动任一段VO时长。
-
-video:
-  fps: 30
-  width: 1080
-  height: 1920
-  output_name: T041_no_bgm.mp4   # 对齐 audio_plan.yaml outputs.video_publish 命名(bgm.enabled=off，密VO判定同T040)
-  voice_volume: 1.0
-  music_volume: 0.0              # bgm off，此字段被 build.py 忽略(无 --bgm 输入时不生效)，保留占位
-
+status: draft
+content_id: T041
+content_version: 3
+form_version: 4
+video: {fps: 30, width: 1080, height: 1920, target_duration_s: 43.0, output_name: T041_no_bgm.mp4}
 scenes:
-  - id: 01_myth_bust
-    template: t041_01_myth_bust.html   # 待建，pipeline/p004_video/templates/ 下新文件，不复用T040任何模板
+  - id: accident_hook
+    template: d02_w30_failure_rewind.html
     duration: 4.0
     type: html
-    data:
-      myth_text: "AI只会顺着你说"      # 流传说法气泡文字，泛指大众说法，不具体归因某人
-      strike_at_s: 1.0                 # 场景内相对时间，划除线扫过的触发点(对齐VO"别再信"三字)
-      punch_text: "它其实会挑刺"
-      vo_ref: "别再信'AI只会顺着你说'这句话了——它其实会挑刺。"
-    note: 静态+简单GSAP划除线合成，duration按录音提词稿①段标注时长(4s)
-
-  - id: 02_zoom_reveal
-    template: t041_02_zoom_reveal.html   # 待建，GSAP timeline 驱动 container scale(zoom-out)，见 motion_tech_plan §动效3
-    duration: 4.0    # PROVISIONAL——覆盖②(4-8s)，等VO精确时长后此值须回填校准
-    type: html
-    data:
-      real_text_source: publish/2026-W30/D01-让AI说真话致命漏洞/design/实测_致命漏洞法.md   # gpt-5.5"对照组"长回复，原样渲染，不改写
-      anchor_sentence: "自己账号4周涨粉为零，是一个警讯"   # zoom锚点：被埋没在长文中的批评性原句(scale动画transform-origin对齐此句)
-      scale_from: 4.0     # 特写起幅
-      scale_to: 1.0        # 全貌落幅
-      vo_ref: "只是挑得你看不见，被埋进三千字正确的废话里。"
-    note: PENDING——duration待VO精确时长回填，当前为口播稿估时(motion_tech_plan硬依赖)
-
-  - id: 03_confidence_meter
-    template: t041_03_confidence_meter.html   # 待建，GSAP stagger勾号+bar width tween，见 motion_tech_plan §动效4
-    duration: 6.0
-    type: html
-    data:
-      plan_label: "举个例子·辞职做AI代运营"   # 复用②⑤同一份真实测试案例的计划描述(全片单一证据线，不新编案例)
-      checkmark_count: 4                       # 逐个pop-in的确信勾号数量(纯视觉隐喻，无数字标签，禁编造真实数据)
-      bet_bar_hold_empty_at_s: 4.5             # 场景内相对时间(=全片12.5s处)，赌注条定格且警示位置刻意留空的触发点
-      vo_ref: "你越看越安心，可越是你想赌一把的计划，AI越顺着你说圆——没人拦你。"
-    note: 静态延续+刻意留白设计；duration=6s对齐口播稿③段标注
-
-  - id: 04_two_tricks_card
-    template: t041_04_two_tricks_card.html   # 待建，GSAP TextPlugin(复用T040④已验证机制)+人称替换图示，见 motion_tech_plan §动效1
-    duration: 6.0
-    type: html
-    data:
-      trick_01: "别夸我"
-      trick_01_reveal_style: "落定感(scale 0.9→1，非逐字打字机)"
-      trick_02: "编个陌生人，让AI评价ta"
-      trick_02_reveal_style: "逐行打字机(与T040④同技法)"
-      persona_swap_icons: {from: "我", to: "陌生人TA"}
-      caption: "↓可截图拿走"
-      vo_ref: "两个笨办法:先说'别夸我';不敢问自己,就编个陌生人,让AI评价ta。"
-    note: 文本来自 script/T041_录音提词稿.md ④段已定稿，不得改写；duration=6s(两张指令卡各占约一半时长+caption停留)
-
-  - id: 05_dual_model_funnel
-    template: t041_05_dual_model_funnel.html   # 待建，双元素同步scale+translate收拢，见 motion_tech_plan §动效2(全片最重一锤，技术风险最高)
-    duration: 5.0    # PROVISIONAL——覆盖⑤(20-25s)，等VO精确时长后须回填 funnel_collapse_at_s
-    type: html
-    data:
-      left_model: {label: "claude-opus-4-8", quote_source: publish/2026-W30/D01-让AI说真话致命漏洞/design/实测_致命漏洞法.md, quote_excerpt: "你现在唯一一次实盘验证是失败的，这意味着你要卖的核心能力恰恰是那个还没被证明存在的东西"}
-      right_model: {label: "gpt-5.5", quote_source: publish/2026-W30/D01-让AI说真话致命漏洞/design/实测_致命漏洞法.md, quote_excerpt: "你自己的账号4周涨粉几乎为零，说明你目前还没有证明自己能把内容做出结果"}
-      funnel_collapse_at_s: 1.5   # 场景内相对时间(=全片21.5s处)，双源开始向心收拢的触发点，VO定稿后回填
-      punchline: "你想卖的这本事，自己没验证过。"
-      vo_ref: "两个模型都试了,分析秒收成一句:你想卖的这本事,自己没验证过。"
-    note: PENDING——duration/funnel_collapse_at_s 待VO精确时长回填；两模型徽标为自绘文字标签，非官方logo(合规口径同T040④不带品牌UI)
-
-  - id: 06_stage_slider
-    template: t041_06_stage_slider.html   # 待建
-    duration: 6.0
-    type: html
-    data:
-      title: "但别逼着天天用"
-      axis_labels: {left: "刚起步期", right: "日常运营期"}
-      marker_slide_from: "right"
-      marker_slide_to: "left"
-      landing_icon: {label: "要的是那口气", color_token: secondary}   # 暖色调线性图标，禁用蓝色/冷色调(design_language硬规)
-      vo_ref: "但别逼着天天用——刚起步那阵,你要的有时不是冷水,是敢冲出去那口气。"
-    note: 接住"太理智没法启动"反对声，防翻车/防卖万能药；滑块运动是本镜唯一动效核心
-
-  - id: 07_fork_cta
-    template: t041_07_fork_cta.html   # 待建
+    reuse_reason: "仅复用GSAP时间线能力"
+    visual_difference: "首帧从半年后失败事故板开始逆行"
+    risk: "4秒内必须兑现第一次逆推"
+    data: {end: "6个月后·计划失败", questions: ["失败原因", "已给事实", "信息缺口"], facts: ["能力证据为负", "4周几乎零涨粉", "没写获客路径"], hook: "Round 1 一条路径·不是结果预测"}
+    data_lever: completion_3s
+  - id: fixed_plan
+    template: d02_w30_fixed_plan.html
     duration: 5.0
     type: html
-    data:
-      tricks_recap: true       # 复用04场景的双指令卡缩略(第二次收藏机会)
-      fork_left: {label: "说真话", highlighted: true}
-      fork_right: {label: "顺着你", highlighted: false}
-      comment_focus_text: "你是想让AI说真话，还是宁愿它继续顺着你?"
-      vo_ref: "这两招评论区放了。你是想让AI说真话,还是宁愿它继续顺着你?"
-    note: 纯讨论CTA，二选一岔路降低评论门槛，不扣数字不加微信；评论区UI为自绘mock非品牌截图
-
-# 总时长校验：4.0+4.0+6.0+6.0+5.0+6.0+5.0 = 36.0s，对齐 audio_plan.yaml target_duration_s
+    reuse_reason: "仅复用事实条目排版能力"
+    visual_difference: "测试案例证物板"
+    risk: "虚构披露必须常驻"
+    data: {facts: ["自有账号4周几乎零涨粉", "辞职做AI代运营", "月目标2万"], disclosure: "测试案例·虚构计划"}
+    data_lever: 理解
+  - id: ordinary_risks
+    template: d02_w30_a_risk_list.html
+    duration: 5.0
+    type: html
+    reuse_reason: "仅复用列表stagger能力"
+    visual_difference: "普通问法三风险横向展开"
+    risk: "必须承认普通回答已经严格"
+    data: {title: "普通问法·已经够严格", risks: ["能力没验证", "获客没路径", "辞职风险高"]}
+    data_lever: 理解
+  - id: autopsy_paths
+    template: d02_w30_ab_guess.html
+    duration: 7.0
+    type: html
+    reuse_reason: "仅复用路径容器能力"
+    visual_difference: "不竞猜，三条失败路径分别扣回事实"
+    risk: "不得合成成貌似单次原文的因果链"
+    data: {title: "看一条真实倒推路径", paths: ["1. 你唯一的能力证据是负面的", "支持事实：计划明确写着‘做过4周自己的账号，涨粉几乎为零’", "3. 计划中完全没有‘获客’这一环节", "它的依据是‘计划中的缺失’，而非某条已写出的事实"], path_types: [cause, fact, cause, gap], disclosure: "Round 1 逐字短摘·不代表两轮原因相同"}
+    data_lever: completion_rate
+  - id: experiment_evidence
+    template: d02_w30_reveal.html
+    duration: 7.0
+    type: html
+    reuse_reason: "仅复用证据签落位能力"
+    visual_difference: "双轮响应签+整组Prompt干预限定"
+    risk: "禁归因到某一句或写更准"
+    data: {rounds: ["Round 1", "Round 2"], hashes: ["082eb54f", "e5061fad"], conclusion: "稳定的是：失败原因 → 依据", qualifier: "具体原因与排序不完全一致·不代表提高准确率"}
+    data_lever: 信任
+  - id: prompt_save
+    template: d02_w30_prompt_strip.html
+    duration: 10.0
+    type: html
+    reuse_reason: "仅复用文本测量与静止帧能力"
+    visual_difference: "验尸Prompt长票据展开"
+    risk: "正文不得被字幕覆盖"
+    data: {prompt_lines: ["假设六个月后计划失败，", "按可能性和破坏性倒推三个原因，", "每个标明：已给事实 / 信息缺口，", "先别给建议。"], min_static_hold_s: 4.0}
+    data_lever: 收藏
+  - id: boundary_cta
+    template: d02_w30_boundary_cta.html
+    duration: 5.0
+    type: html
+    reuse_reason: "仅复用标签stagger能力"
+    visual_difference: "四类计划依次盖入验尸票"
+    risk: "小事别用边界不得缺失"
+    data: {options: ["辞职", "副业", "创业", "转行"], boundary: "小事别用", question: "你想先验哪一个？"}
+    data_lever: 评论

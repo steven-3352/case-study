@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 留存与互动设计师
+artifact: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb08-d02-retention-interaction-w30d02-retention
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task08 · retention · 最终 MP4 独立复验
+  score: 93
+  verdict: pass
+  notes: '0.00-3.00s直接给出“辞职计划已失败”的结果，逆向箭头和三类节点逐项出现，观众不用等方法名称。6.30-12.56s用“四周几乎零涨粉却想辞职月入两万”建立具体风险；12.56-19.29s承认普通问法已经严格，提高信任；19.29-34.88s交付“失败原因->依据”结构，34.88-46.95s给完整修订Prompt，46.95-52.48s用辞职/副业/创业/转行四选一降低评论门槛。
+
+
+    扣分：(-2) 2.30-6.30s低变化恰好4s，首屏读屏余量不足；(-2) 19.29-34.88s连续证据段情绪张力下降；(-2) 34.88-46.95s
+    Prompt必须暂停才能完整抄走；(-1) “小事别用”的范围边界在46.95s才出现。改法：若投后19s到达率掉点，下版先大字打出“原因->依据”，再压缩双轮说明；置顶评论提供完整Prompt并承接四选一。当前无阻断项。'
+- reviewer_id: phaseb07-d02-retention-interaction-w30d02-retention
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_07
+  reviewed_at: '2026-07-19'
+  angle: task07 · retention · 最终 MP4 独立复验
+  score: 94
+  verdict: pass
+  notes: '0.00-3.00s直接把“辞职计划失败”作为后果，事故线、三节点和卡片逐项进入，不先解释方法；3秒内既有风险共鸣也有反向追查任务。6.30-12.56s迅速给出“四周零涨粉却想辞职月入两万”的具体计划，12.56-19.29s承认普通问法已经严格，增强可信度；19.29-34.88s交付事实/信息缺口结构，34.88-46.95s给完整修订Prompt，46.95-52.48s用辞职/副业/创业/转行四选一降低评论门槛。
+
+
+    扣分：(-2) 19.29-34.88s连续承担实测原文、第二轮变化和稳定结构，情绪张力明显降低；(-2) 34.88-46.95s收藏段信息密，必须暂停才可抄全；(-2)
+    “小事别用”的适用边界直到46.95s才出现。改法：若投后19s到达率明显掉点，下一版先用大字给“失败原因->依据”，再压缩双轮说明；置顶评论粘贴完整Prompt并承接四选一。当前无阻断项。'
+avg_score: 93.5
+pass: true
+scorecard_phase: post_render

@@ -1,0 +1,32 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式选型师
+artifact: design/form_competition.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea50-d04-format-selector-v3-w30d04-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-50-20260719
+  reviewed_at: '2026-07-19'
+  angle: 访问X光相对双设备/终端候选的因果准确性、可读性与原创性
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-1) 四个英文/路径源对非工程观众仍有认知门槛。(-1) 自绘X光必须避免冒充真实后台。(-1) shared_surface纵向跨度大，焦点需单向推进。(-1)
+    close同时承载错误句、提问和CTA。(-1) storyboard close时长仍落后production。 改法：逐源只高亮当前项并配普通话释义；常驻合成排版标识；收口先淡出错误句再突出评论入口名。
+    依据：记忆访问X光图把文件、注入源、入口和断点放在同一可追踪拓扑中，准确表达“信息存在但当前入口不可见”。它比双设备孤岛更少误导网络同步或硬件问题，比全片终端录屏更适合手机阅读。首屏证物分叉、中段四源扫描与挡回、范围框和共同可读面均改变拓扑，不是连续清单；D04与D03轨道、D05
+    QA工位的观看任务清楚分离。missing_path修后1.5x最大动作间隔约1.35s，无>4s路径静止。
+- reviewer_id: phasea49-d04-form-v3-w30d04-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 形式选型师 · 访问X光图能把文件存在、入口注入和断点位置放在同一因果空间，优于会误导成网络同步问题的双设备孤岛
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-3) 共同可读面是抽象工程图，最终连线端点和字幕遮挡必须在实片核验；(-2) 末镜文档仍残留“工程凭证锁合”旧描述；(-1) 尚无正式MiniMax
+    runtime 1.5倍压力结果。 改法：Phase B逐帧核路径连接、长标题和字幕安全区；若共同面看不懂，不得用装饰线掩盖，应简化节点。 依据：访问X光图能把文件存在、入口注入和断点位置放在同一因果空间，优于会误导成网络同步问题的双设备孤岛，也比全片终端录屏更适合手机阅读。八个专属模板依次改变拓扑；shared_surface模板明确把临时journal汇入projects
+    index，再分给桌面与飞书两个入口，像素兑现“先升格，再共享读取”。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

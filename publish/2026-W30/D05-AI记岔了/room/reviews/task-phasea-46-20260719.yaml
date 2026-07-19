@@ -1,0 +1,68 @@
+review_task: task-phasea-46-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: W30D05
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T044_配音稿_v2.md
+  - pipeline_config.yaml
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - insights/domain_notes.md
+  - GAP_REPORT.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_evidence_pair.html
+  - pipeline/p004_video/templates/d05_w30_causality.html
+  - pipeline/p004_video/templates/d05_w30_retest.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea46-d05-network-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      原始导出支持journal落盘与提交、旧入口回复无记录、目标来源不在旧入口读集，以及新事实的写入和升格记录；同时找不到修后从原入口复问旧事实的可签逐字问答。当前证据包因此正确拆成“写入升格通过/原入口复问待验”。修后模板写“真实排查证物”，与查文件、提交、入口回复和代码读集一致，不再冒充网络抓包。
+    deductions: |-
+      (-2) 外部官方链接没有快照和精确段落，仅能作机制背景；(-2) hook benchmark是agent_hypothesis；(-2) 原入口复问仍缺A类逐字原件，完整修复结果不能发布。
+    remediation: "继续把原入口复问列为待验；没有逐字原件前不得签全链路通过或宣称修好。"
+  - role: 记者
+    reviewer_id: phasea46-d05-reporter-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 96
+    verdict: pass
+    evidence: |-
+      新hook“AI说没记录，先别判它没写；文件在，可能只是入口不读”先拆错误等号，并用“可能”控制初始因果强度。后文明确说“我那次排查”，不写翻遍、抓包或AI自证根因；真正根因要同时核写入位置和入口读集。结果镜和口播都只签新事实写入升格，原入口复问因缺逐字原件保持待验并拒签。
+    deductions: |-
+      (-2) “第三步修后从原入口回问”是方法要求，观众可能短暂误听成已经完成，必须由下一句待验和黄槽及时纠偏；(-2) 本条只适用于自建工作流，不能扩成消费产品教程。
+    remediation: "最终字幕与画面不得延迟或弱化‘缺逐字原件/待原件/不签通过’；发布标题不能写修复成功。"
+  - role: 选题深挖师
+    reviewer_id: phasea46-d05-topic-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      搭AI助理、Agent和知识库的人常遇到“模型说记住了/后来答不上”的验收盲区；本条把泛失忆争论收窄成可复现的三步：查落盘、查读集、修后回问。最有辨识度的回报不是成功故事，而是缺一张证据就拒签。CTA让观众留01/02/03，输入成本低且与三步收藏物一一对应。
+    deductions: |-
+      (-3) 工程受众明确但流量上限低于泛AI技巧；(-2) 与D04共享前两张证物，连续发布仍会重复；(-1) “记岔了”标题皮肤可能让少数观众先按人格化记忆理解。
+    remediation: "发布时突出‘证据缺一张，不签通过’和三步验收，避免把D05包装成D04的续页复述。"
+overall:
+  score: 94.7
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90，当前content v2/form v3 Phase A证据审核通过；原入口复问必须继续待验拒签，排查不得改写为抓包或AI自证。"

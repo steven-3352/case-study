@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效设计师
+artifact: douyin/video.mp4
+artifact_sha256: b75b844329adbf9cc87300da4129ed391f0a8206da16e76c7f2e7c4e1faa6417
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb09-d05-motion-designer-w30d05-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task09 · motion-design · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '黑黄警戒带首屏、写入/可读夹具、双证物插槽、报警检验尺、01/02双工位、03回问闭环、一项通过一项待原件和三联验收卡形成与D03/D04不同的QA视觉语言。首屏警戒带在3s内横向推进，步骤卡、印章、闭环箭头和通过/待验状态均服务因果理解；抽帧未见黑屏、撕裂、叠层冲突或主体被字幕遮挡。
+
+
+    扣分：(-3) 10.367-13.733s冻结3.367s，双证物段后半停留偏久；(-2) 35.833-43.967s间连续出现2.70s、1.90s、1.60s冻结，结果解释段节奏机械；(-2)
+    52.167s到片尾约3.067s静置在同一三联卡；(-2) 55.23s总时长让八镜的线框卡结构累积疲劳。最小修法：证物段让A/B状态逐字落签；结果与CTA段保持步骤高亮或证据缺口呼吸提示。当前最长冻结未越4s，无技术阻断。'
+- reviewer_id: phaseb12-d05-motion-designer-w30d05-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_12
+  reviewed_at: '2026-07-19'
+  angle: task12 · motion-design · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '黑黄警戒带、写入/可读盖章、双证物、因果尺、01/02工位、03回环、绿证/黄槽和三联验收卡形成完整且与D04不同的动作系统。黄槽始终保持待验，没有被动画误转为通过；最长低变化3.367s。
+
+
+    扣分：(-3) 10.367-13.733s双证物到位后低变化3.367s；(-2) 23.47-27.73s相邻低变化段使01/02略机械；(-2) 45.80-55.23s验收卡多段静置，尾速偏慢；(-1)
+    因果尺的语义依赖文字。最小改法：若证物或尾段掉点，只加扫描落印和当前步骤高亮，不改变待原件状态。'
+avg_score: 91.5
+pass: true
+scorecard_phase: post_render

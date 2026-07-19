@@ -1,0 +1,81 @@
+review_task: task-phaseb-12-20260719
+reviewer_agent_id: /root/phaseb_review_12
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+phase: phase_b
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  video_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+  duration_s: 48.733
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；实测综合响度-17.5 LUFS，true peak -0.3 dBFS"
+  ffprobe: "实际执行；视频/音频流、画幅、帧率、时长均符合抖音成片规格"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长5.167-9.167s，共4.000s，贴住但未超过>4.00s硬门；其余检出段均<=2.033s"
+  silencedetect: "实际执行 silencedetect=n=-45dB:d=1.5；未检出>=1.5s静音"
+  blackdetect: "实际执行 blackdetect=d=0.1:pix_th=0.10；未检出黑帧段"
+  loudness: "实际执行 ebur128=peak=true；I=-17.5 LUFS，LRA=2.1 LU，true peak=-0.3 dBFS"
+  visual_sampling: "实际解码最终MP4并生成约4s间隔全片contact sheet；检查首屏、双轮证物、证据边界、三关、第10问、末镜完整01-09出口票；无画面缺失、错位或字幕遮挡"
+  subtitle_check: "实际检查16条SRT；0.000s连续至48.740s，无重叠；尾时码较容器长约0.007s，不可感知。存在中文词组机械断行，但烧录字幕在抽帧中完整可读"
+  cover_check: "实际查看1080x1920 cover；同题双轮与先建议/先问事实对照清楚；底部烧录字幕落在平台UI高干扰区，缩略图信息仍可辨"
+  content_boundary_check: "v2边界兑现：只证明两轮首答组织从先建议变为先问一个事实；明确否定更准和找到方向；拍板与验证仍归用户"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "60%-68%"
+  completion_rate: "29%-36%"
+  rationale: |-
+    0s进入同题双轮冲突，首屏对照在3s内成立，利于停划；下限来自首个回答证物在3s后才完整出现。中段三关持续交付方法，末镜完整Prompt兼顾收藏和评论；但48.73s片长、5.17-9.17s整4秒低变化及尾镜暂停阅读要求压低完播上限。无账号同题材真实基线，故仅作B级发布前估算。
+  grade: B
+  go_no_go: go
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb12-d03-motion-designer
+    reviewer_agent_id: /root/phaseb_review_12
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      最终MP4的8镜动作与叙事职责一致：双栏证物、边界否定、四格生存事实、双圆目标、三步验证、第10问翻牌和出口票均有独立视觉机制。抽帧未见布局跳变、渲染破损或字幕遮挡，0-3s状态对照成立。
+
+      扣分：(-5) 5.167-9.167s实测连续4.000s低变化，完全没有硬门余量；(-3) 末镜40.52-48.73s依靠逐项显现后长时间阅读，动态回报偏弱；(-2) 三关的卡片入场动作相近。当前不阻断。最小改法：若6-10s投后掉点，只给双栏证物增加轻扫描/落印；尾镜用分组高亮，不删九问和边界。
+  - role: 编导
+    reviewer_id: phaseb12-d03-director
+    reviewer_agent_id: /root/phaseb_review_12
+    review_mode: independent
+    score: 92
+    verdict: pass
+    notes: |-
+      叙事按同题双轮悬念、首答证物、证据收窄、三关方法、第10问待真人验证、完整Prompt与数字CTA推进。最重要的证据边界在方法展开前兑现，没有把首答组织变化偷换成准确性或效果提升。
+
+      扣分：(-3) 48.73s承载单一顺序差异，整体略长；(-3) 15.53-34.52s连续罗列问题，情绪张力弱于证物段；(-2) “最后逼到行动”的措辞略强于当前证据。最小改法：若中段流失，只压缩三关的重复口播，保留双轮证物、边界、第10问和真人拍板。
+  - role: 平台表现分析师
+    reviewer_id: phaseb12-d03-platform-performance
+    reviewer_agent_id: /root/phaseb_review_12
+    review_mode: independent
+    score: 90
+    verdict: pass
+    data_level: B
+    completion_3s: "60%-68%"
+    completion_rate: "29%-36%"
+    grade: B
+    go_no_go: go
+    notes: |-
+      1080x1920 H.264/AAC、封面、烧录字幕与独立SRT齐全。首屏顺序反差服务3s停划，三关结构服务理解，完整01-09 Prompt服务收藏，数字CTA服务评论，发布前评级B、go。
+
+      扣分：(-3) 首个实质证物到3s后才完整出现；(-3) 48.73s使高完播不稳；(-2) 末镜须暂停阅读；(-2) 无账号同题材真实基线。SRT尾长7ms与机械断行不阻断成片，但外挂字幕上传前应人工重排。
+overall:
+  score: 90.7
+  verdict: pass
+  blocking_issues: []
+  go_no_go: go
+  release_note: "三角色均>=90；最终SHA绑定正确，机器QC、抽帧、字幕、封面和v2内容边界通过。D03最长低变化4.000s贴线但未越线。"

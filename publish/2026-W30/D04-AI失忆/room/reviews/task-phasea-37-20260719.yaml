@@ -1,0 +1,63 @@
+review_task: task-phasea-37-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - GAP_REPORT.md
+  - meta.yaml
+  - pipeline_config.yaml
+  - script/T043_配音稿_v2.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - design/retention_beat_sheet.md
+  - design/form_strategy.md
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea37-d04-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    evidence: |-
+      原矿链条闭合于自建系统范围：desktop raw第29-35行支持目标记录已落journal及commit `ced86c9`，第83-99行记录旧bot四类注入源与目标journal不在读集，第187行明确两个入口同机同仓库；bot raw保留失败入口逐字答“没有记录”。当前GAP、topic、core、fact check和pipeline均据此得出“内容存在但入口不可读”，没有借官方产品文档外推。
+    deductions: |-
+      (-4) raw中的实际工具输出已净化为占位符，无法在本仓复跑当时hermes.py版本；(-3) 三个官方URL无快照和段落定位；(-2) 受众池相关平台数据仍未附原始API返回。
+    remediation: "成片标‘自建bot代码检查/原文摘录’，不把路径图称为官方平台日志；官方URL只留背景。"
+  - role: 记者
+    reviewer_id: phasea37-d04-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      当前生产口播逐层兑现两张证物、四项读集和缺失路径，并明确“只适用于我这套自建工作助理”。共同可读面的修法与原矿规范状态模型一致：临时流水保留journal，需要跨入口使用的长期项目结论升格到共同读取位置。旧版换设备失忆、永久记住、通用三步和丢失率均未残留。
+    deductions: |-
+      (-2) commit需要展示短hash，否则“进了提交记录”只是口播断言；(-2) 自绘X光图必须标路径还原，不能冒充实际产品截图；(-1) “入口读集”需口语解释。
+    remediation: "文件节点附raw坐标/commit短hash；首次出现读集时解释为‘回答前实际拿到的文件清单’。"
+  - role: 选题深挖师
+    reviewer_id: phasea37-d04-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      当前topic brief已把收藏物统一为“临时journal与共同可读面的分层原则”，与pipeline、retention和form_strategy一致。找得到/无记录的冲突有真实场景，共同可读面提供明确观众成果，且D04只讲根因与信息归位，把修复验收让给D05，连续选题分工清楚。
+    deductions: |-
+      (-3) 目标受众偏进阶，术语会压缩泛流量；(-3) reddit记录的重要性与实际工作损失未展开；(-2) 与D05仍共享事故证物，排期相邻有重复风险。
+    remediation: "首屏补一句现实后果‘做完的调研在另一个入口接不上’，D04尾段只交付分层原则，不预告D05三步细节。"
+overall:
+  score: 92.7
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；共同可读面已统一，只限自建工作助理案例。"

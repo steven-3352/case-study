@@ -1,0 +1,46 @@
+review_task: task-phasea-05-20260719
+reviewer_agent_id: task-phasea-05-20260719
+review_mode: independent
+reviewed_at: "2026-07-19T08:35:00+08:00"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T041_录音提词稿.md
+  - design/retention_beat_sheet.md
+  - design/storyboard.yaml
+  - insights/persona_ab_evidence.md
+  - insights/premortem_ab_evidence.md
+  - publish/T041_publish.md
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea05-d02-douyin-retention
+    reviewer_agent_id: task-phasea-05-20260719
+    review_mode: independent
+    angle: "抖音3秒停划、23秒长开放环与收藏评论转化"
+    score: 87
+    verdict: fail
+    notes: |-
+      “哪份先看了结局”比普通知识口播更有动作感，事故时间线倒放、抽封条和验尸票也形成了独立于D01左右双卡的纵向叙事；Prompt停留10秒和四选一CTA分别服务收藏、评论，数据杠杆清楚。扣(-13)：0至5秒口播同时塞入同一计划、回了两遍、A/B竞猜和半年后失败四层信息，3秒内难以听清；真正揭晓拖到23秒，接近全片一半，10至23秒又是高密度风险清单，观众没有足够即时奖励。修正：0至3秒只保留“哪份先假设它已经失败”，5至8秒先给B的局部揭晓，再把“双轮都如此”作为23秒二次证据回报，避免用单一谜底硬撑半片。
+
+  - role: 纪录片导演
+    reviewer_id: phasea05-d02-controlled-evidence
+    reviewer_agent_id: task-phasea-05-20260719
+    review_mode: independent
+    angle: "失败的人称假设处置、事前验尸对照有效性与原话再现"
+    score: 92
+    verdict: pass
+    notes: |-
+      项目如实记录了“我改成小林”的人称实验失败，并禁止该命题进入脚本；替代的事前验尸实验有两轮完整A/B原文和短哈希，支持“组织方式改变、每条绑定现有事实”的窄主张，发布包也明确不声称更准、更凶或能预测未来。扣(-8)：脚本15至23秒把“客户流失、接不到客户、现金流先断”合成为一条顺滑失败链，但两轮B的排序和节点并不完全相同，Round 2没有客户流失这一节点；若画成统一因果链，会把跨轮归纳伪装成单次原始输出。修正：画面明确标注R1/R2各自路径，再提炼共同结构，不要让合成链看起来像逐字实验结果。
+
+  - role: 编剧
+    reviewer_id: phasea05-d02-oral-arc
+    reviewer_agent_id: task-phasea-05-20260719
+    review_mode: independent
+    angle: "事故叙事的戏剧推进、口语节奏与方法边界落点"
+    score: 91
+    verdict: pass
+    notes: |-
+      文本有清楚的竞猜、案例、A组基线、B组失败倒推、揭晓、可抄Prompt和适用边界，且“改变的不是语气强弱，而是回答结构”是准确又有记忆点的主句；“小事别用”也阻止观众把方法滥用于日常选择。扣(-9)：前5秒和15至30秒长句偏密，生产级TTS若按44秒硬压会削弱事故叙事应有的停顿；“现金流为什么先断”与前面的客户流失、接不到客户存在因果顺序含混，听感上像三个并列反问而不是倒推链。修正：首句拆成两拍，失败链用“先看到现金流断，再往回查到获客和交付”明确方向，23秒揭晓前留一次短停，Prompt段降低语速并隐藏常规字幕。

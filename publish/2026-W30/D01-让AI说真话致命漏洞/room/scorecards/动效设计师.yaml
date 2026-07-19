@@ -1,0 +1,45 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效设计师
+artifact: douyin/video.mp4
+artifact_sha256: d639086b101f0ca62d0cb4c7995e9ecd60ed2d273753c16781bbbce3f2ab4bde
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb06-d01-motion-w30d01-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_06
+  reviewed_at: '2026-07-19'
+  angle: task06 · motion-design · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '最终MP4而非模板抽查：0-3.82s游标在A/B两栏间移动且未提前落到答案；3.82s答案hit后，两栏从“先评估”与“第一句给核心假设”形成即时对比。9.70-15.45s三把控制锁依次闭合，15.45-20.98s三张事实卡逐项进入，28.98-35.15s双轮票据与短哈希同时出现，35.15-41.57s从“普通问法也发现”压到“核查顺序第一句”，42.63s后评论框继续输入，信息任务持续变化。场景切点与MiniMax分段起点一致，答案、事实、证据、边界都没有抢跑或滞后。
+
+
+    freezedetect在-45dB阈值下检出多段0.5-3.5s低变化，主要来自纸面布局的刻意阅读停留，而不是渲染挂死；全片等距抽帧无黑帧、闪帧或元素跳位。
+
+
+    扣分与改法：
+
+    -4：20.98-28.98s Prompt镜后半段以静置阅读为主，24.80-26.90s及27.17-28.97s低变化，动效密度明显低于前半片。
+
+    -2：27.155-29.128s有1.973s低电平留白，虽服务暂停抄写，但转入双轮证据前的节奏回弹不够强。
+
+    -2：42.63-45.70s约3.07s低变化，CTA输入动效细，信息流首看不一定能感知。'
+- reviewer_id: phaseb05-d01-motion-designer-w30d01-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task05 · motion-design · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '0.00-3.82s把A/B原文和选择任务直接放在首屏，游标没有提前落在B上泄题；3.82s、9.70s、15.45s、20.98s、28.98s、35.15s、41.57s均有明确场景换形，控制锁、事实卡、Prompt纸张、双轮票据、诚实结论和评论框形成连续视觉任务。关键动效都服务理解或收藏，不是无意义装饰；30fps成片无黑帧、撕裂或错位。
+
+
+    扣分：(-3) -45dB/1.5s冻结扫描显示首屏0.333-3.833s连续3.50s、6.233-9.700s连续3.467s，已经贴近4s上限，A/B卡的小字号又需要主动阅读；(-3)
+    27.167-28.967s画面冻结与27.155-29.128s音频低电平留白重叠，虽可理解为“暂停可抄”，但没有进度或保存反馈时容易被误判成停住；(-3)
+    29.667-39.467s间连续出现2.50s、2.967s、2.50s、1.833s多段静止，双轮证据段节奏偏机械。改法：下一版在Prompt停顿加入不遮字的描边完成态或保存刻度；首屏每1.5-2s用游标扫读/重点下划线提供微变化；双轮票据用哈希逐字落印代替整页静置。当前最长冻结未越4s，不构成阻断。'
+avg_score: 91.5
+pass: true
+scorecard_phase: post_render

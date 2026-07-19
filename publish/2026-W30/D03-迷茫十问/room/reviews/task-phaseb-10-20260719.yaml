@@ -1,0 +1,84 @@
+review_task: task-phaseb-10-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+phase: phase_b
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  video_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+  duration_s: 48.733
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；综合响度约-17.55 LUFS；true peak约-0.30 dBTP"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长5.167-9.167s，共4.000s，正好贴住4s硬边界；其余检出段均<=2.033s"
+  silencedetect: "实际执行 silencedetect=n=-45dB:d=1.5；无>=1.5s静音"
+  blackdetect: "实际执行blackdetect=d=0.1:pix_th=0.10；未检出黑帧段"
+  visual_sampling: "实际检查约4s间隔全片contact sheet，并复核1.0s、2.8s、7.0s、47.0s全分辨率关键帧"
+  subtitle_check: "16条SRT从0.000s连续覆盖至48.740s，无重叠；尾时码比容器长约0.007s，实际不可感知。烧录字幕未溢出，独立SRT存在中文词组机械断行但不拆英文词。"
+  cover_check: "实际查看1080x1920封面；主标题和先建议/先问事实对照清楚，底部烧录字幕位于平台UI高干扰区。"
+  content_boundary_check: "成片明确只支持回答顺序变化，不代表更准、更有用或找到方向；第10问保留编辑补充待真人结果验证，人负责拍板和验证。"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "61%-69%"
+  completion_rate: "29%-36%"
+  rationale: |-
+    3s预测依据0s进入配音、首屏“同一个问题/两种首答顺序”及先建议/先问事实对照，2.8s前颜色状态继续变化；下限考虑首屏尚未展示两份回答证物，主要依靠文字悬念。完播预测依据双轮证物、证据边界、4+2+3三关、第10问和完整Prompt持续给新回报；下限考虑48.73s片长、5.17-9.17s整4秒低变化以及末镜需暂停阅读。无账号同题材近期基线，故仅为B级发布前估算。
+  grade: B
+  go_no_go: go
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb10-d03-motion-designer
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      8个场景依次用标题状态、双栏证物、边界逐项否定、四格门、双圆门、三步轨道、第10问翻牌和完整出口票承担独立动作，运动均服务首答对照、理解或收藏。0-3s主标题和对照条已成立；全片无黑帧、错位或字幕遮挡。
+
+      扣分：(-4) 5.167-9.167s自动检测为连续4.000s低变化，正好压硬线且没有容错；(-3) 末镜40.52-48.73s主要靠逐项勾选和整页静置，信息多但运动弱；(-3) 生存事实和行动门部分状态切换节奏接近，连续观看略像模板演示。最小改法：若投后6-10s到达明显掉点，仅在双栏证物加入不遮字的扫描/落印微动；末镜用逐组高亮，不缩字、不删边界。当前未超过4s，不构成阻断。
+  - role: 视觉设计
+    reviewer_id: phaseb10-d03-visual-design
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      黑白基底配蓝、绿、黄、红四类功能色，证物、边界、三关和第10问的层级清楚；全分辨率关键帧中主标题、双栏、字幕和CTA均在安全画布内。47s完整九问实际可辨，编号01-09同时补足评论留数字的对应关系。
+
+      扣分：(-3) 末镜九问、四条规则、CTA与烧录字幕同屏，手机自然播放必须暂停；(-2) 多镜大面积浅色留白配黑框，视觉质感偏工具说明页；(-2) 首屏封面没有直接出现“迷茫”主词，只在烧录字幕中补足；(-2) 封面底部字幕靠近抖音UI区。最小改法：投后若封面点击弱，另做不带烧录字幕且主标题含“迷茫”的封面版本；成片当前无溢出阻断。
+  - role: 编导
+    reviewer_id: phaseb10-d03-director
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    notes: |-
+      成片叙事为“同题双轮悬念→首答证物→主动收窄证据→三关方法→第10问待验→完整Prompt与人来拍板”，每个场景都有新信息职责。证据边界在方法展开前出现，避免观众把九问误听成已证明更有效；结尾同时完成收藏和评论。
+
+      扣分：(-3) 48.73s对单一首答顺序差异略长；(-3) 15.53-34.52s连续讲7类问题，情绪推进弱于前段证物冲突；(-2) “最后逼到行动”仍比实际证据强。最小改法：投后若中段流失，优先压三关重复口播，不删双轮、证据边界、第10问待验或人来拍板。
+  - role: 平台表现分析师
+    reviewer_id: phaseb10-d03-platform-performance
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      1080x1920 H.264/AAC、独立SRT和1080x1920封面满足抖音交付。0-3s顺序反差服务停划，15.53-34.52s九问结构服务理解，40.52s后完整Prompt服务收藏，43.77s后数字CTA服务评论。发布前预测3s完播61%-69%、完播29%-36%，B级，go。
+
+      扣分：(-3) 48.73s使高完播不稳；(-3) 首个实质证物到3s后才出现；(-2) 封面和末镜信息策略更偏收藏而非即时消费；(-2) 无本账号同题材基线。独立SRT尾长7ms及机械断行不阻断发布，但上传外挂字幕前应人工重排；预测不得写成投后实测。
+overall:
+  score: 90.8
+  verdict: pass
+  blocking_issues: []
+  go_no_go: go
+  release_note: "四角色均>=90；SHA绑定正确，最长低变化正好4.000s未越线，内容边界、音频、字幕和画面检查通过。"

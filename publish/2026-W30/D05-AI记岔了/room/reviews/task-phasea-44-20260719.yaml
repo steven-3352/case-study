@@ -1,0 +1,62 @@
+review_task: task-phasea-44-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d05_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea44-d05-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "1.5x QA动作间隔、确定性seek、freeze门与SFX runtime"
+    score: 95
+    verdict: pass
+    evidence: |-
+      8个生产模板均为paused GSAP timeline并registerTimeline。evidence_pair、write_check、repaired和qa_card已按D比例分布动作；causality/retest用贯穿D的尺标或回路运动，其他短镜在D末段补动作。按1.5x计算，比例镜最大相邻动作间隔约2.31s，连续镜覆盖至D-0.3/0.4s，无>4s语义冻结。runtime按真实TTS重建镜长、scene_sid重算音效、ambient自动延长。
+    deductions: |-
+      (-2) storyboard repaired/qa仍各6s，production均7s；冻结表合计42s而target44s。(-1) audio plan qa静态起点36与production目标37双写，虽runtime覆盖。(-1) 1.5x数学核验尚未形成自动化报告。(-1) 最终成片freeze仍需实测。
+    fix: "同步末两镜7s；注明scene_sid为唯一运行时时基；最终TTS后输出freeze、SFX事件和逐帧检查报告。"
+  - role: 动效设计师
+    reviewer_id: phasea44-d05-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "QA机械语法、比例节拍、状态可读性与文字溢出"
+    score: 94
+    verdict: pass
+    evidence: |-
+      风险封条、夹具、双证物、因果尺、双工位、回问回路、绿证黄槽和三联卡构成一致的QA视觉语言。旧“真实抓包”已改为“真实排查证物”，alarm标题也已统一为“文件在，不等于入口能读”；关键镜按D比例分布插入、拉杆、证书、夹具和阴影，1.5x下alarm最大间隔不足1s、全片最大空档约2.31s。主要字号28-80px，步骤每镜最多三项，状态同时用颜色、位置和文字编码。
+    deductions: |-
+      (-2) qa scope为28px且同时包含评论与证据边界，手机端偏小。(-1) repaired在7s拉长后后半主要依靠黄槽落影，语义变化较轻。(-1) 末镜D*.82后仍有三项stagger，稳定截图态需真帧确认。(-1) 最终字幕安全区尚未抽检。(-1) storyboard末两镜时长过期。
+    fix: "qa scope提高到32px并拆行；最终帧确认三联卡至少2s无遮挡稳定态；同步storyboard末两镜时长。"
+  - role: 动效分镜师
+    reviewer_id: phasea44-d05-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜QA节拍、1.5x间隔、SFX像素同拍与收藏态"
+    score: 90
+    verdict: pass
+    evidence: |-
+      8镜从误判、证物、因果、三步到部分通过和评论收口一一对应8段VO。1.5x下write_check最大间隔约2.0s、repaired约2.31s、qa_card约2.31s，causality与retest由连续运动覆盖。SFX均有scene_sid，镜头起点随真实TTS变化不会整体漂移；目标时长下checks与qa序列基本对应工位/步骤出现。
+    deductions: |-
+      (-3) qa视觉按D比例，SFX offset仍固定0.5/1.7/2.9s；在1.5x D=10.5s时三步约1.26/2.94/4.62s出现，声音会分别早约0.76/1.24/1.72s。(-2) repaired hit offset0.4s在1.5x时早于首状态约0.23s。(-2) storyboard末两镜仍6s而production7s。(-1) 首镜无独立撕带SFX。(-1) 末卡稳定截图态待实帧验证。(-1) 最终TTS尚未听片。
+    fix: "最终TTS后按runtime window生成比例SFX offset，或把qa音效绑定三个具体像素动作；同步末两镜7s，补轻量首镜撕带声并保留末卡稳定态。"
+overall:
+  score: 93.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均达到90；1.5x数学间隔无>4s冻结。进入下一门前需同步冻结时长，并在真实TTS后校准比例动画对应的固定SFX offset。"

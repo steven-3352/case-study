@@ -205,6 +205,19 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - **精简点**：①同形态 fork 已有 `dNN_` 模板不从零搭；②第 2 轮互评只重评上轮 <90 的工种（best-of-2），不全员重跑；③默认 1 轮、挑出硬伤才开第 2 轮，最多 2 轮取最好往下继续；④洞察/文档可串行直写，只有渲染/独立互评/真联网调研才派 agent；⑤需用户拍板的决策攒成一次问。
 - **升回全量**：带货 / 出镜 / 形式 A/B 周 / 投后要求重做 / 新形态首条（无模板）/ 选题强争议 / 用户点名。
 
+### 生产效率顺序（所有视频强制 · 2026-07-19）
+
+- 可实验的核心 claim 先做 Stage 0 evidence spike；结论不成立先换命题，禁止让完整脚本/分镜陪着返工。
+- 派 reviewer 前先建 `角色 × content_version × form_version × Phase` 覆盖矩阵；禁止用无计划的追加任务代替完整覆盖。
+- 正式 TTS 前先做 provider/voice/emotion 单句小样；生产 `strict_provider: true`，失败即停，不回退其他音色。
+- 动画以真实 VO timing 为唯一时基，并做 1.0×/1.5× 镜头压力测试；禁止沿用 40s/43s 等名义时长硬拉终片。
+- frame/audio/cache/concat 的可写路径按 `content_id/scene_id` 隔离；并行项目不得共享输出目录。
+- Phase B 前先跑机器 QC；冻结 >4.00s、黑帧、异常静音、规格或音轨失败直接返工。
+- Phase B scorecard 与 forecast 必须记录终片 SHA-256；MP4 变化即失效并重审。
+- 优先逐场景增量重渲。任何小改触发全片渲染，都要登记为 pipeline 技术债，不能当作正常成本。
+
+详见 `docs/SYSTEM.md` §2.4c 与 `docs/postmortems/2026-W30-D01-D02-production-latency.md`。
+
 ### 标准动作（v2）
 
 1. **立项** — 编导确认选题进 `queue/topics.yaml`；**立项前先翻 `material/`(真实内容原矿),优先从真材料提炼钩子/弧线,不从零脑暴;`material/` 没料才允许新脑暴**

@@ -1,0 +1,67 @@
+review_task: task-phasea-18-20260719
+reviewer_agent_id: task-phasea-18-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - design/audio_plan.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - design/motion_wow.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/lib/tts.py
+  - pipeline/p004_video/lib/sfx.py
+  - assets/sfx/catalog.yaml
+  - pipeline/p004_video/shared/w30_evidence.css
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+  - pipeline/p004_video/out/frames/accident_hook
+  - pipeline/p004_video/out/frames/fixed_plan
+  - pipeline/p004_video/out/frames/ordinary_risks
+  - pipeline/p004_video/out/frames/autopsy_paths
+  - pipeline/p004_video/out/frames/experiment_evidence
+  - pipeline/p004_video/out/frames/prompt_save
+  - pipeline/p004_video/out/frames/boundary_cta
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea18-d02-motion-technical
+    reviewer_agent_id: task-phasea-18-20260719
+    review_mode: independent
+    angle: "七镜TTS实长重排、序列音效展开、模板data注入和Prompt最短窗口的技术约束"
+    score: 94
+    verdict: pass
+    notes: |-
+      七段MiniMax口播与七镜严格同序，renderer会过滤gap后校验数量，并以每段真实window生成runtime storyboard；音效不再依赖4/9/14/21等估时，`scene_sid`会在正式混音前查真实segment start，`offset_seq`也会重写为新的`t_start_seq`。独立解析source计划得到8个原始事件、12个展开事件，ambient/hit/whoosh/tick/hit_seq/tick_seq均解析到当前catalog真实存在的CC0 WAV，0 gap。全部HTML读取注入data并把真实duration加入paused timeline，不存在网络资产、CSS异步动画或每帧布局测量。扣(-6)：序列alias会默认选family第一候选，`hit_seq`因此使用soft boom而非更轻的界面盖章声，技术可用但听感仍未证实；具体修正：正式混音试听21秒双轮盖章，若遮住“第二轮”，为该事件显式指定catalog内`check_tick_soft.wav`并复核峰值。
+
+  - role: 动效设计师
+    reviewer_id: phasea18-d02-motion-design
+    reviewer_agent_id: task-phasea-18-20260719
+    review_mode: independent
+    angle: "首屏未来事故逆推、具体原因到依据路径、Prompt降速收藏与CTA重新提速"
+    score: 92
+    verdict: pass
+    notes: |-
+      最新首镜data不是抽象占位，而是“能力证据为负、4周几乎零涨粉、没写获客路径”，红箭头从未来端向左运动，节点从终点向前依次激活，并在4秒内完成一次具体原因、事实与信息缺口的视觉预告。14至21秒纵向红轴把Round 1原因接到已给事实和信息缺口；21秒双轮票短促汇入结构结论；28秒Prompt四行约3秒内完成展开和高亮，10秒目标窗仍留约4秒全文可读；38秒四张计划便签依次激活，CTA重新提速。扣(-8)：当前目录中的旧`accident_hook`设计终帧仍显示“先假设失败/再往回查/不先给建议”，尚未反映最新具体data；具体修正：正式render必须重生成该目录，并抽0.5、2.2、3.9秒确认具体路径真实出现且箭头与“6个月后失败”像素相连。
+
+  - role: 动效分镜师
+    reviewer_id: phasea18-d02-motion-storyboard
+    reviewer_agent_id: task-phasea-18-20260719
+    review_mode: independent
+    angle: "事故板七镜递进、具体路径与证据边界、Prompt到投票CTA的认知负荷曲线"
+    score: 93
+    verdict: pass
+    notes: |-
+      分镜从未来事故直接起手，不再设置竞猜或延迟揭晓；4至14秒只补测试事实并诚实承认普通回答已经严格，14秒才进入真实Round 1倒推路径，避免把两轮不同原因拼成固定三死因。21秒明确“具体原因与排序不完全一致”，随后用完整修订Prompt兑现收藏价值，最后以“小事别用”先划边界，再用辞职、副业、创业、转行四个具体选项降低评论成本。核对全部data字段可见首屏、路径类型、双轮短哈希、Prompt四行与CTA选项均进入对应DOM，画面层级和底部字幕在抽查终帧中无重叠溢出。扣(-7)：4至14秒事实板与普通风险板连续使用纸面清单，纵向事故语法短暂中断，可能形成中段视觉降速；具体修正：只用同一红轴或反向箭头残影做转场连续性，不新增未经证据支持的节点，并在9秒硬切处检查whoosh与tick不会同时抢口播。

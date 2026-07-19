@@ -1,0 +1,73 @@
+review_task: task-phaseb-01-20260719
+reviewer_agent_id: task-phaseb-01-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - build/audio/seg_timing_w30d02.json
+  - build/audio/tts_config.yaml
+  - build/audio/audio_plan_runtime.yaml
+  - build/runtime_storyboard.yaml
+technical_evidence:
+  video: "H.264 High, 1080x1920, yuv420p, 30fps, 1574 frames, video 52.466667s; container/audio 52.480s"
+  audio: "AAC-LC mono 48kHz; integrated -17.35 LUFS, true peak -1.04 dBTP, LRA 2.40 LU"
+  minimax_timing: "engine=minimax; 7段真实TTS总时52.48s；普通段speed=1.0，Prompt段speed=0.96，每段vo_dur与scene window余量0.12s"
+  silence: "自适应门限-27.85dB下未见3s死区；用-37.99dB/0.5s复查最长低电平0.653s"
+  subtitle: "15个cue，0.000s起、52.480s止，文本与MiniMax分段台词一致"
+  extracted_frames: "实际MP4按0.5/3.5/6.5/9.5/13/16.5/20/24/28/32/36/40/46/51s抽帧，并以3s间隔制作18格contact sheet"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb01-d02-motion-render
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "倒叙路径的动态节拍、中段留存与音画对齐"
+    score: 82
+    verdict: fail
+    notes: |-
+      优点：0s“6个月后·计划失败”红色事故标记和hit同时入场，6.30s倒带whoosh转入固定计划，19.29s再次倒带揭示真实路径，27.39s双哈希盖章，34.88s Prompt展开，46.95s CTA按钮逐个出现。“从未来事故往回查”是本条专属视觉隐喻，不是catalog三连。实际MiniMax音频从0s进入，Prompt段降速到0.96，SFX未造成≥3s静音或削波。
+
+      扣(-10)：freezedetect（-50dB，d=2.5s）显示2.200-6.300s（4.10s）、7.833-12.567s（4.73s）、13.667-19.300s（5.63s）已完全像素不变；前19秒除每镜入场外，其余基本是静态看板，和“每2-4s视觉变化”不符。改法：首镜按“失败结果→已给事实→信息缺口→失败原因”分0.0/1.2/2.4/3.6s逐节点回溯；固定计划和普通风险每1.2-1.8s只出一条，不要入场后整镜静置。
+
+      扣(-8)：留存最重的中段同样出现21.333-27.400s（6.07s）、28.967-34.900s（5.93s）的长静止；即使40.400-46.967s（6.57s）是可暂停收藏镜，前两段也不是主动阅读例外，会使证据高潮变成PPT。改法：19.29-27.39s的四层路径必须按VO的“原因/依据/缺口”逐条亮灯；27.39-34.88s先单列Round 1，再落Round 2，最后才合并红线与结论；Prompt静置期可保留，但增加不干扰阅读的3s倒数或行号焦点。
+
+      结论：形式隐喻和音效节点是对的，但动画只发生在入场瞬间，没有支撑52.48s的留存。本轮必须fail，重渲后重做freezedetect和真机观看。
+
+  - role: 视觉设计
+    reviewer_id: phaseb01-d02-visual-render
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "事故板视觉隐喻、信息层级、Prompt收藏性与安全区"
+    score: 91
+    verdict: pass
+    notes: |-
+      0.5s首屏的黑色时间线、红色失败节点、“已给事实/信息缺口”层级和大标“从未来事故往回查”在一屏内即可理解；13-19s风险列表、19-27s红色回溯路径、27-35s双轮凭证和35-47s Prompt纸面的构图互不复制。40s抽帧中第03行高亮，可直接看出“已给事实/信息缺口”是核心收藏点；51s CTA四个选项的点击目标稳定。主要文字无截断、遮挡或超出右侧交互安全区。
+
+      扣(-5)：多幅成片帧的主体信息只占上半屏，例如0.5s时间线、13s风险列表、28-32s双轮凭证，中下部大面积空白，在抖音手机端会读成文档投影而非视频画面。改法：不放大字号，将时间线与路径节点扩展到中部，双轮卡下方展开“原因→依据”连线，让空间服务叙事。
+
+      扣(-4)：底部“修订版/未单独A/B”披露、Round哈希和Prompt下方来源注在手机端偏小；外挂SRT的第1个cue有3行，违反音频计划“max_lines: 2”，且存在“几\n乎”等词内换行。改法：将事实护栏改为单行高对比披露；按意群重切SRT，每cue最多2行，禁止词内断行。
+
+      结论：纵向事故板有本条专属识别度，主层级与Prompt收藏性通过；空白利用和小字披露是下轮应修的形式问题。
+
+  - role: 编剧
+    reviewer_id: phaseb01-d02-script-listen
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "事前验尸叙事弧、实验边界、Prompt可操作性与VO时序"
+    score: 94
+    verdict: pass
+    notes: |-
+      0-6.30s先把观众扔进“半年后已失败”的未来事故，6.30-19.29s交代虚构计划与普通问法已经够严格，19.29-34.88s用Round 1原文短摘和双轮哈希完成“原因→依据”的证据转折，34.88-46.95s给出修订版Prompt，最后5.53s用辞职/副业/创业/转行做真实选择型CTA。叙事、方法和互动三段都有明确成果。
+
+      事实边界处理到位：台词明说“第二轮原因和排序变了”，只把“失败原因后面跟依据，而且不先给建议”作为稳定观察；画面常驻“具体原因与排序不完全一致·不代表提高准确率”，Prompt也标注为根据实测暴露问题的修订版，没有冒充原始A/B输入。MiniMax分段时序为7段/52.48s，Prompt段以0.96速率留出朗读空间，每段与SRT文本一致且未裁字。
+
+      扣(-3)：“第一轮写：能力证据为负”到“第二轮原因和排序变了”的19.29-34.88s语义密度高，若视觉没有跟随逐条强调，观众会把“本轮原因”和“跨轮稳定结构”混在一起。改法：保留台词，但将“Round 1原文”、“Round 2不同”、“只稳定结构”三个句块用明确的分镜节点分开。
+
+      扣(-3)：52.48s中Prompt占12.07s，对收藏有利，但对不暂停观众偏长；“按可能性和破坏性”与“每个标明事实/缺口”可能需要第二遍才记住。改法：不删Prompt内容，在35-41s用逐行口语重述，41s后给完整静态版；或将前面计划背景压缩2s，保留Prompt收藏时间同时降低总时长。
+
+      结论：脚本强在不夸大实验、将“依据”拆成已给事实和信息缺口，方法可复制、CTA能接话；内容门通过，中段需由形式门解决。

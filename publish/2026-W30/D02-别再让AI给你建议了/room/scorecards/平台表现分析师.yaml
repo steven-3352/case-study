@@ -1,0 +1,38 @@
+status: pass
+review_source: independent_agent_tasks
+role: 平台表现分析师
+artifact: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb08-d02-platform-performance-w30d02-platform-analyst
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task08 · platform-analyst · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '封面“从未来事故往回查”、红色失败标签与三节点路径在信息流缩略图仍有主次，并与首镜一致；视频规格、字幕和声轨满足抖音交付，video.mp4与video_no_bgm.mp4哈希相同，符合无BGM约定。0-3s后果倒查服务3s完播，19.29-34.88s事实/缺口服务理解和信任，34.88-46.95s
+    Prompt服务收藏，46.95-52.48s四选一服务评论。发布前估算3s完播64%-72%、完播率31%-38%，综合B级。
+
+
+    扣分：(-3) 52.48s与19-35s理性说明使40%完播不稳；(-2) 封面底部字幕位于平台UI高干扰区；(-2) 收藏Prompt是根据实测暴露问题后的修订版，且未单独A/B，不能配“实验证明有效”类发布文案；(-2)
+    无本账号同类投后基线；(-1) 标题绝对程度高于成片边界。改法：发布标题/正文保留“高风险计划、修订版、未单独A/B”；投后核3s、19s、35s到达、完播、收藏和四选一评论，禁止把预测区间冒充实测。'
+- reviewer_id: phaseb07-d02-platform-performance-w30d02-platform-analyst
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_07
+  reviewed_at: '2026-07-19'
+  angle: task07 · platform-analyst · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '封面“从未来事故往回查”、红色失败标签与三节点路径在信息流缩略图层级明确，并与首镜一致；视频规格、字幕和声轨满足抖音交付。0-3s失败倒查服务3s完播，19.29-34.88s事实/缺口服务理解与信任，34.88-46.95s
+    Prompt服务收藏，46.95-52.48s四选一服务评论。发布前估算3s完播63%-72%、完播率31%-38%，综合B级。
+
+
+    扣分：(-3) 52.48s和19-35s理性说明使40%完播A级线不稳；(-2) 封面底部字幕处于平台UI易覆盖区；(-2) 收藏Prompt是基于实测暴露问题后的修订版且未单独A/B，不可用“实验验证有效”类文案；(-2)
+    无本账号同类基线。改法：发布标题、正文保留“高风险计划/修订版/未单独A/B”边界；投后检查3s、19s、35s到达、完播、收藏与四选一评论，禁止把预测区间冒充实测。'
+avg_score: 90.5
+pass: true
+scorecard_phase: post_render

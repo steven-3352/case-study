@@ -1,0 +1,70 @@
+review_task: task-phasea-45-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+independent_from: task-phasea-44-20260719
+reviewed_artifacts:
+  - design/storyboard.yaml
+  - design/motion_tech_plan.md
+  - design/motion_storyboard.md
+  - pipeline_config.yaml
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/templates/d04_w30_record_hook.html
+  - pipeline/p004_video/templates/d04_w30_conflict.html
+  - pipeline/p004_video/templates/d04_w30_write_proof.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_missing_path.html
+  - pipeline/p004_video/templates/d04_w30_boundary.html
+  - pipeline/p004_video/templates/d04_w30_shared_surface.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea45-d04-motion-tech-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜D比例时间轴、1.5x逐镜间隔和绝对seek"
+    score: 89
+    verdict: fail
+    evidence: |-
+      8镜均采用paused timeline、动态D和registerTimeline，绝对seek成立。write_proof、boundary、shared_surface和close已改为8%–90%的D比例拍点；在1.5x窗口下相邻语义动作约0.9–2.1s。readset的beam贯穿D-1.2，hook/conflict在短窗内也无冻结风险；字号最低28px，主要读集34px，移动端层级可接受。
+    deductions: |-
+      (-7) `missing_path`仍是旧固定拍点：0/0.45/1.1/1.5/2.1秒后，尾部动作在`D-1`。名义5秒的1.5x为D=7.5，2.1到6.5的相邻语义动作间隔4.4s，超过明确的<=4s门槛。(-2) 尚无基于正式form v3 seg timing的全8镜freezedetect证据。(-2) motion storyboard未回填修后D比例拍点。
+    fix: "将missing_path的present/line/stop/missing/result/淡化改为D比例分布，使D=7.5时最大间隔<=4s；正式timing后逐镜跑freeze检测。"
+  - role: 动效设计师
+    reviewer_id: phasea45-d04-motion-design-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "路径语义动作、扩窗节奏与代码读集可读性"
+    score: 91
+    verdict: pass
+    evidence: |-
+      修后的write_proof按两份证据→结论→收束分拍，boundary按事实→范围→反例分拍，共同可读面按临时记录→升格→两入口分流，close按错误→正确→评论提示分拍，动作均服务理解。readset保持连续扫描，34px等宽源名可读；没有用装饰微动冒充语义变化。
+    deductions: |-
+      (-4) missing_path在1.5x下仍有4.4s拍点空洞，虽只超0.4s仍不符合硬门。(-3) 正式TTS子句到动作的同步尚未实测。(-2) pathline/代码词对普通受众仍需实片手机尺寸核验。
+    fix: "修missing_path比例拍点；用正式VO核每项读集扫描和字幕不争抢。"
+  - role: 动效分镜师
+    reviewer_id: phasea45-d04-motion-board-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜查因序列、镜间连续和比例动作交接"
+    score: 93
+    verdict: pass
+    evidence: |-
+      8镜分镜从同记录冲突、落盘、读集、缺失源、范围边界到共同可读面和评论收口，任务拆分清楚；横向访问路径在镜2–7保持视觉连续，runtime可按真实窗口逐镜替换。修后关键长镜已有D比例动作实现，镜4持续扫描承担中段运动。
+    deductions: |-
+      (-3) 分镜文档未列模板中的D比例拍点，测试者无法只凭分镜复算1.5x。(-2) missing_path的扩窗预案未写。(-2) 正式timing切点表缺失。
+    fix: "补关键镜比例拍点和missing_path扩窗方案，正式TTS后锁8镜切点。"
+overall:
+  score: 91.0
+  verdict: fail
+  blocking_issues:
+    - "missing_path在D=7.5秒时相邻语义动作间隔约4.4秒，超过1.5x硬门。"
+  release_note: "多数长镜已完成D比例修复，但技术导演89；missing_path仍越4秒门槛，D04 Phase A fail。"

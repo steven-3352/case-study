@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><link rel="stylesheet" href="../shared/w30_d04.css"><script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+  <style>.scanner{position:absolute;top:370px;left:80px;right:80px;height:780px;border:6px solid #101716;padding:45px}.source{height:140px;margin-bottom:30px;background:#fff;border:3px solid #101716;padding:36px 30px;font-size:34px;font-weight:850}.beam{position:absolute;left:55px;right:55px;top:50px;height:9px;background:var(--d4-orange);box-shadow:0 0 18px var(--d4-orange)}.port{position:absolute;right:-50px;top:340px}</style>
+</head>
+<body>
+  <div class="canvas"><div class="d4-kicker">build_system · 真实代码读集</div><div class="d4-title" id="title"></div><div class="scanner"><div class="beam"></div><div id="sources"></div><div class="port"></div></div><div class="subtitle" id="subtitle"></div></div>
+  <script>
+    const d=getData(),D=+d.scene_duration||7;title.textContent=d.title;
+    (d.sources||[]).forEach(x=>{const e=document.createElement('div');e.className='source mono';e.textContent=x;sources.appendChild(e)});subtitle.textContent=d.subtitle||'';
+    const tl=gsap.timeline({paused:true}).from('.scanner',{scale:.95,autoAlpha:0,duration:.4}).from('.source',{x:-80,autoAlpha:0,duration:.25,stagger:.55},.45).to('.beam',{y:650,duration:Math.max(3,D-1.2),ease:'none'},.8);
+    gsap.utils.toArray('.source').forEach((el,i)=>{const t=.9+i*(D-1.6)/4;tl.to(el,{backgroundColor:'#ccebdc',borderColor:'#138a5b',x:24,scale:1.025,duration:.2},t).to(el,{backgroundColor:'#fff',x:0,scale:1,duration:.2},Math.min(D-.35,t+Math.max(.7,(D-2)/5)))});
+    tl.to({},{duration:D},0);registerTimeline(tl);
+  </script>
+</body>
+</html>

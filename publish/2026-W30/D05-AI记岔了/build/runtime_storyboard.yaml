@@ -1,0 +1,92 @@
+video:
+  fps: 30
+  width: 1080
+  height: 1920
+scenes:
+- id: w30d05__danger_hook
+  template: d05_w30_danger_hook.html
+  duration: 3.15
+  type: html
+  data:
+    eyebrow: QA 误判警报
+    title: 'AI 说没记录
+
+      先别判它没写'
+    warning: 文件在 ≠ 入口能读
+    subtitle: AI 说没记录，先别判它没写。
+    scene_duration: 3.15
+- id: w30d05__alarm
+  template: d05_w30_alarm.html
+  duration: 3.6
+  type: html
+  data:
+    top: 文件明明在
+    bottom: 入口根本不读
+    stamp: 写入 ≠ 可读
+    subtitle: 文件明明在，可能只是入口根本不读。
+    scene_duration: 3.6
+- id: w30d05__evidence_pair
+  template: d05_w30_evidence_pair.html
+  duration: 7.0
+  type: html
+  data:
+    left: journal 已落盘
+    right: 原入口：没有记录
+    label: 两张真实证物
+    subtitle: 我那次排查，先拿到两张证物：journal 已落盘；飞书却回复‘我这边没有记录’。
+    scene_duration: 7.0
+- id: w30d05__causality
+  template: d05_w30_causality.html
+  duration: 7.33
+  type: html
+  data:
+    alarm: 答不上 = 报警
+    proof: 已落盘 + 不在读集 = 根因证据
+    reject: 不能直接叫失忆
+    subtitle: 答不上只能报警，不能直接叫失忆。真正的根因，要同时对上写入位置和入口读集。
+    scene_duration: 7.33
+- id: w30d05__write_check
+  template: d05_w30_write_check.html
+  duration: 8.07
+  type: html
+  data:
+    step1: 01 查落盘回执
+    step2: 02 查入口读集
+    warning: 模型说‘记住了’不算日志
+    subtitle: 第一步查落盘回执，不接受‘我记住了’；第二步查这个入口每轮实际注入哪些来源。
+    scene_duration: 8.07
+- id: w30d05__retest
+  template: d05_w30_retest.html
+  duration: 6.71
+  type: html
+  data:
+    step3: 03 修后回问
+    controls:
+    - 原失败入口
+    - 同一可核事实
+    - 再跑一条新事实
+    subtitle: 第三步修后从原入口回问同一条事实，再用一条新事实跑完整闭环。
+    scene_duration: 6.71
+- id: w30d05__repaired
+  template: d05_w30_repaired.html
+  duration: 9.52
+  type: html
+  data:
+    before: 新事实：写入 + 升格
+    after: 原入口复问：缺逐字原件
+    result: 写入升格｜通过
+    result2: 原入口复问｜待原件
+    subtitle: 我接入近三天摘要和升格流程后，新事实的写入、升格已经跑通；但原入口复问没留逐字原件，我不签通过。
+    scene_duration: 9.52
+- id: w30d05__qa_card
+  template: d05_w30_qa_card.html
+  duration: 9.88
+  type: html
+  data:
+    steps:
+    - 01 查落盘
+    - 02 查读集
+    - 03 修后回问
+    scope: 评论留 01 / 02 / 03 · 证据缺一张不签通过
+    subtitle: 这只验收我这套自建工作流。你卡在哪一步？评论留 01、02 或 03。证据缺一张，就别宣布修好。
+    scene_duration: 9.88

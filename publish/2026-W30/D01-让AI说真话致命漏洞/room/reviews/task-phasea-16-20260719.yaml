@@ -1,0 +1,66 @@
+review_task: task-phasea-16-20260719
+reviewer_agent_id: task-phasea-16-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - design/motion_wow.md
+  - audio_plan.yaml
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/lib/sfx.py
+  - assets/sfx/catalog.yaml
+  - pipeline/p004_video/shared/w30_evidence.css
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d01_w30_challenge.html
+  - pipeline/p004_video/templates/d01_w30_reveal.html
+  - pipeline/p004_video/templates/d01_w30_structure.html
+  - pipeline/p004_video/templates/d01_w30_reframe.html
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/templates/d01_w30_compressor.html
+  - pipeline/p004_video/templates/d01_w30_punchline.html
+  - pipeline/p004_video/templates/d01_w30_cta.html
+  - pipeline/p004_video/out/frames/ab_guess
+  - pipeline/p004_video/out/frames/compare_first_line
+  - pipeline/p004_video/out/frames/controlled_reveal
+  - pipeline/p004_video/out/frames/plan_facts
+  - pipeline/p004_video/out/frames/two_round_result
+  - pipeline/p004_video/out/frames/honest_difference
+reviews:
+  - role: 视觉语言策展师
+    reviewer_id: phasea16-d01-visual-language
+    reviewer_agent_id: task-phasea-16-20260719
+    review_mode: independent
+    angle: "横向实验台的视觉语法、证据层级、字幕安全区与D02纵向事故板的骨架隔离"
+    score: 92
+    verdict: pass
+    notes: |-
+      当前八镜持续使用纸面实验、原文短摘、控制变量锁、证物票和诚实印章，红色负责结论与风险、绿色负责锁定与可信边界、黑白负责原始证据，层级一致且没有伪造商业模型界面。抽查专属设计帧可见标题、正文、限定语和底部字幕互不重叠，1080×1920安全区完整；D01始终是横向A/B实验台，未与D02纵向事故回溯骨架同构。扣(-8)：`compare_first_line`左栏在风险列表较短时会出现大面积无信息留白，视觉重量明显偏向右栏，首屏A/B两侧原文长度也天然不等；具体修正：正式渲染应保持原文真实性，不补伪文本，只把左栏已有风险按短票据完整铺开，并维持两栏相同外框高度和较均衡的内容重心。
+
+  - role: 动效技术导演
+    reviewer_id: phasea16-d01-motion-technical
+    reviewer_agent_id: task-phasea-16-20260719
+    review_mode: independent
+    angle: "GSAP确定性seek、运行时数据注入、TTS时长回填、SFX事件契约与可发布编码链"
+    score: 90
+    verdict: pass
+    notes: |-
+      八个模板均通过`getData()`读取`capture_frames.py`在导航前注入的`window.__data`，并把`scene_duration`加入paused GSAP timeline；渲染只使用transform、scale、rotation与autoAlpha等确定性属性，没有CSS动画、网络依赖或逐帧布局读取。D01音效计划9个原始事件展开为11个单发事件，`ambient/tick_seq/hit/whoosh`均能由当前catalog解析到本地CC0 WAV，实测0 gap，字段也符合mixer的`sid/kind/t_start/duration/gain_db`及序列扩展契约。扣(-10)：MiniMax某段若长于目标窗口，后续画面会按真实`window`顺延，但SFX仍使用0/3/7/11等名义绝对时间，可能从第二个超长段开始错位；具体修正：正式混音前必须用`seg_timing`按sid重算每个场景起点，或在render阶段把音效事件映射到runtime storyboard累积时长，再做一次0 gap和音画点位核验。
+
+  - role: 动效设计师
+    reviewer_id: phasea16-d01-motion-design
+    reviewer_agent_id: task-phasea-16-20260719
+    review_mode: independent
+    angle: "选择游标答案兑现、变量锁闭合、证据汇流、Prompt静止阅读与节奏变化"
+    score: 91
+    verdict: pass
+    notes: |-
+      首镜两栏在0.32秒内完成入场，选择游标由A侧向右移动525px，终态清楚停在B栏并用一次轻微脉冲确认；随后风险列表、变量锁、证物票、双轮汇流和诚实印章分别使用不同的运动语法，语义动作与“先比较、再锁变量、再给证据”的理解顺序一致。Prompt四行最晚约2.7秒已全部出现，8秒镜头后半至少4秒全文常驻，且改用顶部字幕避开正文。扣(-9)：游标约1.7秒已抵达B并开始脉冲，比3秒口播答案早，削弱观众自行判断的悬念；具体修正：终态仍必须停B，但正式帧序列应让游标前2.5秒保持中性扫视或居中，接近答案点再落B，同时保持首屏问题为唯一视觉焦点。

@@ -1,0 +1,17 @@
+video: {fps: 30, width: 1080, height: 1920}
+scenes:
+  - {id: smoke_d01_01, template: d01_w30_challenge.html, duration: 0.1, data: {question: "哪份更想先看？", labels: [A, B], answer_a: "全面评估。", answer_b: "单点优先。"}}
+  - {id: smoke_d01_02, template: d01_w30_reveal.html, duration: 0.1, data: {left: "全面评估", right: "第一句单点", risks: ["风险一", "风险二"], first_line: "核心能力未验证"}}
+  - {id: smoke_d01_03, template: d01_w30_structure.html, duration: 0.1, data: {locks: ["同模型", "同计划", "只换问法"]}}
+  - {id: smoke_d01_04, template: d01_w30_reframe.html, duration: 0.1, data: {facts: ["事实一", "事实二", "事实三"]}}
+  - {id: smoke_d01_05, template: d01_w30_prompt.html, duration: 0.1, data: {prompt_lines: ["第一行", "第二行", "第三行"]}}
+  - {id: smoke_d01_06, template: d01_w30_compressor.html, duration: 0.1, data: {rounds: ["Round 1", "Round 2"], result: "核心能力尚未验证"}}
+  - {id: smoke_d01_07, template: d01_w30_punchline.html, duration: 0.1, data: {truth: "普通问法也发现了", difference: "核查顺序不同"}}
+  - {id: smoke_d01_08, template: d01_w30_cta.html, duration: 0.1, data: {boundary: "AI不替你拍板", question: "最没验证的前提是什么？"}}
+  - {id: smoke_d02_01, template: d02_w30_failure_rewind.html, duration: 0.1, data: {end: "6个月后失败", hook: "往回查"}}
+  - {id: smoke_d02_02, template: d02_w30_fixed_plan.html, duration: 0.1, data: {facts: ["零涨粉", "辞职", "月入两万"]}}
+  - {id: smoke_d02_03, template: d02_w30_a_risk_list.html, duration: 0.1, data: {risk_items: ["能力", "获客", "现金流"]}}
+  - {id: smoke_d02_04, template: d02_w30_ab_guess.html, duration: 0.1, data: {title: "回答组织变化", paths: ["路径一", "路径二", "路径三"]}}
+  - {id: smoke_d02_05, template: d02_w30_reveal.html, duration: 0.1, data: {conclusion: "改变组织结构"}}
+  - {id: smoke_d02_06, template: d02_w30_prompt_strip.html, duration: 0.1, data: {prompt_lines: ["第一行", "第二行", "第三行", "第四行"]}}
+  - {id: smoke_d02_07, template: d02_w30_boundary_cta.html, duration: 0.1, data: {options: ["辞职", "副业", "创业", "转行"]}}

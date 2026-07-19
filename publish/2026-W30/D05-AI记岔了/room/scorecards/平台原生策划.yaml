@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 平台原生策划
+artifact: design/form_strategy.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea52-d05-platform-v3-w30d05-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-52-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-52-20260719 · 平台原生策划 · 0–2秒首屏“AI说没记录/先别判它没写”配合“文件在≠入口能读”，约0.48秒出现标题、约0.
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-2) 17秒后工程步骤密度偏高；(-2) D04/D05共享事故，若相邻发布会产生重复感；(-2) “第三步修后回问”必须迅速由待原件状态纠偏。
+    改法：D04/D05避免相邻发布；最终字幕必须同步露出待原件和拒签，不得把03包装成已完成。 依据：0–2秒首屏“AI说没记录/先别判它没写”配合“文件在≠入口能读”，约0.48秒出现标题、约0.97秒出现警示；2秒后的镜头立刻重申核心冲突，3秒前信息闭环。结尾把验收拆为01/02/03三个数字选项，观众可用一个数字评论，同时三联卡具有暂停收藏价值。
+- reviewer_id: phasea51-d05-platform-v3-w30d05-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-51-20260719
+  reviewed_at: '2026-07-19'
+  angle: 误判hook、三工位收藏和01/02/03评论CTA
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) 工程受众以外的人可能不熟悉落盘/读集。(-2) 双证物镜仍是合成摘要而非原图，需靠来源标签保持信任。(-1) 44秒密VO接近抖音知识类上限，最终语速需核。
+    改法：发布文案用普通语言解释落盘/读集；Phase B核44秒真实VO和CTA稳定停留。 依据：0秒“AI说没记录，先别判它没写”制造反常识但不夸大，2秒即用“文件在≠入口能读”兑现；没有延迟答案骗完播。中段把观众任务转成三步QA工位，01/02/03编号既是收藏结构也是CTA选项。末镜“你卡在哪一步？评论留01、02或03”只需输入两位数字，互动摩擦最低；“证据缺一张不签通过”同时强化信任。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

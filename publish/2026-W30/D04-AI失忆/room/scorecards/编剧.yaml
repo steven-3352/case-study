@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 编剧
+artifact: douyin/video.mp4
+artifact_sha256: 50be03a5857d22e1171b57b38328881bd6ee00bf5609bcbeed9cd6541e578917
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb09-d04-writer-w30d04-writer
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task09 · writer · 最终 MP4 独立复验
+  score: 94
+  verdict: pass
+  notes: '开头直接给同一记录跨入口冲突，随后用journal落盘和commit证明不是“没写”，再用四项实际读集解释为什么飞书入口拿不到，根因链完整。23.96-32.35s明确把结论收窄到读取路径和自建工作助理，32.35s后给出临时记录与长期结论分层的可复现修法，结尾让观众留言具体入口名。
+
+
+    扣分：(-2) “入口读集”是准确但偏工程化的词，泛AI用户需要依靠画面理解；(-2) 12.24-20.36s一次列四个文件来源，口播信息密度偏高；(-2)
+    “共同位置”只举projects index，容易被部分观众误解成所有系统的通用目录。改法：发布文案补一句“这里的共同位置指我这套工作流的共同读集”；不得改成“AI跨设备失忆”或“这样就永久记住”。'
+- reviewer_id: phaseb11-d04-writer-w30d04-writer
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task11 · writer · 最终 MP4 独立复验
+  score: 94
+  verdict: pass
+  notes: '文案从同一记录的入口冲突出发，依次检查落盘和提交、列出实际读集、定位未注入journal，再在25.53s明确“不是内容消失，是读取路径漏了一块”，29.20s限定“只适用于我这套自建工作助理”。解决方案只要求长期结论进入两个入口共同读取的位置，事实边界完整且没有泛化。
+
+
+    扣分：(-2) 12.24-25.53s连续出现bot、SELF、journal、注入和读集，口语亲和度有限；(-2) “升格”需要观众从画面理解为临时记录转长期结论；(-2)
+    电脑端/飞书端差异只代表本项目读取配置，不能作为平台通则。改法：发布文案首行保留“自建工作助理”范围；下一版把读集解释成“它每次开工前会看的文件清单”。当前边界清楚，不构成阻断。'
+avg_score: 94.0
+pass: true
+scorecard_phase: post_render

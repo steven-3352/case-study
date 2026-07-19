@@ -1,0 +1,67 @@
+review_task: task-phasea-51-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+supersedes_review: task-phasea-38-20260719
+reviewed_artifacts:
+  - script/T042_配音稿_v2.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/retention_beat_sheet.md
+  - design/motion_storyboard.md
+  - insights/fact_check.md
+  - insights/core_message.md
+  - insights/questions_ab_evidence.md
+  - pipeline/p004_video/templates/d03_w30_test_hook.html
+  - pipeline/p004_video/templates/d03_w30_split_proof.html
+  - pipeline/p004_video/templates/d03_w30_tenth_gate.html
+  - pipeline/p004_video/templates/d03_w30_prompt_exit.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea51-d03-platform-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "抖音首屏停划、后段收藏和数字评论CTA"
+    score: 95
+    verdict: pass
+    evidence: |-
+      0秒画面直接给“同一个问题/两种首答顺序/先建议↔先问事实”，口播用“我跑了两轮”提供真人行动主语；2秒切入真实首答差异，首屏不是方法定义。中段用三关轨道和70%位置的第10问持续给回报，末镜完整九问+四规则可暂停收藏。CTA“你最卡哪一问，评论留个数字”回答成本低、与画面九问天然对应，且“人来拍板”保留边界。
+    deductions: |-
+      (-2) 首镜“实测”证据感主要在第二镜补齐，0–2秒没有短hash或Round编号。(-2) 完整清单集中到末镜，前段掉点用户只能带走结构。(-1) 41秒级密VO仍需最终MiniMax时长确认抖音节奏。
+    fix: "Phase B核0–3秒真实VO与第二镜切点；出口票保持稳定停留，不再增加CTA文字。"
+  - role: 纪录片导演
+    reviewer_id: phasea51-d03-documentary-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "双轮实验叙事、证据降权和编辑补充分层"
+    score: 94
+    verdict: pass
+    evidence: |-
+      故事弧完整：同题双轮产生可见差异→立即降权为“只证明回答顺序变了”→展示九问流程→以第10问提出尚待真人验证的终检→交还人类拍板。原始A/B两轮响应、response id和hash支持“普通首答给建议/流程首答只问事实”；像素明确写“编辑补充·待真人结果验证”，没有把Prompt设计冒充有效性纪录。
+    deductions: |-
+      (-3) 首答镜使用编辑摘要而非原句截图，纪录感依赖项目内证据链。(-2) “最后逼到行动”语气略强于证据，实际只证明流程包含三个行动问题。(-1) 第10问口播没有直接念“编辑补充”，由画面承担来源分层。
+    fix: "最终资产日志保留双轮response坐标；字幕/画面持续保留第10问编辑标签。"
+  - role: 编剧
+    reviewer_id: phasea51-d03-writer-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "40秒故事弧、句间推进和8镜生产契约"
+    score: 93
+    verdict: pass
+    evidence: |-
+      8个TTS segment与8个scene严格一一对应：双轮钩子、首答冲突、边界、4问、2问、3问、第10问、出口票。每句都推进一个新问题层级，没有重复解释；第2句主动处理反驳，第6句制造后段新回报，第7句同时兑现收藏、评论和人类决策权。脚本v2与pipeline生产文本逐段一致。
+    deductions: |-
+      (-3) 第3–5句连续列问，依赖三种主构图区分避免“清单感”。(-2) “逼到行动”可改为“问到本周验证”以更贴证据。(-2) storyboard末镜名义6秒而TTS target为7秒，但runtime会用真实window覆盖。
+    fix: "正式timing后核三段列问的呼吸和末镜7秒窗口；不改事实结论。"
+overall:
+  score: 94.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；hook、证据降权、第10问和数字CTA形成完整8镜抖音故事弧，D03 Phase A pass。"

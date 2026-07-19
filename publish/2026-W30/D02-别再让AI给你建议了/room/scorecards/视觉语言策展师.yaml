@@ -1,0 +1,27 @@
+status: pass
+review_source: independent_agent_tasks
+role: 视觉语言策展师
+artifact: design/design_language.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea23-d02-visual-language-w30d02-visual-language
+  review_mode: independent
+  reviewer_agent_id: task-phasea-23-20260719
+  reviewed_at: '2026-07-19'
+  angle: 事故倒推的纵向/逆向视觉语法、事实与缺口编码、长文本安全区及姊妹条区分
+  score: 92
+  verdict: pass
+  notes: 完整场景帧可见红色逆向轴从未来事故连回失败原因，实线黄色事实与虚线黄色信息缺口编码明确；14至21秒改用纵向红线串接原因、事实、原因、缺口，观众关声也能读出“原因之后标依据”。双轮页把结论设为最大信息，短哈希退为技术凭证；Prompt票四行字号、行距与底部“修订版未单独A/B”披露均在安全区内。D02以事故轴、逆行箭头、黄签和四类验尸票为识别物，和D01横向A/B、绿色锁与诚实印章区分明显。扣(-8)：事实页与普通风险页短暂退回常规白纸清单，双轮两张空票的视觉信息密度偏低。具体改法：保留事故轴或红线残影贯穿转场，双轮页必须让“具体原因不同/共同的是组织结构”先于哈希成为视线终点。
+- reviewer_id: phasea16-d02-visual-language-w30d02-visual-language
+  review_mode: independent
+  reviewer_agent_id: task-phasea-16-20260719
+  reviewed_at: '2026-07-19'
+  angle: 纵向事故回溯语言、事实与信息缺口的材质编码、长Prompt与平台安全区
+  score: 93
+  verdict: pass
+  notes: D02以未来事故节点、逆向箭头、纵向红轴、事实实线票和信息缺口虚线票组成独立视觉语法，14至21秒的四行路径沿左侧红轴自下而上扣回依据，明显区别于D01横向双栏实验。抽查专属终帧可见原因、事实、缺口、双轮限定和CTA均在安全区内，正文无截断或相互遮盖；Prompt采用整张纵向长票，四行大字与底部“修订版未单独A/B”披露都能同时读到。扣(-7)：4至14秒连续两镜仍偏常规纸面清单，事故红轴暂时消失，纵向回溯身份感中断约10秒；具体修正：正式转场可保留一条低对比红轴或反向箭头残影贯穿事实板与普通回答板，但不得新增无证据标签或抢走“普通回答已经够严格”的焦点。
+avg_score: 92.5
+pass: true
+scorecard_phase: pre_render

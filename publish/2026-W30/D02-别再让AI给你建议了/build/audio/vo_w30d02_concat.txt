@@ -1,0 +1,7 @@
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_accident_hook.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_fixed_plan.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_ordinary_risks.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_autopsy_paths.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_experiment_evidence.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_prompt_save.mp3'
+file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D02-别再让AI给你建议了/build/audio/vo_w30d02_boundary_cta.mp3'

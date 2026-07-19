@@ -1,0 +1,61 @@
+review_task: task-phasea-37-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - GAP_REPORT.md
+  - meta.yaml
+  - pipeline_config.yaml
+  - script/T042_配音稿_v2.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - insights/questions_ab_evidence.md
+  - raw-export/raw/2026-07-15-bot.md
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea37-d03-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      当前证据主轴是两轮真实API对照：同一claude-opus-4-8、同system与同迷茫情境，A/B仅改变整组九问流程约束。文件保留请求与完整输出、UTC时间、response id、usage、request/response/content SHA256；两轮A首答内均进入观察和建议，两轮B均只问“你现在靠什么活着”。九问原型与第十问来源可在7月15日bot原矿逐项回查。
+    deductions: |-
+      (-3) 外部官方文档只有URL和转述，没有快照、抓取时间或精确段落；(-3) 单模型、单情境、双轮只够支持案例结论；(-2) 没有真人完成全流程后的行动结果。
+    remediation: "继续把外部文档降为背景；票据常驻模型/情境/双轮，不把组织变化外推为效用。"
+  - role: 记者
+    reviewer_id: phasea37-d03-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      生产稿用“普通问法首答内给建议”准确对应原始A响应，不再声称第一屏立刻给完整方案；B首答只问一个事实有两轮原文。第二段主动限制“只支持回答顺序变化”，第十问画面标编辑补充和待真人验证，结尾保留人拍板与现实验证责任。
+    deductions: |-
+      (-2) topic brief仍用“首答直接给方案”，比生产口播略绝对；(-2) 口播未直接念出第十问的编辑属性，必须依赖可读画面；(-1) 完整九问尚未被真人走完验证。
+    remediation: "上游摘要同步成‘首答内给建议’；第十问标注不得缩成脚注。"
+  - role: 选题深挖师
+    reviewer_id: phasea37-d03-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    evidence: |-
+      “失业、三个方向来回跳、没有付费用户”是具体高压场景；选题把问题从“AI能否找方向”收窄到“信息不足时先建议还是先收事实”。真实首答反差负责可信钩子，九问流程负责收藏，第十问负责后段回报，且明确不扮职业导师。
+    deductions: |-
+      (-3) 职业迷茫与项目选择仍是两个相邻但不同的人群；(-2) 九问容易被包装成普通清单；(-2) 第十问价值仍是假设而非真人结果。
+    remediation: "首发只锚失业后的三个项目选择；A/B证据做主线，清单做交付物。"
+overall:
+  score: 93.3
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；只发布双轮首答组织差异，不发布九问效用结论。"

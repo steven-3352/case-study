@@ -1,0 +1,51 @@
+review_task: task-phasea-50-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - insights/fact_check.md
+  - raw-export/raw/2026-07-14-bot.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - design/form_strategy.md
+  - design/form_competition.md
+  - design/visual_originality_gate.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/templates/d05_w30_*.html
+reviews:
+  - role: 事实校验员
+    reviewer_id: phasea50-d05-fact-checker-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "写入/读集/升格原件、部分通过像素和拒签边界"
+    score: 96
+    verdict: pass
+    evidence: |-
+      raw export支持journal落盘并提交、原入口回复无记录、目标文件不在入口读集，以及新事实从INBOX写入后升格到projects的链路。当前production没有沿用raw助手曾宣称的“原问题根治/端到端全通过”：repaired像素并列“写入升格｜通过”和“原入口复问｜待原件”，口播明确没有逐字复问原件所以不签通过。首句用“可能只是入口不读”，因果镜再要求写入位置+读集双证据，证据门槛准确。
+    deductions: |-
+      (-1) “新事实写入、升格已经跑通”只支持该子链，不等于原失败入口旧事实复问通过；当前像素已正确区分。(-1) “模型说记住了不算日志”是验收原则，不是该事件的直接数据结论。(-1) 自绘证物需标合成排版。(-1) 本条仅适用于自建工作流，不应外推所有AI产品。
+    fix: "任何短版和封面都必须保留‘原入口待原件/不签通过’；发布文案继续限定自建系统。"
+  - role: 形式选型师
+    reviewer_id: phasea50-d05-format-selector-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "QA验收台相对D04续集/终端vlog的任务匹配、收藏与原创性"
+    score: 95
+    verdict: pass
+    evidence: |-
+      黄色QA验收台把D05的核心任务从“解释根因”转换成“如何验收”：夹具表达写入不等于可读，检验尺区分报警与根因，01-03工位交付收藏清单，绿证+黄槽承载部分通过/拒签结局，三联卡承接评论。相较继续使用D04访问拓扑，它显著降低连续两条同质感；相较终端vlog，它对普通AI工具受众更可读且隐私风险更低。1.5x最大动作间隔约2.31s，无>4s冻结。
+    deductions: |-
+      (-1) 工业警示纹和机械动作需克制，不能盖过当前证物。(-1) qa scope 28px偏小。(-1) 绿/黄状态必须继续配文字，不能只靠颜色。(-1) storyboard末两镜时长仍过期。(-1) 比例动画在极端TTS拉长时会与固定SFX offset产生提前量。
+    fix: "保持每镜单工位赢家；提高scope字号；最终TTS后按具体像素动作校准QA三击，并同步末两镜时长。"
+overall:
+  score: 95.5
+  verdict: pass
+  blocking_issues: []
+  release_note: "两角色均通过；部分通过/整体拒签的事实边界落实到像素，QA验收台是当前最能区分D04并承载三步收藏物的形式。"

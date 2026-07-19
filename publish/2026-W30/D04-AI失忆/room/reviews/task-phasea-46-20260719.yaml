@@ -1,0 +1,66 @@
+review_task: task-phasea-46-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: W30D04
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - pipeline_config.yaml
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - insights/domain_notes.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - pipeline/p004_video/templates/d04_w30_record_hook.html
+  - pipeline/p004_video/templates/d04_w30_write_proof.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_missing_path.html
+  - pipeline/p004_video/templates/d04_w30_boundary.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea46-d04-network-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    evidence: |-
+      raw-export可回查目标journal及commit ced86c9、桌面代码检查得到的四项入口读集、目标journal不在注入列表，以及旧飞书入口“我这边没有记录”的现场。两端同机同仓库也在原始记录中，因此当前内容把因果放在入口读集而非网络同步是有依据的。外部Memory文档只说明不同产品有各自上下文机制，没有替本案例证明因果。
+    deductions: |-
+      (-3) 外部链接只有URL与转述，没有抓取快照和精确引文定位；(-2) hook benchmark是形式假设，不是平台热门样本；(-2) 事件来自单一自建系统，受众面天然偏窄。
+    remediation: "所有发布口径保留‘自建工作助理’范围；不得扩写成所有AI或跨设备失忆规律。"
+  - role: 记者
+    reviewer_id: phasea46-d04-reporter-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 96
+    verdict: pass
+    evidence: |-
+      最新稿按可核顺序陈述：同一记录两端答案冲突、内容已落盘并提交、旧bot只读四项来源、目标journal未注入，因此是读取路径缺失。第五句和边界镜都限定为这套自建工作助理，不承诺永久、不泛化平台。CTA“在哪个入口断档，评论留入口名”邀请观众提供自身场景，没有把评论预设成同一根因。
+    deductions: |-
+      (-2) “电脑端能找到”是文件/桌面检查结果，不是两个模型在同Prompt下的A/B，画面必须继续避免产品对照暗示；(-2) 自绘文件和commit节点不能冒充真实商业后台截图。
+    remediation: "保持‘桌面文件检查 vs 飞书bot回复’的证据性质；评论区案例只能作为线索，不能直接归因读集。"
+  - role: 选题深挖师
+    reviewer_id: phasea46-d04-topic-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      “同一条项目记录，一端有、一端没有”是无需理解代码即可进入的真实冲突；对跨入口做长期AI项目的进阶用户，记录已存在却无法续接是明确痛点。中段提供真正根因，尾段给临时journal与共同可读面的分层原则，CTA要求入口名，能沉淀具体工作流场景而非泛情绪互动。
+    deductions: |-
+      (-3) 入口读集、journal、项目索引连续出现，对普通抖音用户术语密度高；(-3) 现实损失没有具体量化，情绪强度主要来自工程冲突；(-2) 与D05共享同一事故，连续发布会有重复感。
+    remediation: "D04只承担‘为什么断’，不要加入D05三步验收；发布排序避免与D05紧邻。"
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90，当前content v2/form v3 Phase A证据审核通过；仅发布本自建系统的读取路径结论。"

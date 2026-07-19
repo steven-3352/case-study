@@ -1,0 +1,60 @@
+review_task: task-phasea-36-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+reviewed_artifacts:
+  - GAP_REPORT.md
+  - meta.yaml
+  - pipeline_config.yaml
+  - script/T042_配音稿_v2.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/external_references.md
+  - insights/questions_ab_evidence.md
+  - raw-export/raw/2026-07-15-bot.md
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea36-d03-network
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 92
+    verdict: pass
+    evidence: |-
+      当前磁盘的核心证据是两轮真实API A/B，不依赖外部文章替效果背书。questions_ab_evidence保留同模型、同system、同情境、请求/返回时间、response id、完整原始输出及request/response/content SHA256；两轮A均在首答内给出观察和建议，两轮B均只先问“你现在靠什么活着”。三步九问可在2026-07-15-bot.md第36-53及92-109行附近回查，第十问来自第128-131行验收信号的编辑问句化。
+    deductions: |-
+      (-3) 三个官方URL没有抓取日期、快照与精确段落定位，只能作为低权重机制背景；(-3) 实验仅一个模型、一个迷茫情境，不能外推其他模型和人群；(-2) queue中的平台流量判断没有随v2附原始帖子/API evidence。
+    remediation: "保持成片‘同一模型、同一情境、双轮’范围；外部官方文档不进效果论证，投后再用真人完整流程验证效用。"
+  - role: 记者
+    reviewer_id: phasea36-d03-reporter
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 95
+    verdict: pass
+    evidence: |-
+      当前pipeline与配音稿已把旧表述“第一屏就给方案”收窄为“首答内就给建议”，与原始A响应一致；B只问一个事实也有双轮原文。第二句立即声明只支持回答顺序变化，不代表更准或找到方向；第十问在scene data明确标“编辑补充·待真人结果验证”，最终拍板与现实验证归还给人。
+    deductions: |-
+      (-2) topic_brief仍写“普通问法首答直接给方案”，应同步成“首答内给建议”，避免上游摘要比成片更绝对；(-2) 口播“九问之后还有第十问”未直接念出编辑补充，依赖画面标注；(-1) 没有真人多轮完成九问后的结果证据。
+    remediation: "同步topic brief措辞；第十问标注必须在画面主层级可读，禁止在发布标题中写成实测有效验收法。"
+  - role: 选题深挖师
+    reviewer_id: phasea36-d03-topic
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 93
+    verdict: pass
+    evidence: |-
+      选题命中失业后在多个项目间来回跳的真实高压场景，冲突不是泛“AI能不能找方向”，而是信息不足时首答先建议还是先收事实。双轮反差提供可信钩子，九问与执行规则提供收藏物，第十问提供后段新回报；同时主动拒绝职业导师人设和效果承诺。
+    deductions: |-
+      (-3) “职业/项目选择”仍覆盖两种压力结构，首发场景需要锁定失业与三个方向；(-2) 九问密度高，价值容易被误读为普通清单；(-2) 第十问的实际行动价值仍待真人结果验证。
+    remediation: "用真实失业情境和A/B首答作为主叙事，九问只做带走物；标题强调‘先问事实’，不写‘帮你理清方向’。"
+overall:
+  score: 93.3
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；只允许发布首答组织变化，不允许发布九问效用提升。"

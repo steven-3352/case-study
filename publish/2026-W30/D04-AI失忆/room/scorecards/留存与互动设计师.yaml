@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 留存与互动设计师
+artifact: douyin/video.mp4
+artifact_sha256: 50be03a5857d22e1171b57b38328881bd6ee00bf5609bcbeed9cd6541e578917
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb09-d04-retention-interaction-w30d04-retention
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task09 · retention · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '首2s的“一端有/一端没有”具备明确认知冲突，2-5.92s迅速落到电脑端与飞书端，5.92-12.24s给落盘证据，12.24-25.53s逐层揭示读集缺口，兑现速度稳定。32.35-39.35s给共同可读面作为收藏点，39.35-45.55s用“入口名”降低评论成本，观众可直接回答飞书、网页、桌面或手机。
+
+
+    扣分：(-2) 12.24-32.35s连续20s都在解释路径，缺少新的情绪升级；(-2) CTA“入口名”低成本但讨论深度有限；(-2) 后半多段2-3s低变化会放大理性说明感；(-2)
+    封面和首屏都带底部字幕，信息流缩略图略拥挤。最小修法：投后若20s到达率掉点，先压四项读集列举，不删落盘证据和自建范围边界；置顶评论追问“哪个入口、丢的是哪类记录”。'
+- reviewer_id: phaseb11-d04-retention-interaction-w30d04-retention
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task11 · retention · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '0-2s先给一端有一端没有，2-5.92s立刻落到电脑端与飞书端冲突；5.92s后每段增加一份调查证据，25.53s给反转结论，32.35s交修法。末尾“评论留入口名”只需一个词，既降低互动门槛也能收集后续真实断档场景。
+
+
+    扣分：(-4) 12.24-25.53s工程术语连续出现，对泛AI工具受众有明显中段流失风险；(-3) 45.55s片长与理性调查结构使完播上限有限；(-2)
+    35.0-38.17s低变化3.17s，解决段视觉推进稍慢；(-1) 封面只呈现冲突，未露自建助理范围。改法：投后重点看12s、20s、29s到达率；若12-25s掉点，优先把四项读集压成“每轮只读固定四类文件”，不删29.2s范围限定。当前fail-closed通过。'
+avg_score: 91.0
+pass: true
+scorecard_phase: post_render

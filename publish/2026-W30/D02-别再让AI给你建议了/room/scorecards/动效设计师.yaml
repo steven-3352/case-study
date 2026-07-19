@@ -1,0 +1,46 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效设计师
+artifact: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb06-d02-motion-w30d02-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_06
+  reviewed_at: '2026-07-19'
+  angle: task06 · motion-design · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '最终MP4首镜用逆向红线把“6个月后计划失败”依次接到失败原因、已给事实、信息缺口，0s口播即启动；6.30s换到虚构计划，12.56s普通风险逐项列入，19.29s沿红色路径把原因接到事实/缺口，27.39s双轮票据揭示原因排序变化，34.88s
+    Prompt四行依次显现并轮换关键词高亮，46.95s四选一CTA继续完成末段互动。各场切点与MiniMax分段时间一致，没有字幕先于语义或动效晚于口播的明显错位。
+
+
+    -45dB冻结扫描的最长段为2.333-6.300s共3.967s，属于首镜三节点完全展开后的阅读态；全片等距抽帧没有黑帧、闪屏或布局抖动。音频最长低电平仅0.610s，节奏连续。
+
+
+    扣分与改法：
+
+    -3：首镜信息在约2.33s已基本展开，随后到6.30s约3.97s低变化，虽卡在4s上限内，但钩子后半段动效回报偏弱。
+
+    -2：19.29-34.88s连续采用路径与票据式理性说明，场景虽切换，运动语汇相近。
+
+    -3：34.88-46.95s Prompt镜以逐行进入和关键词高亮为主，12s收藏段的空间运动变化有限。'
+- reviewer_id: phaseb05-d02-motion-designer-w30d02-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task05 · motion-design · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '0-2.33s事故线节点和事实盒依次建立，6.30s切虚构计划，12.56s切普通风险清单，19.29s切真实倒推路径，27.39s切双轮票据，34.88s切Prompt逐条显现，46.95s切四选一，整片始终围绕“往回查”运动语法。入口、路径箭头、逐条清单和选项按压态都服务理解/收藏/评论；30fps成片没有黑帧、跳帧式错位或字幕跟场景断裂。
+
+
+    扣分：(-4) 冻结扫描显示2.333-6.300s连续3.967s，几乎触到4s边界，且正处首屏钩子后半，移动端用户可能在VO尚未结束前感到画面已经停止；(-2)
+    6.700-9.767s又有3.067s静止，前12.56s连续两个长静态窗口削弱“事故回放”的动态承诺；(-2) 35.4-46.967s的收藏段由多段2.0-2.27s静止拼成，安全但节奏规整；(-1)
+    50.033s后的末尾状态持续到结束且无freeze_end记录，CTA反馈略弱。改法：首镜在3.5-5.5s让事故箭头继续逆行或让三节点逐个回亮；计划事实用标记笔移动而非整页停留；CTA四选一完成后增加轻量“评论区接收”反馈。当前无超过4s冻结，不构成阻断。'
+avg_score: 91.5
+pass: true
+scorecard_phase: post_render

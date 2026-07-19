@@ -1,0 +1,67 @@
+review_task: task-phasea-39-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: T044
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/retention_beat_sheet.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/design_language.md
+  - design/motion_wow.md
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+  - pipeline/p004_video/shared/w30_d05.css
+reviews:
+  - role: 留存与互动设计师
+    reviewer_id: phasea39-d05-retention-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "2秒风险封条、3秒反转兑现、三工位收藏与不签字评论机制"
+    score: 93
+    verdict: pass
+    evidence: |-
+      0秒“最危险的不是AI没写/别急着判失忆”建立反常识开放环，2秒后夹具立即兑现“文件明明在/入口根本不读/写入≠可读”，3秒内完成问题反转。证物插槽、因果检验尺、01/02工位、03回问工位、绿证/黄槽和三联QA卡构成8镜持续推进；每个6–7秒镜内部均有stagger、尺标、回路、盖章或状态切换，满足2–4秒语义变化。收藏是可复现三步，评论可围绕“你的工作流卡在哪一步”，同时“证据缺一张不签通过”形成可信互动点。
+    deductions: |-
+      (-3) “最危险”没有对照数据，虽然有停划力，但比“最容易误判”更像强刺激标题。(-2) 首镜与第二镜连续两次大标题，需靠封条撕开→夹具合拢保证不是重复字幕卡。(-2) 证物来源坐标尚未常驻，可能削弱中段信任留存。
+    fix: "Phase B核首镜到夹具镜的动作连续性和3秒反转；双证物镜补来源类型/坐标后再做最终留存预测。"
+  - role: 形式策略官
+    reviewer_id: phasea39-d05-form-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜黑黄QA验收台、局部通过边界与近作差异"
+    score: 94
+    verdict: pass
+    evidence: |-
+      三方案竞争明确拒绝D04访问X光图续集和纯终端vlog，选择工业QA验收台并只嵌入局部真实证物。风险封条、机械夹具、双证物槽、因果尺、三工位、局部合格证和待验槽全部围绕检查/签字动作，形式与D03实验轨道、D04读取拓扑、D01票据和D02事故轴均有清晰差异。绿色只签“写入升格通过”，黄色保留“原入口复问待原件”，形式没有替证据宣布整体验收。
+    deductions: |-
+      (-3) `design_language.md`逐镜表仍按7镜，未登记新增danger_hook，v3形式契约尚未完全单一真源。(-2) repaired镜绿色结果未展开INBOX中间节点，收藏复现性略低。(-1) 同为硬边大字+动效，首镜需靠hazard/QA语言确保不落入通用短视频模板。
+    fix: "同步8镜设计契约；绿证可写明新事实写入→INBOX→升格；Phase B验证首镜专属hazard动作。"
+  - role: 视觉语言策展师
+    reviewer_id: phasea39-d05-visual-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "工业QA语言、状态色语义和禁AI味规则"
+    score: 92
+    verdict: pass
+    evidence: |-
+      黑、白、安全黄、报警红、通过绿组成工业QA语义色板；封条、夹具、方章、检验尺、工位和合格证是领域专属组件。没有机器人、拟人聊天、紫蓝渐变、玻璃卡、虚构产品UI、粒子背景或无意义3D。模板中的条纹渐变用于hazard警戒纹，因果尺渐变用于报警区到根因区的测量语义，不属于装饰性AI渐变；直角框和厚边线保持统一。
+    deductions: |-
+      (-3) 首镜仍是白色大框内的大字层级，专属感依赖黄色封条和warning条；真实像素若数据缺失会立刻退化为空卡。(-3) 视觉语言文档仍为7镜，未正式规定首镜封条的尺寸、颜色和转场关系。(-2) 绿色/黄色并列状态必须保持同级面积和停留，避免绿色视觉权重误导成整体通过。
+    fix: "用runtime data重抓首镜三帧并核非空；补8镜视觉语言；Phase B逐帧核绿黄同级状态和hazard渐变仅作语义区域。"
+overall:
+  score: 93.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；v3风险首镜与QA三工位留存链成立，局部通过/待验边界清晰，D05 Phase A pass。"

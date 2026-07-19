@@ -1,0 +1,28 @@
+status: pass
+review_source: independent_agent_tasks
+role: 纪录片导演
+artifact: design/storyboard.yaml
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea25-d01-documentary-evidence-chain-w30d01-documentary
+  review_mode: independent
+  reviewer_agent_id: task-phasea-25-20260719
+  reviewed_at: '2026-07-19'
+  angle: 原始实验可追溯性、逐字摘录伦理、事实与模型判断分层、结论外推边界
+  score: 96
+  verdict: pass
+  notes: 首镜A标题“计划评估：AI 内容代运营”和B开头均能回到Round 1原始响应，B的省略号同时标明为删节；后续两张票据使用与完整SHA256前缀一致的495913db、8b8d8507，使“跑了两轮”有真实审计锚点。影片从首屏常驻“同模型·同计划·举例测试”，案例镜再明确“虚构计划”，没有冒充作者经历或客户案例；结果始终写“本组调用·模型优先指出”，并在30至35秒主动展示“A组也发现同一风险”“不是一个发现、一个没发现”，没有把模型判断包装成客观真漏洞。完整Prompt与实验B组输入一致，控制变量和两轮结论也与证据文档互相支持。扣(-4)：信息流观众无法凭8位短哈希独立复算全文，只能把它当审计索引；首镜为停划只展示极短上下文，B摘录的“商业效果”含义须靠后续计划事实补足；“同一组生成参数”包括服务端默认值，严谨程度低于逐项显式锁值。纪录证据链和事实限定达到通过标准。
+- reviewer_id: phasea22-d01-controlled-test-documentary-w30d01-documentary
+  review_mode: independent
+  reviewer_agent_id: task-phasea-22-20260719
+  reviewed_at: '2026-07-19'
+  angle: 实验原件可追溯、事实与推断分层、纪录叙事伦理、画面证据兑现
+  score: 96
+  verdict: pass
+  notes: 叙事建立在四次真实调用记录上：请求配置、UTC、returned model、response id、完整响应和SHA256均可回查；两轮B的短哈希495913db与8b8d8507进入票据，首镜B摘录也与Round
+    1原文一致并明确省略号为删节。影片主动交代“举例测试·虚构计划”，不冒充作者辞职经历；30秒后明确承认普通问法也发现了风险，把纪录性建立在“优先级变化”而非伪造发现/未发现反差上；末句“AI负责提问，不替你拍板”守住模型输出不是现实真相的边界。扣(-4)：控制变量镜写“同一组参数”，而实验记录说明部分采样参数是同一服务端默认值而非显式锁值，画面虽不构成虚假但精确性仍可更高；首镜为了停划只展示极短的A标题与删节B句，纪录证据的完整上下文要到后续镜头才补足；片中短哈希适合可视化但普通观众无法在视频内完成独立核验。
+avg_score: 96.0
+pass: true
+scorecard_phase: pre_render

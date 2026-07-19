@@ -1,0 +1,65 @@
+review_task: task-phasea-41-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d03_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea41-d03-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "GSAP确定性seek、真实TTS窗口伸缩、freeze门与SFX运行时锚定"
+    score: 89
+    verdict: fail
+    evidence: |-
+      当前8个生产模板全部使用paused GSAP timeline并调用registerTimeline，capture_frames通过window.__renderFrame(t)确定性seek；runtime_storyboard按最终MiniMax window覆盖名义时长，SFX的scene_sid也按真实段起点重算，ambient按真实总长延展。大多数5-7s镜头使用Math.max(..., D-n)或贯穿D的位移，能够吸收TTS拉长。
+    deductions: |-
+      (-5) d03_w30_boundary在约2.62s后没有任何D相关可见动作；若真实TTS把该镜拉到约6.7s以上，尾部静止超过4s，直接触发freezedetect硬门。(-2) production末段目标7s，但storyboard仍6s，video target 40s而目标窗口合计41s，冻结前文档并未完全同时基。(-2) 技术计划写“7个D03专属HTML”，当前生产实际8镜，资产计数过期。(-2) 尚无最终TTS后的逐帧freeze报告，当前只能做代码级预测。
+    fix: "给boundary镜增加由D驱动的持续边界扫描或D-1s末段落章；同步storyboard末镜7s、target 41s与资产计数8；最终TTS后必须跑freezedetect并核最大静止段。"
+  - role: 动效设计师
+    reviewer_id: phasea41-d03-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "2-4s视觉变化、运动语义、手机文字容量与收藏停留态"
+    score: 88
+    verdict: fail
+    evidence: |-
+      首镜反转、首答标签汇流、边界杆、四列闸门、双靶窄门、三节点轨、第十问翻牌和出口票形成明确的8镜视觉层次；中段令牌运动与问题逐项出现基本满足2-4s变化，动效都服务顺序理解、证据边界或收藏，不是无意义装饰。
+    deductions: |-
+      (-5) prompt_exit把完整九问、4条规则、CTA和边界塞进同屏，正文仅22-23px，明显违背motion_tech_plan“最长句48px起”，自然播放和1080宽手机缩放下可读性不足。(-3) boundary镜三条落杆完成后缺持续语义动作，拉长时会显静态清单。(-2) survival_gate四问虽为39px，但2x2卡片加底部说明和字幕，长句存在拥挤风险。(-2) 末镜的“暂停可抄”需要完整停留态，但当前仍在D-1.1s加阴影，真正稳定截图时间偏短。
+    fix: "出口票拆为主规则卡与评论CTA两层，正文至少32-36px并减少同屏字数；边界镜增加持续扫描；末镜至少保留2s稳定截图态，字幕不要压住票据。"
+  - role: 动效分镜师
+    reviewer_id: phasea41-d03-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜音画映射、镜内节拍、TTS拉长预案与SFX命中"
+    score: 91
+    verdict: pass
+    evidence: |-
+      8段VO与8镜production config一一对应，2/4/5/6/5/6/6/7s任务从停划到理解、收藏和评论递进；whoosh分别命中三关，hit命中边界、第十问和出口票，scene_sid保证最终TTS变化后仍跟随正确镜头。动作节拍大多在镜头前半给信息、后半给运动或落章，未出现整镜无动作设计。
+    deductions: |-
+      (-3) 设计storyboard末镜仍写6s，与production 7s不一致。(-2) proof_hit静态t_start仍为0而镜头从2s开始，虽然runtime会被scene_sid覆盖，但冻结文档阅读易误导。(-2) boundary没有拉长预案。(-1) 末镜同时承担收藏和评论，画面赢家不够单一。(-1) 最终TTS尚未生成，SFX只能验证重算机制，不能验证实际听感。
+    fix: "冻结表同步末镜7s，并在audio plan说明t_start仅占位、scene_sid为唯一运行时锚；把出口票先完成收藏停留，再单独点亮评论数字。"
+overall:
+  score: 89.3
+  verdict: fail
+  blocking_issues:
+    - "boundary模板在真实TTS拉长后存在超过4s静止的代码级风险。"
+    - "prompt_exit正文仅22-23px且同屏信息过量，未达到手机可读门。"
+  release_note: "动效分镜师通过；动效技术导演89、动效设计师88，修复拉长冻结与末镜可读性后重审。"

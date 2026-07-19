@@ -1,0 +1,67 @@
+review_task: task-phaseb-02-20260719
+reviewer_agent_id: task-phaseb-02-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+content_version: v3
+phase: phase_b
+scorecard_phase: post_render
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - pipeline_config.yaml
+pixel_audit:
+  duration_s: 47.96
+  video: "1080x1920, 30fps, H.264 yuv420p"
+  audio: "AAC 48kHz mono; -17.36 LUFS; true peak -0.52 dBTP"
+  inspected_timestamps_s: [1.0, 4.2, 10.2, 16.2, 21.2, 29.2, 35.4, 42.0, 47.0]
+  motion_detection: "freezedetect -45dB/1.5s: 0.33-3.83, 4.37-9.70, 10.73-15.43, 16.17-20.97, 23.77-28.97, 30.23-35.13, 36.57-41.57, 43.73s-end"
+  subtitle_sync: "SRT边界与实测停顿对齐；3.82s、9.70s、15.45s、20.98s、28.98s、35.15s、41.57s均落在停顿或切镜附近"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb02-d01-motion-pixel-audit
+    reviewer_agent_id: task-phaseb-02-20260719
+    review_mode: independent
+    reviewed_at: "2026-07-19"
+    angle: "正式MP4逐段动态密度、转场兑现与音画同步"
+    score: 84
+    verdict: fail
+    notes: |-
+      实际复核47.96s正式MP4及9个关键时间点。0.0–3.82s放大镜游标没有提前泄露B答案，3.82s的答案进入、9.70s三把锁、28.98s双轮票据、41.57s CTA切换均与MiniMax口播句界及SFX停顿贴合，转场没有黑帧或字幕跳位；AAC实测-17.36 LUFS、-0.52 dBTP，无削波，口播段间留白可辨。
+
+      扣(-10)：freezedetect实测4.37–9.70s、23.77–28.97s、30.23–35.13s和36.57–41.57s均有约4.9–5.3s近乎完全静止，且其余多数镜头也在入场后冻结，未达到项目每2–4s视觉变化硬标准，成片更像逐页演示而非持续运动的视频。扣(-3)：20.98–28.98s Prompt镜的约5s静止有“暂停可抄”功能理由，但它紧接前一镜4.8s静止，形成连续节奏低谷。扣(-3)：35.15–41.57s诚实对照镜主要靠文字层级承载转折，缺少“普通问法也发现→差别只在第一句”的可见二次动作。
+
+      可执行改法：4.37–9.70s让A风险条按口播逐条压低、B核心假设在“右边”处单次锁定并于7s轻回弹；30.23–35.13s按“核心能力/结果验证”分别点亮票据与结论连线；36.57–41.57s先让“一个发现、一个没发现”被划除，再在“第一句”处完成红色定位。所有微动作间隔控制在2–3s，Prompt完整阅读窗保留至少4s静置。修改后须重渲染并由新独立 reviewer 复验，本轮不得外发。
+
+  - role: 视觉设计
+    reviewer_id: phaseb02-d01-visual-legibility-audit
+    reviewer_agent_id: task-phaseb-02-20260719
+    review_mode: independent
+    reviewed_at: "2026-07-19"
+    angle: "1080x1920逐帧可读性、视觉层级、字幕安全区与证据呈现"
+    score: 92
+    verdict: pass
+    notes: |-
+      逐帧查看1.0s A/B首屏、10.2s控制变量、16.2s三条事实、21.2s Prompt、29.2s双轮哈希、35.4s诚实对照及42/47s CTA。米白纸面、黑色主字、红色风险强调与绿色审计结论形成稳定而非单色的视觉语法；所有主标题、证据卡、短哈希、Prompt全文和CTA均在1080x1920安全区内，无裁切、重叠、黑帧或字幕压住正文。底部黑色字幕带在手机缩略尺度仍有足够对比，关键画面与口播语义一致。
+
+      扣(-4)：0.0–3.82s两栏原文摘录字号偏小，观众在不停播状态下只能读到首句轮廓，首屏的“真实证据感”强于“即时可读性”。扣(-2)：9.70–20.98s连续采用大面积留白加居中卡片，视觉重心变化有限。扣(-2)：统一黑底字幕带占据较强视觉重量，部分镜头下方同时还有灰色披露小字，层级略显拥挤。
+
+      可执行改法：首屏只保留A/B各一行核心开头并放大，删节说明留在栏脚；控制变量与事实镜让焦点卡沿不同轴线移动，减少连续居中构图；披露小字上移并与字幕带保持至少48px视觉间距。上述问题不造成像素门禁失败，视觉角色本轮通过。
+
+  - role: 编剧
+    reviewer_id: phaseb02-d01-script-vo-cut-audit
+    reviewer_agent_id: task-phaseb-02-20260719
+    review_mode: independent
+    reviewed_at: "2026-07-19"
+    angle: "正式成片叙事闭环、MiniMax口播节奏、字幕逐句对齐与事实边界"
+    score: 94
+    verdict: pass
+    notes: |-
+      正式MP4按0–3.82s提问、3.82–9.70s揭晓、9.70–20.98s控制变量与计划事实、20.98–35.15s可抄Prompt和双轮结果、35.15–47.96s诚实边界与CTA形成完整闭环。最重要的事实修正被清楚说出：“普通问法其实也发现了它”，没有继续售卖“只有致命漏洞问法才说真话”的伪结论；两轮结果只收束为本组调用的核查顺序，AI“不替你拍板”的边界也完整落地。
+
+      MiniMax成片音轨从0s起声，段间停顿与SRT句界基本同点，末句在47.96s前完整结束；未发现爆音、削波、首尾死音或字幕漏句。扣(-3)：47.96s只证明一个较窄的“第一句优先”差异，20.98–41.57s连续解释Prompt、双轮和边界，信息正确但中段论证偏长。扣(-2)：首句“核心假设”仍偏抽象，若观众没来得及读两栏，会晚到15.45s才通过辞职代运营场景完全落地。扣(-1)：CTA“最没验证的前提是什么”质量高但认知成本略高，评论门槛高于给出两个可选例子。
+
+      可执行改法：不改事实结论的前提下，将首句改为“哪份开头就指出：他会AI，不等于能帮客户涨粉？”；压缩控制变量一句与双轮解释约2–3s；CTA保留开放题，同时在输入框给“有人愿付费/我真能交付”两个短例。编剧角色本轮通过，但最终外发仍受动效角色fail约束。

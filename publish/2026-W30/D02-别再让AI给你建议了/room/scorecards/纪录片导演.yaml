@@ -1,0 +1,33 @@
+status: pass
+review_source: independent_agent_tasks
+role: 纪录片导演
+artifact: design/storyboard.yaml
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea26-d02-documentary-contract-recheck-w30d02-documentary
+  review_mode: independent
+  reviewer_agent_id: task-phasea-26-20260719
+  reviewed_at: '2026-07-19'
+  angle: Round 1逐字短摘、双轮结构归纳与未复测修订Prompt的来源分层
+  score: 97
+  verdict: pass
+  notes: '上轮失败的两处制作契约冲突均已修正。最新motion_storyboard明确规定14至21秒只展示“Round 1逐字短摘”，21至28秒才将两轮收束为结构层观察；这与pipeline_config及模板一致。14至21秒四段文字均能回查Round
+    1原始响应：“唯一的能力证据是负面的”、四周几乎零涨粉的支持事实、“完全没有获客这一环节”以及“计划中的缺失”；画面同时限定“不代表两轮原因相同”。21至28秒则用两枚短哈希、“具体原因与排序不完全一致”和“失败原因→依据”完成双轮层归纳，没有把不同轮文本拼成单次原话。
+
+
+    28至38秒的来源栏现已改为“根据实测暴露问题修订，非原实验输入”，并要求屏幕常驻“未单独A/B”。这与fact_check的红线、口播稿的事实护栏和prompt_strip底注完全一致，不再把补入“事实/信息缺口”的编辑修订版冒充原实验Prompt。扣(-3)：短哈希在信息流内仍只是审计索引，观众无法当场复算完整响应；但本次要求的原文、跨轮归纳与修订版三层证据边界已严格分开，纪录性门禁通过。'
+- reviewer_id: phasea22-d02-premortem-evidence-ethics-w30d02-documentary
+  review_mode: independent
+  reviewer_agent_id: task-phasea-22-20260719
+  reviewed_at: '2026-07-19'
+  angle: 真实调用证据、失败假设伦理、原文与编辑版分离、结论边界
+  score: 96
+  verdict: pass
+  notes: 影片没有沿用已被两轮反向结果否定的“小林人称更客观”命题，而是回到另一次双轮复合Prompt实验。Round 1路径四条文字均可在082eb54f原始响应中逐字找到，且画面标注“Round
+    1逐字短摘·不代表两轮原因相同”；21至28秒同时显示082eb54f与e5061fad，并明确具体原因和排序不完全一致。首镜把“半年后失败”标成方法假设和“不是结果预测”，虚构计划也在首次案例镜常驻披露；可抄Prompt进一步增加“已给事实/信息缺口”时，画面明确称其为根据实验问题修订且未单独A/B，没有伪造一次不存在的新实验。扣(-4)：Round
+    1原始B响应本身含“唯一能力证据是负面的”等模型判断，短摘镜虽标原文但部分观众仍可能把它当事实结论；双轮票据只展示哈希和共同结构，没有同屏展示Round 2不同首因，观众对“原因和排序变了”的理解主要依赖旁白；短哈希提供审计锚点但无法让信息流观众现场复核全文。
+avg_score: 96.5
+pass: true
+scorecard_phase: pre_render

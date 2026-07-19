@@ -1,0 +1,28 @@
+status: pass
+review_source: independent_agent_tasks
+role: 平台原生策划
+artifact: design/form_strategy.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea22-d02-douyin-failure-rewind-w30d02-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-22-20260719
+  reviewed_at: '2026-07-19'
+  angle: 抖音首屏动作性、4秒方法兑现、中段防塌、收藏和低门槛评论
+  score: 93
+  verdict: pass
+  notes: “半年后已经失败，先别救”在首句同时提供反常识冲突和动作指令；首镜0.5秒内启动倒放，节点、事实卡与信息缺口在约2.15秒完成第一次扣合，不把方法回报拖到结尾。七镜主构图从事故轴、事实证物、普通风险单、真实路径、双轮票据、Prompt长票到四选一便签持续切换，结尾“辞职/副业/创业/转行”显著降低评论成本。收藏段使用45px正文、四行编号和至少4秒全文常驻，并常驻“修订版未单独A/B”，既可抄又不牺牲可信度。扣(-7)：14至28秒连续两镜解释实验路径和双轮边界，方法受众之外的观众可能在28秒收藏物出现前流失；9至14秒风险清单和14至21秒路径卡都以文本条目为主，局部视觉语法重复；全片目标43秒且无BGM，节奏能量较依赖TTS重音与CC0打点，必须在Phase
+    B听成片而不能仅凭模板判定。
+- reviewer_id: phasea19-d02-douyin-accident-board-native-w30d02-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-19-20260719
+  reviewed_at: '2026-07-19'
+  angle: 首3秒具体回报、竖屏路径可读、节奏变化、收藏与低门槛互动
+  score: 93
+  verdict: pass
+  notes: “先别救，往回查它怎么死的”具备冲突和动作感，首镜不是抽象标题：三列节点、竖向连接线、事实卡和“不是结果预测”在3秒内完成首次方法展示。后续事实签、风险表、倒推轨、双轮票据、长Prompt票和便签投票每5至10秒更换主构图，镜内也有stagger、路径展开、关键词轮换；结尾四选一显著降低评论成本。Prompt全文以45px竖排常驻并明确“修订版未单独A/B”，收藏价值与可信度兼顾。扣(-7)：全片约43秒且14至28秒连续两镜都是证据解释，非目标受众可能在进入可抄Prompt前流失；普通风险镜与倒推路径镜都使用文本列表，视觉语法有局部重复；无BGM方案依赖TTS表演和CC0打点保持能量，必须在成片阶段验证首6秒响度与中段不塌。
+avg_score: 93.0
+pass: true
+scorecard_phase: pre_render

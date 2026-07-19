@@ -1,0 +1,62 @@
+review_task: task-phasea-23-20260719
+reviewer_agent_id: task-phasea-23-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - design/design_language.md
+  - pipeline/p004_video/templates/d01_w30_challenge.html
+  - pipeline/p004_video/templates/d01_w30_reveal.html
+  - pipeline/p004_video/templates/d01_w30_structure.html
+  - pipeline/p004_video/templates/d01_w30_reframe.html
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/templates/d01_w30_compressor.html
+  - pipeline/p004_video/templates/d01_w30_punchline.html
+  - pipeline/p004_video/templates/d01_w30_cta.html
+  - pipeline/p004_video/out/frames/ab_guess
+  - pipeline/p004_video/out/frames/compare_first_line
+  - pipeline/p004_video/out/frames/controlled_reveal
+  - pipeline/p004_video/out/frames/plan_facts
+  - pipeline/p004_video/out/frames/prompt_save
+  - pipeline/p004_video/out/frames/two_round_result
+  - pipeline/p004_video/out/frames/honest_difference
+  - pipeline/p004_video/out/frames/smoke_d01_08
+reviews:
+  - role: 留存与互动设计师
+    reviewer_id: phasea23-d01-retention-interaction
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "首3秒识别任务、每2至4秒焦点变化、中段证据接力、收藏静止段与开放评论摩擦"
+    score: 91
+    verdict: pass
+    notes: |-
+      逐帧抽查首镜起中末帧可见：第一帧已经给出“哪份开头就给核心假设”的单一任务，A/B原文卡在0.32秒内进入；当前模板让游标先在两侧中性往返，只在约2.7秒落到B，未再提前泄露答案。3至16秒依次用首句双栏、三把变量锁和计划事实票交接焦点，16至24秒完整Prompt展开后留出至少4秒静止，24至35秒再以双轮短哈希和“A也发现了”兑现可信边界，中段没有靠同一个开放环硬拖。末镜“最没验证的前提”比泛问计划更具体，评论头与示例把回答压缩成一句。扣(-9)：开放评论仍比四选一多一步自我诊断，且Prompt镜前半的逐行高亮之后有较长纯静止区；具体改法：成片保持“只写一个前提”和示例常驻，字幕不要遮Prompt，也不要在静止阅读期追加装饰运动。
+
+  - role: 视觉语言策展师
+    reviewer_id: phasea23-d01-visual-language
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "横向实验台的层级、文本可读性、运动语法变化与D02纵向事故板的视觉隔离"
+    score: 91
+    verdict: pass
+    notes: |-
+      完整场景帧显示暖白纸面、近黑正文、证据红与可信绿的职责稳定；原文、编辑归纳、短哈希和边界限定分别占据不同层级，长Prompt正文在1080x1920画布内清楚且没有被底部字幕盖住。八镜虽共享纸面材质，但双回答横排、锁、证物票汇流、整版诚实印章和评论输入槽的构图语法有变化；与D02的横向时间轴首屏、纵向红线倒推和黄虚线信息缺口在骨架上可一眼区分。扣(-9)：A原文只有一行、B原文多行，首屏和第二镜视觉重量天然偏右；24至35秒又连续出现票据/印章，仍有轻微看板连续感。具体改法：不得补写伪原文，只保持两栏等高并让游标中性扫视；双轮汇流与下一镜整版替换必须维持不同转场语法。
+
+  - role: 形式选型师
+    reviewer_id: phasea23-d01-format-selection
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "匿名原文辨认加受控实验台是否比录屏、纯证物台更适合当前窄结论"
+    score: 92
+    verdict: pass
+    notes: |-
+      当前内容要证明的不是“普通问法没发现”，而是“同模型同计划下，单点Prompt把核心假设放在第一句”。匿名原文辨认让观众先实际比较两份开头，3秒即可兑现；随后锁定变量、展示两轮短哈希并主动承认A也发现风险，形式与窄结论一致。相较完整聊天录屏，它降低了竖屏长文本和品牌UI噪声；相较纯纸面戏剧，它保留了观众选择动作和可回查证据。收藏Prompt与评论核查槽分别承接收藏、评论，形式没有只服务观赏。扣(-8)：A/B原文长度不等会让部分观众把“更长更具体”当成答案线索，纸面实验台也缺少真人或环境质感；具体改法：不篡改原文的前提下保持等高框和中性游标，正式成片用音效与焦点移动补触感，禁止添加无证据B-roll。

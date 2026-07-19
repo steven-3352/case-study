@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><link rel="stylesheet" href="../shared/w30_d05.css"><script src="../shared/gsap.min.js"></script><script src="../shared/gsap_helpers.js"></script>
+  <style>.scale{position:absolute;top:420px;left:80px;right:80px;height:150px;background:linear-gradient(90deg,var(--d5-red) 0 45%,var(--d5-yellow) 45% 70%,var(--d5-green) 70%)}.zone{position:absolute;top:590px;font-size:35px;font-weight:900}.z1{left:80px;color:var(--d5-red)}.z2{right:80px;color:var(--d5-green)}.cursor{position:absolute;top:360px;left:160px;width:30px;height:250px;background:#161616}.alarm{position:absolute;top:760px;left:80px;right:80px;padding:35px;font-size:44px;font-weight:900;border:5px solid var(--d5-red)}.proof{position:absolute;top:980px;left:80px;right:80px;padding:35px;font-size:39px;font-weight:900;border:5px solid var(--d5-green)}.reject{position:absolute;top:1200px;left:180px;right:180px;text-align:center;font-size:34px;font-weight:850}</style>
+</head>
+<body>
+  <div class="canvas"><div class="d5-kicker">因果门槛</div><div class="d5-title">答不上，只能先报警</div><div class="scale"></div><div class="zone z1">报警区</div><div class="zone z2">根因证据区</div><div class="cursor"></div><div class="alarm" id="alarm"></div><div class="proof" id="proof"></div><div class="reject" id="reject"></div><div class="subtitle" id="subtitle"></div></div>
+  <script>
+    const d=getData(),D=+d.scene_duration||6;alarm.textContent=d.alarm;proof.textContent=d.proof;reject.textContent=d.reject;subtitle.textContent=d.subtitle||'';
+    const tl=gsap.timeline({paused:true}).from('.scale',{scaleX:0,transformOrigin:'left',duration:.5}).from('.alarm',{x:-80,autoAlpha:0,duration:.35},.55).to('.cursor',{x:300,duration:.8},1).from('.proof',{x:80,autoAlpha:0,duration:.35},1.5).to('.cursor',{x:660,duration:Math.max(1.5,D-2.3),ease:'none'},2).from('.reject',{autoAlpha:0,duration:.3},2.4)
+      .to('.alarm',{backgroundColor:'#ffe0dc',scale:1.035,duration:.22},D*.34).to('.alarm',{backgroundColor:'transparent',scale:1,duration:.22},D*.48)
+      .to('.proof',{backgroundColor:'#d9f1e4',scale:1.035,duration:.22},D*.6).to('.proof',{backgroundColor:'transparent',scale:1,duration:.22},D*.76)
+      .to('.reject',{backgroundColor:'#f2c230',scale:1.06,duration:.22},D*.84).to({},{duration:D},0);
+    registerTimeline(tl);
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+review_task: task-phasea-33-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v2
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+  - pipeline/p004_video/templates/d04_w30_shared_surface.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 内核提炼师
+    reviewer_id: phasea33-d04-core-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "读取路径故障解剖、共同可读面修法与D05 QA验收分工"
+    score: 94
+    verdict: pass
+    evidence: |-
+      当前配音稿已删除“写到哪/入口读什么/修后回问”三步验收法。前五句只解剖一个真实故障：文件与commit存在，旧飞书入口读集却不包含目标journal。后两句的观众成果是将长期结论升格到两个入口共同读取的正式位置。D04回答“为什么看不见/应该放到哪”，D05回答“如何用三份证物验收”，内核分工已成立。
+    deductions: |-
+      (-3) “共同可读面”是自建系统设计语言，泛AI工具受众未必拥有`projects index`这类位置；范围声明必须在修法镜继续常驻。(-3) 结尾“临时记录留journal，长期结论再升格”是工程建议，属本项目实现而非跨产品普适规则，发布标题不得把它包装成所有AI的“永久记忆”方法。
+    fix: "共同可读面镜常驻‘本自建助理’；口播和发布包使用‘我这套系统的修法’，不使用通用平台教程语气。"
+  - role: 事实校验员
+    reviewer_id: phasea33-d04-fact-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "raw export写入回执、四项旧读集、同机同仓与项目范围"
+    score: 95
+    verdict: pass
+    evidence: |-
+      raw export 29-35行支持调研journal已落盘并进入commit `ced86c9`；83-99行支持旧`build_system`注入SELF、guidance、projects index和当天`-bot.md`标题，并排除目标journal和CLI私有记忆；1102-1104行支持旧飞书入口“没有记录”；187行支持两入口同机同仓，不是设备网络同步问题。口播与像素均未将该机制泛化为消费级AI产品。
+    deductions: |-
+      (-3) 首屏仍把“reddit调研记录”作为像素数据，而asset strategy又要求项目名脱敏；编辑尚未锁定授权原词或脱敏词。(-2) “电脑端能找到”是桌面agent读文件后的检查结果，不是同一模型Prompt的跨端A/B；模板必须继续使用“文件检查 vs bot回复”的证据类型标签。
+    fix: "进入asset log前锁定脱敏口径；对两端证物标注来源类型，禁止A/B实验视觉语义。"
+  - role: 形式选型师
+    reviewer_id: phasea33-d04-form-v2
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "访问X光图三方案竞争、共同可读面像素与D03/D05去同质"
+    score: 92
+    verdict: pass
+    evidence: |-
+      三方案真实比较了访问X光图、双设备孤岛动画和真实终端全片；B因与“同机同仓、读集不同”的真实因果相冲而被否决，C仅保留局部脱敏证物。当前form competition、form strategy、retention、motion storyboard、motion wow和design language的主体方法均已改成“临时journal→共同可读面→两入口”，可执行storyboard使用`d04_w30_shared_surface.html`。横向拓扑和扫描探针与D03纵向闸机、D05黑黄QA工位区分成立。
+    deductions: |-
+      (-3) `d04_w30_close.html`及少量辅助设计文字仍用“写入回执+读取清单”的双凭证构图，和D05的QA验收语义有轻度回潮；不过D04独有的共同可读面已在前一镜完整兑现，且口播没有教授D05三步法。(-3) `form_strategy.md`注意力尾句残留“三问”一词，应改为“共同可读面”，避免文档漂移。(-2) 读集模板连续扫描7s，需在最终TTS下核每项停留与移动端可读性。
+    fix: "render前将close镜改成共同可读面的缩略收束，并清理form_strategy残留‘三问’字样；Phase B核四项读集停留。"
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90，D04已与D05完成内容分工并以共同可读面为主方法，Phase A pass；收尾双凭证语义宜在render前清理。"

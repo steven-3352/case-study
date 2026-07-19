@@ -1,0 +1,55 @@
+review_task: task-phasea-15-20260719
+reviewer_agent_id: task-phasea-15-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T040_录音提词稿_v4.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - design/实测_致命漏洞法.md
+  - pipeline/p004_video/templates/d01_w30_challenge.html
+  - pipeline/p004_video/templates/d01_w30_reveal.html
+  - pipeline/p004_video/templates/d01_w30_structure.html
+  - pipeline/p004_video/templates/d01_w30_reframe.html
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/templates/d01_w30_compressor.html
+  - pipeline/p004_video/templates/d01_w30_punchline.html
+  - pipeline/p004_video/templates/d01_w30_cta.html
+reviews:
+  - role: 形式选型师
+    reviewer_id: phasea15-d01-format-fit
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "匿名原文辨认题与横向实验台是否是本证据命题的最短可视化路径"
+    score: 90
+    verdict: pass
+    notes: |-
+      当前首屏使用Round 1两份真实开头摘录，A为原响应标题“计划评估：AI 内容代运营”，B为“最致命的漏洞”首句短摘，问题改成“哪份开头就给核心假设”，观众无需理解复杂实验即可在首屏作答；3秒后立即进入“全面评估/第一句单点”的解释，形式与“只比较核查顺序”的窄结论贴合。横向双栏、控制变量锁、证物票、双轮票据形成完整实验台，且与D02纵向事故倒推板没有骨架复用。扣(-10)：A/B摘录长度天然不等，游标又在约2秒前落向B，会让少量竞猜张力提前泄出；具体修正：最终渲染保持两侧同一可视高度，游标在3秒答案点之前只做中性扫视，答案点再落B，不改原文也不制造公平性假象。
+
+  - role: 留存与互动设计师
+    reviewer_id: phasea15-d01-retention-payoff
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "3秒选择回报、16秒收藏接力、30秒可信反转与开放评论成本"
+    score: 91
+    verdict: pass
+    notes: |-
+      第一帧即给可判定任务，3秒口播明确回答“右边”，7秒前解释为什么；此后11秒虚构计划事实、16秒完整Prompt、24秒双轮结果、30秒主动承认A也发现风险，几乎每2至4秒都有构图、状态或焦点交接。Prompt先分段展开，随后全文静止至少4秒，首句粗体、粘贴槽绿边和“暂停可抄”共同构成不打扰阅读的静态高亮；35秒评论槽还给出“有人真的愿意付费吗”示例。扣(-9)：末尾“你准备重投的计划”仍比D02四选一多一步回忆和组织语言，评论成本偏高；具体修正：保留开放问题，但最终字幕常驻“只写一个前提”与现有示例，发送按钮不得抢在问题和示例读完前放大。
+
+  - role: 形式策略官
+    reviewer_id: phasea15-d01-system-coherence
+    reviewer_agent_id: task-phasea-15-20260719
+    review_mode: independent
+    angle: "全片形式是否持续服务停划、理解、收藏、信任和评论五个数据杠杆"
+    score: 92
+    verdict: pass
+    notes: |-
+      八镜均能明确对应数据杠杆：原文辨认服务3秒停划，锁与事实票服务理解，完整指令服务收藏，带短哈希的双轮票据和“A也发现了”服务信任，最后核查槽服务评论；没有为了展示技术而插入无关B-roll或商业模型UI。16至24秒有意降低运动、24秒重新聚拢证据、30秒用诚实边界制造第二次认知变化，中段不依赖单一字幕墙维持。扣(-8)：全片证据纸张与卡片占比仍高，24至35秒若只按模板默认动作渲染，票据到印章可能产生连续看板感；具体修正：双轮段必须保留原文短摘的逐行框选和向心汇入，诚实边界则用整版替换而非再叠一张卡，确保两段运动语法不同。

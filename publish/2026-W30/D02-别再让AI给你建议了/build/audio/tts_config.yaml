@@ -1,0 +1,65 @@
+jitter: true
+minimax:
+  api_host: https://api.minimaxi.com
+  channel: 1
+  emotion_arc:
+  - happy
+  - sad
+  - happy
+  - neutral
+  format: mp3
+  language_boost: Chinese
+  mode: async
+  model: speech-2.8-turbo
+  pitch: 0
+  sample_rate: 32000
+  speed: 1.0
+  voice_candidates:
+  - id: Chinese (Mandarin)_Radio_Host
+    label: 电台男主播
+  - id: Chinese (Mandarin)_Gentleman
+    label: 温润男声
+  - id: Chinese (Mandarin)_Sincere_Adult
+    label: 真诚青年
+  - id: Chinese (Mandarin)_Southern_Young_Man
+    label: 南方小哥
+  - id: Chinese (Mandarin)_Reliable_Executive
+    label: 沉稳高管
+  - id: male-qn-badao
+    label: 霸道青年（当前选用）
+  voice_id: Chinese (Mandarin)_Sincere_Adult
+  vol: 1.0
+output:
+  format: mp3
+  sample_rate: 24000
+  save_params: true
+pitch: -2Hz
+pitch_options:
+- -3Hz
+- -2Hz
+- -1Hz
+provider: minimax
+rate: +15%
+rate_options:
+- +12%
+- +14%
+- +15%
+- +16%
+- +18%
+script_extract:
+  markers:
+  - '**口播：**'
+  - '**口播（续）：**'
+voice: zh-CN-YunjianNeural
+volcengine:
+  api_base: https://openspeech.bytedance.com
+  cluster: volcano_tts
+  encoding: mp3
+  speed_ratio: 1.0
+  voice_type: zh_male_M392_conversation_wvae_bigtts
+volume: -2%
+volume_options:
+- -4%
+- -3%
+- -2%
+- -1%

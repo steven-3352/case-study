@@ -1,0 +1,30 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效技术导演
+artifact: design/motion_tech_plan.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea48-d05-motion-tech-v3-w30d05-motion-tech
+  review_mode: independent
+  reviewer_agent_id: task-phasea-48-20260719
+  reviewed_at: '2026-07-19'
+  angle: 8镜QA比例分拍、绝对seek和1.5x冻结风险
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-2) 正式form v3最终MP4的freezedetect尚待Phase B。(-2) 分镜未显式记录比例拍点。(-2) 正式timing下SFX偏移需实测，尽管scene_sid重算架构正确。
+    改法：正式VO后生成8镜runtime并归档freeze、seek和SFX同步结果。 依据：8模板全部使用paused GSAP、动态D、registerTimeline和绝对seek。alarm最终按12%/30%/62%/82%分拍；evidence_pair、write_check、repaired、qa_card分别用6%–84%的比例事件覆盖窗口，1.5x下相邻语义动作最大约2s。causality与retest还有贯穿D的尺标和回路运动，所有镜均低于4s门槛。
+- reviewer_id: phasea47-d05-motion-technical-director-v3-w30d05-motion-tech
+  review_mode: independent
+  reviewer_agent_id: task-phasea-47-20260719
+  reviewed_at: '2026-07-19'
+  angle: 最终1.5x QA节拍、确定性seek、freeze门和SFX runtime
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) storyboard repaired/qa仍各6s，production均7s。(-1) 冻结表合计42s而target44s。(-1)
+    qa静态起点36与production37双写，虽runtime覆盖。(-1) 最终成片freeze报告尚未生成。 改法：同步末两镜7s；注明scene_sid为唯一时基；最终TTS后输出freeze和SFX事件报告。
+    依据：8个生产模板全部采用paused GSAP timeline并registerTimeline。alarm、evidence_pair、write_check、repaired和qa_card按D比例分布动作；causality/retest以贯穿D的尺标或回路运动覆盖长镜，短镜有D末段动作。1.5x下比例镜最大间隔约2.31s，连续镜运动至D-0.3/0.4s，无>4s冻结。runtime按真实TTS重建duration、scene_sid重算音效、ambient自动延长。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

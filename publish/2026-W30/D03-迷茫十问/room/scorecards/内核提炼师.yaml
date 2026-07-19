@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 内核提炼师
+artifact: insights/core_message.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea49-d03-core-v3-w30d03-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 内核提炼师 · 内核始终是“信息不足时先收事实还是先给建议”，不是九问能否替人找到方向。普通问法与流程问法只比较
+  score: 92
+  verdict: pass
+  notes: 扣(-8)。 (-4) “逼到行动”可能诱发效用误读；(-2) 第10问的编辑属性只在像素标签中，没有被口播念出；(-2) 单模型、单情境、双轮不支持普遍规律。
+    改法：发布标题与文案只写首答顺序差异，不写更有效、能理清方向或产生行动。 依据：内核始终是“信息不足时先收事实还是先给建议”，不是九问能否替人找到方向。普通问法与流程问法只比较首答组织，口播明确排除更准和找到方向；完整Prompt提供可复制方法，第10问只作为编辑待验标准，最后把拍板与现实验证交回用户。
+- reviewer_id: phasea43-d03-core-v3-w30d03-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-43-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-43-20260719 · 内核提炼师 · 内核稳定聚焦“信息不足时，AI首答先建议还是先收事实”，而不是宣称九问能替人找到方向。口播第二句
+  score: 92
+  verdict: pass
+  notes: 扣(-8)。 (-4) “逼到行动”仍会让部分观众把输入设计误读成已验证效果；(-2) 第10问虽有像素标签，口播没有直接念出其编辑属性；(-2)
+    双轮只能支持当前模型、当前情境下的首答组织变化。 改法：发布文案继续只写首答顺序变化；不得把第10问包装成已验证验收指标。 依据：内核稳定聚焦“信息不足时，AI首答先建议还是先收事实”，而不是宣称九问能替人找到方向。口播第二句明确排除更准和找到方向，尾句把拍板与验证交还用户；第10问在画面标注“编辑补充·待真人结果验证”。完整Prompt提供可复现方法，主张与价值交付分层清楚。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render

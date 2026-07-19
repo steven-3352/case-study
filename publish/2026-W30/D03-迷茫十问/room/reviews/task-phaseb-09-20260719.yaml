@@ -1,0 +1,84 @@
+review_task: task-phaseb-09-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: W30D03
+content_version: v2
+form_version: v3
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/video_no_bgm.mp4
+  - douyin/subtitles.srt
+  - douyin/cover.png
+inspection:
+  actual_mp4_checked: true
+  video_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+  duration_s: 48.73
+  video: "H.264 High, 1080x1920, 30fps"
+  audio: "AAC mono 48kHz；-17.5 LUFS integrated；-0.3 dBTP true peak"
+  freezedetect: "实际执行 freezedetect=n=-45dB:d=1.5；最长5.167-9.167s，恰好4.00s，未超过>4.00s硬门；其余检出段均<=2.03s"
+  silence_scan: "实际执行 silencedetect=n=-45dB:d=1.5；无>=1.5s静音"
+  black_scan: "实际执行 blackdetect=d=0.2:pix_th=0.10；无黑帧段"
+  visual_sampling: "实际检查约3s间隔全片contact sheet，并复核0.4s/1.5s/2.7s首屏、42.0s/46.5s完整九问与CTA关键帧"
+  subtitle_check: "实际读取16条SRT并核对烧录字幕；0.000-48.740s连续覆盖，尾端仅比容器时长多约0.007s，无可见截断或越界"
+  cover_check: "实际查看1080x1920封面；同题双轮、两种首答顺序与先建议/先问事实均清楚，但底部烧录字幕位于平台UI高干扰区"
+  fact_boundary_check: "沿用v2边界：只声称两轮中首答组织顺序变化；明确不代表更准、更有用或能找到方向；第10问标为编辑补充并待真人结果验证"
+forecast:
+  data_level: B
+  status: pre_publish_estimate_not_post_publish_actual
+  completion_3s: "55%-64%"
+  completion_rate: "28%-35%"
+  grade: B
+  go_no_go: go
+  rationale: |-
+    首屏0s即出现“同一个问题/两种首答顺序”和双轮实测标签，2.83s切入先建议/先问事实对照，具备方法型停划；下限考虑VO前2.83s只说“跑了两轮”，未给迷茫场景的具体代价，画面主要是静态大字。完播回报依次为双轮差异、证据边界、三关九问、第10问和完整可抄指令；下限考虑48.73s片长、9.18-15.53s先讲反夸大边界会压低前段推进感，以及末段完整九问必须暂停阅读。区间为无本账号同题近期基线的B级发布前估算，不是实测。
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb09-d03-motion-designer
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      八镜分别使用双轮计数、首答分轨、证据边界杆、生存事实闸、双靶目标、三节点行动轨、第10问终检门和出口票，视觉任务随内容推进而换形；0.4s/1.5s/2.7s首屏、全片contact sheet及42s/46.5s末镜均未见黑屏、撕裂、溢出或字幕遮住主体。蓝色轨迹、节点与逐项显现都服务“先问事实”和九问结构，不是无关装饰。
+
+      扣分：(-4) 5.167-9.167s自动冻结恰好4.00s，贴住硬线，且该段承担首答对照，低注意力观众会感到停住；(-3) 首镜0.7-2.4s也被检出1.70s静止，主要变化只有底部选择条颜色；(-3) 40.52-48.73s完整九问虽然逐组显现，但大面积白底和密集文字更像暂停页。最小修法：若返修，在5-9s让两条首答路径持续流动或逐字落签；末镜保留全文但加入不遮字的组别进度。当前没有>4.00s冻结，故不构成技术阻断。
+  - role: 编剧
+    reviewer_id: phaseb09-d03-writer
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 94
+    verdict: pass
+    notes: |-
+      叙事从双轮实测进入，先交代普通问法首答给建议、流程问法先问“靠什么活”，随后主动把结论收窄到回答顺序，再交付生存事实、目标边界、行动验证九问和编辑补充的第10问。完整指令与“AI先问事实，人来拍板”构成可复现方法和清晰责任边界，没有把两轮首答差异夸成效用提升。
+
+      扣分：(-2) 前2.83s口播“跑了两轮”没有立即说出普通问法与流程问法的冲突；(-2) 9.18-15.53s连续三句否定虽严谨，但在事实差异刚出现后占时偏长；(-2) “买方还是卖方”对泛迷茫受众需要上下文才能理解。改法：后续首句可直接说“同一个迷茫问题，一版先建议，一版先问靠什么活”；不删“不更准/不更有用”和第10问编辑补充标记。
+  - role: 留存与互动设计师
+    reviewer_id: phaseb09-d03-retention-interaction
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 91
+    verdict: pass
+    notes: |-
+      2.83s内给出同题双轮任务，2.83-9.18s用两条首答路径兑现差异，15.53s后连续用4问、2问、3问分组降低理解负担；34.52s的第10问重新制造自我审视，40.52-48.73s完整清单服务收藏，CTA把评论动作压到01-09单个数字，映射在同一画面可执行。
+
+      扣分：(-3) 首3s只有“跑了两轮”，对不关心Prompt实验的人缺少情绪代价；(-2) 证据边界在9.18-15.53s提前连续出现，可能削弱刚建立的好奇；(-2) 末镜正文自然播放难逐字消化；(-2) CTA虽低成本，但“最卡哪一问”需要观众先读完九个编号。最小修法：投后若3s低于55%，下一版将“先建议/先问靠什么活”直接放进首句；若评论弱，置顶评论列01-09短标签。
+  - role: 平台表现分析师
+    reviewer_id: phaseb09-d03-platform-performance
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    score: 90
+    verdict: pass
+    notes: |-
+      1080x1920、H.264/AAC、烧录字幕和独立SRT满足抖音交付；全片无黑帧、无>=1.5s静音，最长冻结恰好4.00s未越硬线。0-3s双轮差异服务3s完播，15.53-34.52s三关九问服务理解，40.52-48.73s完整指令服务收藏，编号CTA服务评论。预测3s完播55%-64%、完播率28%-35%，综合B级，go。
+
+      扣分：(-3) 48.73s高于知识型38-45s默认段，前15.53s才进入可操作九问；(-3) 首屏大字是方法描述，不是具体迷茫场景；(-2) 封面底部烧录字幕接近平台标题/UI区；(-2) 无本账号同题同长度近期基线。外发文案必须保留“双轮只证明首答顺序变化”和“第10问为编辑补充”，不得把预测写成实测。
+overall:
+  score: 91.3
+  verdict: pass
+  blocking_issues: []
+  release_note: "四角色均>=90；当前SHA技术QC与v2内容边界通过，B级发布前预测可外发，投后需回填真实指标。"

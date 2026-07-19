@@ -1,0 +1,71 @@
+review_task: task-phaseb-01-20260719
+reviewer_agent_id: task-phaseb-01-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_b
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - douyin/video.mp4
+  - douyin/subtitles.srt
+  - build/audio/seg_timing_w30d01.json
+  - build/audio/tts_config.yaml
+  - build/audio/audio_plan_runtime.yaml
+  - build/runtime_storyboard.yaml
+technical_evidence:
+  video: "H.264 High, 1080x1920, yuv420p, 30fps, 1436 frames, video 47.866667s; container/audio 47.960s"
+  audio: "AAC-LC mono 48kHz; integrated -17.36 LUFS, true peak -0.52 dBTP, LRA 1.30 LU"
+  minimax_timing: "engine=minimax; 8段真实TTS总时47.96s；每段vo_dur与scene window余量0.12s，Prompt镜余量1.70s"
+  silence: "自适应门限-27.80dB下未见3s死区；用-38.02dB/0.5s复查最长低电平2.105s（27.100-29.205s）"
+  subtitle: "14个cue，0.000s起、47.960s止，文本与MiniMax分段台词一致"
+  extracted_frames: "实际MP4按0.5/3.5/6/10.5/16/22/26/30/36/42/47s抽帧，并以3s间隔制作16格contact sheet"
+reviews:
+  - role: 动效设计师
+    reviewer_id: phaseb01-d01-motion-render
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "成片像素变化频率、首屏停划与音画节拍"
+    score: 84
+    verdict: fail
+    notes: |-
+      优点：0-3.82s用A/B原文对照直接出题，3.82s答案翻面与hit同拍；9.70s控制变量、15.45s计划事实、20.98s Prompt、28.98s双轮凭证、35.15s诚实边界和41.57s CTA均有明确换镜/SFX节点，音频从0s进人声，无≥3s静音、无黑屏。
+
+      扣(-10)：实际MP4的freezedetect（-50dB，d=2.5s）报告0.333-3.833s像素不变，与分镜所述“光标游走、末0.3s落B”不一致；首屏在0.33s后基本成为静态截图，削弱停划。改法：修正光标动画的渲染时钟，在0.4/1.3/2.2/3.5s产生可见位移，且仅最后0.3s落在B。
+
+      扣(-6)：除收藏型Prompt镜可主动静置外，成片仍有4.400-9.700s（5.30s）、10.933-15.433s（4.50s）、16.233-20.967s（4.73s）、30.433-35.133s（4.70s）、36.500-41.567s（5.07s）长时间像素不变，未达项目“每2-4s视觉变化”硬要求，中段容易读成PPT。改法：对照镜在6.2/8.0s逐项扫描，控制变量镜按三锁逐个状态翻转，双轮镜先出哈希再合并结论，诚实对照镜增加删线→结论条的两段变化。
+
+      结论：专属实验台隐喻和场景节点成立，但正式成片不能用Phase A设计承诺替代像素验收；本轮低于90，须重渲后独立复评。
+
+  - role: 视觉设计
+    reviewer_id: phaseb01-d01-visual-render
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "手机端可读性、视觉层级、安全区与证据感"
+    score: 92
+    verdict: pass
+    notes: |-
+      0.5s抽帧中，问题、A/B标签、两份开头原文和“同模型·同计划·举例测试”层级清楚；22-26s纸面Prompt完整入框，标题、正文、高亮与“暂停可抄”不重叠；30s双哈希凭证、36s诚实对照和47s评论输入框均保持视觉焦点。底色、红色实验标记、绿色边界标记各自有语义，主信息未侵入右侧交互区或底部平台文案区。
+
+      扣(-4)：小屏实看时，Round卡的哈希/资格说明与多个底部披露字号偏小，能建立“有凭证”感，但很难在不暂停时读出。改法：哈希保留8位但字号上调10%-15%，底部披露改为单行高对比简句。
+
+      扣(-4)：外挂SRT虽与台词对齐，但存在“核\n心”、“区\n别”等词内硬换行，且9.700s cue的逗号被挤到下行行首；开启平台字幕时会显得粗糙。改法：按意群重分cue，禁止标点行首和词内断行，每行保持完整短语。
+
+      结论：成片主视觉已达手机端可外发水平；扣分集中于次要证据字号和外挂字幕断行，不影响本角色达90。
+
+  - role: 编剧
+    reviewer_id: phaseb01-d01-script-listen
+    reviewer_agent_id: task-phaseb-01-20260719
+    review_mode: independent
+    angle: "成片叙事弧、实测边界、可复现价值与VO时序"
+    score: 93
+    verdict: pass
+    notes: |-
+      成片从0-3.82s的“只看开头”对照题，经3.82-15.45s答案与控制变量，15.45-28.98s具体计划与可抄Prompt，28.98-41.57s双轮结果与诚实反转，最后收在讨论型CTA，起承转合完整。信息边界清楚：明说“普通问法也发现了它”，只主张核查顺序的差别；“AI负责提问，不替你拍板”没有将实测外推成决策真理。Prompt可直接复制，两轮哈希和原文短摘进片，不是空口概念。MiniMax真实时序为8段/47.96s，每段台词与SRT文本一致，切镜都留有0.12s或更多余量，未裁字。
+
+      扣(-4)：首屏B文案直接出现“最致命的漏洞”和“假设”，题目答案在语义上过于显眼，猜题张力弱于真实的对照判断。改法：保留原文不篡改，但在0-2.5s先只露两份各自第一行的中性片段，2.5s后再拉开B的完整原句。
+
+      扣(-3)：47.96s只支撑一个“核查顺序”结论，9.70-20.98s对“同模型/同计划”和计划事实的解释稍慢，与短视频完播目标存在小幅张力。改法：不删事实护栏，将“同一模型/同一份计划”并入一句，将计划三条改为一个紧凑对比句，目标减2-3s。
+
+      结论：脚本很诚实，有实验证据、可复现Prompt和决策边界；两项扣分是留存优化，未破坏内容门。

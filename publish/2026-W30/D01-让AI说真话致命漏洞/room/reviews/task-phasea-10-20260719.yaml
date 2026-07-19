@@ -1,0 +1,29 @@
+review_task_id: task-phasea-10-20260719
+reviewer_agent_id: task-phasea-10-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+phase: pre_render
+project_id: W30D01
+content_id: T040
+read_only_review: true
+roles:
+  - role: 动效技术导演
+    angle: "真实 TTS 扩窗、运行时分镜与 CC0 音效混音链的可执行性"
+    score: 58
+    verdict: fail
+    notes: |-
+      HTML 场景均使用本地 GSAP、paused timeline 和 transform/autoAlpha，runtime storyboard 也会按 MiniMax 实际分段 window 回填，确定性渲帧路线本身可行。但当前 audio_plan 与实际 mixer 的输入契约不兼容：计划写 time/time_sequence，混音器硬读 sid/t_start/t_start_seq；soft_whoosh、swap、confirm、click 也不在 catalog family 中，现状会在混音阶段直接异常或形成未解析 gap，而 build 又规定任一 gap fail-close。扣(-24)：正式 render 无法完成。另扣(-10)：脚本和 scene 目标合计 40 秒，audio_plan 仍写 43 秒且音效排到 40.7 秒；真实 TTS 一旦前段扩窗，后续绝对时间音效不会随 segment timing 重排。扣(-8)：motion_tech_plan 仍写真实文本 JSON 未生成，与当前 pipeline 内嵌数据状态不一致。修正：把两条音效计划统一成 mixer 的 sid/kind/t_start 或 t_start_seq schema，并只用 catalog 已登记 kind；从最终 seg_timing 累加生成音效时间，随后做全模板首/中/末帧 smoke、实际时长与尾帧核验。
+
+  - role: 动效设计师
+    angle: "八镜视觉动作是否兑现 A/B 实验、阅读段与音画拍点"
+    score: 84
+    verdict: fail
+    notes: |-
+      八个专属模板已形成横向 A/B、控制锁、事实证物、双轮汇流和诚实印章的连续视觉语法，Prompt 镜把字幕移到顶部并保留后半静止，可读性和与 D02 的形式隔离总体成立。扣(-6)：首镜没有音频计划承诺的 3-2-1 倒计时，只是游标左右移动，三个 tick 缺少可见拍点，且两栏首句、问题、披露和底部字幕同时争夺三秒注意力。扣(-4)：双轮结果模板只显示 Round 票据与同一归纳句，没有 response id、短哈希或逐字首句，观众无法从画面验证“双轮第一优先一致”。扣(-3)：storyboard 标 40 秒、audio_plan 标 43 秒，35 秒后的 CTA 动作和 39 秒音效无法形成稳定音画契约。扣(-3)：模板把所有字幕作为整段静态句一次性常驻，尚未证明与句级 SRT 同步且不造成重复阅读。修正：让首镜 tick 对应可见倒计时或删除 tick；双轮票据加入短 ID/首句证据；以实际 TTS window 重排每镜内部动作和字幕后再做像素检查。
+
+  - role: 编导
+    angle: "受控实验叙事、事实边界与四十秒口播回报"
+    score: 91
+    verdict: pass
+    notes: |-
+      现稿已从虚假个人经历改为明确的虚构计划受控测试，主动承认普通问法也发现同一风险，并把结论严格限定为“本组调用中模型优先指出”，没有把模型输出冒充客观真漏洞；40 秒内依次给选择、控制变量、完整 Prompt、双轮结果和边界 CTA，核心方法可复现。扣(-4)：首问“哪份只核查一个前提”依赖观众从两条短句反推任务约束，A 的首句同样只呈现一个判断，三秒内并不存在足够清晰的可验证答案。扣(-3)：片名和 Prompt 继续使用“最致命/致命漏洞”，虽然后段有限定，首屏仍可能先形成客观唯一答案的误解。扣(-2)：完整 Prompt 的口播只说缩略句，画面却一次承载四段正文，听读任务不完全一致。修正：首问改成可直接由首句判断的“哪份先锁定一个待验证前提”，首屏常驻“本组调用的优先项”；Prompt 镜用三处关键词高亮引导阅读，并确保最终决策在人这一边界在字幕和画面都可见。

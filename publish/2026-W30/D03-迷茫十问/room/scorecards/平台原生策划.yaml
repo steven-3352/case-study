@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 平台原生策划
+artifact: design/form_strategy.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea52-d03-platform-v3-w30d03-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-52-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-52-20260719 · 平台原生策划 · 0–2秒首屏直接给出“同一个问题/两种首答顺序”和“先建议↔先问事实”，约0.48秒出现主标题、
+  score: 93
+  verdict: pass
+  notes: 扣(-7)。 (-3) CTA要求评论数字，但九问没有逐项编号；(-2) “最后逼到行动”可能让观众误读为已经证明行动效果；(-2) 末镜信息量大，天然更依赖暂停收藏。
+    改法：发布文案不得宣称找到方向或促成行动；评论区可补九问编号，最终实片不得通过缩字解决末镜阅读压力。 依据：0–2秒首屏直接给出“同一个问题/两种首答顺序”和“先建议↔先问事实”，约0.48秒出现主标题、约0.75秒出现对照条；2秒即进入同题双轮证物，因此3秒前冲突已经完整成立。中段以4+2+3三关持续增加新信息，末镜给完整可收藏Prompt，并用“最卡哪一问？评论留数字·人来拍板”降低互动门槛。
+- reviewer_id: phasea51-d03-platform-v3-w30d03-platform
+  review_mode: independent
+  reviewer_agent_id: task-phasea-51-20260719
+  reviewed_at: '2026-07-19'
+  angle: 抖音首屏停划、后段收藏和数字评论CTA
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) 首镜“实测”证据感主要在第二镜补齐，0–2秒没有短hash或Round编号。(-2) 完整清单集中到末镜，前段掉点用户只能带走结构。(-1)
+    41秒级密VO仍需最终MiniMax时长确认抖音节奏。 改法：Phase B核0–3秒真实VO与第二镜切点；出口票保持稳定停留，不再增加CTA文字。 依据：0秒画面直接给“同一个问题/两种首答顺序/先建议↔先问事实”，口播用“我跑了两轮”提供真人行动主语；2秒切入真实首答差异，首屏不是方法定义。中段用三关轨道和70%位置的第10问持续给回报，末镜完整九问+四规则可暂停收藏。CTA“你最卡哪一问，评论留个数字”回答成本低、与画面九问天然对应，且“人来拍板”保留边界。
+avg_score: 94.0
+pass: true
+scorecard_phase: pre_render

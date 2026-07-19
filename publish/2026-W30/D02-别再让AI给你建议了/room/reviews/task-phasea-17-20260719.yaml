@@ -1,0 +1,78 @@
+review_task: task-phasea-17-20260719
+reviewer_agent_id: task-phasea-17-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - insights/premortem_ab_evidence.md
+  - insights/fact_check.md
+  - script/T041_录音提词稿.md
+  - publish/T041_publish.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/audio_plan.yaml
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/w30_smoke_storyboard.yaml
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+  - pipeline/p004_video/out/frames/smoke_d02_01/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_01/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_01/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_02/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_02/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_02/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_03/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_03/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_03/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_04/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_04/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_04/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_05/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_05/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_05/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_06/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_06/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_06/frame_0002.png
+  - pipeline/p004_video/out/frames/smoke_d02_07/frame_0000.png
+  - pipeline/p004_video/out/frames/smoke_d02_07/frame_0001.png
+  - pipeline/p004_video/out/frames/smoke_d02_07/frame_0002.png
+reviews:
+  - role: 动效分镜师
+    reviewer_id: phasea17-d02-rewind-path-timing
+    reviewer_agent_id: task-phasea-17-20260719
+    review_mode: independent
+    angle: "未来事故倒放路径、首屏三秒扣合、镜内节奏与音效随真实窗口同步"
+    score: 88
+    verdict: fail
+    notes: |-
+      七镜使用事故轴、证物板、风险清单、真实倒推路径、双轮票据、长Prompt票和投票便签，形式骨架与D01显著区分；首镜0.8秒后依次出现三类依据，约2.15秒落“不是结果预测”，后续大多每0.3至2.2秒有元素变化，Prompt段还用关键词轮换维持观看。扣(-12)：首屏实际是三列节点与三张事实卡的并排对应，没有逐条连接线或箭头，观众未必能读成一条“失败原因→已给事实/信息缺口”的具体倒推路径；现有smoke仅0.1秒占位帧，不能证明四行Prompt末态、正文安全区和完整43秒节奏。音效仍硬编码4/9/14/21/28/38秒，真实MiniMax窗口重排后可能错拍。具体修正：首屏加明确连线和单一路径高亮，先完成“能力证据为负←四周零涨粉”，再显“获客路径缺失”；所有音效改用scene_sid加offset，真实runtime逐镜抽取起中末帧复核。
+
+  - role: 编导
+    reviewer_id: phasea17-d02-accident-narrative-closure
+    reviewer_agent_id: task-phasea-17-20260719
+    review_mode: independent
+    angle: "首屏具体兑现、普通回答反差、双轮边界、收藏物和评论行动闭环"
+    score: 91
+    verdict: pass
+    notes: |-
+      0至4秒直接进入“半年后失败”并在画面先给原因、事实、缺口，不再延迟竞猜；4至14秒快速交代虚构计划并承认普通回答已经严格，14秒后用Round 1原文路径兑现方法，21秒明确两轮原因和排序不同，28秒给可收藏修订Prompt，末尾以四选一降低评论门槛。扣(-9)：9至14秒仍是一整镜三风险清单，与前后事故路径相比叙事张力略降；21至28秒连续解释“不同/稳定/不先建议”较抽象，且“第二轮原因和排序变了”最好由两轮各一条具体原因同屏支持。具体修正：普通问法压缩为一条基线字幕；双轮票据各露一条不同首因，再汇入共同结构，保留当前“不更准、不预测”的边界与修订Prompt未单独A/B脚注。
+
+  - role: 事实校验员
+    reviewer_id: phasea17-d02-round1-verbatim-revision-disclosure
+    reviewer_agent_id: task-phasea-17-20260719
+    review_mode: independent
+    angle: "Round 1逐字摘录保真、双轮结构结论、复合干预归因与修订Prompt披露"
+    score: 87
+    verdict: fail
+    notes: |-
+      082eb54f与e5061fad准确对应两轮B响应SHA256前八位；Round 1中的“你唯一的能力证据是负面的”“计划中完全没有‘获客’这一环节”及“计划中的缺失”均能在未删改原文回查。两轮确实给出不同首因和排序，同时都以失败原因绑定计划事实或缺失信息，且没有先给补救建议；脚本、Prompt模板脚注和置顶评论也已明确最终可抄版是根据问题修订且未单独A/B。扣(-13)：路径卡把“支持事实：计划明确写着‘做过 4 周自己的账号，涨粉几乎为零’”删改为“支持事实：做过4周自己的账号，涨粉几乎为零”，却仍总标“Round 1逐字短摘”，不是严格逐字；首屏“没写获客路径”是对原文缺失的归纳，也不应与逐字证据混称。具体修正：要么恢复完整连续原句及引号，要么统一改标“Round 1忠实压缩/结构摘录”；首屏标“结构归纳”，14秒证据镜才标“逐字节选”，并继续显著披露整组Prompt干预、修订版未单独复测。

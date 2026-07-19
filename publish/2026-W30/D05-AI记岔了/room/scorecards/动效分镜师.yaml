@@ -1,0 +1,31 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效分镜师
+artifact: design/storyboard.yaml
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea48-d05-motion-board-v3-w30d05-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-48-20260719
+  reviewed_at: '2026-07-19'
+  angle: 8镜QA工位序列、比例拍点与事实边界
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-2) 分镜表未写比例百分比。(-2) 正式seg timing/切点表未生成。(-2) repaired镜仍未展开INBOX中间节点，复现粒度略粗。
+    改法：正式timing后回填动作事件表；Phase B可补INBOX节点但不得改变局部通过边界。 依据：8镜完整覆盖误判警报、写入不等于可读、双证物、报警/根因、01/02、03回问、局部通过/待验和三联卡。修后镜2/3/5/7/8按D比例推进，镜4/6持续运动，既满足1.5x节奏又保持每镜单焦点；后段黄槽和范围卡兑现不替证据签字。
+- reviewer_id: phasea47-d05-motion-storyboarder-v3-w30d05-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-47-20260719
+  reviewed_at: '2026-07-19'
+  angle: 8镜QA节拍、1.5x间隔、SFX像素同拍与收藏态
+  score: 91
+  verdict: pass
+  notes: 扣(-9)。 (-3) qa视觉按D比例但SFX offset固定0.5/1.7/2.9s；在1.5x D=10.5s时会比三步视觉早约0.76/1.24/1.72s。(-2)
+    repaired hit在1.5x下略早于首状态。(-1) storyboard末两镜仍6s而production7s。(-1) 首镜没有独立撕带SFX。(-1)
+    末卡稳定截图态待实帧验证。(-1) 真TTS尚未听片。 改法：真TTS后按runtime window生成比例SFX offset或绑定具体像素动作；同步末两镜7s，补轻量首镜撕带声。
+    依据：8镜逐一对应8段VO。1.5x下write_check最大约2.0s、repaired与qa_card约2.31s，causality/retest由连续运动覆盖；alarm动作约在0/0.54/1.35/1.89/2.79/3.69s，开场无冻结。SFX都有scene_sid，镜头整体起点随真实TTS变化不会落错场景；目标时长下checks与qa序列基本对应步骤出现。
+avg_score: 92.5
+pass: true
+scorecard_phase: pre_render

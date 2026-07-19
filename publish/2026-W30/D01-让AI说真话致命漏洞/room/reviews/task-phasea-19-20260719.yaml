@@ -1,0 +1,56 @@
+review_task: task-phasea-19-20260719
+reviewer_agent_id: task-phasea-19-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T040_录音提词稿_v4.md
+  - design/实测_致命漏洞法.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/retention_beat_sheet.md
+  - audio_plan.yaml
+  - pipeline/p004_video/templates/d01_w30_challenge.html
+  - pipeline/p004_video/templates/d01_w30_reveal.html
+  - pipeline/p004_video/templates/d01_w30_structure.html
+  - pipeline/p004_video/templates/d01_w30_reframe.html
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/templates/d01_w30_compressor.html
+  - pipeline/p004_video/templates/d01_w30_punchline.html
+  - pipeline/p004_video/templates/d01_w30_cta.html
+reviews:
+  - role: 编导
+    reviewer_id: phasea19-d01-editorial-evidence-arc
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "首屏合同、受控实验递进、听画分工、收藏与评论闭环"
+    score: 94
+    verdict: pass
+    notes: |-
+      叙事按“先看真实开头并判断→揭晓差异→锁定控制变量→交代虚构计划→给完整Prompt→双轮证据→主动承认A组也发现风险→交还决策权”递进，先兑现可观察差异再给方法，没有把实验包装成作者经历。7秒口播已改成“这不是两套模型”，与三把控制变量锁的画面准确承接；Prompt段不逐字朗读全文，而用旁白提炼“只找一个没验证、却决定成败的前提”，听画分工成立。扣(-6)：首镜两栏原文在3秒内阅读负荷偏高，游标仍在切镜前约0.3秒落到B，竞猜揭晓的听觉确认略晚于视觉；40秒结尾问题虽能引发高质量评论，但“准备重投入的计划”仍要求观众先自我检索，评论门槛高于选项式CTA。Phase A可通过，真实TTS后需以句尾而非名义秒点复核揭晓和转场。
+
+  - role: 平台原生策划
+    reviewer_id: phasea19-d01-douyin-retention-native
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "抖音首屏停划、2至4秒回报、移动端可读、收藏评论动作"
+    score: 92
+    verdict: pass
+    notes: |-
+      首屏不是泛口号，而是同模型同计划的A/B原文任务，观众可立即参与；3秒揭晓、7秒控制变量、11秒案例事实、16秒可抄Prompt、24秒双轮哈希、30秒诚实反转和35秒评论槽持续提供新回报。八镜均有独立构图与动作语义，Prompt全文常驻并以进度条/关键词焦点维持变化，符合收藏场景；无BGM、低电平环境声加本地CC0反馈音适合密信息实测。扣(-8)：1080竖屏里首镜双栏使用30px正文且B侧句子较长，实际手机信息流上必须依赖清晰渲染和停留，3秒读完存在压力；16至24秒长Prompt是最大掉点，虽有高亮但仍是重文字镜；末尾开放问句比“四选一”更难形成低成本评论。建议投后重点看3秒完播和16秒留存，不在Phase A阶段虚构表现提升。
+
+  - role: 编剧
+    reviewer_id: phasea19-d01-script-claim-discipline
+    reviewer_agent_id: task-phasea-19-20260719
+    review_mode: independent
+    angle: "口播节奏、信息因果、实验边界、金句与行动指令"
+    score: 95
+    verdict: pass
+    notes: |-
+      口播用短句完成竞猜、揭晓、变量解释、计划冲突、Prompt、结果和边界，核心句“只找一个没验证、却决定成败的前提”可复述且能直接行动。最重要的诚实句“普通问法其实也发现了它”保留在高潮之后，避免伪造“一个发现一个没发现”的戏剧冲突；“模型都优先指出”与实验原件一致，并以“AI负责提问，不替你拍板”封住客观真漏洞和普遍外推。扣(-5)：16至30秒连续出现Prompt与实验结果，概念词“前提、假设、核查顺序”密度较高，TTS若停顿不足会压缩理解；“右边”“第一句”依赖画面，纯音频语义不完全自足，但对短视频音画一体可接受。生成真实人声后应检查“普通问法其实也发现了它”前后留出强调停顿。

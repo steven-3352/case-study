@@ -2,7 +2,7 @@
 
 > **任何模型接入本仓库，先读本文。** 跨模型入口见 [`AGENTS.md`](../AGENTS.md)；Claude Code 特定执行细则见 [`CLAUDE.md`](../CLAUDE.md)；辩论锁定见 [`docs/DECISIONS.md`](DECISIONS.md)。
 >
-> 最后同步：**2026-07-04** · 维护规则见 [§7 文档维护](#7-文档维护)
+> 最后同步：**2026-07-19** · 维护规则见 [§7 文档维护](#7-文档维护)
 >
 > **2026-07-04 战略变更：** 取消固定内容皮肤（原「小老板烦事 → 能跑的小系统」）。改为**开放选题 · 选题定皮肤**：受众开放到「任何对 AI 工具/AI 应用感兴趣的人」，每条选题在洞察包首步声明自己的临时皮肤（受众、人设锚、话术方向）。详见 [§1.3](#13-皮肤按选题激活开放选题) · `docs/DECISIONS.md` Q10。
 
@@ -178,6 +178,19 @@ scorecard_valid: false           # 自生成 scorecard 必须标 false
 - `gate_check(pre_render)` 未通过时，任何 mp4 只能作为 `_build/` 临时预览或 `rejected/` 事故归档，不得写成发布候选。
 
 如果达不到这些条件，正确状态是 `blocked`，不是生成一个“长得像视频”的文件。
+
+### 2.4c 生产效率硬门：先消除未知，再投入重生产
+
+效率问题必须通过顺序和自动门禁解决，不得靠操作者记住教训。完整案例见 `docs/postmortems/2026-W30-D01-D02-production-latency.md`。
+
+1. **Stage 0 evidence spike**：凡核心卖点可实验验证，先做最小真实 A/B，保存输入/输出/模型/参数/时间/哈希和 claim boundary。命题未成立，禁止写完整脚本、分镜或启动付费生产。
+2. **审核覆盖矩阵先于派工**：先列 `角色 × content_version × form_version × Phase`，再派独立 reviewer；多任务不等于覆盖完整。`draft_self_generated` 仍无门禁效力。
+3. **TTS capability dry-run**：每个 provider/voice/emotion 组合先生成 5–10s 小样。生产配置必须 `strict_provider: true`，供应商失败不得静默换音色继续。
+4. **真实 timing 驱动动画**：先生成最终 VO timing，再生成 runtime storyboard；名义脚本时长不得作为渲染时长。每镜做 1.0×/1.5× 压力测试，确保动作覆盖口播且无溢出遮挡。
+5. **并行产物隔离**：所有 frame/audio/cache/concat 临时路径必须含 `content_id`；逐场景路径还必须含 `scene_id`，禁止跨项目共享可写目录。
+6. **机器 QC 先于 Phase B**：终片先过规格、黑帧、静音、字幕/音轨和 `freezedetect`。连续像素冻结 >4.00s 直接 fail，禁止消耗 reviewer 后才发现。
+7. **评审绑定终片字节**：Phase B 输入必须记录 canonical MP4 SHA-256；成片变化即自动作废旧 Phase B scorecard 和 forecast，必须对新哈希复验。
+8. **增量构建优先**：场景模板、data、duration、共享资源未变时复用帧缓存；小改不得默认全片重渲。缓存未实现的 pipeline 记为 P0 技术债。
 
 ### 2.5 Git
 
@@ -568,6 +581,7 @@ scorecard_valid: false           # 自生成 scorecard 必须标 false
 | `pipeline/CHECKLIST.md` | 发布前验收 |
 | `docs/TECH_STACK.md` | 工具选型与依赖 |
 | `docs/CONVERSION.md` | 私信转化与简介 |
+| `docs/postmortems/2026-W30-D01-D02-production-latency.md` | 双视频生产延误根因与全局防复发规则 |
 | `docs/TODO.md` | 当天做什么 |
 | `docs/design/*_REJECT_LOG.md` | 拒稿案例与进化依据 |
 | `templates/design/completion_rate_north_star.md` | 完播与互动北极星细则 |

@@ -1,0 +1,62 @@
+status: ready_after_content_gate
+content_id: W30D03
+content_version: v2
+form_version: v3
+voice:
+  engine: minimax
+  model: speech-2.8-turbo
+  voice_id: Chinese (Mandarin)_Sincere_Adult
+  fallback_engine: none
+  script_path: script/T042_配音稿_v2.md
+  speed: 1.04
+  production_rule: strict_provider=true；实际 timing 驱动分镜
+bgm:
+  enabled: false
+  rationale: 密 VO 实测型；用门禁开合 SFX 维持节奏
+sfx:
+  enabled: true
+  events:
+  - sid: room
+    kind: ambient
+    t_start: 0
+    duration: 48.74
+    gain_db: -24
+  - sid: proof_hit
+    kind: hit
+    t_start: 3.0300000000000002
+    duration: 0.3
+    gain_db: -11
+  - sid: boundary
+    kind: hit
+    t_start: 9.58
+    duration: 0.2
+    gain_db: -15
+  - sid: g1
+    kind: whoosh
+    t_start: 15.53
+    duration: 0.4
+    gain_db: -14
+  - sid: g2
+    kind: whoosh
+    t_start: 23.25
+    duration: 0.4
+    gain_db: -14
+  - sid: g3
+    kind: whoosh
+    t_start: 28.29
+    duration: 0.4
+    gain_db: -14
+  - sid: tenth
+    kind: hit
+    t_start: 34.620000000000005
+    duration: 0.5
+    gain_db: -11
+  - sid: exit
+    kind: hit
+    t_start: 40.720000000000006
+    duration: 0.2
+    gain_db: -15
+subtitles:
+  burn: false
+  srt_path: douyin/subtitles.srt
+  max_lines: 2

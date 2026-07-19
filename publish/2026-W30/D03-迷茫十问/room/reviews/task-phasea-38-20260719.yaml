@@ -1,0 +1,64 @@
+review_task: task-phasea-38-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - script/T042_配音稿_v2.md
+  - design/storyboard.yaml
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - insights/questions_ab_evidence.md
+  - insights/fact_check.md
+  - pipeline/p004_video/templates/d03_w30_test_hook.html
+  - pipeline/p004_video/templates/d03_w30_split_proof.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea38-d03-platform-native-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "抖音0-3s双轮冲突、40s节奏、Prompt收藏与评论动作"
+    score: 90
+    verdict: pass
+    evidence: |-
+      新增2s独立首镜后，第一镜满足duration<=4s；模板约0.5s即出现“同一个问题/两种首答顺序/先建议↔先问事实”，视觉在3s内兑现核心反差。随后真实首答证物、证据边界、三关九问、第十问和完整Prompt逐层回报，40s内每2-4s有标签、闸门或构图变化，收藏物具体可执行。
+    deductions: |-
+      (-3) 0-2s配音只说“我跑了两轮”，冲突主要由画面承担，尚非最强音画同拍。(-3) storyboard第二镜仍写6s，而pipeline TTS目标为4s，名义总长42s与target 40s不一致。(-2) 末镜同时容纳九问、四规则和边界，手机自然播放有缩字风险。(-2) 收口强调收藏，但没有低成本评论问题。
+    fix: "首句直接口播‘同一个问题，两种首答顺序’，把双轮手续移为角标；统一storyboard第二镜为4s；末镜设置明确暂停态，并加不泛化的低门槛评论选择。"
+  - role: 纪录片导演
+    reviewer_id: phasea38-d03-documentary-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "双轮证物、边界转折、三关推进与第十问回报"
+    score: 92
+    verdict: pass
+    evidence: |-
+      叙事从双轮差异进入真实首答证物，立即收窄到“只证明顺序变化”，再用生存事实、目标边界、本周验证三关递进，第十问在后段制造新回报，最终回到人类拍板。没有虚构真人效用结果，轨道、窄门和终检门形成连续但不重复的视觉动作。
+    deductions: |-
+      (-3) 2s标题镜与下一镜都在重复“双轮/两种首答”，若转场不够快会形成二次开场。(-2) 6-11s连续三条“不代表”较早进入防御说明。(-2) 三关主要是抽象令牌，没有真人回答带来的情节变化。(-1) “买方还是卖方”缺生活化翻译。
+    fix: "让2s首镜直接撞入下一镜，不重新起标题；边界镜用一条主结论加三枚快章；给买方/卖方补‘自己用/交付别人’的画面释义。"
+  - role: 编剧
+    reviewer_id: phasea38-d03-writer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "首句可懂性、A/B逐句证据与Prompt边界"
+    score: 91
+    verdict: pass
+    evidence: |-
+      普通问法两轮首答均给建议、流程组两轮首答均只先问事实，有API原文与哈希支持；脚本明确不声称更准或能找到方向，第十问也标为编辑补充。九问按4+2+3组织，完整Prompt包含逐个等待、事实未齐不建议和最终由人验证，内容真实可复现。
+    deductions: |-
+      (-3) 首段拆分后视觉先给具体差异，口播前2s仍只讲实验手续。(-2) “加上流程后”未说明这是九问、逐问等待、不假设等复合干预。(-2) 第十问虽然画面标待验证，口播没有同步说“编辑补充”。(-2) “买方还是卖方”对泛职业迷茫受众不够口语。
+    fix: "口播首句与像素统一为‘同一问题：一个首答内给建议，一个只先问事实’；第十问口播同步加‘我补了一道待验证的验收问句’。"
+overall:
+  score: 91.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均达到90；可进入下一门，但渲染前应统一storyboard第二镜时长，并优先让首句与首屏冲突逐字同拍。"

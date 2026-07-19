@@ -1,0 +1,69 @@
+review_task: task-phasea-51-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+supersedes_review: task-phasea-38-20260719
+reviewed_artifacts:
+  - script/T043_配音稿_v2.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - design/retention_beat_sheet.md
+  - design/motion_storyboard.md
+  - insights/fact_check.md
+  - insights/core_message.md
+  - raw-export/raw/2026-07-14-desktop.md
+  - pipeline/p004_video/templates/d04_w30_record_hook.html
+  - pipeline/p004_video/templates/d04_w30_conflict.html
+  - pipeline/p004_video/templates/d04_w30_write_proof.html
+  - pipeline/p004_video/templates/d04_w30_readset.html
+  - pipeline/p004_video/templates/d04_w30_shared_surface.html
+  - pipeline/p004_video/templates/d04_w30_close.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea51-d04-platform-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "两端冲突hook、查因留存和入口名CTA"
+    score: 94
+    verdict: pass
+    evidence: |-
+      首镜在0秒给“同一条记录/一端有·一端没有”，并用“同一台机器·同一仓库”消除网络同步误读；2秒后访问线直接兑现电脑端找到、飞书端无记录。中段逐层揭示落盘、真实读集和缺失路径，答案不拖到结尾；后段共同可读面提供收藏回报。CTA“你在哪个入口遇到过断档？评论留个入口名”与受众真实使用场景相连，输入成本低且可形成案例评论。
+    deductions: |-
+      (-2) 工程名词SELF/journal/projects index对泛AI用户有理解门槛。(-2) CTA比D03/D05开放，答案粒度可能不统一。(-2) 当前retention等辅助文档仍残留旧“双工程凭证”收口描述，但生产脚本/像素已是入口名CTA。
+    fix: "最终发布包以v2 script+pipeline CTA为唯一真源；字幕用中文功能解释承接工程词。"
+  - role: 纪录片导演
+    reviewer_id: phasea51-d04-documentary-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "真实故障查因、适用范围和共同可读面结论"
+    score: 95
+    verdict: pass
+    evidence: |-
+      叙事遵循纪录片取证顺序：同记录冲突→文件和commit证明内容存在→旧入口四项读集→目标journal不在注入列表→结论缩回本自建助理→给共同可读面修法。raw export支持写入、旧bot读集和“没有记录”回复；片中不把两端画成不同人格，也不泛化为所有AI跨设备遗忘。D04解释原因与放置原则，没有抢D05的三步验收方法。
+    deductions: |-
+      (-2) “电脑端能找到”是桌面agent检查，不是同模型跨端A/B，最终证物标签必须继续区分来源类型。(-2) 首屏使用reddit调研记录，资产脱敏口径仍要锁。(-1) 共同可读面是本系统工程方案，不是消费产品通用功能。
+    fix: "资产日志记录证物来源类型和脱敏词；范围框在修法镜持续可见。"
+  - role: 编剧
+    reviewer_id: phasea51-d04-writer-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "故障悬念、因果递进和8镜生产文本一致性"
+    score: 93
+    verdict: pass
+    evidence: |-
+      8段生产结构清楚：记录钩子、冲突、落盘、读集、缺失路径、范围、共同可读面、入口名CTA。每段回答上一段产生的问题，因果链从“有/没有”收敛到“读取路径漏了一块”，再给“临时记录/长期结论”分层。脚本7个自然段在生产中把首段拆成2秒钩子+3秒冲突，文字完全对齐；结尾从解释切回观众入口，完成互动。
+    deductions: |-
+      (-3) 中段连续四个工程名词句，表演上需要可靠停连。(-2) 脚本自然段与8段TTS数量不同，虽语义拆分正确，交接时需明确以pipeline为生产真源。(-2) storyboard末镜名义5秒而TTS target为6秒，runtime才会对齐。
+    fix: "正式TTS后核工程名词停连和42秒总长；生产交接明确pipeline_config为8段唯一真源。"
+overall:
+  score: 94.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；两端冲突、取证查因、范围边界和入口名CTA构成完整8镜故事，D04 Phase A pass。"

@@ -1,0 +1,73 @@
+review_task: task-phasea-42-20260719
+reviewer_agent_id: /root/phaseb_review_08
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+independent_from: task-phasea-41-20260719
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_tech_plan.md
+  - design/motion_storyboard.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d03_w30_test_hook.html
+  - pipeline/p004_video/templates/d03_w30_split_proof.html
+  - pipeline/p004_video/templates/d03_w30_boundary.html
+  - pipeline/p004_video/templates/d03_w30_survival_gate.html
+  - pipeline/p004_video/templates/d03_w30_target_gate.html
+  - pipeline/p004_video/templates/d03_w30_action_gate.html
+  - pipeline/p004_video/templates/d03_w30_tenth_gate.html
+  - pipeline/p004_video/templates/d03_w30_prompt_exit.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea42-d03-motion-tech-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜确定性seek、真实TTS runtime与1.0x/1.5x冻结压力"
+    score: 86
+    verdict: fail
+    evidence: |-
+      8个生产模板均使用paused GSAP timeline，读取`scene_duration`，以`to({},{duration:D},0)`锁定总长并注册到`registerTimeline`；capture按`t=i/fps`调用`totalTime(clamp(t))`，确定性seek链成立。构建器也严格要求8段VO与8镜一一对应，并把正式seg timing的window注入每镜，SFX用scene_sid+offset重算，新增首镜不会被旧绝对t_start错位。
+    deductions: |-
+      (-8) 1.5x duration压力明确失败：boundary主动作约2.1s结束且无尾部语义动作，D=7.5s时静止约5.4s；tenth_gate约1.5s结束、尾部强调到D-1.5才开始，D=9s时中间约6s无变化；prompt_exit约3.3s结束、尾部强调在D-1.1，D=9s时中间约4.6s无变化，均超过4s冻结线。(-4) 当前只有约9.6s的48字TTS dry-run，没有form v3正式`seg_timing_w30d03.json`，真实MiniMax窗口尚未被验证。(-2) motion_tech_plan仍写7个专属HTML，冻结后的实际数量是8，技术交接漂移。
+    fix: "为boundary/tenth_gate/prompt_exit加入贯穿D的语义进度动作或按VO子句分拍，确保1.5x任意相邻语义变化<=4s；生成正式MiniMax seg timing后用runtime storyboard重跑全8镜。"
+  - role: 动效设计师
+    reviewer_id: phasea42-d03-motion-design-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "动作是否服务信息、1.0x/1.5x节奏与移动端可读性"
+    score: 88
+    verdict: fail
+    evidence: |-
+      首镜顺序条、双轮标签汇流、边界杆、三类闸门、终检门和出口票折叠均与旁白语义对应；survival/target/action三个过程镜用持续令牌或beam覆盖名义窗口，动作不是装饰。主问大多39–82px，移动端层级清楚。
+    deductions: |-
+      (-5) 终检门与出口票在1.5x窗口会形成先把全部信息亮完、长停、末尾才补box-shadow的节奏，不能算每2–4s语义变化。(-4) boundary在扩窗后只有静态三杆，无法维持“逐项边界”的听画同步。(-3) 出口票规则22px、九问正文23px是全片最低字级，1.5x不能用更长停留掩盖手机端字号风险。
+    fix: "按VO实际短句逐项点亮边界、九问组和执行规则；第十问用编辑补充→问题→待验证三段状态变化贯穿窗口；出口票不再缩字。"
+  - role: 动效分镜师
+    reviewer_id: phasea42-d03-motion-board-v3
+    reviewer_agent_id: /root/phaseb_review_08
+    review_mode: independent
+    angle: "8镜任务拆分、转场连续性和真实时基交接"
+    score: 92
+    verdict: pass
+    evidence: |-
+      motion storyboard已是form v3的8镜结构，旁白段与scene id一一对应：首镜顺序冲突、双轮证物、边界、4+2+3问、第10问和出口票各自单焦点。纵向轨道在镜4–6保持空间连续，第10问和出口票提供后段新回报；runtime storyboard会以正式VO window替换名义秒数。
+    deductions: |-
+      (-3) 分镜只写“最终TTS runtime生成”，没有把每镜VO子句映射到动作拍点，无法据表验证1.5x。(-3) storyboard nominal总长40s虽与target一致，但真实窗口缺失，freeze预案未落到具体镜。(-2) 首镜到双轮证物的counter/label接力需要Phase B核切点连续性。
+    fix: "在分镜补每镜动作拍点或相对百分比，标出boundary/tenth/prompt的扩窗补拍，并用正式timing回填。"
+overall:
+  score: 88.7
+  verdict: fail
+  blocking_issues:
+    - "boundary、tenth_gate、prompt_exit在1.5x duration压力下出现超过4秒的无语义变化区间。"
+    - "form v3正式MiniMax seg timing尚未生成，真实TTS runtime与freeze风险未完成验证。"
+  release_note: "确定性seek和8镜映射成立，但动效技术86、动效设计88；1.5x冻结压力未过，D03 Phase A fail。"

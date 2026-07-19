@@ -1,0 +1,36 @@
+status: pass
+review_source: independent_agent_tasks
+role: 编导
+artifact: douyin/video.mp4
+artifact_sha256: 47e624a8b6159ece9e7d12c0734aba1da1f6a8c2b81ad458e0d4c2cad84f7bbf
+artifact_version: content-v3-form-v4-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb08-d02-director-w30d02-director
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_08
+  reviewed_at: '2026-07-19'
+  angle: task08 · director · 最终 MP4 独立复验
+  score: 91
+  verdict: pass
+  notes: '叙事从未来事故倒查进入，依次给测试计划、普通问法基线、Round 1真实路径、双轮稳定结构、修订版Prompt、适用边界和CTA。全片实际抽帧可见事故线、风险清单、路径票据、双轮哈希、逐项Prompt和四宫格持续换形。VO从0s开始，声轨无异常静音，15条字幕完整到52.48s；“原因和排序变了”及“更严谨地抄”没把修订Prompt冒充原始实验输入。
+
+
+    扣分：(-3) 52.48s偏长，12.56-34.88s三段连续理性证据使中段体感偏慢；(-2) 34.88-46.95s逐行Prompt优先收藏而牺牲自然播放理解；(-2)
+    项目名“别再让AI给你建议了”比成片“高风险计划/小事别用”的真实边界更绝对；(-2) SRT个别词内断行略显机械。改法：发布标题使用“高风险计划，先别让AI给建议”；如需压时长，先压普通问法清单与双轮票据停留，不删真实原文和未单独A/B边界。'
+- reviewer_id: phaseb07-d02-director-w30d02-director
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_07
+  reviewed_at: '2026-07-19'
+  angle: task07 · director · 最终 MP4 独立复验
+  score: 92
+  verdict: pass
+  notes: '叙事从未来事故倒查进入，依次是测试计划、普通问法基线、Round 1真实路径、双轮稳定结构、修订版Prompt、适用边界与CTA。实际全片抽帧可见事故线、风险清单、路径票据、双轮哈希、逐项打出的Prompt和四宫格六种视觉任务；最长低变化区间2.33-6.30s约3.97s，仍压在4s内。VO从0s开始，声轨无异常长静音，15条字幕完整覆盖52.48s；“未单独A/B”和“更严谨地抄这句”没有把修订版冒充原始实验输入。
+
+
+    扣分：(-3) 52.48s偏长，12.56-34.88s连续三段均偏证据解释；(-3) 34.88-46.95s逐行出现虽利于收藏，但自然播放时难以逐字消化；(-2)
+    项目名“别再让AI给你建议了”比成片“小事别用”的实际边界更绝对。改法：发布标题使用“高风险计划，先别让AI给建议”保留范围；若需压时长，先压普通风险清单和双轮票据停留，不删真实原文及未单独A/B声明。当前可发布。'
+avg_score: 91.5
+pass: true
+scorecard_phase: post_render

@@ -1,0 +1,53 @@
+review_task: task-phasea-14-20260719
+reviewer_agent_id: task-phasea-14-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D01
+content_id: T040
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T040_录音提词稿_v4.md
+  - publish/T040_publish.md
+  - design/实测_致命漏洞法.md
+  - pipeline_config.yaml
+  - design/storyboard.yaml
+  - pipeline/p004_video/templates/d01_w30_challenge.html
+  - pipeline/p004_video/templates/d01_w30_reveal.html
+  - pipeline/p004_video/templates/d01_w30_structure.html
+  - pipeline/p004_video/templates/d01_w30_reframe.html
+  - pipeline/p004_video/templates/d01_w30_prompt.html
+  - pipeline/p004_video/templates/d01_w30_compressor.html
+  - pipeline/p004_video/templates/d01_w30_punchline.html
+  - pipeline/p004_video/templates/d01_w30_cta.html
+reviews:
+  - role: 平台原生策划
+    reviewer_id: phasea14-d01-douyin-native
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "首三秒可判定任务、即时回报、中段Prompt收藏与评论转化"
+    score: 91
+    verdict: pass
+    notes: |-
+      首屏把任务收窄为“哪份第一行就给核心假设”，A只显示章节标题、B显示逐字短摘，3秒内可完成判断；3秒立即揭晓B，随后以控制变量、虚构计划、完整Prompt、双轮证据和诚实对照逐段递进，16秒出现可收藏物，末尾评论问题也与方法一致。扣(-9)：B卡文字长度和红色游标使答案几乎无需比较即可看出，竞猜张力偏弱；16至35秒连续是Prompt、双轮和限定语，仍有知识卡中段同质感。具体修正：首屏让A/B都只露同等长度的一行，保留可判定但降低视觉泄题；双轮票据段加入一处响应原句的动态框选，替代纯票据汇聚，增强24秒后的二次停留。
+
+  - role: 纪录片导演
+    reviewer_id: phasea14-d01-evidence-ethics
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "原始调用逐字保真、虚构身份披露、A/B归因边界与像素证据"
+    score: 96
+    verdict: pass
+    notes: |-
+      两轮四次调用均留有UTC、response id、返回模型、usage、请求体和响应文本SHA256及未删改正文；视频中的Round 1首句、两轮B首句短摘和短哈希可逐字回查。脚本、发布文案和模板持续声明虚构计划，并明确A组也发现风险，只把结论限定为“本组调用中B把核心能力未验证放在第一优先”，没有包装成客观真漏洞。扣(-4)：首屏把删节后的句子称为“原文短摘”，虽使用省略号仍可能被少数观众理解为完整首句；短哈希也只具定位作用，无法在抖音端独立验证。具体修正：渲染时常驻“节选·省略号为删节”或把B首句缩为连续不跳字的短摘，并确保双轮票据中的495913db、8b8d8507与证据文件逐字一致。
+
+  - role: 编剧
+    reviewer_id: phasea14-d01-oral-payoff
+    reviewer_agent_id: task-phasea-14-20260719
+    review_mode: independent
+    angle: "悬念承诺兑现、MiniMax口播呼吸、Prompt读听分工与结尾落点"
+    score: 92
+    verdict: pass
+    notes: |-
+      口播在3秒直接回答“右边”，没有延迟揭晓；随后每段只完成一个动作，从“为什么是B”到“只换问法”、案例事实、核心句、双轮结果、诚实边界再到互动，承诺与回报同轴。完整Prompt只在画面展示，MiniMax实际朗读的是口语化核心句，避免把长指令硬塞进8秒；“普通问法其实也发现了它”是全片最有效的可信反转。扣(-8)：0至7秒连续出现“核心假设”三次，听觉略重复；“答案是：同一个模型……”并不是对上一句选择题的答案，语义承接略生硬；结尾“重投的计划”不够日常。具体修正：7秒改成“为什么？模型、计划、参数都一样，只换问法”，结尾可把“重投”换成“准备重投入”，并在30秒诚实对照前留约0.2秒停顿。

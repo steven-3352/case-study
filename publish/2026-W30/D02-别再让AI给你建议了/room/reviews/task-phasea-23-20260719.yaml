@@ -1,0 +1,60 @@
+review_task: task-phasea-23-20260719
+reviewer_agent_id: task-phasea-23-20260719
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D02
+content_id: T041
+phase: phase_a
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/form_competition.md
+  - design/form_strategy.md
+  - design/retention_beat_sheet.md
+  - design/design_language.md
+  - pipeline/p004_video/templates/d02_w30_failure_rewind.html
+  - pipeline/p004_video/templates/d02_w30_fixed_plan.html
+  - pipeline/p004_video/templates/d02_w30_a_risk_list.html
+  - pipeline/p004_video/templates/d02_w30_ab_guess.html
+  - pipeline/p004_video/templates/d02_w30_reveal.html
+  - pipeline/p004_video/templates/d02_w30_prompt_strip.html
+  - pipeline/p004_video/templates/d02_w30_boundary_cta.html
+  - pipeline/p004_video/out/frames/accident_hook
+  - pipeline/p004_video/out/frames/fixed_plan
+  - pipeline/p004_video/out/frames/ordinary_risks
+  - pipeline/p004_video/out/frames/autopsy_paths
+  - pipeline/p004_video/out/frames/experiment_evidence
+  - pipeline/p004_video/out/frames/smoke_d02_06
+  - pipeline/p004_video/out/frames/boundary_cta
+reviews:
+  - role: 留存与互动设计师
+    reviewer_id: phasea23-d02-retention-interaction
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "未来事故首屏兑现、14至28秒中段证据升级、Prompt收藏行为与四选一评论成本"
+    score: 93
+    verdict: pass
+    notes: |-
+      首帧直接显示“从未来事故往回查”和“6个月后·计划失败”，不是先卖关子；0.8秒后事实节点入场，3秒内已经出现能力证据、四周零涨粉和获客缺口，首屏承诺实际兑现。4至14秒固定案例并承认普通问法已够严格，14至21秒给Round 1逐字路径，21至28秒再把两轮差异收束为“失败原因→依据”，回报层级持续升级。28至38秒Prompt四行先展开、再只轮换关键词背景，正文位置不动且全文至少静止4秒；38秒四选一把评论回答压到“辞职/副业/创业/转行”一个词。扣(-7)：4至14秒事实计划和普通风险连续两页都偏列表，若TTS拉长会形成中段小平台；具体改法：正式渲染维持快速stagger和事故轴残影，不重复放大“能力没验证”，把停留时间留给14秒后的真实路径。
+
+  - role: 视觉语言策展师
+    reviewer_id: phasea23-d02-visual-language
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "事故倒推的纵向/逆向视觉语法、事实与缺口编码、长文本安全区及姊妹条区分"
+    score: 92
+    verdict: pass
+    notes: |-
+      完整场景帧可见红色逆向轴从未来事故连回失败原因，实线黄色事实与虚线黄色信息缺口编码明确；14至21秒改用纵向红线串接原因、事实、原因、缺口，观众关声也能读出“原因之后标依据”。双轮页把结论设为最大信息，短哈希退为技术凭证；Prompt票四行字号、行距与底部“修订版未单独A/B”披露均在安全区内。D02以事故轴、逆行箭头、黄签和四类验尸票为识别物，和D01横向A/B、绿色锁与诚实印章区分明显。扣(-8)：事实页与普通风险页短暂退回常规白纸清单，双轮两张空票的视觉信息密度偏低。具体改法：保留事故轴或红线残影贯穿转场，双轮页必须让“具体原因不同/共同的是组织结构”先于哈希成为视线终点。
+
+  - role: 形式选型师
+    reviewer_id: phasea23-d02-format-selection
+    reviewer_agent_id: task-phasea-23-20260719
+    review_mode: independent
+    angle: "事故板直接倒放是否比A/B竞猜、聊天录屏或手部证物更贴合事前验尸方法"
+    score: 94
+    verdict: pass
+    notes: |-
+      事前验尸的核心动作就是先假设未来失败、再沿原因回查事实或缺口；事故板把方法本身变成首屏动作，3秒内已完成一次倒推，不需要复用D01竞猜外环。中段只把真实双轮调用作为证据，明确“原因和排序不同、结构稳定、不代表提高准确率”，没有把编辑版Prompt伪装成已验证输入。相较聊天录屏，事故板让因果与依据类型在竖屏内可读；相较手部证物，它减少剧情包装对实验边界的干扰。Prompt收藏与四选一CTA也分别服务收藏和评论。扣(-6)：4至14秒的两页基线解释仍接近知识清单，事故感会短暂减弱；具体改法：用同一逆向轴完成场景交接，不增加新的卡片皮肤或A/B标签，并保持14秒真实路径为全片中段最强视觉回报。

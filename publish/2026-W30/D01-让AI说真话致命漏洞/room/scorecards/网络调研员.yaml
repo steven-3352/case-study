@@ -1,0 +1,32 @@
+status: pass
+review_source: independent_agent_tasks
+role: 网络调研员
+artifact: insights/external_references.md
+artifact_version: evidence-v3
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea20-r01-w30d01-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-20-20260719
+  reviewed_at: '2026-07-19'
+  angle: 外部方法语境、平台证据缺口与双轮自有实验的证据分层
+  score: 91
+  verdict: pass
+  notes: 已实际核对 external_references、hook_benchmark、双轮实验原件和当前发布口径。四个公开网页只被用于反谄媚、反方核查和
+    AI 辅助决策的方法语境，文档没有拿二手文章证明单点 Prompt 有效，也明确隔离旧小红书赞藏、“持续起量”和不可复核评论；真正进入成片的观察来自同模型、同
+    system、同虚构计划和同参数的两轮 A/B，hook 仍标 agent_hypothesis。扣(-9)：四条外链中三条中文来源和 PCWorld 缺完整作者、文章标题、发布日期及抓取回执，且没有可逐帧复核的抖音同题材样本；因此外部部分只能维持
+    B 级背景，不能支持停划或完播效果。可执行修正：若后续补资料，保存标题、作者、发布日期、抓取日期和页面回执；若仍无抖音样本，forecast 必须继续标估算，发布正文不得出现“平台验证”“热门结构”或效果数字。
+- reviewer_id: phasea12-r01-w30d01-research
+  review_mode: independent
+  reviewer_agent_id: task-phasea-12-20260719
+  reviewed_at: '2026-07-19'
+  angle: 外部方法语境的来源分级、可追溯性与效果证据隔离
+  score: 90
+  verdict: pass
+  notes: 当前外部资料明确列出四个可访问 URL，并把腾讯云、人人都是产品经理、少数派与 PCWorld 全部限定为 B 级公开方法语境；网络原话只用于说明反谄媚与继续核查的需求，没有拿二手文章证明
+    Prompt 有效或抖音表现。旧小红书赞藏和“持续起量”也已永久隔离，hook 继续标为 agent_hypothesis，来源层级诚实。扣(-10)：来源表仍缺作者、完整文章标题、发布日期和逐条访问回执，且没有可逐帧复核的抖音同行样本。可执行修正：发布前补齐四条来源元数据与抓取回执；若无法补到平台原生样本，继续保持
+    B 级背景与 agent_hypothesis，绝不升级成效果证据。
+avg_score: 90.5
+pass: true
+scorecard_phase: pre_render

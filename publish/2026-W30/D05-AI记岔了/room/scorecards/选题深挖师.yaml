@@ -1,0 +1,29 @@
+status: pass
+review_source: independent_agent_tasks
+role: 选题深挖师
+artifact: insights/topic_brief.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea55-d05-topic-v3-w30d05-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-55-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-55-20260719 · 选题深挖师 · 选题把常见的“AI说记住了/没有记录”转为可复现的QA验收任务，给搭助理、Agent和知识库的用
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-3) 与D04共享事故，相邻发布会削弱新鲜感；(-2) 工程受众明确但覆盖面较窄；(-1) “AI记岔了”标题仍有拟人化误读。
+    改法：与D04错开发；标题和封面强调验收证物，不把内容包装为消费级AI记忆万能教程。 依据：选题把常见的“AI说记住了/没有记录”转为可复现的QA验收任务，给搭助理、Agent和知识库的用户三步检查法。与D04的理解型内容区分清楚：D04解释入口差异，D05要求落盘、读集、原入口回问三类证物；数字CTA直接对应三步，兼顾收藏和评论。
+- reviewer_id: phasea46-d05-topic-v3-w30d05-topic
+  review_mode: independent
+  reviewer_agent_id: task-phasea-46-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-46-20260719 · 选题深挖师 · 搭AI助理、Agent和知识库的人常遇到“模型说记住了/后来答不上”的验收盲区；本条把泛失忆争论
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-3) 工程受众明确但流量上限低于泛AI技巧；(-2) 与D04共享前两张证物，连续发布仍会重复；(-1) “记岔了”标题皮肤可能让少数观众先按人格化记忆理解。
+    改法：发布时突出‘证据缺一张，不签通过’和三步验收，避免把D05包装成D04的续页复述。 依据：搭AI助理、Agent和知识库的人常遇到“模型说记住了/后来答不上”的验收盲区；本条把泛失忆争论收窄成可复现的三步：查落盘、查读集、修后回问。最有辨识度的回报不是成功故事，而是缺一张证据就拒签。CTA让观众留01/02/03，输入成本低且与三步收藏物一一对应。
+avg_score: 94.0
+pass: true
+scorecard_phase: pre_render

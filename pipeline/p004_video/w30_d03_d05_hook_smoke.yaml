@@ -1,0 +1,26 @@
+video: {fps: 30, width: 1080, height: 1920}
+scenes:
+  - id: smoke_d03_hook_data
+    template: d03_w30_test_hook.html
+    duration: 2
+    data: {eyebrow: "同题 · 双轮实测", title: "同一个问题\n两种首答顺序", counter: "先建议 ↔ 先问事实", subtitle: "同一个迷茫问题，我跑了两轮。"}
+  - id: smoke_d04_hook_data
+    template: d04_w30_record_hook.html
+    duration: 2
+    data: {eyebrow: "同一台机器 · 同一仓库", title: "同一条记录\n一端有 · 一端没有", path: "journal / project record", subtitle: "同一条项目记录。"}
+  - id: smoke_d05_hook_data
+    template: d05_w30_danger_hook.html
+    duration: 2
+    data: {eyebrow: "QA 误判警报", title: "AI 说没记录\n先别判它没写", warning: "文件在 ≠ 入口能读", subtitle: "AI 说没记录，先别判它没写。"}
+  - id: smoke_d03_prompt_stress
+    template: d03_w30_prompt_exit.html
+    duration: 10.5
+    data:
+      scene_duration: 10.5
+      groups:
+        - {name: "生存事实 4问", text: "01 现在靠什么活？ 02 钱还能撑多久？ 03 真正做过并会的是什么？ 04 过去放弃过什么，为什么？"}
+        - {name: "目标边界 2问", text: "05 现在最怕的一件事是什么？ 06 三个月后什么状态算没白过？"}
+        - {name: "行动验证 3问", text: "07 我是买方还是卖方？ 08 第一个真实用户是谁？ 09 这周能做的最小验证是什么？"}
+      rules: ["逐个问并等待", "事实没齐先不建议", "最后给选择题+建议", "第10问验收具体下一步"]
+      boundary: "最卡哪一问？评论留数字 · 人来拍板"
+      subtitle: "完整指令放在画面上。"

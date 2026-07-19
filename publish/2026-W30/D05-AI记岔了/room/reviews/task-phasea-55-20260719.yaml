@@ -1,0 +1,67 @@
+review_task: task-phasea-55-20260719
+reviewer_agent_id: /root/phaseb_review_07
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D05
+content_id: W30D05
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - script/T044_配音稿_v2.md
+  - pipeline_config.yaml
+  - insights/core_message.md
+  - insights/fact_check.md
+  - insights/topic_brief.md
+  - insights/domain_notes.md
+  - insights/hook_benchmark.md
+  - insights/external_references.md
+  - pipeline/p004_video/templates/d05_w30_danger_hook.html
+  - pipeline/p004_video/templates/d05_w30_alarm.html
+  - pipeline/p004_video/templates/d05_w30_evidence_pair.html
+  - pipeline/p004_video/templates/d05_w30_causality.html
+  - pipeline/p004_video/templates/d05_w30_write_check.html
+  - pipeline/p004_video/templates/d05_w30_retest.html
+  - pipeline/p004_video/templates/d05_w30_repaired.html
+  - pipeline/p004_video/templates/d05_w30_qa_card.html
+reviews:
+  - role: 网络调研员
+    reviewer_id: phasea55-d05-network-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 91
+    verdict: pass
+    evidence: |-
+      落盘与提交、旧入口无记录、目标文件不在入口读集、新事实写入和升格闭环均由raw export行号支撑，属于A层项目一手证据；原入口复问旧事实没有逐字原件，被明确降为C层缺证并禁止写通过。外部Memory与Prompt文档只说明写入和上下文读取是不同环节，没有承担本案因果证明。
+    deductions: |-
+      (-4) 没有平台侧用户样本证明三步QA是高频大众需求；(-3) 外部参考不能证明这套修复在其他产品有效；(-2) hook benchmark仅是agent_hypothesis。
+    remediation: "所有发布主张必须锚定自建系统案例；不得把外部机制背景或形式假设升级为通用效果证据。"
+  - role: 记者
+    reviewer_id: phasea55-d05-reporter-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 96
+    verdict: pass
+    evidence: |-
+      脚本严格区分报警、根因和修复验收：模型答不上只触发报警；本案根因由已落盘且不在读集的证物组合支撑；新事实写入与升格有记录可写通过；原失败入口复问缺逐字原件，因此画面保持“待原件”并明确不签通过。模板使用“真实排查证物”，没有伪称真实抓包、AI坦白或翻遍记录。
+    deductions: |-
+      (-2) “第三步修后回问”在结果揭示前可能短暂被误听为已完成；(-2) “真正的根因”只适用于这次事故，不能写成所有无记录回复的唯一原因。
+    remediation: "禁写修复成功、百分百不漏、所有AI都这样、AI自述即日志；03必须与待原件和拒签状态紧邻出现。"
+  - role: 选题深挖师
+    reviewer_id: phasea55-d05-topic-v3
+    reviewer_agent_id: /root/phaseb_review_07
+    review_mode: independent
+    score: 94
+    verdict: pass
+    evidence: |-
+      选题把常见的“AI说记住了/没有记录”转为可复现的QA验收任务，给搭助理、Agent和知识库的用户三步检查法。与D04的理解型内容区分清楚：D04解释入口差异，D05要求落盘、读集、原入口回问三类证物；数字CTA直接对应三步，兼顾收藏和评论。
+    deductions: |-
+      (-3) 与D04共享事故，相邻发布会削弱新鲜感；(-2) 工程受众明确但覆盖面较窄；(-1) “AI记岔了”标题仍有拟人化误读。
+    remediation: "与D04错开发；标题和封面强调验收证物，不把内容包装为消费级AI记忆万能教程。"
+overall:
+  score: 93.7
+  verdict: pass
+  blocking_issues: []
+  release_condition: "三角色均>=90；允许发布自建工作流三步QA与局部通过结果，原入口复问必须持续保持待原件。"

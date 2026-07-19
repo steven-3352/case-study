@@ -1,0 +1,28 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式策略官
+artifact: design/form_strategy.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea54-r02-w30d04-form-strategy
+  review_mode: independent
+  reviewer_agent_id: task-phasea-54-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-54-20260719 · 形式策略官 · 8镜从记录锁定、访问分流、写入证物、读集扫描、缺失路径、范围边界推进到共同可读面和入口CTA；缺
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 留存节拍与视觉原创文档仍提及旧的双工程凭证CTA，和当前入口名CTA不一致。 依据：8镜从记录锁定、访问分流、写入证物、读集扫描、缺失路径、范围边界推进到共同可读面和入口CTA；缺失路径镜采用比例节拍，1.5倍压力下相邻变化约1.35秒。
+- reviewer_id: phasea53-d04-format-strategist-v3-w30d04-form-strategy
+  review_mode: independent
+  reviewer_agent_id: task-phasea-53-20260719
+  reviewed_at: '2026-07-19'
+  angle: 访问X光对理解/完播的杠杆、8镜拓扑变化和候选竞争
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-2) 四源扫描仍有工程术语门槛。(-1) shared_surface纵向跨度较大，焦点需单向推进。(-1) D04缺少真人/环境素材，情绪共鸣主要靠事故原话。(-1)
+    storyboard close时长仍落后production。 改法：路径源配普通话释义；共同可读面按上中下单向汇流；保持真实原话标识强化人感。 依据：访问X光把“信息存在但入口不可见”变成文件→注入源→入口的可追踪拓扑，避免双设备孤岛误导成同步/硬件问题，也避免全片终端在手机端不可读。8镜依次锁定证物、分叉断线、双节点验真、四源扫描、目标挡回、范围缩回、共同可读面和CTA；每个高级动作分别服务停划、证据感、理解、收藏或评论。1.5x时间轴已解除原missing冻结。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

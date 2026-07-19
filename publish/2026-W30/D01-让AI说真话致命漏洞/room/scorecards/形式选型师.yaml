@@ -1,0 +1,27 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式选型师
+artifact: design/form_competition.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea23-d01-format-selection-w30d01-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-23-20260719
+  reviewed_at: '2026-07-19'
+  angle: 匿名原文辨认加受控实验台是否比录屏、纯证物台更适合当前窄结论
+  score: 92
+  verdict: pass
+  notes: 当前内容要证明的不是“普通问法没发现”，而是“同模型同计划下，单点Prompt把核心假设放在第一句”。匿名原文辨认让观众先实际比较两份开头，3秒即可兑现；随后锁定变量、展示两轮短哈希并主动承认A也发现风险，形式与窄结论一致。相较完整聊天录屏，它降低了竖屏长文本和品牌UI噪声；相较纯纸面戏剧，它保留了观众选择动作和可回查证据。收藏Prompt与评论核查槽分别承接收藏、评论，形式没有只服务观赏。扣(-8)：A/B原文长度不等会让部分观众把“更长更具体”当成答案线索，纸面实验台也缺少真人或环境质感；具体改法：不篡改原文的前提下保持等高框和中性游标，正式成片用音效与焦点移动补触感，禁止添加无证据B-roll。
+- reviewer_id: phasea15-d01-format-fit-w30d01-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-15-20260719
+  reviewed_at: '2026-07-19'
+  angle: 匿名原文辨认题与横向实验台是否是本证据命题的最短可视化路径
+  score: 90
+  verdict: pass
+  notes: 当前首屏使用Round 1两份真实开头摘录，A为原响应标题“计划评估：AI 内容代运营”，B为“最致命的漏洞”首句短摘，问题改成“哪份开头就给核心假设”，观众无需理解复杂实验即可在首屏作答；3秒后立即进入“全面评估/第一句单点”的解释，形式与“只比较核查顺序”的窄结论贴合。横向双栏、控制变量锁、证物票、双轮票据形成完整实验台，且与D02纵向事故倒推板没有骨架复用。扣(-10)：A/B摘录长度天然不等，游标又在约2秒前落向B，会让少量竞猜张力提前泄出；具体修正：最终渲染保持两侧同一可视高度，游标在3秒答案点之前只做中性扫视，答案点再落B，不改原文也不制造公平性假象。
+avg_score: 91.0
+pass: true
+scorecard_phase: pre_render

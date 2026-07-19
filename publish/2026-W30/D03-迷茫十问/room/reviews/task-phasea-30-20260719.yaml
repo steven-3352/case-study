@@ -1,0 +1,55 @@
+review_task_id: task-phasea-30-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+phase: phase_a
+project_id: W30D03
+content_id: T042
+content_version: v2
+form_version: v2
+read_only_review: true
+reviewed_artifacts:
+  - meta.yaml
+  - GAP_REPORT.md
+  - insights/questions_ab_evidence.md
+  - insights/external_references.md
+  - insights/hook_benchmark.md
+  - insights/topic_brief.md
+  - insights/core_message.md
+  - insights/fact_check.md
+  - script/T042_配音稿_v2.md
+  - design/storyboard.yaml
+  - pipeline_config.yaml
+  - raw-export/raw/2026-07-15-bot.md
+roles:
+  - role: 网络调研员
+    angle: "外部方法资料的来源等级、平台需求证据与内部实验的隔离"
+    score: 90
+    verdict: pass
+    notes: |-
+      外部参考只使用 OpenAI 与 Anthropic 官方 Prompt 工程文档解释“明确约束/上下文指令”属于常见能力，并明确声明它们不证明九问流程有效；`hook_benchmark.md` 两个参考都标为 `agent_hypothesis`，没有冒充热门视频或同行实绩。核心结论改由双轮 API 原件承担，网络资料和效果证据隔离正确。
+
+      扣分：(-4) 三条外部参考缺作者/发布日期/访问日期、逐条可回查摘录与抓取状态；(-4) 没有当前抖音/小红书同题材样本、评论原话或账号基线支撑“迷茫九问”的平台需求，`queue/topics.yaml` 里的“3万/1.2万”也没有在 v2 洞察包中给出链接和采样口径；(-2) 没有真实用户走完整九问后的效用资料。可执行改法：补官方页面元数据和访问回执；抓取至少5条可定位的平台样本，记录链接、发布日期、播放/赞藏/评论与“直接要建议还是先被追问”的评论原话；真人结果未补前继续只写首答组织变化，不提升为效用证据。
+
+  - role: 记者
+    angle: "双轮首答原件、哈希链与配音稿逐句事实边界"
+    score: 92
+    verdict: pass
+    notes: |-
+      `questions_ab_evidence.md` 保留两轮 A/B 的同模型、同 system、同情境、UTC、response id、请求/响应/正文哈希和未删改输出；两轮 B 均明确“每次只问一个”，首答都落在“你现在靠什么活着”，两轮 A 的完整首答均包含观察、筛选与行动建议。v2 配音主动说明只证明回答顺序变化，不声称更准、能找方向或产生行动；第十问在画面与脚本中标为编辑补充、待真人验证。
+
+      扣分：(-4) 口播“普通问法第一屏就给方案”比原件更强：Round 1/2 A 的开头先复述事实和观察，显式“建议”标题出现在后段；可靠口径应是“首答内已经给出筛选和行动建议”；(-2) A/B 干预包含九问、逐问等待、不假设、事实未齐不建议和第十问，不能让画面把差异误读成九问本身的单变量效果；(-2) 实验只取首答，没有跑到第十问，故第十问是否被实际执行仍未知。可执行改法：把“第一屏”改成“首答”；首镜常驻“整组流程干预”；若要展示第十问行为，补完整多轮原始会话及哈希，否则保持“编辑补充”。
+
+  - role: 选题深挖师
+    angle: "迷茫场景的具体冲突、第十问完播回报与可复制收藏物"
+    score: 94
+    verdict: pass
+    notes: |-
+      v2 已把泛化的“AI 会瞎给方案”收窄为信息不足时“先给建议还是先收事实”的可观察冲突；首镜有真实 A/B 首答，随后三道关卡把九问拆成生存事实、目标边界和本周验证，第十问在约70%处形成新的信息回报。收藏物不再只有问题列表，而包含逐个提问、等待回答、事实未齐不建议、最后给选择题和建议，具备直接复现条件；“人来拍板”守住职业建议边界。
+
+      扣分：(-2) “买方还是卖方”对非创业型迷茫用户仍偏抽象，受众从职业选择扩到项目创业时场景会发散；(-2) 九问尚无真人完整多轮与48小时行动结果，内容价值只能承诺“改变首答顺序”；(-2) 首屏证据后连续三关仍有清单教程感，需靠第十问和回答令牌推进保持中段回报。可执行改法：画面用一句解释“你是想消费这个方向，还是能向别人交付它”；发布标题避免“找到方向”；投后重点看首镜3s、第三关到达率和完整 Prompt 收藏率。
+overall:
+  score: 92.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均>=90；只允许发布‘整组流程改变本组首答组织’的窄结论。"

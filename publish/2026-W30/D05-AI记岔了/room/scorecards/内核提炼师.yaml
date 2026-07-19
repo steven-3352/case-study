@@ -1,0 +1,30 @@
+status: pass
+review_source: independent_agent_tasks
+role: 内核提炼师
+artifact: insights/core_message.md
+artifact_version: evidence-v2
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea49-d05-core-v3-w30d05-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 内核提炼师 · 内核不是“AI记忆修好了”，而是“验收要看落盘、读集、原入口回问三类证物”。hook先拆没记录与
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-3) 标题皮肤“AI记岔了”仍可能触发人格化理解；(-2) “第三步修后回问”必须由下一镜待验及时纠偏，避免被误听成已经完成。
+    改法：最终字幕必须同步显示待原件与拒签，发布标题不能写修复成功。 依据：内核不是“AI记忆修好了”，而是“验收要看落盘、读集、原入口回问三类证物”。hook先拆没记录与没写的错误等号；因果镜把答不上留在报警区；结果镜只对新事实写入升格签绿证，原入口复问因无逐字原件保持黄槽待验。结尾“证据缺一张就别宣布修好”与内核完全一致。
+- reviewer_id: phasea43-d05-core-v3-w30d05-core
+  review_mode: independent
+  reviewer_agent_id: task-phasea-43-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-43-20260719 · 内核提炼师 · 核心明确区分“没记录不等于没写”“答不上只报警”“根因需同时核写入位置和入口读集”。方法收敛为查
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-3) D04与D05共享同一案例，必须持续保持“原因解释”和“验收方法”的差异；(-2) 标题皮肤“AI记岔了”仍可能诱发人格化理解；(-1)
+    三步短词需要前镜因果才能完整复现。 改法：继续保留原入口复问待验和拒签，不得改成修复成功故事。 依据：核心明确区分“没记录不等于没写”“答不上只报警”“根因需同时核写入位置和入口读集”。方法收敛为查落盘、查读集、修后回问，且修复结果主动拆成新事实写入升格通过与原入口复问待原件。尾句“证据缺一张就别宣布修好”与项目fail-closed原则一致，CTA
+    01/02/03也对应三个可复现步骤。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

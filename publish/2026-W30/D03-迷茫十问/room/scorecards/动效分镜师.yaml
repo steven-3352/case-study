@@ -1,0 +1,30 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效分镜师
+artifact: design/storyboard.yaml
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea48-d03-motion-board-v3-w30d03-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-48-20260719
+  reviewed_at: '2026-07-19'
+  angle: 8镜一对一任务、比例拍点与后段回报
+  score: 93
+  verdict: pass
+  notes: 扣(-7)。 (-3) 分镜表仍未显式列22%/48%/72%等拍点。(-2) 正式TTS镜间切点表未生成。(-2) 首镜到双轮证物的运动接力需在最终MP4复核。
+    改法：正式timing后输出8镜窗口/动作事件表，并核首镜到证物镜的切点连续性。 依据：8镜保持首镜顺序反转、双轮证物、证据边界、4+2+3问题、第10问和完整出口票的一对一任务。最易冻结的镜3/7/8已有比例拍点，镜4–6有连续运动；第10问和出口票在后段形成独立回报，runtime能按真实窗口替换名义时长。
+- reviewer_id: phasea47-d03-motion-storyboarder-v3-w30d03-motion-storyboard
+  review_mode: independent
+  reviewer_agent_id: task-phasea-47-20260719
+  reviewed_at: '2026-07-19'
+  angle: 8镜动作间隔、音画交接、SFX命中与收藏评论顺序
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-2) storyboard末镜6s与production 7s不一致。(-1) boundary hit offset0.4s略早于1.5x首道bar约0.9s。(-1)
+    出口票收藏与评论仍在同镜竞争。(-1) 真TTS听片尚未完成。(-1) 压力测试命令与帧目录未在审核材料中固化。 改法：同步末镜7s；把boundary hit对齐首道bar；先完成收藏稳定态再点亮评论数字，并在真TTS后听检。
+    依据：8段VO与8镜逐一对应。1.5x复算中split_proof最大约2.5s，boundary不足2.1s，tenth_gate约2.34s，prompt_exit实测最大重复帧1.367s；三关镜由连续运动覆盖，无>4s冻结。三关whoosh、首答/第十问/出口票hit都由scene_sid按真实TTS重新锚定，镜头整体漂移不会导致音效落到错误场景。
+avg_score: 93.5
+pass: true
+scorecard_phase: pre_render

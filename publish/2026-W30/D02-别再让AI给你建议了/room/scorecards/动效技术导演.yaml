@@ -1,0 +1,32 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效技术导演
+artifact: design/motion_tech_plan.md
+artifact_version: content-v3-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea18-d02-motion-technical-w30d02-motion-tech
+  review_mode: independent
+  reviewer_agent_id: task-phasea-18-20260719
+  reviewed_at: '2026-07-19'
+  angle: 七镜TTS实长重排、序列音效展开、模板data注入和Prompt最短窗口的技术约束
+  score: 94
+  verdict: pass
+  notes: 七段MiniMax口播与七镜严格同序，renderer会过滤gap后校验数量，并以每段真实window生成runtime storyboard；音效不再依赖4/9/14/21等估时，`scene_sid`会在正式混音前查真实segment
+    start，`offset_seq`也会重写为新的`t_start_seq`。独立解析source计划得到8个原始事件、12个展开事件，ambient/hit/whoosh/tick/hit_seq/tick_seq均解析到当前catalog真实存在的CC0
+    WAV，0 gap。全部HTML读取注入data并把真实duration加入paused timeline，不存在网络资产、CSS异步动画或每帧布局测量。扣(-6)：序列alias会默认选family第一候选，`hit_seq`因此使用soft
+    boom而非更轻的界面盖章声，技术可用但听感仍未证实；具体修正：正式混音试听21秒双轮盖章，若遮住“第二轮”，为该事件显式指定catalog内`check_tick_soft.wav`并复核峰值。
+- reviewer_id: phasea16-d02-motion-technical-w30d02-motion-tech
+  review_mode: independent
+  reviewer_agent_id: task-phasea-16-20260719
+  reviewed_at: '2026-07-19'
+  angle: 纵向时间轴的确定性实现、Prompt运行时静止保证、SFX序列展开与真实TTS对齐风险
+  score: 90
+  verdict: pass
+  notes: 七模板均从`window.__data`读取配置，使用paused timeline配合逐帧seek，主要属性限定为x/y/scale/scaleY/autoAlpha和背景色，没有运行时网络、ScrollTrigger或CSS动画。Prompt镜头以实际`scene_duration`计算reveal，四行约2.6秒全部可见，最后一次关键词高亮约5.9秒结束，因此10秒目标镜头仍保留超过4秒的全文静止区。D02音效8个原始事件展开为12个事件，`ambient/hit/whoosh/tick/hit_seq/tick_seq`均解析到本地CC0
+    WAV，0 gap且序列字段符合mixer实现。扣(-10)：TTS超出目标时会让后续runtime场景顺延，但音效仍绑定4/9/14/21等名义时刻；此外catalog
+    alias只指向family首个候选，`hit_seq`实际会选soft boom而非注释期待的UI accent。具体修正：混音前按`seg_timing`重映射场景起点，并为序列事件显式指定`src_rel`到合适CC0样本，再复核瞬态不遮VO。
+avg_score: 92.0
+pass: true
+scorecard_phase: pre_render

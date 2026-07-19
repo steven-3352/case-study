@@ -1,0 +1,37 @@
+status: pass
+review_source: independent_agent_tasks
+role: 动效设计师
+artifact: douyin/video.mp4
+artifact_sha256: 884182583509530460aa85de49bb4cf9fc9b0ea224d510833446b59a07b83d4d
+artifact_version: content-v2-form-v3-render-20260719
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phaseb09-d03-motion-designer-w30d03-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_05
+  reviewed_at: '2026-07-19'
+  angle: task09 · motion-design · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '八镜分别使用双轮计数、首答分轨、证据边界杆、生存事实闸、双靶目标、三节点行动轨、第10问终检门和出口票，视觉任务随内容推进而换形；0.4s/1.5s/2.7s首屏、全片contact
+    sheet及42s/46.5s末镜均未见黑屏、撕裂、溢出或字幕遮住主体。蓝色轨迹、节点与逐项显现都服务“先问事实”和九问结构，不是无关装饰。
+
+
+    扣分：(-4) 5.167-9.167s自动冻结恰好4.00s，贴住硬线，且该段承担首答对照，低注意力观众会感到停住；(-3) 首镜0.7-2.4s也被检出1.70s静止，主要变化只有底部选择条颜色；(-3)
+    40.52-48.73s完整九问虽然逐组显现，但大面积白底和密集文字更像暂停页。最小修法：若返修，在5-9s让两条首答路径持续流动或逐字落签；末镜保留全文但加入不遮字的组别进度。当前没有>4.00s冻结，故不构成技术阻断。'
+- reviewer_id: phaseb12-d03-motion-designer-w30d03-motion-design
+  review_mode: independent
+  reviewer_agent_id: agent-phaseb_review_12
+  reviewed_at: '2026-07-19'
+  angle: task12 · motion-design · 最终 MP4 独立复验
+  score: 90
+  verdict: pass
+  notes: '最终MP4的8镜动作与叙事职责一致：双栏证物、边界否定、四格生存事实、双圆目标、三步验证、第10问翻牌和出口票均有独立视觉机制。抽帧未见布局跳变、渲染破损或字幕遮挡，0-3s状态对照成立。
+
+
+    扣分：(-5) 5.167-9.167s实测连续4.000s低变化，完全没有硬门余量；(-3) 末镜40.52-48.73s依靠逐项显现后长时间阅读，动态回报偏弱；(-2)
+    三关的卡片入场动作相近。当前不阻断。最小改法：若6-10s投后掉点，只给双栏证物增加轻扫描/落印；尾镜用分组高亮，不删九问和边界。'
+avg_score: 90.0
+pass: true
+scorecard_phase: post_render

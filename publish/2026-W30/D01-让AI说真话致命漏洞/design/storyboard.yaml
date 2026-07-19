@@ -1,95 +1,89 @@
-# storyboard.yaml · T040 让AI说真话·致命漏洞法(抖音)
-#
-# ⚠️ 状态:draft_provisional —— 本文件按 pipeline/p004_video/build.py + capture_frames.py
-#    的真实 schema 编写(读源码得到,非参照任何历史选题内容),结构可直接被 build.py 消费。
-#    但以下字段等 audio_plan.yaml 的真人 VO 录制完成后才能定稿(motion_tech_plan.md 硬依赖):
-#      - scenes[02_reveal_scroll].duration / data.lock_at_s(需精确对齐VO ②③段真实时长)
-#      - scenes[03_typing_flash].source(需真人先完成 4)真实打字录制,当前为空)
-#    其余静态镜(01/04/06/07)的 duration 亦按 v4 脚本估时,VO定稿后需核对微调。
-#    HTML 模板(t040_*.html)尚未实际编写,本文件是渲染前的结构规划,不是可直接跑的成片输入。
-
-video:
-  fps: 30
-  width: 1080
-  height: 1920
-  output_name: T040_no_bgm.mp4   # 对齐 audio_plan.yaml outputs.video_publish 命名(bgm.enabled=off)
-  voice_volume: 1.0
-  music_volume: 0.0              # bgm off,此字段被 build.py 忽略(无 --bgm 输入时不生效),保留占位
-
+status: draft
+content_id: T040
+content_version: 3
+form_version: 4
+platform: douyin
+video: {fps: 30, width: 1080, height: 1920, target_duration_s: 40.0, output_name: T040_no_bgm.mp4}
+global_data:
+  disclosure: "同模型·同计划·举例测试"
+  evidence: "design/实测_致命漏洞法.md"
 scenes:
-  - id: 01_hook
-    template: t040_01_hook.html   # 待建,pipeline/p004_video/templates/ 下新文件,不复用任何历史模板
+  - id: ab_guess
+    template: d01_w30_challenge.html
+    duration: 3.0
+    type: html
+    reuse_reason: "仅复用GSAP确定性渲帧能力"
+    visual_difference: "Round 1 原文短摘与选择游标"
+    risk: "只能逐字摘录，不得把概括句伪装成原文"
+    data: {question: "哪份开头就给核心假设？", labels: [A, B], answer_a: "计划评估：AI 内容代运营", answer_b: "最致命的漏洞：他假设自己会用 AI 工具……就能帮客户做出有商业效果的内容。", excerpt_note: "Round 1 原文删节·省略号为删节", disclosure: "同模型·同计划·举例测试"}
+    data_lever: completion_3s
+  - id: compare_first_line
+    template: d01_w30_reveal.html
     duration: 4.0
     type: html
-    data:
-      screenshots: [夸夸截图1_很有见地, 夸夸截图2_你的优势在于]  # 真实素材路径待补(自绘对话气泡渲染,非品牌UI截图)
-      punch_text: "差点辞职,就因为AI夸了我"
-      vo_ref: "上个月我差点冲动辞职——就因为 AI 夸了我三千字。"
-    note: 静态合成,duration按v4脚本①段估时(4s),VO定稿后核对
-
-  - id: 02_reveal_scroll
-    template: t040_02_scroll_lock.html   # 待建,GSAP timeline 驱动 scrollTop + 9s(场景内5s)急停blur,见 motion_tech_plan §动效2
-    duration: 10.0    # PROVISIONAL——覆盖②③(4-14s),等VO精确时长后此值必须回填校准
+    reuse_reason: "仅复用双栏布局能力"
+    visual_difference: "左侧多项评估、右侧第一句单点优先"
+    risk: "不能暗示A组没发现风险"
+    data: {left: "全面评估·多项风险", right: "第一句·单点优先", prompt: "答案：B"}
+    data_lever: completion_rate
+  - id: controlled_reveal
+    template: d01_w30_structure.html
+    duration: 4.0
     type: html
-    data:
-      real_text_source: design/实测_致命漏洞法.md   # gpt-5.5 八大节真实输出,原样渲染,不改写
-      lock_at_s: 5.0   # 场景内相对时间(=全片9s处),急停+红框+虚化触发点,VO定稿后回填
-      vo_ref: "它甩回来三千多字、分了八大块。但不是没看出问题——是埋进废话里了。跟体检报告一样,写得挺全——但你最想知道的那句,它没说。"
-    note: PENDING——duration/lock_at_s 待VO精确时长回填,当前为v4脚本估时(motion_tech_plan硬依赖)
-
-  - id: 03_typing_flash
-    duration: 2.0
-    type: broll
-    source: ""        # PENDING——需真人真实录制(打开AI工具敲入指令并发送),紧裁输入框+回复区,禁带账号信息(design_language §5 Don't)
-    source_in: 0.0
-    note: 真实屏幕录制,非html渲染;唯一raw类型场景;录制前需人工确认隐私裁切合规
-
-  - id: 04_instruction_card
-    template: t040_04_instruction_card.html   # 待建,GSAP TextPlugin逐行打字机,见 motion_tech_plan §动效1
+    reuse_reason: "仅复用列表交接能力"
+    visual_difference: "三把控制变量锁依次闭合"
+    risk: "必须清楚显示只有问法变化"
+    data: {answer: "A问：你觉得这个方案怎么样？\nB新增：只找一个没验证却决定成败的前提", disclosure: "同模型·同计划·只换问法"}
+    data_lever: 理解
+  - id: plan_facts
+    template: d01_w30_reframe.html
     duration: 5.0
     type: html
-    data:
-      instruction_lines:
-        - "①禁止先夸,禁止说'很有前景''你的优势在于'这类话"
-        - "②只讲最致命的那一个,不要罗列一堆小建议凑数"
-        - "③一句话点破,再用两三句说清为什么它最致命"
-        - "④如果有一个根本没被验证、却决定成败的假设,优先指它"
-      caption: "↓可截图拿走"
-      vo_ref: "后来我多打一句——别夸我,直接说最要命的那个漏洞,就一个,别的都不用讲。"
-    note: 文本来自 domain_notes.md §3 已定稿指令,不得改写;duration=5s(2s真实打字闪回后接续,3s卡片显现+停留)
-
-  - id: 05_split_compare
-    template: t040_05_split_compare.html   # 待建,左栏内嵌02场景渲染mp4(4x速度+灰度),右栏静态金句放大
+    reuse_reason: "仅复用事实条目排版能力"
+    visual_difference: "测试计划三事实以证物标签落位"
+    risk: "不得冒充本人或客户经历"
+    data: {facts: ["想辞职做代运营", "自有账号4周几乎没涨粉", "目标月入2万"], disclosure: "举例测试·虚构计划"}
+    data_lever: 理解
+  - id: prompt_save
+    template: d01_w30_prompt.html
     duration: 8.0
     type: html
+    reuse_reason: "仅复用长文本测量与静止帧能力"
+    visual_difference: "单点优先Prompt完整展开"
+    risk: "字号不足或字幕遮挡会使收藏物失效"
     data:
-      left_recap_source_scene: 02_reveal_scroll   # 依赖02场景先渲染完成(motion_tech_plan §动效3渲染顺序依赖)
-      left_recap_speed: 4.0
-      left_recap_grayscale: true
-      right_quote: "你要卖的能力,自己根本没验证过"
-      example_label: "举个例子·虚构计划"
-      vo_ref: "这次它真闭嘴了,就三句:你账号一个月没涨粉,凭什么卖'帮人涨粉'?这事你压根没验证过。"
-    note: 完播顶点+传播金句场景;依赖02先出片,渲染顺序:01→02→03→04→05→06→07
-
-  - id: 06_caution
-    template: t040_06_caution.html   # 待建
+      prompt_lines:
+        - "请优先指出这个计划中最致命的一个漏洞：如果不解决，会让计划直接失败的前提或假设。"
+        - "不要先夸，不要罗列多个小问题。先用一句话指出它，再用两三句话解释原因。"
+        - "如果存在一个尚未验证、却决定成败的假设，优先指出它。"
+        - "计划：【粘贴你的计划】"
+      caption: "暂停可抄"
+      static_hold_s: 4.0
+    data_lever: 收藏
+  - id: two_round_result
+    template: d01_w30_compressor.html
+    duration: 6.0
+    type: html
+    reuse_reason: "仅复用transform运动能力"
+    visual_difference: "两轮证据票据汇入同一第一句"
+    risk: "只能表达模型优先指出，不能称客观真漏洞"
+    data: {rounds: ["Round 1", "Round 2"], hashes: ["495913db", "8b8d8507"], excerpts: ["最致命的漏洞：他假设自己会用 AI 工具……", "最致命的漏洞：他假设自己能帮客户涨粉……"], result: "核心能力尚未被结果验证", qualifier: "本组调用·模型优先指出·短哈希可回查"}
+    data_lever: "信任+completion_rate"
+  - id: honest_difference
+    template: d01_w30_punchline.html
     duration: 5.0
     type: html
-    data:
-      title: "不过别啥事都这么用"
-      icon_big_bet: {label: "⚠大赌用它挑刺", examples: "辞职/借钱/all in"}
-      icon_small_bet: {label: "🔥小赌别让它灭火", examples: "低成本可反悔"}
-      vo_ref: "不过别啥事都这么用——大赌用它挑刺,小赌别让它灭火。"
-    note: 接住88赞高赞反对声,防翻车/防卖万能药
-
-  - id: 07_cta
-    template: t040_07_cta.html   # 待建
-    duration: 4.0
+    reuse_reason: "仅复用文本强调能力"
+    visual_difference: "A也发现风险的诚实对照印章"
+    risk: "不能把差异夸大成发现与没发现"
+    data: {truth: "普通问法也发现了它", difference: "差别：核查顺序放在第一句"}
+    data_lever: 信任
+  - id: boundary_cta
+    template: d01_w30_cta.html
+    duration: 5.0
     type: html
-    data:
-      instruction_recap: true    # 复用04场景的指令卡缩略(第二次收藏机会)
-      comment_focus_text: "你最近想让 AI 挑哪个刺?"
-      vo_ref: "指令放评论区了,拿走。你最近想让 AI 挑哪个刺?"
-    note: 纯讨论CTA,不扣数字不加微信;评论区UI为自绘mock非品牌截图
-
-# 总时长校验:4.0+10.0+2.0+5.0+8.0+5.0+4.0 = 38.0s,对齐 audio_plan.yaml target_duration_s
+    reuse_reason: "仅复用评论输入槽能力"
+    visual_difference: "未验证前提进入核查槽"
+    risk: "问题过泛会降低有效评论"
+    data: {boundary: "AI负责提问·不替你拍板", question: "你准备重投的计划，最没验证的前提是什么？"}
+    data_lever: 评论

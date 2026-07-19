@@ -1,0 +1,63 @@
+review_task: task-phasea-41-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/capture_frames.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d04_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea41-d04-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "GSAP seek、路径动画伸缩、freeze门和SFX动态时基"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8个当前生产模板均建立paused timeline并registerTimeline，适配确定性逐帧seek。扫描器、访问线、范围框和共同可读面均含随D延伸的连续运动或D-n末段动作；runtime按最终TTS生成每镜duration，scene_sid/offset_seq把断点、扫描、缺失源、汇流和收口SFX重新锚定，ambient也自动延长到真实总长。
+    deductions: |-
+      (-2) close生产目标6s、storyboard仍5s，video target 41s而目标窗口合计42s，冻结文档存在1s偏差。(-1) motion_tech_plan仍写7个专属HTML，当前为8镜。(-2) 真实TTS后仍必须以freezedetect和实际音画听片验证，代码审查不能替代成片。(-1) 静态t_start保留旧秒数，虽会被runtime覆盖，但可维护性一般。
+    fix: "同步close=6s、target=42s和8模板计数；在audio plan注明scene_sid为唯一有效时基；最终TTS后跑freeze与SFX峰值检查。"
+  - role: 动效设计师
+    reviewer_id: phasea41-d04-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "路径X光视觉语法、2-4s变化、层级与文字溢出"
+    score: 92
+    verdict: pass
+    evidence: |-
+      证物锁定、分叉断线、文件+commit验真、四源扫描、目标文件挡回、范围缩回、两入口汇流和CTA锁合构成连续的路径叙事，每镜主构图和动作任务不同。主要文字为34-62px，读集四项分时出现，路径名短，手机可读性总体成立；后半镜头保留扫描、探针或锁合，未见明显超过4s的纯静止设计。
+    deductions: |-
+      (-2) readset四项英文路径即使34px仍有认知拥挤，字幕同时出现时会竞争。(-2) shared_surface顶部临时记录、中央canonical和底部双入口纵向跨度大，7s镜需避免观众来回找焦点。(-2) close同时显示错误句、提问和CTA，信息赢家略多。(-1) 自绘节点若无“真实摘录·合成排版”标识，证据感可能被误读。(-1) 尚无最终像素溢出截图。
+    fix: "读集每次只高亮一源并弱化其余；共同可读面按上→中→下单向推进；close先淡出错误句再放大CTA，最终抽帧核安全区。"
+  - role: 动效分镜师
+    reviewer_id: phasea41-d04-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜音画交接、镜内动作覆盖、SFX节点与结尾停留"
+    score: 92
+    verdict: pass
+    evidence: |-
+      8段VO与8镜逐一对应，2/3/6/7/5/6/7/6s从冲突、证物、根因到修法和评论自然递进。扫描tick_seq与四源出现节拍一致，missing hit、boundary whoosh、共同可读面三tick和close hit均由scene_sid动态跟随；长镜含扫描或路径汇流，2-4s变化承诺有可执行模板支持。
+    deductions: |-
+      (-2) storyboard close仍5s，production为6s。(-2) 首镜2s和冲突镜3s切换很快，必须确认转场不丢“同一条记录”对象连续性。(-2) checklist的三声tick是否分别对应升格、桌面、飞书，motion storyboard未逐项写明。(-1) close末段D-1.1s才加阴影，稳定CTA停留略短。(-1) 无最终TTS听片，不能确认Reliable_Executive声线与扫描声是否抢字。
+    fix: "冻结表同步close 6s；明确三tick的像素对象；CTA最后至少保留1.5-2s稳定态，并在真TTS后听检SFX不盖辅音。"
+overall:
+  score: 92.7
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均达到90；可进入下一门，渲染前同步1s文档偏差，成片后补freeze、溢出和SFX听片实测。"

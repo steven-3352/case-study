@@ -1,0 +1,62 @@
+review_task: task-phasea-47-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D03
+content_id: T042
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d03_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea47-d03-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "最终1.5x压力、GSAP确定性seek、freeze硬门和runtime时基"
+    score: 96
+    verdict: pass
+    evidence: |-
+      当前8个生产模板全部使用paused GSAP timeline并registerTimeline，可由__renderFrame确定性seek。boundary已按D比例分布三道边界杆、二次偏移和末段真值框；按1.5x D=7.5s复算最大动作间隔不足2.1s。其余长镜由贯穿D的令牌/光束或D比例末段动作覆盖。prompt_exit明确以scene_duration=10.5渲315帧，压力数据最大连续相同41帧，即1.367s，远低于4.00s。
+    deductions: |-
+      (-1) 静态storyboard末镜仍6s，而production目标7s。(-1) video target40s与目标窗口合计41s仍有1s文档偏差。(-1) 压力测试数据未形成独立报告文件路径，后续审计可追溯性一般。(-1) 最终MiniMax成片仍须跑正式freezedetect，Phase A压力不能替代最终像素门。
+    fix: "同步storyboard末镜和总时长；将315帧、41帧最大重复段及命令写入压力报告；最终TTS后复跑freeze。"
+  - role: 动效设计师
+    reviewer_id: phasea47-d03-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "出口票无障碍压力、文字层级、2-4s变化与收藏停留"
+    score: 92
+    verdict: pass
+    evidence: |-
+      8镜主构图从双轮反转、首答汇流、边界杆、三关轨道、第十问到出口票持续变化。出口票已扩至1170px容器，三组正文提升到30px，规则24px，边界31px；10.5s/315帧压力结果无遮挡。组、规则、边界和落影按D比例出现，最大连续相同仅1.367s，收藏信息在长时基下仍持续构建。
+    deductions: |-
+      (-2) 规则24px仍偏小，适合暂停抄录但自然播放阅读压力较大。(-2) 同屏包含九问、四规则、评论CTA和人类边界，扫描成本仍高。(-1) D*.84后稳定截图时间在10.5s下约1.38s。(-1) survival_gate四问与字幕叠加后的安全区尚待最终帧确认。(-1) 压力结果只说明无遮挡和重复帧，不等于真机观看可读。(-1) 静态storyboard时长未同步。
+    fix: "成片抽帧确认规则24px真机可读；必要时删次级词而非缩字；让出口票最终稳定态达到至少2s。"
+  - role: 动效分镜师
+    reviewer_id: phasea47-d03-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜动作间隔、音画交接、SFX命中与收藏评论顺序"
+    score: 94
+    verdict: pass
+    evidence: |-
+      8段VO与8镜逐一对应。1.5x复算中split_proof最大约2.5s，boundary不足2.1s，tenth_gate约2.34s，prompt_exit实测最大重复帧1.367s；三关镜由连续运动覆盖，无>4s冻结。三关whoosh、首答/第十问/出口票hit都由scene_sid按真实TTS重新锚定，镜头整体漂移不会导致音效落到错误场景。
+    deductions: |-
+      (-2) storyboard末镜6s与production 7s不一致。(-1) boundary hit offset0.4s略早于1.5x首道bar约0.9s。(-1) 出口票收藏与评论仍在同镜竞争。(-1) 真TTS听片尚未完成。(-1) 压力测试命令与帧目录未在审核材料中固化。
+    fix: "同步末镜7s；把boundary hit对齐首道bar；先完成收藏稳定态再点亮评论数字，并在真TTS后听检。"
+overall:
+  score: 94.0
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均通过；1.5x数学与315帧压力均无>4s冻结，出口票无遮挡。"

@@ -1,0 +1,31 @@
+status: pass
+review_source: independent_agent_tasks
+role: 形式选型师
+artifact: design/form_competition.md
+artifact_version: content-v2-form-v4
+invalidated_by: ''
+pass_threshold: 90
+reviewers:
+- reviewer_id: phasea50-d03-format-selector-v3-w30d03-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-50-20260719
+  reviewed_at: '2026-07-19'
+  angle: 纵向三关相对候选形式的停划、理解、完播、收藏与原创性
+  score: 94
+  verdict: pass
+  notes: 扣(-6)。 (-2) 出口票同屏九问、四规则、CTA和边界，规则24px更适合暂停收藏而非自然播放。(-1) 首屏仍短暂使用A/B摘要，需确保立即汇轨而不退化成竞猜双栏。(-1)
+    轨道连续三镜若令牌视觉权重过高，可能产生形式重复。(-1) 静态storyboard末镜时长仍未同步production。(-1) 真机可读性尚需最终成片抽检。
+    改法：保持首答双块只作瞬时证物并快速汇轨；末镜优先收藏层级，必要时删次级词；真机抽检24px规则。 依据：纵向三关诊断轨道把“先收事实再建议”的时序直接转成令牌穿门动作，比九张便利贴更能表达逐个问与等待，也比真人情景表演更符合无真人效用证据和不本人录音约束。首答汇流、四列闸、双靶窄门、三节点轨、第十问终检和出口票均为内容专属构图，与D01双栏、D02事故轴及D04/D05形式不撞。1.5x下最大动作间隔约2.5s，出口票315帧压力最大连续相同41帧=1.367s且无遮挡。
+- reviewer_id: phasea49-d03-form-v3-w30d03-format
+  review_mode: independent
+  reviewer_agent_id: task-phasea-49-20260719
+  reviewed_at: '2026-07-19'
+  angle: task-phasea-49-20260719 · 形式选型师 · 纵向令牌与三类闸门把“逐个收事实”的顺序变成主运动，明显优于九张便利贴的静态清单，也避免用真人表
+  score: 95
+  verdict: pass
+  notes: 扣(-5)。 (-3) 出口票同屏仍有九问、四规则与CTA，手机自然阅读负担高；(-1) 10.5秒压力通过不替代最终MiniMax 8镜runtime与字幕合成检查；(-1)
+    稳定末态约1.4秒，更适合暂停收藏而非不暂停逐字读完。 改法：Phase B必须在最终字幕和编码后核手机尺寸可读性；若不通过应延长停留或拆层，不得再缩字。
+    依据：纵向令牌与三类闸门把“逐个收事实”的顺序变成主运动，明显优于九张便利贴的静态清单，也避免用真人表演伪造未发生的完整多轮结果。修后出口票压力场景显式注入scene_duration=10.5并生成315帧；独立SHA逐帧核得最长连续同帧41帧、1.367秒，低于4秒硬线。末帧九问、四规则、CTA均无溢出，组正文30px、规则24px，兑现当前技术计划下限。
+avg_score: 94.5
+pass: true
+scorecard_phase: pre_render

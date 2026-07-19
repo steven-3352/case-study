@@ -1,0 +1,62 @@
+review_task: task-phasea-47-20260719
+reviewer_agent_id: /root/phaseb_review_05
+review_mode: independent
+reviewed_at: "2026-07-19"
+project_id: W30D04
+content_id: T043
+phase: phase_a
+content_version: v2
+form_version: v3
+pass_threshold: 90
+readonly_review: true
+reviewed_artifacts:
+  - pipeline_config.yaml
+  - audio_plan_v2.yaml
+  - design/storyboard.yaml
+  - design/motion_storyboard.md
+  - design/motion_tech_plan.md
+  - pipeline/p004_video/build_w30_douyin.py
+  - pipeline/p004_video/shared/gsap_helpers.js
+  - pipeline/p004_video/templates/d04_w30_*.html
+reviews:
+  - role: 动效技术导演
+    reviewer_id: phasea47-d04-motion-technical-director-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "missing_path最终比例节拍、GSAP seek、freeze门和SFX runtime"
+    score: 96
+    verdict: pass
+    evidence: |-
+      8个当前生产模板均为paused timeline并registerTimeline。missing_path已从固定秒数改为D*.05/.18/.36/.52/.68/.82/.90；1.5x D=7.5s时关键动作约在0.38/1.35/2.70/3.90/5.10/6.15/6.75s，最大相邻间隔约1.35s，原4.10s冻结空档消失。其他比例镜最大约1.8-2.3s，readset由扫描光束持续至D-0.4s。runtime按真实TTS重建镜长和SFX起点。
+    deductions: |-
+      (-1) storyboard close仍5s而production目标6s。(-1) video target41s与目标窗口合计42s有1s文档偏差。(-1) 静态t_start与scene_sid运行时时基仍双写。(-1) 最终TTS后尚未跑正式freeze报告。
+    fix: "同步close和总时长；注明scene_sid为唯一运行时时基；最终成片跑freezedetect并登记最大静止段。"
+  - role: 动效设计师
+    reviewer_id: phasea47-d04-motion-designer-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "路径X光层级、hook换行、2-4s变化和手机文字容量"
+    score: 94
+    verdict: pass
+    evidence: |-
+      hook以76px两行展示同一记录的一端有/一端没有，首屏不再挤字。文件证物、分叉断点、双节点验真、四源扫描、目标挡回、范围缩回、共同可读面和CTA形成统一路径语法。missing_path修后在1.5x下约每0.6-1.35s有文件、线路、挡板、缺失框、结果或边框变化，动作都服务根因理解。
+    deductions: |-
+      (-2) readset四项工程路径与字幕并存，仍有认知拥挤。(-1) shared_surface纵向跨度较大，需确保焦点按上中下单向推进。(-1) close错误句、提问和CTA三层同屏。(-1) 自绘证物应标合成排版。(-1) 最终字幕安全区尚未抽帧。(-1) close名义时长仍过期。
+    fix: "读集仅高亮当前源；close先淡出错误句再放大CTA；最终字幕合成后抽检安全区。"
+  - role: 动效分镜师
+    reviewer_id: phasea47-d04-motion-storyboarder-v3
+    reviewer_agent_id: /root/phaseb_review_05
+    review_mode: independent
+    angle: "8镜音画节拍、1.5x最大间隔、SFX对象与结尾停留"
+    score: 93
+    verdict: pass
+    evidence: |-
+      8段VO与8镜完整映射。missing_path 1.5x最大动作间隔约1.35s，write_proof、boundary、shared_surface、close的比例动作约每1.4-2.3s出现，readset有连续扫描，已无>4s分镜空档。conflict/write/missing/boundary/list/close音效均通过scene_sid跟随真实镜头起点，序列音支撑四源与共同可读面节点。
+    deductions: |-
+      (-2) close production6s、storyboard5s。(-1) list固定offset在1.5x下会逐渐早于D比例视觉节点。(-1) close hit offset0.2s早于D*.08首对象。(-1) 共同可读面末段稳定收藏态略短。(-1) 真TTS听片尚未完成。(-1) 1.5x核算尚无自动报告文件。
+    fix: "同步close；真TTS后把list/close SFX对齐具体像素动作；保留至少1.5-2s稳定收藏态。"
+overall:
+  score: 94.3
+  verdict: pass
+  blocking_issues: []
+  release_note: "三角色均通过；missing_path修后1.5x最大间隔约1.35s，原冻结阻断解除。"
