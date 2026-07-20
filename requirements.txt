@@ -1,0 +1,56 @@
+# case-study · Python 依赖清单
+#
+# ============================================================================
+# 用法(Usage)
+# ============================================================================
+#   1. Python 3.9+ 必需(项目开发环境:3.9.6 · Darwin 23.1.0)
+#   2. 建议先创建虚拟环境:
+#        python3 -m venv .venv && source .venv/bin/activate  # macOS/Linux
+#        python  -m venv .venv & .venv\Scripts\activate      # Windows
+#   3. 装 Python 依赖:
+#        pip install -r requirements.txt
+#   4. Post-install(playwright 首次装浏览器):
+#        playwright install chromium
+#   5. 系统依赖(不能通过 pip 装 · 见 CLAUDE.md "环境配置" 节):
+#        - ffmpeg(macOS: brew install ffmpeg-full · Linux: apt install ffmpeg · Windows: gyan.dev 下载)
+#        - Google Chrome(P001 pipeline HTML 截图渲染用)
+#        - git
+#        - 可选:剪映(仅 macOS · 人肉剪片辅助)
+#   6. 复制 .env 模板填 API keys:
+#        cp .env.example .env
+#
+# ============================================================================
+# 版本策略
+# ============================================================================
+# 采用 `>=X.Y,<X+1` 宽松兼容约束——允许 patch/minor 更新,禁 major 破坏性升级。
+# pydantic 2.x 和 1.x API 完全不兼容,强制 `>=2.0`。
+# openai 2.x 和 1.x API 差异大但都支持项目用法,保守用 `>=1.30`。
+# ============================================================================
+
+# ---- 核心 HTTP + 环境 ----
+requests>=2.31,<3.0                  # HTTP 客户端 · 所有 API 调用基础
+python-dotenv>=1.0,<2.0              # .env 文件加载 · pipeline/env_loader.py 用
+
+# ---- OpenAI 生态(GPT-image-2 + LLM · 走 tonbirds 中转) ----
+openai>=1.30,<3.0                    # OpenAI SDK · GPT-image-2 出图 + LLM 调用
+
+# ---- 图像处理(P001/P002/P006 报纸风/漫画风出图 · 尺寸校准 · 首帧图) ----
+Pillow>=10.0,<12.0                   # import 名 PIL · 尺寸 resize / draw / font 渲染
+
+# ---- TTS 声音层(edge · minimax 走 requests) ----
+edge-tts>=7.0,<8.0                   # Edge TTS provider · pipeline/tts/gen_speech.py
+
+# ---- 视频 / 浏览器渲染(P001 HTML 截图 · 三平台数据抓取) ----
+playwright>=1.50,<2.0                # 无头浏览器 · 装完需跑 `playwright install chromium`
+
+# ---- 数据结构 + 配置解析 ----
+PyYAML>=6.0,<7.0                     # import 名 yaml · storyboard.yaml · pipeline_config.yaml
+pydantic>=2.0,<3.0                   # 强类型数据校验 · v2 API(与 v1 不兼容)
+
+# ============================================================================
+# 未在此文件里(但项目/开发者可能需要)
+# ============================================================================
+# - agent-reach:调研工具 · 独立 CLI 装 · 见 CLAUDE.md 环境配置
+# - 剪映:macOS 图形软件 · 人肉后剪辅助 · 不通过 pip
+# - Claude Code / Cursor / Codex 等 AI agent 客户端 · 独立安装
+# ============================================================================
