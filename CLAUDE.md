@@ -220,11 +220,11 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 ### 标准动作（v2）
 
-1. **立项** — 编导确认选题进 `queue/topics.yaml`；**立项前先翻 `material/`(真实内容原矿),优先从真材料提炼钩子/弧线,不从零脑暴;`material/` 没料才允许新脑暴**
+1. **立项** — 编导确认选题进 `queue/topics.yaml`；**立项前先翻 `material/`(真实内容原矿),优先从真材料提炼钩子/弧线,不从零脑暴;`material/` 没料才允许新脑暴**；**同时须在 `projects/{id}/content.yaml` 声明 `production_tier`（探索/轻量/全量，判据见 `templates/design/lightweight_production_mode.md` §2）**，未命中全量触发条件默认写 `explore`
 2. **并行深挖** — 记者 + 纪录片导演；带货型加消费者声音 + 选品
 3. **洞察包** — 选题深挖师 + 内核提炼师 + 领域专家 + 事实校验员 → `insights/` 四件套
 4. **留存设计** — 留存与互动设计师 → `retention_beat_sheet.md`（视频/强互动图文）
-5. **脚本锦标赛** — 编剧走**抗平庸锦标赛**：N 个**不同角度**独立并行竞写 → **停划裁判**判"平不平庸"（默认毙，除非有别人写不出的东西）→ 逐拍 best-of 合成（**只能引用洞察卡 P0/P1，不得新增卖点**）。机制与打分表见 `templates/design/anti_mediocrity_tournament.md`（替代易造假的 v0/vA/vB 三版，见 `SCRIPT_REJECT_LOG` 三版造假教训）。按赌注分级：核心脚本上全锦标赛，边角料一稿过。
+5. **脚本锦标赛** — 编剧走**抗平庸锦标赛**：N 个**不同角度**独立并行竞写 → **停划裁判**判"平不平庸"（默认毙，除非有别人写不出的东西）→ 逐拍 best-of 合成（**只能引用洞察卡 P0/P1，不得新增卖点**）。机制与打分表见 `templates/design/anti_mediocrity_tournament.md`（替代易造假的 v0/vA/vB 三版，见 `SCRIPT_REJECT_LOG` 三版造假教训）。**按赌注分级（判据见 `templates/design/lightweight_production_mode.md`）**：边角料 = 探索档默认一稿过；核心脚本 = 命中全量触发条件（带货/出镜/A-B 实验周/投后重做/新形态首条/强争议/用户点名）时才上全锦标赛。
 6. **视觉路线** — 视觉设计定 P001 / P002 / 新路线；形式选型见 `assets/formats/catalog.yaml`（≥3 种）
 7. **形式策略会** — 形式策略官逐镜比较表达方案，声明数据杠杆、理解成本、制作成本、技术风险 → `design/form_strategy.md`
 8. **视觉语言约束** — 视觉语言策展师从 DESIGN.md / 成熟视觉系统中萃取本条 token、组件、Do/Don't 与逐镜应用 → `design/design_language.md`
@@ -270,6 +270,7 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 4. **各环节专家对最终结果负责** — 禁止「讨论室 approved + render 跑通」但成片与上条同质。
 5. **尽一切可能让内容更好** — 宁可多一轮讨论、换 route、重写 storyboard，不可「能出片就行」。
 6. **自我进化** — 提高标准 → 多轮测试 → 更新 Rubric + `gate_check` + REJECT_LOG。详规：`templates/design/system_evolution.md`
+   - 任何"定稿/最终采用/pass/approved"判断前，先过 `templates/design/pre_work_self_audit_checklist.md`——不靠用户事后抓包发现问题
 7. **形式为数据假设服务** — 每个高级视觉镜头必须声明服务 `completion_3s` / `completion_rate` / 理解 / 收藏 / 评论中的哪一项；不能声明数据杠杆的形式，不进入成片。
 
 **核心文档：**

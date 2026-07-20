@@ -31,6 +31,12 @@ WEEK_DEFAULT = ROOT / "publish" / "2026-W26"
 
 SCORECARD_PASS = 90
 
+# 按赌注分级（2026-07-20）：探索档/轻量档/全量档 · production_tier
+VALID_TIERS = ("explore", "lightweight", "full")
+DEFAULT_TIER = "lightweight"  # content.yaml 缺 production_tier 时的兜底档，不回溯放宽
+EXPLORE_MIN_REVIEWERS = 1
+STANDARD_MIN_REVIEWERS = 2
+
 # 洞察层工种：artifact 在 insights/，不随 content_version 迭代
 INSIGHT_ROLES = frozenset({
     "网络调研员", "记者", "选题深挖师", "内核提炼师", "事实校验员",
@@ -185,6 +191,22 @@ def _content_version(day_dir: pathlib.Path) -> str:
     return str(v.get("content_version") or "")
 
 
+def _production_tier(day_dir: pathlib.Path) -> str:
+    """探索档/轻量档/全量档 · 读 content.yaml production_tier。
+
+    缺省按 lightweight（不回溯放宽既有目录）；只有显式写 production_tier: explore
+    才吃到探索档折扣。见 templates/design/lightweight_production_mode.md。
+    """
+    meta = _read_yaml(day_dir / "meta.yaml")
+    verdict = _read_yaml(day_dir / "room" / "verdict.yaml")
+    project_id = str(meta.get("project_id") or verdict.get("project_id") or "")
+    if not project_id:
+        return DEFAULT_TIER
+    content = _read_yaml(ROOT / "projects" / project_id / "content.yaml")
+    tier = str(content.get("production_tier") or "").strip().lower()
+    return tier if tier in VALID_TIERS else DEFAULT_TIER
+
+
 def _has_douyin_video(day_dir: pathlib.Path) -> bool:
     return (day_dir / "douyin" / "video.mp4").exists()
 
@@ -298,7 +320,13 @@ def _collect_reviewer_agent_ids(day_dir: pathlib.Path) -> list[str]:
 
 
 def check_reviewer_agent_isolation(day_dir: pathlib.Path, errors: list[str]) -> None:
-    """同一 reviewer_agent_id 不得评超过 3 个工种（疑似单 session 批量打分）."""
+    """同一 reviewer_agent_id 不得评超过 3 个工种（疑似单 session 批量打分）.
+
+    探索档下 1 位 reviewer 覆盖多个工种是设计意图（省下逐工种独立 Task 的开销），
+    不是造假信号，故跳过本检查；notes 实质性检查（≥40字/禁套话/禁重复）仍是主防线。
+    """
+    if _production_tier(day_dir) == "explore":
+        return
     from collections import Counter
 
     ids = _collect_reviewer_agent_ids(day_dir)
@@ -313,8 +341,15 @@ def check_reviewer_agent_isolation(day_dir: pathlib.Path, errors: list[str]) -> 
 
 
 def check_scorecard_phase_b(day_dir: pathlib.Path, *, phase: str, errors: list[str]) -> None:
-    """Phase B 工种 scorecard 须 post_render 复验."""
+    """Phase B 工种 scorecard 须 post_render 复验.
+
+    探索档跳过强制复验：render 后的质量由机器 QC（freeze/palette/motion_density/
+    cover_review 等，phase 内其余 check_* 照常跑）+ Phase A 已有的独立评审兜底，
+    不再额外要求 5 个工种各自重跑一轮 post_render 评审。
+    """
     if phase not in ("post_render", "approve"):
+        return
+    if _production_tier(day_dir) == "explore":
         return
     sc_dir = day_dir / "room" / "scorecards"
     for role in SCORECARD_ROLES_PHASE_B:
@@ -348,9 +383,12 @@ def validate_scorecards(
     content_version: str,
     errors: list[str],
 ) -> None:
+    tier = _production_tier(day_dir)
+    min_reviewers = EXPLORE_MIN_REVIEWERS if tier == "explore" else STANDARD_MIN_REVIEWERS
+
     sc_dir = day_dir / "room" / "scorecards"
     if not sc_dir.exists():
-        errors.append(f"缺少 room/scorecards/（铁律 ≥2 人互评 ≥{SCORECARD_PASS}）")
+        errors.append(f"缺少 room/scorecards/（铁律 ≥{min_reviewers} 人独立评审 ≥{SCORECARD_PASS}）")
         return
 
     index_path = day_dir / "room" / "scorecards_index.yaml"
@@ -386,16 +424,17 @@ def validate_scorecards(
                 f"{role}: artifact_version={av!r} 与 verdict.content_version={content_version!r} 不一致"
             )
 
-        if len(reviewers) < 2:
-            errors.append(f"{role}: reviewer 不足 2 人")
+        if len(reviewers) < min_reviewers:
+            errors.append(f"{role}: reviewer 不足 {min_reviewers} 人（{tier} 档）")
             continue
 
-        ids = [str(r.get("reviewer_id", "")) for r in reviewers]
-        angles = [str(r.get("angle", "")) for r in reviewers]
-        if len(set(ids)) < 2:
-            errors.append(f"{role}: reviewer_id 重复")
-        if len(set(angles)) < 2:
-            errors.append(f"{role}: angle 相同")
+        if min_reviewers >= 2:
+            ids = [str(r.get("reviewer_id", "")) for r in reviewers]
+            angles = [str(r.get("angle", "")) for r in reviewers]
+            if len(set(ids)) < 2:
+                errors.append(f"{role}: reviewer_id 重复")
+            if len(set(angles)) < 2:
+                errors.append(f"{role}: angle 相同")
 
         _validate_reviewer_authenticity(
             role, card, reviewers, threshold, errors,

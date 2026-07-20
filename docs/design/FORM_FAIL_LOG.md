@@ -1,6 +1,8 @@
 # 形式层 Fail 登记
 
 > 与 `SCRIPT_REJECT_LOG.md` 同级。**形式 pass 但效果 fail 必须登记**，供 Rubric / gate 进化。
+>
+> **登记新教训后**，同步判断是否要往 `templates/design/pre_work_self_audit_checklist.md` Part C 补一条前置信号——事后登记要和事前自查绑成同一个闭环。
 
 ## 登记格式
 

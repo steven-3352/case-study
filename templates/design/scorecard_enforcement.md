@@ -1,6 +1,8 @@
 # 真实互评 · 执行规范（工具 enforcement）
 
 > **形式互评 = 同 Agent 填两个 yaml 分数。** 以下由 `gate_check.py` fail-closed 校验。
+>
+> **按赌注分级（2026-07-20）：** 本文默认描述**轻量档/全量档**（2 位独立 reviewer）。**探索档**（默认档）降为 **1 位独立 reviewer**、跳过 Phase B 强制复评（render 后不再要求重跑一轮）；判据见 `templates/design/lightweight_production_mode.md`。**物理隔离、`reviewer_agent_id` 真实性、notes ≥40 字实质检查三条防造假底线在所有档位下完全一致**，不随 reviewer 人数减少而放松。
 
 ## 1. 物理隔离（必须）
 
@@ -9,8 +11,8 @@
 | 1 | 写脚本/动效/分镜 | **不得**写同工种 scorecard |
 | 2 | 将 `{工种}.yaml` 设为 `pass: false` | — |
 | 3 | — | **独立** Task / subagent · `readonly: true` · 只读 artifact + rubric |
-| 4 | — | 第二位评审 · **不同** subagent · **不同** angle |
-| 5 | 汇总 avg | discussion.md 记录 Round；`|分差|>5` 须写交锋 |
+| 4 | — | 第二位评审（**探索档省略**）· **不同** subagent · **不同** angle |
+| 5 | 汇总 avg | discussion.md 记录 Round；`|分差|>5` 须写交锋（探索档 1 人无需此项） |
 
 ## 2. scorecard 必填字段（每位 reviewer）
 
@@ -36,7 +38,7 @@ scorecard_phase: pre_render       # Phase B 工种须 post_render
 |------|------|
 | `review_mode: independent` | 缺 = 未隔离 |
 | `reviewer_agent_id` | post_render/approve 必填；格式 `task-*`/`agent-*`/`subagent-*`（≥8 字符） |
-| 批量互评检测 | 同一 `reviewer_agent_id` 出现在 >3 个评审位 → FAIL |
+| 批量互评检测 | 同一 `reviewer_agent_id` 出现在 >3 个评审位 → FAIL（**探索档跳过**：1 人覆盖多工种是设计意图，notes 实质检查仍是主防线） |
 | `scorecard_phase` | Phase B 工种（动效/编剧/视觉/留存/编导）须 `post_render` |
 | 禁止假分身 | `审校` / `子 Agent` / `-甲` / 工种名出现在 reviewer_id |
 | notes ≥40 字 | pass 时每位 reviewer |

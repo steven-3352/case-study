@@ -1,18 +1,24 @@
 # 防应付机制 · 可执行门禁清单
 
 > 与 `.cursor/rules/content-outcome-accountability.mdc` 同级。**口号无效，以下任一项不满足 = blocked。**
+>
+> **开工前 / 定稿前先过 `pre_work_self_audit_checklist.md`**，再走本文件的产出后门禁校验——那份是主动自查，这份是产出后校验，两者不互相替代。
 
 ## 1. 双人互评 · 90 分门禁
 
+> **按赌注分级（2026-07-20）：** 以下"双人独立互评"是**轻量档/全量档**的标准；**探索档**（默认档，判据见 `templates/design/lightweight_production_mode.md`）降为 **1 位独立 reviewer**，且跳过 Phase B 强制复评。**禁自评 + `reviewer_agent_id` 真实性 + notes 实质**三条防造假底线**不因档位而改变**——探索档不等于可以糊弄，只是不用两个人背书。
+
 | 规则 | 执行 |
 |------|------|
-| 每工种 ≥2 名 **独立** Agent 互评 | `room/scorecards/{工种}.yaml` |
+| 每工种 ≥2 名 **独立** Agent 互评（探索档 ≥1 名） | `room/scorecards/{工种}.yaml` |
 | `review_mode: independent` | **每位 reviewer 必填**，缺则 gate FAIL |
 | 不同角度 | 两位 `angle` 不得相同 |
 | 禁止自评/假分身 | 产出者不得评自己；禁止 `编剧审校-A` / `子 Agent` |
 | notes 实质 | pass 时 ≥40 字 + 扣分项；禁止套话式「微扣(-7)」 |
-| 通过线 | 每位 **score ≥ 90**，**avg ≥ 90**（89 = fail） |
+| 通过线 | 每位 **score ≥ 90**，**avg ≥ 90**（89 = fail）；探索档 1 人时以该人分数为准 |
 | 汇总 | **`gate_check.py --phase approve` PASS** |
+
+探索档下"不同角度"、"reviewer_id 不得重复"两条不适用（只有 1 人）；其余规则原样生效。
 
 详规：`templates/design/scorecard_enforcement.md`
 

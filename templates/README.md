@@ -44,3 +44,7 @@ publish/{week}/Dxx-*/openmontage/
 - 未跑 `openmontage_brief.md` 即进 storyboard
 
 详见：`CLAUDE.md` 反例 · `templates/design/scorecard_rubric.md` · `docs/design/SCRIPT_REJECT_LOG.md`
+
+## 开工前自查
+
+动笔前 / 定稿前，先过 `templates/design/pre_work_self_audit_checklist.md`——开工前 5 问 + 定稿前 4 问 + 按 15 步分阶段的偷懒拦截清单（每条都能追溯到 `SCRIPT_REJECT_LOG.md` / `FORM_FAIL_LOG.md` 真实案例）。不靠用户事后抓包发现问题。
