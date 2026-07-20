@@ -477,8 +477,11 @@ scorecard_valid: false           # 自生成 scorecard 必须标 false
 - 真人出镜（Q8 · 按形态激活）
 
 **外部制作插件（`integrations/`）：**
-- **OpenMontage**（`integrations/openmontage/` · 已集成 2026-06 · runtime 候选：Remotion / HyperFrames / FFmpeg / undecided · 详见 `templates/design/openmontage_brief.md` 门禁）
-- **Grok video**（`integrations/openmontage/openmontage.env.example` · `grok-imagine-video` · 视频生成素材候选）
+- **OpenMontage**（`integrations/openmontage/` · 已集成 2026-06 · runtime 候选:Remotion / HyperFrames / FFmpeg / undecided · 详见 `templates/design/openmontage_brief.md` 门禁）
+- **Grok video**（`integrations/openmontage/openmontage.env.example` · `grok-imagine-video` · i2v 候选 · 现役 · 相机运动天花板见 memory `feedback_camera-motion-vs-i2v-ceiling`）
+- **Seedance 2.0 i2v/t2v**（`pipeline/p011_seedance_i2v/gen_video.py` · 生产可用 640 行 · CLI 单段/yaml 批量双模式 · 重试+并发+恢复+后置 QA · `doubao-seedance-2-0` via 云雾中转 · 与 grok-imagine 并列的 i2v 家族候选 · **必须与 grok-imagine 打分选**,不得因"新集成"或"更酷"默认走它)
+- **未接入的视频模型候选**（Kling / Runway / Luma / Wan / HunyuanVideo / Veo · 需要时手工接 · prompt 工程都走同一 skill）
+- **视频 prompt 工程 skill**（`.agents/skills/i2v-video-prompt/` · **通用 · 与具体视频模型解耦** · 任何 i2v/t2v 场景强制调用 · CLAUDE.md 有硬门)
 - **GPT-image-2**（本项目已配 · 报纸风首选之外，也可用于分镜任意需静态生成的画面）
 - MiniMax speech-2.8-turbo（`pipeline/tts/gen_speech.py` · 声音层实现）
 

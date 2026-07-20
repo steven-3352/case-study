@@ -14,20 +14,73 @@
 
 ## 环境配置
 
+**首次接手项目 · 5 步初始化**(按操作系统区分):
+
+### 1. Python 3.9+
+
 ```bash
-# 复制 .env 模板填入 key
-cp .env.example .env
+# macOS(自带 python3 · 或用 brew install python@3.11)
+python3 --version   # 应 ≥ 3.9
 
-# Python 依赖
-pip install openai pillow python-dotenv edge-tts requests
+# Linux(Ubuntu/Debian)
+sudo apt install python3.11 python3.11-venv   # 或 3.9+ 任一
 
-# 系统依赖
-# macOS + Python 3 + ffmpeg + Google Chrome + 剪映
+# Windows
+# 从 https://www.python.org/downloads/ 下 3.11.x · 装时勾 "Add to PATH"
+```
 
-# 调研工具(可选,装好后 Agent 自动识别)
-# 让 Claude 跑: 帮我安装 Agent Reach：https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+### 2. 虚拟环境 + Python 依赖(强烈建议隔离)
+
+```bash
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Windows(PowerShell)
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 3. Post-install(playwright 装浏览器 · 所有系统)
+
+```bash
+playwright install chromium
+```
+
+### 4. 系统依赖(不通过 pip · 按 OS 装)
+
+| 依赖 | 用途 | macOS | Linux(Debian/Ubuntu) | Windows |
+|---|---|---|---|---|
+| **ffmpeg**(基础版) | 音视频合成 | `brew install ffmpeg` | `sudo apt install ffmpeg` | 从 [gyan.dev](https://www.gyan.dev/ffmpeg/builds/) 下 · 加 PATH |
+| **ffmpeg-full**(含 libass) | 字幕烧录必需(见 [feedback_pipeline-burn-subs](feedback_pipeline-burn-subs.md)) | `brew install ffmpeg-full` · 路径 `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` | apt 自带 ffmpeg 通常已含 libass | gyan.dev 的 "full" build 已含 |
+| **Google Chrome** | P001 pipeline HTML 截图渲染 | 官网下载 | apt install google-chrome-stable | 官网下载 |
+| **git** | 版本控制 | 系统自带或 `brew install git` | apt install git | Git for Windows |
+| **剪映**(可选) | 人肉后剪辅助 | 仅 macOS · App Store 下 | ❌ 无 Linux 版 | 有 Windows 版但项目未验证 |
+
+### 5. 复制 .env 模板填 API keys
+
+```bash
+cp .env.example .env   # macOS/Linux
+copy .env.example .env # Windows PowerShell
+# 然后打开 .env 填入 GPT_IMAGE_API_KEY / TTS_API_KEY / GROK_API_KEY / SEEDANCE_API_KEY 等
+```
+
+### 可选:调研工具 · agent-reach
+
+```bash
+# 让 Claude 跑: 帮我安装 Agent Reach:https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
 # 用途:小红书/B站/Reddit 公开内容调研(消费者声音),不用于商品/电商详情爬取
 ```
+
+**验证初始化成功:**
+```bash
+python3 -c "import openai, PIL, dotenv, edge_tts, playwright, pydantic, requests, yaml; print('OK')"
+```
+
 
 ## Git 与分支
 
@@ -95,6 +148,82 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - **形式词汇** → `assets/formats/catalog.yaml`（观感类型，不是指定 `.html` 文件名）
 
 **禁止**：从上一条克隆分镜/画面、catalog 标配三连、同场景占全片大部分时长。详见 `templates/README.md`。
+
+---
+
+## 顶层工作模式(2026-07-20 立 · 用户与 agent 4 步分工)
+
+**用户视角的宏观流程 4 步 · 每步内嵌子步 · 全流程只有 5 个用户拍板点,其余 agent 自主。**
+本节是"外壳",内嵌详细执行参考下一节 `核心工作流程:新选题多工种协作模式`(agent 视角的 15 步)。
+
+### 4 步框架
+
+| # | 步骤 | agent 自主(子步 · 并行/串行) | 👤 用户拍板 |
+|---|------|--------------------------|------------|
+| **1** | **选题** | ① 翻 `material/` 真实内容原矿(优先) → ② agent 扩展 N 条候选(3-5)· 每条声明 skin/受众/形态/钩子 | **① 定选题方向 · ② 拍板 1 条定稿** |
+| **2** | **前期规划** | ① 洞察包 4 件(选题深挖师+内核提炼师+领域专家+事实校验员)+ 网络调研员 → ② 留存节拍(视频必跑) → ③ 脚本锦标赛 N 版并行 + 停划裁判(anti-mediocrity) → **👤 停** → ④ 形式策略会(五维打分)→ ⑤ 视觉语言 + 分镜 + 技术可行性 + 声音方案(agent 并行) → **👤 抽验** | **③ 拍板脚本终稿 + 形态大方向 · ④ 抽验 1 次(不逐个)** |
+| **3** | **制作** | ① 出图/出片 → ② TTS + 字幕烧录 + SFX → ③ **gate_check_media / palette 硬门**(fail-closed) → ④ **生成后单镜诊断内环**(`i2v-video-diagnose` · 3 次救不活升级换路线) → ⑤ 三平台适配(抖音 / xhs) → ⑥ `pre_publish_forecast` ≥ B | **无**(除非诊断 3 次仍崩,agent 会请示是否换路线/撤镜) |
+| **4** | **交付 + 复盘** | ① agent 生成三平台发布包 → **👤 停** → ② 数据复盘官 48h/7d 数据回填 → ③ `post_publish_retro.md` + 反哺下条 `evolution_overlay.md` | **⑤ 外发**(用户手动发到抖音/xhs) |
+
+### 5 个用户拍板点(不多不少)
+
+1. **选题方向** — 步骤 1 起点,你给方向
+2. **选题定稿** — 步骤 1 末,从 agent 扩展的 N 条里拍板 1 条
+3. **脚本终稿 + 形态大方向** — 步骤 2 中段,锦标赛后拍板
+4. **抽验** — 步骤 2 末,agent 并行产出后你看一眼(不逐个审)
+5. **外发** — 步骤 4 中段,你手动发到平台
+
+**除此以外 agent 自主**:洞察包、留存节拍、脚本 N 版竞写、形式打分、视觉语言、分镜、技术可行、声音、制作全流程、gate 门禁、生成后诊断、三平台适配、投后数据回填。
+
+### 闭环规则(不许无限循环)
+
+| 环节 fail | 回退到 | 上限 |
+|---|---|---|
+| 洞察包不合格(<3 关键信息 / 无原话) | 退记者 / 内核提炼师 | 2 轮 |
+| 脚本被停划裁判判平庸 | 退脚本锦标赛加锐度 | 2 轮 |
+| 形式策略 forecast fail(<B) | 退形式策略官换 route | 2 轮 |
+| 单镜生成崩(幻觉/角色/相机/AI 味) | `i2v-video-diagnose` 4 步走 · 只改 1-2 变量 | **3 次救不活升级换实现**(换模型/撤镜/换 B-roll) |
+| 三平台适配失败 | 退剪辑 / 平台文案 | 1 轮 |
+| 投后 48h 差评(AI 味重/看不懂) | 反哺下条 `evolution_overlay` · 不救本条 | — |
+
+### 与其他章节的关系
+
+- 本节 = **用户看的顶层**(4 步 · 5 拍板点)
+- 下一节 `新选题多工种协作模式` = **agent 看的实操**(15 步 · 22 工种)
+- 两节**不冲突,是同一流程的两个视角** — agent 跑 15 步,只在 5 个点回来找用户
+- 违反本节铁律(如让用户拍 5 个以上点、跳过闭环上限)→ 违反 [feedback_autonomous-data-driven](feedback_autonomous-data-driven.md) + [feedback_d05-parallel-agents](feedback_d05-parallel-agents.md)
+
+### 周维度 · 形式差异化 A/B(2026-07-20 立 · 每周制作套此规则)
+
+项目以周为节奏(D01-D07),每周批量出 7 天素材时,**每天用一种"完全不同"的表现形式**,让形式本身成为可归因的变量,数据回填后学习哪种更受欢迎。
+
+**"完全不同"的三维判据(至少 2 维不同才算,防伪多样):**
+
+| 维度 | 候选来源 |
+|---|---|
+| **① 渲染家族** | P001 截图 · P002 报纸风 · P004 GSAP · P005 带货 · P006 漫画视频 · P007 漫画图文 · P011 Seedance i2v · grok i2v · 真人出镜 · 真实 B-roll · 其他新集成 |
+| **② 视觉语汇**(见 57 skill) | cinematic · 3d-cgi · cartoon · comic · 报纸风 · vibe motion · fashion lookbook · food ASMR · 病毒钩子 · 电商 · 房产漫游 · MV · 品牌故事 · SaaS 动效 等 |
+| **③ 形态类型** | 演示型 · 知识型 · 带货型 · 出镜型 · 图文轮播 |
+
+**判据:每天在这 3 维中至少 2 维和其他 6 天不同**。伪多样(如"周一 P004 电影感 · 周二 P004 vibe motion"只换视觉语汇不换家族)→ 退回 agent 重排。
+
+**玩法(2026-07-20 拍板走 B):**
+- **B · 同主题簇不同形** — 一周同 1 大主题下 7 个子选题(如"AI 工具批处理"下拆 Excel/图片/视频/文字/邮件/日程/文件)· 每子选题一种不同形式
+- 拒绝 A(同题重复观众疲劳)· 拒绝 C(变量太多归因失效)
+
+**周维度多的 2 个 agent 自主操作(不占用户 5 拍板点):**
+
+| 时点 | agent 自主 | 👤 用户 |
+|---|---|---|
+| **周一开工前** | agent 拆主题簇 · 从 `assets/formats/catalog.yaml` + 57 skill 库 · 按 3 维出 7 天形式分配单 · 每日声明 skin/受众 | 抽验分配单 1 次(如需调整) |
+| **周日/次周一** | agent 数据回填 → 形式排名 → 生成 `docs/design/weekly_form_ab_test_W{NN}.md` + 下周 evolution 建议 | 看结论(不改) |
+
+**周归因表**(每周新建 · 模板 `docs/design/weekly_form_ab_test_TEMPLATE.md`):
+- 7 天 × 3 维形式分配 · 每日 skin/子选题
+- 48h/7d 完播 3s · 完播率 · 收藏率 · 评论率 数据回填
+- 周末形式排名 · 保/弃/组合更新 · 反哺下周 `evolution_overlay`
+
+**每周单条仍走 4 步 5 拍板点**——周维度是**跨条约束**,不改变单条流程。
 
 ---
 
@@ -343,6 +472,28 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 1. `cat .env.example` —— 看每条服务的中转地址范例,对照 `.env` 看凭证 + URL 是否齐全(尤其云雾中转的 `/minimax` `/openai-v1` 一类前缀,容易漏写)
 2. `grep -r "<服务名>" publish/2026-W*/ pipeline/p004_video/_d*_*_config.yaml` —— 找最近一条跑通的姊妹脚本,直接抄它的 config
 3. 4xx/5xx 不能直接降级 fallback —— 先核对 URL 拼写,再查凭证,最后才考虑切 provider
+
+### i2v / t2v 视频 prompt 硬门(2026-07-20 立)
+
+**任何**要给视频模型写 prompt(不管是 grok-imagine-video / Seedance 2.0 / Kling / Runway / Luma / Wan / HunyuanVideo / Veo / 未接入的新模型)之前,**必读** `.agents/skills/i2v-video-prompt/SKILL.md` + 按形态挂载 `.agents/skills/video-form-{X}/`(15 个子 skill · 电影/3D/漫画/打斗/日漫/SaaS/电商/360/MV/病毒钩子/品牌/时尚/美食/房产)+ 需要时挂载 `.agents/skills/higgsfield-{X}/`(30 个 · MCSLA 元公式生态 · MIT · 相机/soul/facs/motion/models 等)。
+
+**skill 挂哪个、什么时候挂,由 agent 自主判断**——用户只描述内容/意图/问题,不指名 skill。详见 memory `feedback_agent-auto-mount-skills`(场景 → skill 组合矩阵)。禁问"要不要挂 X",禁让用户点单,禁说"你可以说'用 XX skill'"。
+
+- **触发场景**:分镜 storyboard 出现"video/motion prompt"字段 · 调用 `pipeline/gen_video_frames.py` 或 `pipeline/p011_seedance_i2v/gen_video.py` 或任何 `gen_*_motion.py` · 用户说"生成一段视频/一段 i2v/一段动效"
+- **必带落地**:2s 钩子公式 + 精确镜头运动语句(ft/s + 时长)+ 灯光 K 值 + 人物 anchor + NEGATIVES 段(禁蓝紫/禁 AI 味深色/禁 face morphing/温馨场景禁冷渲染)
+- **skill 优先级**:i2v-video-prompt(项目铁律)→ video-form-{形态}(形态公式)→ higgsfield-{X}(具体子能力 · 元公式)—— 后者遇 cyberpunk/cool-blue/dark-canvas 一律以本项目铁律替代
+- **平台耦合子 skill 忽略**:`higgsfield-apps/workspaces/recall/stack` 假设你在 Higgsfield workspace 工作,项目不订阅 Higgsfield 平台,忽略即可
+- **违反后果**:视为反 AI 味 / 禁蓝紫 / 反 template-clone 铁律未过,pre_publish gate fail,登记 `docs/design/PRE_NODE_CHECKLIST_MISS_LOG.md`
+
+### i2v / t2v 视频生成后诊断硬门(2026-07-20 立)
+
+视频**生成后**(mp4 已下载但你或用户觉得不满意时),**必读** `.agents/skills/i2v-video-diagnose/SKILL.md`。此前项目诊断力量集中在①事前 gate_check 门禁 和 ②投后 evolution_apply/post_publish_retro,**中间"这条镜为什么崩、怎么最小代价救"的层缺失**——本 skill 补齐。
+
+- **触发场景**:视频生成完效果不满意 · 幻觉/伪影/角色崩/动作不自然/AI 味重/相机运动看不出/palette gate fail · 用户说"这段不对/重生/改一下/为什么这么僵"
+- **必带落地**:4 步动作(扫描 → 7 类归因 → minimal-edit 只改 1-2 变量 → 登记 VIDEO_ITERATE_LOG)· 3 次救不活升级换路线(换模型/换实现/撤镜)
+- **违反后果**:瞎改 prompt 无限迭代 = 违反 D05 加速铁律 · 该 skill 强制"3 次上限 + 只改 1-2 变量"
+
+依据:memory `feedback_pre-node-checklist` · `feedback_no-neon-palette` · `feedback_no-ai-visual-dark-canvas` · `feedback_camera-motion-vs-i2v-ceiling` · `feedback_anti-ai-visual` · `feedback_skill-vs-template-distinction`
 
 - 9:16 → 1080×1920 统一画布（图文 + 视频）
 - **视频音画硬门槛**（2026-07-04 起 · BGM 由硬门下调为条件件）：
