@@ -414,6 +414,11 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 6. **自我进化** — 提高标准 → 多轮测试 → 更新 Rubric + `gate_check` + REJECT_LOG。详规：`templates/design/system_evolution.md`
    - 任何"定稿/最终采用/pass/approved"判断前，先过 `templates/design/pre_work_self_audit_checklist.md`——不靠用户事后抓包发现问题
 7. **形式为数据假设服务** — 每个高级视觉镜头必须声明服务 `completion_3s` / `completion_rate` / 理解 / 收藏 / 评论中的哪一项；不能声明数据杠杆的形式，不进入成片。
+8. **门禁是地板不是目标 · 抬高 3 档再验收（2026-07-21 立 · 语音厅 MV 事故后升为铁律）** — 任何 gate / QA / scorecard 阈值 / forecast 评级，语义都是「最低及格线」，不是「验收目标」。**每到"我觉得这个能过"的时刻，那个"能过"的感觉本身就是"标准定低了"的信号**，强制自问：**能不能把验收目标往上提 3 个档次？** 把抬高后的标准当成真正的验收目标去建，再验收。
+   - **触发点 = 一切"它过了 / 达标了 / 可以 approve 了"的判断时刻**：内容 scorecard、`gate_check_media`、`gate_check_palette`、运镜/多样性 QA、脚本锦标赛、封面评审、`pre_publish_forecast`——每一道打算因"过了"而放行的地方都先跑此反问。
+   - **"3 档"= 刻意的实质性大跳，不是 +1 敷衍**：逼自己从"最低可接受"心智切到"什么才算明显出色"，把抬高后的标准写成新验收目标。
+   - **抬高的是"起手瞄准的目标"，动手前设定**：第一次就照抬三档的标准去建，不是过后无限返工。与闭环上限(≤2 轮)/D05 加速不冲突——那些管"失败后重做几轮"，本条管"第一次瞄多高"；先瞄高 + 返工有上限，两者相容，别误读成"无限镀金"。
+   - **判据自查**：若放行理由是"它过了 gate"，停——问"过的是目标还是代理指标？这道地板是'好/出色'的代理，清了它等于什么都没说"。**本项目所有制作视频的 workflow 每一道验收都必须遵守本条。** 依据 memory `feedback_gate-floor-not-target` · `feedback_build-to-reference-not-floor`。
 
 **核心文档：**
 - 完播北极星：`templates/design/completion_rate_north_star.md` · `templates/insights/hook_benchmark.md`
