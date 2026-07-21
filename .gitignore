@@ -39,3 +39,6 @@ publish/.staging/
 
 # tmp/ 研究临时目录 — clone 的 upstream repo · 抽帧 jpg · 分析中间产物(可能 500M+)
 tmp/
+
+# 语音厅本地测试demo — 用户要求整个目录不进 git(音频/立绘原始素材 + build 产物)
+publish/语音厅/测试/

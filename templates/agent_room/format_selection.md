@@ -1,8 +1,17 @@
-# 形式选型 · format_selection
+# [已废弃] 形式选型 · format_selection
 
-> 工种: **形式选型师** + **平台原生策划** + **动效分镜师**（视频）/ **漫画分镜师**（轮播）
-> 依赖: `insights/` 四件套 + `assets/formats/catalog.yaml`
-> **门禁:** 未通过本表 → 禁止 week_build / render
+> **2026-07-21 起废弃。** 本文件是 `templates/design/form_competition.md` 的早期草稿版本，
+> 职责已完全被 `form_competition.md`（表现形式竞争·至少3方案跨家族比较）+
+> `templates/design/form_strategy.md` 对应产出（逐镜表达方案·数据杠杆声明）取代。
+> `pipeline/gate_check.py` 的 `check_form_competition()` / `check_form_strategy()` 门禁
+> 也只认这两个文件路径，不读本文件。
+>
+> **不要新写内容指向本文件**，保留仅为历史存档（`publish/2026-W26/D02-团购回访/room/discussion.md`
+> 等历史产出曾引用过）。新项目走 `templates/design/form_competition.md`。
+
+---
+
+
 
 ## 本周已占用形式（防重复）
 

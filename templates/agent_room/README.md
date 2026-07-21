@@ -71,7 +71,7 @@ publish/{week}/Dxx-{slug}/
 5. **`script_review.md` pass** → 禁止 TTS 前必过
 6. **留存** → **hook_benchmark 映射 0–3s** · 估 VO 时长（禁止为卡时长先删叙事）
 7. **表现形式竞争** → form_competition：至少 3 个表现方案 + 不选理由 + 近 5 条撞形检查 · 90+
-8. **形式选型 + 平台策划 + 纪录片导演** → format_spec / form_strategy · 90+
+8. **形式策略官 + 平台策划 + 纪录片导演** → format_spec / form_strategy · 90+
 9. **视觉语言策展师** → design_language（DESIGN.md 参考本地化为 token/组件/禁用项）· 90+
 10. **视觉原创门** → visual_originality_gate：证明首屏/中段/CTA 不是旧模板换字 · 90+
 11. **OpenMontage 制作导演**（可选）→ 若原生路线不足，写 openmontage_brief；默认不启用 · 90+

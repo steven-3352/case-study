@@ -233,6 +233,19 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 
 > 本节即引擎的 **多 Agent 专业化编排层**（对应 BLUEPRINT Layer 2）：采料与各工种产出在此完成，再汇入 `pipeline/` 流水线出片。
 
+### 强制走 Workflow（2026-07-21 立 · 语音厅测试片 PPT 事故后新增）
+
+**PRD 定稿后进入执行阶段，必须调用 `.claude/workflows/prd_pipeline.js`（`Workflow({scriptPath})`），不得由主 LLM 一人身兼多个工种从需求直接写到实现代码。**
+
+事故链：主 LLM 自己兼任"动画导演"角色，跳过工种协作直接写 ffmpeg 代码，把效果名（Ken Burns/parallax）当成"已实现"的凭证，没有产出任何独立、可核验的"这镜该有什么感觉"陈述，也没有独立验收——渲染结果人物位移不到画面宽 4%，肉眼判断为静止（PPT 感）。详见 `docs/design/WORKFLOW_EXECUTION_LOG.md` 首条记录。
+
+**"测试/demo/轻量"性质不构成跳过工种流程的理由**——`production_tier`（探索/轻量/全量，见 `templates/design/lightweight_production_mode.md`）只影响验收强度（独立评审人数、是否走脚本锦标赛），**不影响该激活哪些角色**。角色是否参与由 CLAUDE.md 形态对照表决定，不由主 LLM 临场判断"这次可以自己兼"。
+
+- **开工前**：`prd_pipeline.js` Phase 0 强制读 `docs/design/WORKFLOW_EXECUTION_LOG.md` 最近 5 条的 `carry_forward`
+- **角色执行**：每个被激活角色必须由独立 `agent()` 调用产出，用 `templates/design/subagent_prd_schema.md` 定义的 schema 结构化返回，核心字段 `perceptual_goal.observable_metric` 禁止写效果名术语，必须是可观察量级
+- **独立验收**：验收者与产出者是不同的 `agent()` 调用，不锦标赛、不打分排名，二元 pass/fail
+- **交付后**：主 LLM 回读所有子 PRD 推理栏，把这次协作过程本身的错误（不是内容对错）登记进 `docs/design/WORKFLOW_EXECUTION_LOG.md`
+
 ### 工种清单
 
 > **理解层 4**（所有形态必跑）+ **核心 10** + **表达/音画层 4**（视频必跑/按需激活）+ **增长复盘层 1** + 扩展工种（按形态激活）
@@ -428,6 +441,8 @@ gsap-core / gsap-timeline / gsap-scrolltrigger / gsap-plugins / gsap-performance
 - ❌ 脚本 90+ 但形式 catalog 拼盘仍外发 → **平台表现分析师 + 编导** 退稿（D04 v10 教训）
 - ❌ 无 `pre_publish_forecast` 或形式 forecast fail 仍 approve
 - ❌ 因「P004 是默认视频线」或「Three 更酷」选实现 → 须按 SYSTEM §4.2 对每一镜打分
+- ❌ 主 LLM 自己兼任动画导演/摄像等工种直接写实现代码，跳过 `prd_pipeline` Workflow → 效果名（Ken Burns/parallax）被当成"已实现"凭证，实际渲染肉眼不可见（PPT 感）；见 `docs/design/WORKFLOW_EXECUTION_LOG.md` 首条
+- ❌ 把「这是测试/demo/轻量档」当成跳过工种协作的理由 → `production_tier` 只降验收强度，不减角色数量
 
 ---
 
