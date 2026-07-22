@@ -1,0 +1,9 @@
+{
+  "name": "Tonbirds-Content-Engine-Plugin",
+  "version": "1.0.0",
+  "description": "AI 内容生产引擎:三平面(流程控制器 + 能力技能 + 质量标准)完整封装。多工种协作编排、图生视频 i2v、TTS 口播合成、免费素材库、通用出图、22 角色 PRD workflow。",
+  "keywords": ["content", "workflow", "multi-agent", "video", "tts", "image", "i2v"],
+  "homepage": "https://github.com/steven-3352/Tonbirds-Content-Engine-Plugin",
+  "license": "MIT",
+  "dependencies": []
+}

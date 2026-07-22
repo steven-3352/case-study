@@ -1,0 +1,53 @@
+# TTS 配置 · 口播合成
+#
+# 口播 provider:edge(免费保底)| volcengine(火山/豆包)| minimax(海螺)
+# 凭证走环境变量(见下),config 不写 key:
+#   volcengine: VOLC_TTS_APPID + VOLC_TTS_TOKEN + VOLC_TTS_BASE_URL(中转,可选)
+#   minimax:    MINIMAX_API_KEY + MINIMAX_BASE_URL(中转)+ MINIMAX_GROUP_ID(可选)
+provider: minimax
+
+# strict_provider: true 时,选定 provider 失败即报错,不回落 edge(生产建议开)
+strict_provider: false
+
+voice: zh-CN-YunjianNeural       # edge 保底音色
+
+# 每次合成从离散值随机取一,避免全账号同一组参数(仅 edge)
+jitter: true
+rate_options: ["+12%", "+14%", "+15%", "+16%", "+18%"]
+pitch_options: ["-3Hz", "-2Hz", "-1Hz"]
+volume_options: ["-4%", "-3%", "-2%", "-1%"]
+
+# jitter: false 时的固定值
+rate: "+15%"
+pitch: "-2Hz"
+volume: "-2%"
+
+output:
+  format: mp3
+  sample_rate: 24000
+  save_params: true          # 同目录写 <name>.tts.yaml 记录本次参数
+
+script_extract:
+  markers: ["**口播：**", "**口播（续）：**"]
+
+# 自然 TTS provider 参数(key 走环境变量,不写这里)
+volcengine:
+  cluster: volcano_tts
+  voice_type: zh_male_M392_conversation_wvae_bigtts   # 自然对话男声,可换
+  encoding: mp3
+  speed_ratio: 1.0
+  api_base: https://openspeech.bytedance.com          # 未设 VOLC_TTS_BASE_URL 时兜底
+minimax:
+  model: speech-2.8-turbo
+  mode: async                    # 云雾中转:同步 t2a_v2 报 1008,异步 t2a_async_v2 可用
+  api_host: https://api.minimaxi.com                  # 未设 MINIMAX_BASE_URL 时兜底
+  voice_id: male-qn-badao
+  speed: 1.08
+  vol: 1.0
+  pitch: 0
+  # 情绪合法值:happy/sad/angry/fearful/disgusted/surprised/neutral
+  emotion_arc: [happy, sad, happy, neutral]
+  language_boost: Chinese
+  format: mp3
+  sample_rate: 32000
+  channel: 1

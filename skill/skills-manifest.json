@@ -1,0 +1,144 @@
+{
+  "version": "1.0",
+  "description": "外部技能安装清单 · 用户自行确认安装,不打包进分发包(licensing 策略:自有 skill 直接打包,别人的 skill 由用户自己确认安装)",
+  "install_command": "npx skills install <source>",
+  "skills": [
+    {
+      "name": "higgsfield",
+      "description": "Higgsfield AI 视频生成主 skill(MCSLA 元公式生态母包)",
+      "source": "https://github.com/higgsfield-ai/higgsfield-skills",
+      "license": "MIT(主包有 LICENSE 文件,O-Side Media)",
+      "status": "confirmed_mit",
+      "install": "npx skills install higgsfield-ai/higgsfield-skills"
+    },
+    {
+      "name": "higgsfield-camera",
+      "description": "Higgsfield 相机运动子 skill",
+      "source": "higgsfield 生态子包",
+      "license": "MIT 推定(parent=higgsfield,但子目录无独立 LICENSE · 需确认)",
+      "status": "license_inferred",
+      "install": "npx skills install higgsfield-ai/higgsfield-skills"
+    },
+    {
+      "name": "higgsfield-soul",
+      "description": "Higgsfield 灵魂/情感表演子 skill",
+      "source": "higgsfield 生态子包",
+      "license": "MIT 推定(同 higgsfield-camera)",
+      "status": "license_inferred",
+      "install": "npx skills install higgsfield-ai/higgsfield-skills"
+    },
+    {
+      "name": "higgsfield-prompt",
+      "description": "Higgsfield prompt 工程子 skill",
+      "source": "higgsfield 生态子包",
+      "license": "MIT 推定",
+      "status": "license_inferred",
+      "install": "npx skills install higgsfield-ai/higgsfield-skills"
+    },
+    {
+      "name": "higgsfield-seedance-vfx",
+      "description": "Higgsfield × Seedance VFX 子 skill",
+      "source": "higgsfield 生态子包",
+      "license": "MIT 推定",
+      "status": "license_inferred",
+      "install": "npx skills install higgsfield-ai/higgsfield-skills"
+    },
+    {
+      "name": "video-form-cinematic",
+      "description": "电影感视频形态 skill",
+      "source": "来源不明(无 LICENSE/author/source 记录)",
+      "license": "UNKNOWN",
+      "status": "license_unknown",
+      "install": "⚠️ 使用前需确认来源与授权",
+      "warning": "本项目当前装了这批 skill 但来源无记录,请用户自行核查后安装"
+    },
+    {
+      "name": "video-form-3d-cgi",
+      "description": "3D CGI 视频形态 skill",
+      "source": "来源不明",
+      "license": "UNKNOWN",
+      "status": "license_unknown",
+      "install": "⚠️ 使用前需确认来源与授权"
+    },
+    {
+      "name": "video-form-music-video",
+      "description": "MV 音乐视频形态 skill(漫画/音乐/MV 风格对应 skill)",
+      "source": "来源不明",
+      "license": "UNKNOWN",
+      "status": "license_unknown",
+      "install": "⚠️ 使用前需确认来源与授权"
+    },
+    {
+      "name": "video-form-social-hook",
+      "description": "社交钩子病毒视频形态 skill",
+      "source": "来源不明",
+      "license": "UNKNOWN",
+      "status": "license_unknown",
+      "install": "⚠️ 使用前需确认来源与授权"
+    },
+    {
+      "name": "gsap-core",
+      "description": "GSAP 核心动效 skill",
+      "source": "https://github.com/greensock/gsap-skills",
+      "license": "MIT(SKILL.md frontmatter 标注,但目录内无 LICENSE 全文)",
+      "status": "confirmed_mit_no_license_file",
+      "install": "npx skills install greensock/gsap-skills",
+      "note": "转发时建议从源仓库补 LICENSE 全文"
+    },
+    {
+      "name": "gsap-timeline",
+      "description": "GSAP Timeline skill",
+      "source": "https://github.com/greensock/gsap-skills",
+      "license": "MIT(同 gsap-core)",
+      "status": "confirmed_mit_no_license_file",
+      "install": "npx skills install greensock/gsap-skills"
+    },
+    {
+      "name": "gsap-scrolltrigger",
+      "description": "GSAP ScrollTrigger skill",
+      "source": "https://github.com/greensock/gsap-skills",
+      "license": "MIT(同 gsap-core)",
+      "status": "confirmed_mit_no_license_file",
+      "install": "npx skills install greensock/gsap-skills"
+    },
+    {
+      "name": "gsap-plugins",
+      "description": "GSAP Plugins skill",
+      "source": "https://github.com/greensock/gsap-skills",
+      "license": "MIT",
+      "status": "confirmed_mit_no_license_file",
+      "install": "npx skills install greensock/gsap-skills"
+    },
+    {
+      "name": "ai-image-prompts-skill",
+      "description": "AI 出图 prompt 推荐库(10000+ 提示词,model-agnostic,纯 prompt-director 不出图)",
+      "source": "https://github.com/YouMind-OpenLab/ai-image-prompts-skill",
+      "license": "MIT(有独立 LICENSE 文件)",
+      "status": "confirmed_mit",
+      "install": "npx openskills install YouMind-OpenLab/ai-image-prompts-skill"
+    },
+    {
+      "name": "i2v-video-prompt",
+      "description": "i2v/t2v 视频 prompt 工程主门 skill(项目自建,已随引擎分发)",
+      "source": "本引擎自建",
+      "license": "MIT",
+      "status": "bundled_in_engine",
+      "install": "随 content-engine-plugin 自动装,无需单独安装"
+    },
+    {
+      "name": "i2v-video-diagnose",
+      "description": "视频生成后诊断 skill(项目自建,已随引擎分发)",
+      "source": "本引擎自建",
+      "license": "MIT",
+      "status": "bundled_in_engine",
+      "install": "随 content-engine-plugin 自动装,无需单独安装"
+    }
+  ],
+  "status_legend": {
+    "confirmed_mit": "MIT 且有 LICENSE 文件,可安全转发",
+    "confirmed_mit_no_license_file": "MIT(frontmatter 标注),建议补 LICENSE 全文再转发",
+    "license_inferred": "MIT 推定(parent 包 MIT,但子目录无独立 LICENSE),安装前请核查主包覆盖关系",
+    "license_unknown": "⚠️ 完全无 license/author/source 记录,使用前必须自行确认授权",
+    "bundled_in_engine": "本引擎自建,随 plugin 分发,无需单独安装"
+  }
+}
