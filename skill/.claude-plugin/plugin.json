@@ -5,5 +5,8 @@
   "keywords": ["content", "workflow", "multi-agent", "video", "tts", "image", "i2v"],
   "homepage": "https://github.com/steven-3352/Tonbirds-Content-Engine-Plugin",
   "license": "MIT",
+  "scripts": {
+    "setup": "python3 setup.py"
+  },
   "dependencies": []
 }
