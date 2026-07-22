@@ -2,7 +2,7 @@
 
 **以后发布就发布本文件夹的内容。**
 
-> **安装：** `/plugin install https://github.com/steven-3352/Tonbirds-Content-Engine-Plugin`
+> **安装：** `git clone https://github.com/steven-3352/Tonbirds-Content-Engine-Plugin && cd Tonbirds-Content-Engine-Plugin && python3 setup.py`
 > **当前版本：** 1.1.0 · 许可：MIT
 
 ---
@@ -51,7 +51,6 @@ cp .env.example .env    # 然后填入各 cap 需要的 key（不用的 cap 留�
 
 ```
 skill/
-├── .claude-plugin/plugin.json   ← plugin 包壳（发布元数据）
 ├── LICENSE                      ← MIT
 ├── README.md                    ← 本文件
 ├── setup.py                     ← 首次环境自检（Python/依赖/ffmpeg/key）
@@ -141,13 +140,12 @@ skill/
 
 ---
 
-## 发布流程
+## 发布 / 更新
 
-1. `skill/` 即为发布单元
-2. `node workflows/validate.js` 通过（角色/门/维度一致性）
-3. `/plugin install https://github.com/steven-3352/Tonbirds-Content-Engine-Plugin` 测试本地安装
-4. 通过后推送 GitHub，向 Claude Marketplace 提交审核
-5. 后续更新：git tag vX.Y.Z → GitHub Release → 用户 `/plugin update`
+1. `node workflows/validate.js` 通过（角色/门/维度一致性）
+2. 推送 GitHub：`git push origin main`
+3. 打版本 tag：`git tag v1.1.0 && git push origin v1.1.0`
+4. 用户获取最新版：`git pull`（已 clone）或重新 `git clone`
 
 ---
 
