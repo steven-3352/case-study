@@ -212,18 +212,28 @@ const activation = await agent(
   { label: 'PRD拆解', schema: ROLE_ACTIVATION_SCHEMA, effort: 'high' }
 )
 
+// activation agent 返回的 role 名常带英文/别名后缀（如「选题深挖师 (Topic Deep-Digger)」、
+// 「动画导演 / Motion Planner (🆕)」、「形式策略官 / 视觉策略官 (…)」），与 ROLE_WAVES 的
+// 规范短名不精确相等。此前用精确相等匹配 → 全部角色被静默过滤 → 角色执行/独立验收两 phase 空转。
+// 改为「activation 返回名 startsWith 规范短名」的归一化匹配，键一律用规范短名。
+const allWaveRoles = ROLE_WAVES
+  .concat(EXTENDED_ROLE_WAVES_ECOMMERCE, EXTENDED_ROLE_WAVES_ONCAMERA)
+  .reduce((acc, w) => acc.concat(w), [])
+const matchActivation = (canonical) =>
+  activation.activated_roles.find(a => (a.role || '').startsWith(canonical))
 const activatedRoleNames = {}
-for (const r of activation.activated_roles) activatedRoleNames[r.role] = true
-log(`本次激活 ${activation.activated_roles.length} 个角色：${activation.activated_roles.map(r => r.role).join('、')}`)
+const activationByRole = {}
+for (const canonical of allWaveRoles) {
+  const a = matchActivation(canonical)
+  if (a) { activatedRoleNames[canonical] = true; activationByRole[canonical] = a }
+}
+log(`本次激活 ${Object.keys(activatedRoleNames).length} 个角色（已归一化匹配）：${Object.keys(activatedRoleNames).join('、')}`)
 
 // ---- Phase 2: 角色执行（分波次，波内并行，波间滚动传递已产出摘要）----
 phase('角色执行')
 let waves = ROLE_WAVES
 if (formatType === '带货型') waves = waves.concat(EXTENDED_ROLE_WAVES_ECOMMERCE)
 if (formatType === '出镜型') waves = waves.concat(EXTENDED_ROLE_WAVES_ONCAMERA)
-
-const activationByRole = {}
-for (const a of activation.activated_roles) activationByRole[a.role] = a
 
 const subPRDs = []
 let waveIndex = 0
@@ -274,6 +284,21 @@ const acceptanceResults = await parallel(subPRDs.map(sub => async () => agent(
 const failedRoles = acceptanceResults.filter(Boolean).filter(v => v.verdict === 'fail')
 if (failedRoles.length > 0) {
   log(`独立验收未通过：${failedRoles.map(f => f.role).join('、')}——需要退回重做，不能带着 fail 直接交付。`)
+}
+
+// fail-closed 断言：角色执行 / 独立验收任一空手，就不许进汇总（否则汇总 agent 空转，
+// 反而伪装出一份"看似复核过"的日志）。这是 wf_41d5ccea 那次角色名匹配 bug 暴露的教训。
+const acceptedCount = acceptanceResults.filter(Boolean).length
+const activatedCount = Object.keys(activatedRoleNames).length
+if (subPRDs.length === 0 || acceptedCount === 0) {
+  throw new Error(
+    `[fail-closed] 角色执行/独立验收空手，拒绝进汇总：` +
+    `激活 ${activatedCount} 角色，落盘子PRD ${subPRDs.length} 份，验收结果 ${acceptedCount} 份。` +
+    `检查 activation 返回的 role 名是否与 ROLE_WAVES 归一化匹配失败。`
+  )
+}
+if (subPRDs.length < activatedCount) {
+  log(`⚠️ 子PRD ${subPRDs.length} 份 < 激活 ${activatedCount} 角色，有角色执行掉队，汇总时须核查缺哪几个。`)
 }
 
 // ---- Phase 4: 汇总复核 ----
