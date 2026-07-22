@@ -6,6 +6,42 @@
 >
 > **其他模型/agent（Codex / Aider / Cline / Cursor / 其他）：** 首读 [AGENTS.md](AGENTS.md) 拿到跨模型铁律 0 + 分工指路；工种/15 步/反例同样适用本文。
 
+## ⚡ 每次开工前必过的 4 步（怕忘记 · 贴顶部）
+
+> 这 4 步对应 `.agents/skills/tonbirds-content-engine/SKILL.md` 的完整流程。
+
+**Step 1 · 查库**
+```
+library/ 是否已有所需知识？
+  → 按选题标签匹配：domains/ · audiences/ · quotes/ · formats/ · motion_tech/
+  → 列出"已有"vs"缺项"
+```
+
+**Step 2 · 缺项补库（A层 · 用户手动触发）**
+```
+发现缺项 → 告诉我："帮我研究一下 XX 领域/受众/原话/形式"
+  → 我起 A-DR 库维护员挖清楚 · 写入 library/ · 下次可复用
+  → 或选择"靠常识直接做"（接受知识不完整的风险）
+```
+
+**Step 3 · 库齐 · 开始制作（B层 · 14 步）**
+```
+告诉我："帮我做一条 XX 选题"
+  → 走 B1 编导 → B2 选题深挖 → B3 内核 → ... → B12 声音（共 14 步）
+  → 每步都独立 Agent() 调用 · 主 LLM 不兼任任何角色
+  → 5 个用户拍板点：方向 / 定稿+skin / 脚本+形态 / 分镜 / 外发
+```
+
+**Step 4 · 大白话分镜硬门（制作开始前必过）**
+```
+B9 动画导演 + B10 导演摄像 完成后 · 我会逐 beat 用大白话告诉你：
+  → "Beat X：画面里是谁 · 什么景别 · 背景什么 · 动效是什么"
+  → 禁止写效果名（"Ken Burns" / "parallax"），只写可观察描述
+  → 你 pass 每个 beat 之后 · 才进入渲染
+```
+
+---
+
 ## 项目概览（摘要）
 
 - **引擎：** `queue/topics.yaml` 选题 → 多 Agent 编排 → `pipeline/` 出片 → `publish/` 发布包

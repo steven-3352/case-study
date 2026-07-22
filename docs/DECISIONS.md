@@ -312,3 +312,45 @@ skin:
 - `templates/README.md` 目录索引（当天已加）
 
 **执行起点：** 2026-07-04 之后所有视频形态选题必须跑 Motion Planner；D02 因已在制作末端，本次不回滚，本决策自 D03 起启用。
+
+---
+
+## Q12 · 引擎架构重构 · library 两轨 + Plugin 化方向（2026-07-22）
+
+**背景：** v3 语音厅 workflow 走查（22 agent）暴露了两个系统性问题：①22 agent 混淆了"长期资产维护"和"单次制作"两类活动，导致每条选题从零重造可复用知识；②项目文档"散落一地"，质量标准在 25 处重复定义。用户提出"工种有点冗余，调研员应该单独触发，选题时直接从选题库找"。
+
+### 决定（2026-07-22 全部用户拍板）
+
+**决定 1 · library/ 两轨架构（已落地）**
+
+把 workflow 拆成两轨：
+- **A 层（库维护）**：领域知识 / 受众画像 / 原话 / 形式家族 / 视觉符号 / 动效技术 / 亚文化字典 → 用户手动命令触发 · 入 `library/` · 多条选题复用
+- **B 层（单条制作）**：每条选题跑约 14 个 agent · 开工前先查库取材 · 库缺项报告不自动补
+
+完整协议见 `library/README.md` + `.agents/skills/tonbirds-content-engine/SKILL.md`
+
+**决定 2 · 大白话分镜硬门（已落地）**
+
+B9 动画导演 + B10 导演摄像完成后 · 制作开始前：主 LLM 逐 beat 用大白话描述"画面是谁 / 景别 / 背景 / 动效"（禁写效果名/术语）· 用户逐 beat pass 后才进渲染。
+根因：v1 PPT 事故 + v2 三差评核心都在"分镜走完了但用户从来没看到画面长什么样"。
+
+**决定 3 · publish/ 整目录不进仓库（已落地）**
+
+`.gitignore` 新增 `publish/`（整目录）· 成片/素材/制作过程文档全属本地产物。
+替换原条目 `publish/语音厅/测试/`（只挡了子目录）。
+
+**决定 4 · Plugin 化方向（提案已确认 · 执行待分阶段）**
+
+- **方向**：Skill 为主，`case-study` 逐步降为使用者项目 · 引擎抽成独立可分发 Plugin
+- **分发边界**：自有 skill 直接打包 · 别人的 skill（video-form-* / higgsfield-* 子包等）一律"引用 + 用户确认自装"· 不替用户打包（授权风险转移到用户侧）
+- **4 类核心能力封装目标**：`cap-image-gen` / `cap-video-gen` / `cap-tts` / `cap-stock-footage`
+- **迁移阶段（低风险优先）**：Phase 1 质量平面单一化 → Phase 2 流程平面提纯 → Phase 3 技能平面梳理 → Phase 4 抽壳成 Plugin → Phase 5 case-study 降级 → Phase 6 发布
+- **待解决的 blocking 项**：`video-form-*` 15 个 skill 来源 / 授权未确认（卡分发包）
+
+### 涉及文档
+
+- `library/README.md` — 已建，含触发协议
+- `.agents/skills/tonbirds-content-engine/SKILL.md` — 已建，A/B 两轨完整协议
+- `CLAUDE.md` 顶部 — 已插入 4 步起手清单
+- `.gitignore` — 已更新
+- `docs/design/引擎三平面plugin化重构方案.md` — 已归档至本条决策，原文件删除
