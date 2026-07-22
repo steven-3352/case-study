@@ -25,7 +25,7 @@
 1. 先出**一张角色设定图（character sheet）**，锁定角度/表情/服装基准
 2. 后续每镜用 **cap-image-gen `--ref char_sheet.png`（image-edit 模式）** 改姿态/场景/光线，不重新 t2i
 3. 每镜多采样 2–4 版，挑与参考图最接近的版本
-4. 可选：新建一道轻量角色一致性目视 gate（参考 `pipeline/gate_check_palette.py` 结构）
+4. 可选：新建一道轻量角色一致性目视 gate（结构对照 `skill/quality/quality_registry.md` 里 `QG-PALETTE-NEON` 一类机器门的定义方式）
 
 ⚠️ **未验证风险**：多角色同框复杂互动场景的一致性，无实测数据，遇到需专门验证后再定稿
 
@@ -39,7 +39,7 @@ GPT-image-2「中文乱码 ~5%」的限制**只在"指望模型直接画出带�
 ✅ **做法**：
 - Kinetic Typography（整词砸屏 / 拆字动画 / 关键词高亮）全在 GSAP 代码层实现
 - 参考样片 V2/V3 的花字手法可直接还原，但遵守项目可读性铁律（控制闪烁频率，不复刻 V3 高频闪烁反面案例）
-- 工具：`pipeline/p004_video/` 或新建 GSAP 场景
+- 工具：HTML + GSAP 截帧渲染场景（新建或复用），配合 `skill/cap-video-i2v` / `cap-image-gen` 出画面本体
 
 ---
 
