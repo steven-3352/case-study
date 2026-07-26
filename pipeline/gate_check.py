@@ -611,10 +611,10 @@ def _check_palette_neon(png: pathlib.Path, errors: list[str]) -> None:
             return
     if is_real_screenshot(png):
         return
-    ratio, top5 = analyze(png)
+    ratio, _muted, top5 = analyze(png)
     if ratio > 0.05:
         errors.append(
-            f"禁霓虹色门 FAIL · {png.name} 蓝紫像素 {ratio:.1%} > 5% (top: "
+            f"禁霓虹色门 FAIL · {png.name} 霓虹蓝紫像素 {ratio:.1%} > 5% (top: "
             f"{', '.join(h for h, _ in top5[:3])}) → 详 DECISIONS Q9"
         )
 
