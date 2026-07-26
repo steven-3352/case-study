@@ -1,145 +1,101 @@
-# AGENTS.md · Model-Agnostic Entry
+# AGENTS.md · Codex 加载壳
 
-> **任何 AI 编码 agent（Codex / Aider / Cline / Cursor / Claude Code / 其他）接入本仓库，先读本文。**
-> 本文档 = 项目宗旨 + 铁律 0 + 分工指路 · **语言/模型无关**。
-
----
-
-## 项目一句话
-
-AI 内容自动化生产引擎：给对 AI 工具/AI 应用感兴趣的受众，产出**愿意看完且愿意互动的**短视频/图文轮播/带货内容。
+> **所有项目规则在 [`docs/RULES/`](docs/RULES/README.md)(SSOT · 单一事实源)。**
+> **本文只声明 Codex 特有的加载注册。Codex 无 memory / 无 Skill 自动挂载 / 无 Workflow tool / 无并行 subagent,以下 5 项能力全部要人肉模拟。**
+> **规则内容修改一律去 `docs/RULES/`,本文不重复写规则。**
+>
+> **其他模型接入**:Claude Code 读 `CLAUDE.md`(项目根)· 未来第三个模型见 `docs/RULES/09_MIGRATION_SOP.md`。
 
 ---
 
-## 铁律 0 · Audience-First, Not Pipeline-First（最高优先级 · 全局元规则）
+## Step 1 · 必读顺序
 
-**交付的评判基准是观众成果，不是工程产出。**
-
-### 三要素（正向标准）
-
-| 要素 | 含义 | 反面（禁） |
-|---|---|---|
-| **内容共鸣** | 命中真实情绪/场景，观众愿意在评论里接话 | 干货堆砌 · 泛泛而谈 · 蹭热点无锚 |
-| **强观赏性** | 每 2-4s 视觉变化 · 首屏停划 · 中段不塌 · 音画同步 | 单场景占大部分时长 · 静态字幕 · catalog 拼盘 |
-| **强内容** | 信息密度真材实料 · 可复现的方法/prompt/清单 | 空喊口号 · AI 拼凑 · 概念糊弄 |
-
-### 反例（工程完成心态 · 全部不算交付达标）
-
-- ❌「pipeline 跑通了」
-- ❌「15 步走完了」
-- ❌「所有工种产出都齐了」
-- ❌「render 无报错」
-- ❌「发布包三平台文案齐了」
-- ❌「Task #XX completed」但没确认下游用没用、观众看没看
-
-### 唯一交付判据
-
-`pre_publish_forecast` 评级 ≥ **B** + 投后观众数据（3s 完播 / 完播率 / 互动 / 收藏）达标。C/D 或无 forecast 一律 `blocked`。
-
-### 触发时刻（任何"完成"判定语义节点 · 自查三问）
-
-- Task 打勾前
-- Write 完文件后
-- 脚本终稿声明
-- render 出 mp4
-- 发布包齐
-- 「Task #XX completed」声明
-
-**自查三问**：
-1. 观众看到会不会**共鸣**？（场景是真的吗？情绪是命中的吗？）
-2. 画面**观赏性**够吗？（每 2-4s 有变化吗？首屏停划吗？）
-3. 内容**真材实料**吗？（有可复现的 prompt/clip/清单？还是空喊/概念糊弄）
-
-**任何一问答不上"是" → 状态仍是 `draft`，未 done。**
-
-### 正向表达（写文档/规范/汇报时的默认措辞）
-
-- ✅「本条 3s 完播预测 X% · 达 `pre_publish_forecast` B 级 · 可外发」
-- ✅「共鸣：钉子场景来自 X 平台 Y 条网络原话；观赏性：每 3s 变化 + catalog 占比 28%；强内容：3 段 prompt 可复制粘贴」
-- ❌「pipeline 已跑通 · 发布包齐 · 可外发」
-- ❌「15 步完成 · Task closed」
-
----
-
-## 协作宗旨（用户 ↔ agent 协作方式）
-
-- **用户只出选题和反馈数据。** 中途不追问决策，任何 agent 扮演各工种自己拍板。
-- **不看仓库有什么，看哪条实现更强。** pipeline / 场景文件 / 工种名单不是完成标准；标准是观众停不停、懂不懂、互动/收藏，以及发布包能不能直接外发。
-- **内容门 + 形式门分开 · fail-closed。** 脚本 90+ 允许 TTS；形式 forecast pass 才允许外发。两道门永不合并。
-- **形式服务数据假设。** 每个高级视觉镜头必须声明服务 `completion_3s / completion_rate / 理解 / 收藏 / 评论` 中的哪一项，声明不了就不进片。
-
----
-
-## 分工指路（按你是谁选入口）
-
-| 你是 | 首读顺序 | 补充 |
-|---|---|---|
-| **Codex / Aider / 通用模型 agent** | 本文 → `docs/SYSTEM.md` → `CLAUDE.md`（工种/15 步细则同样适用） | `docs/DECISIONS.md`（辩论锁定） · `docs/CONVERSION.md`（转化路径） |
-| **Claude Code** | `CLAUDE.md` → 本文 → `docs/SYSTEM.md` | project memory：`~/.claude/projects/-Users-wmzuo-Documents-project-case-study/memory/MEMORY.md` |
-| **Cursor** | `.cursor/rules/*.mdc`（alwaysApply）→ 本文 | `audience-first.mdc` · `content-outcome-accountability.mdc` · `content-prep-multi-agent.mdc` · `platform-same-video-delivery.mdc` |
-| **Cline / 其他** | 本文 → `docs/SYSTEM.md` → `CLAUDE.md` | 视 IDE agent 支持情况 |
-
----
-
-## 项目结构（一屏）
+按 `docs/RULES/README.md` 必读顺序读完全部,包括 `docs/RULES/memory/`:
 
 ```
-case-study/
-├── AGENTS.md                    # 本文 · model-agnostic 入口
-├── CLAUDE.md                    # Claude Code 执行细则
-├── docs/
-│   ├── SYSTEM.md                # 完整规范 · 五层架构 · 15 步 · 铁律 0-11 · 候选实现清单
-│   ├── DECISIONS.md             # 战略辩论锁定（Q1-Q11）
-│   ├── CONVERSION.md            # 私信转化路径
-│   ├── ASSET_LIFECYCLE.md       # 素材生命周期
-│   └── design/                  # 各类 REJECT/FAIL/MISS 登记
-├── .cursor/rules/*.mdc          # Cursor alwaysApply 规则
-├── queue/topics.yaml            # 选题池 · 开放选题
-├── publish/2026-WNN-*/          # 每周选题产出（洞察/设计/scripts/build/xhs/douyin/weixin）
-├── pipeline/                    # 生产脚本（P001-P007 · TTS · gate_check）
-├── integrations/openmontage/    # 外部制作插件（每条必跑 openmontage_brief）
-├── templates/                   # 模板（洞察/设计/音画/发布包）
-├── assets/
-│   ├── formats/catalog.yaml     # 形式词汇（观感类型）
-│   └── broll/catalog.yaml       # B-roll 素材目录
-└── persona/persona.yaml         # 默认人设兜底
+docs/RULES/README.md                      索引 · 铁律速查
+docs/RULES/00_NORTH_STAR.md               铁律 0 · Audience-First(北极星 · 最高优先级)
+docs/RULES/01_IRON_LAWS.md                铁律 1-11
+docs/RULES/02_WORKFLOW.md                 4 步 5 拍板点 + 15 步 + 工种 + 强制 Workflow
+docs/RULES/03_VISUAL_CREATIVE_GATE.md     视觉创意硬门(20→8-12→概念图)
+docs/RULES/04_CONTENT_CONSTRAINTS.md      禁蓝紫 · 禁 AI 味深色 · 密 VO · sfx · palette gate
+docs/RULES/05_PIPELINE_CANDIDATES.md      P001-P011 · integrations · 每镜五维打分
+docs/RULES/06_SKILL_TRIGGERS.md           skill 触发关键词表(权威规范)
+docs/RULES/07_ENVIRONMENT.md              环境配置 · 5 步初始化 · Git
+docs/RULES/08_ASSETS_LIFECYCLE.md         素材生命周期
+docs/RULES/09_MIGRATION_SOP.md            新模型接入 SOP(装新 skill 也读这个)
+docs/RULES/decisions/DECISIONS.md         战略辩论锁定(Q1-Q11)
+docs/RULES/decisions/CONVERSION.md        私信转化路径
+docs/RULES/memory/                        40+ 条稳定 feedback / project 规则
+docs/RULES/memory/README.md               memory 分类索引
 ```
 
 ---
 
-## Git
+## Step 2 · Codex 特有机制的等价映射(Codex 无原生对应,须人肉模拟)
 
-- **唯一工作分支：`main`**。日常开发、提交、推送均在 `main`。
-- 不建日期分支或长期 feature 分支；短期分支跑完 merge 回 `main` 并删。
-- 克隆后：`git checkout main && git pull origin main`
+### 2.1 memory 等价
+
+- Codex **无内置 memory 机制**
+- **开工前必须显式 read `docs/RULES/memory/` 全部**(相当于 Claude Code 里 memory 自动注入)
+- 新加稳定规则时,直接写到 `docs/RULES/memory/{分类}/{name}.md`——不需要维护单独的 Codex-private memory 目录
+
+### 2.2 Skill 触发等价
+
+- Codex **无 skill 自动挂载**
+- **开工前查 `docs/RULES/06_SKILL_TRIGGERS.md`**,根据用户描述文本匹配"触发场景"关键词后,**主动 `read` 对应 `.agents/skills/{skill}/SKILL.md`**
+- **用户不用指名 skill · Codex 自己按本表匹配**——禁问"要不要挂 X"、禁让用户点单
+- 常见组合速查见 `06_SKILL_TRIGGERS.md §场景 → skill 组合矩阵`
+
+### 2.3 多工种 Workflow 等价
+
+- Codex **无 Workflow tool** · `.claude/workflows/prd_pipeline.js` 只 Claude Code 能跑
+- **按 `docs/RULES/02_WORKFLOW.md §四 强制走 Workflow` 章节手动执行 phase 0-2**:
+  - Phase 0:读 `docs/design/WORKFLOW_EXECUTION_LOG.md` 最近 5 条的 `carry_forward`
+  - 每个被激活角色**独立会话产出结构化 markdown**(schema 见 `templates/design/subagent_prd_schema.md`),核心字段 `perceptual_goal.observable_metric` **禁写效果名术语**(禁 Ken Burns / parallax 等),必须是可观察量级
+  - 验收者与产出者是**不同的会话**,二元 pass/fail
+  - 交付后主 LLM 回读所有子 PRD,把协作过程错误登记 `docs/design/WORKFLOW_EXECUTION_LOG.md`
+- 每个工种独立产出 markdown,**不合并成"四不像"**
+
+### 2.4 subagent 等价
+
+- Codex **无并行 subagent**
+- **串行方案**——每角色一次独立会话,主 LLM 不主动兼任任何角色
+- 洞察 4 件 / 设计 3 件 / TTS·UI·broll 三条:**一个一个来**(会比 Claude 慢,但铁律"独立子 agent 调用"仍必须遵守)
+
+### 2.5 hooks 等价
+
+- Codex **无 hooks**
+- CLAUDE.md 里靠 hook 保证的事(如 pre-node-checklist),Codex **在每个节点开工前手动跑一遍 checklist**
+- 关键 checklist:
+  - `docs/RULES/memory/gates/feedback_pre-node-checklist.md` — 每节点入口必读清单
+  - `docs/RULES/01_IRON_LAWS.md §8` — 门禁抬高 3 档反问
+  - `docs/RULES/03_VISUAL_CREATIVE_GATE.md` — 创意不过关禁进执行层
 
 ---
 
-## 关键铁律速览（详见 `docs/SYSTEM.md` §3.1）
+## 反例(不要这么做)
 
-| # | 铁律 | 一句话 |
-|---|---|---|
-| 0 | Audience-First, Not Pipeline-First | 观众成果 = 唯一交付标准 |
-| 1 | 不看仓库有什么，看哪条更强 | pipeline 存量不代表选型正确 |
-| 2 | 内容门 + 形式门分开 | 两道门永不合并 fail-closed |
-| 3 | 合规分 vs 效果分 | scorecard 90+ ≠ 能投 |
-| 4 | 各环节专家对最终结果负责 | 不是对交差文件负责 |
-| 5 | 尽一切可能让内容更好 | 宁可多一轮，不「能出片就行」 |
-| 6 | 自我进化 | 提高标准 + REJECT_LOG + gate_check 升级 |
-| 7 | 形式为数据假设服务 | 声明不了数据杠杆的形式不进片 |
-| 8 | 承诺兑现到像素 | storyboard 承诺 → render 逐帧核 |
-| 10 | `draft_self_generated` 无门禁效力 | 单跑 agent 不算通过 |
-| 11 | 数据 A/B/C 分级 | 真实带来源 = A · 估算 = B · 无来源 = C |
+- ❌ 在本文加规则内容(本文只写加载注册)
+- ❌ 靠 Claude Code 私有 memory(`~/.claude/.../memory/`)—— Codex 看不到,那是 Claude 的私区
+- ❌ 一次会话里 Codex 自己兼任多个工种直接写代码(违反 `02_WORKFLOW.md §四` 强制走 Workflow · 一个 PPT 感事故触发的铁律)
+- ❌ 说"没有 Skill tool 就不用查 skill 触发表"—— `06_SKILL_TRIGGERS.md` 是**权威规范**,Codex 必须手动查
+- ❌ 装新 skill 只装文件不更新 `docs/RULES/06_SKILL_TRIGGERS.md`(下一个人不知道何时触发)
+- ❌ 说"这次简单/是 demo/是轻量档"就跳过工种协作(`production_tier` 只降验收强度,不减角色数量)
 
 ---
 
-## 完整规范（必读）
+## 快速链接
 
-- **`docs/SYSTEM.md`** — 五层架构 · 15 步流程 · 工种组织 · 两道门 · 铁律 0-11 · 候选实现清单
-- **`CLAUDE.md`** — 工种清单 · 环境配置 · 反例 · Claude Code 特定细则（对其他 agent 也适用工种/流程部分）
-- **`docs/DECISIONS.md`** — 战略辩论锁定（Q1-Q11）
-- **`docs/CONVERSION.md`** — 私信转化路径
+- 每次开工前 4 步:见 `docs/RULES/02_WORKFLOW.md §一 顶层工作模式`
+- 视觉创意硬门:`docs/RULES/03_VISUAL_CREATIVE_GATE.md`
+- i2v/t2v prompt 硬门:`docs/RULES/04_CONTENT_CONSTRAINTS.md §15`
+- 生成后诊断硬门:`docs/RULES/04_CONTENT_CONSTRAINTS.md §16`
+- Skill 触发对照表:`docs/RULES/06_SKILL_TRIGGERS.md`
+- 装新模型:`docs/RULES/09_MIGRATION_SOP.md`
 
 ---
 
-**任何模型 / 任何 IDE agent 接入本仓库 = 铁律 0 生效。不读 = 不合规。**
+## 备份
+
+- 本文 pre-shell 版本:`archive/AGENTS_before_shell.md`(7 KB · 已把内容全部搬到 `docs/RULES/`)
