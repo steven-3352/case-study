@@ -477,3 +477,15 @@ topics:
     status: killed
     note: "数据毙(2026-07-15)。一手:'失业'搜索全是纯职场自媒体(4159/3050/2886赞)、跟AI无关,AI角度切不进;'买方/卖方'框太抽象,评论区无对应诉求。原矿金句'溺水的人先自己上岸别急着开游泳培训班'留作T042内文素材。"
     source: publish/2026-W30/
+
+  - id: T046
+    project: W30D08
+    series: S5-模型实测与预算纪律
+    title: "Claude Opus 5上线：接近Fable 5的日用版，但别把账单当空气"
+    angle: "新品拆解·官方半价叙事 + 独立榜单 + 任务分层预算规则"
+    format: [video, carousel]
+    platforms: [小红书, 抖音]
+    priority: P0
+    status: in_production
+    note: "观点可用，但‘平民版’仅作编辑比喻。Opus 5 7/24上线；官方称接近Fable 5且API单价一半。独立AA GDPval-AA v2: Opus 1861/Fable 1747/Sonnet 1603。必须区分按量API、订阅额度、Fast mode与usage credits；禁止写全面追平/无限免费。"
+    source: publish/2026-W30/D08-Claude-Opus-5实测/
