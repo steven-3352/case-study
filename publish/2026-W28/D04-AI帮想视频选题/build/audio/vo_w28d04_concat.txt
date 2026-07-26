@@ -1,7 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s2.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s3.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s4.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s5.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s6.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s7.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W28/D04-AI帮想视频选题/build/audio/vo_w28d04_s8.mp3'

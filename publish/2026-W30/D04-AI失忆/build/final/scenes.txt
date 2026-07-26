@@ -1,8 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__record_hook.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__conflict.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__write_proof.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__readset.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__missing_path.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__boundary.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__checklist.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D04-AI失忆/build/scenes/w30d04__close.mp4'

@@ -1,8 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__test_hook.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__split_proof.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__claim_boundary.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__survival_gate.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__target_gate.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__action_gate.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__tenth_gate.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D03-迷茫十问/build/scenes/w30d03__prompt_exit.mp4'

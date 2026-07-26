@@ -1,5 +1,0 @@
-file '/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage/scenes/01_hook.mp4'
-file '/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage/scenes/02_minutes.mp4'
-file '/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage/scenes/03_todos.mp4'
-file '/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage/scenes/04_contrast.mp4'
-file '/Users/bubu/Documents/projects/case-study/publish/2026-W27/D02-会议纪要/openmontage/scenes/05_cta.mp4'

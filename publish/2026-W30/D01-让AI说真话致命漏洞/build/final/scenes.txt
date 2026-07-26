@@ -1,8 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/ab_guess.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/compare_first_line.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/controlled_reveal.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/plan_facts.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/prompt_save.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/two_round_result.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/honest_difference.mp4'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/scenes/boundary_cta.mp4'

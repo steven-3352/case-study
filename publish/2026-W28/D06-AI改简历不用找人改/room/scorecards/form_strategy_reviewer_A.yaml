@@ -1,9 +1,0 @@
-role: 形式策略官
-reviewer: A
-source: independent_new_session
-round_1:
-  gates_6: {数据杠杆: 94, 非同质: 92, 理解成本: 90, 制作成本: 93, 技术风险: 88, H6差异化: 95}
-  total: 92
-  status: pass
-  note: 建议压缩分屏族占比 · M7 补 ATS 认知锚
-verdict: pass

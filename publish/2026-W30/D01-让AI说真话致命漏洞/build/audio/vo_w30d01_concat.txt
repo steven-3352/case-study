@@ -1,8 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_ab_guess.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_compare_first_line.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_controlled_reveal.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_plan_facts.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_prompt_save.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_two_round_result.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_honest_difference.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D01-让AI说真话致命漏洞/build/audio/vo_w30d01_boundary_cta.mp3'

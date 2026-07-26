@@ -1,8 +1,0 @@
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_danger_hook.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_alarm.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_evidence_pair.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_causality.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_write_check.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_retest.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_repaired.mp3'
-file '/Users/wmzuo/Documents/project/case-study/publish/2026-W30/D05-AI记岔了/build/audio/vo_w30d05_qa_card.mp3'
