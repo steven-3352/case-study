@@ -18,6 +18,7 @@ metadata:
 - **卡点动效字典**：beat/downbeat/切镜/drop/间奏/人声onset → 动效映射
 - **代码落地**：映射到 `pipeline/voice_room/gen_paperdoll_pv.py` 现状/待实现 + `StylePack` dataclass schema（6套=一份代码+一组preset）
 - **复用 checklist**：素材→音源→选风格→三件套先行→分镜→五层→卡点→字幕→验收→外发
+- **§9 七阶段前置对话流程**（2026-07-27 加）：**需求对话（−1）→ 物料预处理（0）→ 创意矩阵多选（①）→ 分镜（②）→ 小样两拍（③ 静帧拼图 + draft 动态粗剪）→ 后台自主成片（④）→ 终审（⑤）**。套路 = 前置对话填满**需求契约** `brief.json` → 用户拍板 → agent 无干预跑完。多视频默认「同素材多风格 A/B」。多角色须补「立绘↔歌词段映射」。设计模式见 [[intake-contract-autonomous]]。
 
 **Why:** 2026-07-23 用户要求"多套风格都要、自提升3级、落地文档以后国风乙MV/角色PV参照使用"，据此建此规范。
 **How to apply:** 收到国风乙/古风立绘卡点MV/角色PV 需求 → 读此 skill 选风格 + 按五层提升3级档做 + 三件套先行。参考实现见 [[project_voice-room-paperdoll-pv]]。关联 [[feedback_gate-floor-not-target]] [[feedback_skill-vs-template-distinction]] [[feedback_no-neon-palette]]。

@@ -55,6 +55,7 @@
 - [project_user-agent-4step-workflow.md](workflow/project_user-agent-4step-workflow.md) — 顶层工作模式 · 4 步 5 拍板点
 - [project_weekly-form-ab-test.md](workflow/project_weekly-form-ab-test.md) — 周形式 A/B 测试规则
 - [feedback_contrast-hook-3s.md](workflow/feedback_contrast-hook-3s.md) — 3s 反差钩子模板
+- [feedback_intake-contract-autonomous.md](workflow/feedback_intake-contract-autonomous.md) — 前置对话→需求契约→后台自主 · 两拍小样套路
 
 ### visual/ · 视觉硬约束(色板以外)
 - [feedback_no-cheap-procedural-background.md](visual/feedback_no-cheap-procedural-background.md) — ⭐ 严禁廉价程序化背景
