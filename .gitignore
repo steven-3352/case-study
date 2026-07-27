@@ -47,3 +47,4 @@ publish/
 assets/fonts/*.ttf
 assets/fonts/*.otf
 assets/fonts/*.ttc
+.cache/

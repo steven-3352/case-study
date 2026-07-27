@@ -1,19 +1,13 @@
 ---
 name: paperdoll-mv-packaging
-description: |
-  [中文触发] 国风乙 / 现代国乙 / 男团宣传 / 古风 / 语音厅 / CG / 角色PV / 纸片人立绘卡点 MV 的**标准操作手册**（确定性 motion-graphics 包装层，非 i2v prompt 层）。输入契约：用户一般只提供 ①立绘 ②mp3/wav ③歌词，其余全部按本手册自动产出。支持双画幅 9:16（1080×1920，默认）/ 16:9（1920×1080），换画幅重排构图非 resize。当用任意静态立绘/角色卡面做卡点 MV、角色 PV、立绘动效包装、音乐可视化、语音厅MV、CG混剪包装、宣传海报，且要求「立绘像素不变、只做外层包装/动效/卡点」时调此 skill。提供：三输入契约 + **§9 强制五阶段流程（20创意→分镜→关键图确认→原子/镜/帧三级并行自动任务→终审 · 每个原子产出即单元检查）** + 灵魂三件套 + **七级视觉强度体系**（L1-L7 × 情绪支线 · 固定量化参数）+ 五层包装系统 + **12 背景生成器（按题材：现代国乙/男团/古风/通用）** + **14 套风格预设库（每套自声明色板）** + **艺术字/海报排版层（9 版式 + 层级计数门）** + 卡点动效字典 + 声明式色板门 + 防无感机器校验 + 故障诊断库 + 代码落地接口（pipeline/paperdoll/）。
-  [EN] Full standard operating manual for paper-doll (flat 2D portrait) beat-sync music videos / character PVs across 国风乙 (Chinese otome, both ancient & modern settings), boy-group promo, and voice-room aesthetics. Deterministic motion-graphics packaging (NOT an i2v/t2v prompt skill). Input contract: user supplies only portrait art + audio + lyrics; everything else is produced per this manual. Palettes are per-style-pack declarations (NOT a global warm mandate) checked by a declared-palette gate. Includes a 7-level visual-intensity grading system, 12 genre-native background generators, 14 style packs, and a poster-typography layer with 9 layouts. Triggers: paper-doll MV, 立绘卡点, character PV, 角色PV, 国乙 MV, 现代国乙, 男团 MV, 语音厅MV, CG混剪, 宣传海报, portrait animation, cutout beat-sync, 纸片人动效, 七级包装, 艺术字.
-platforms:
-  - claude-code
-  - cursor
-  - codex
+description: 编排并制作以静态人物立绘、歌曲和歌词为输入的纸片人卡点 MV、角色 PV、国乙/古风/现代国乙/男团/语音厅 MV 与歌词视觉化视频。用于需要先把歌曲结构、歌词语义和人物关系编译成视觉总谱，再以确定性 2.5D motion-graphics、艺术字、卡点、必要的补姿势图或局部 i2v 完成 9:16/16:9 成片的任务。也用于修复角色轮播、电子相册感、全程同能量、歌词与人物错配、转场无动机等导演编排问题。
 ---
 
 # 国乙风格短视频 · 标准操作手册（纸片人卡点 MV / 角色 PV / 语音厅 MV）
 
 > **定位**：用户只给三样东西——**立绘、音频（mp3/wav）、歌词**。
 > 从这三样到一条可外发的卡点 MV，中间的一切（背景、分级、分镜、光效、胶片、字幕、卡点、质检）**全部按本手册产出**。
-> 立绘像素**零改动**（只做仿射变换 + 裁切换景别 + alpha 边缘处理），其余一切全部可设计。
+> 用户提供的源立绘像素**零改动**（只做仿射变换 + 裁切换景别 + alpha 边缘处理）。缺失姿势可另行生成，但必须作为新资产登记、过身份一致性门，不能冒充源立绘。
 >
 > **本手册 = 「怎么包装」的方法论 + 强度分级 + 风格库 + 代码接口，跨选题复用**（skill，不是一次性分镜模板）。
 > 与 `video-form-music-video`（i2v/t2v prompt 层）**互补**：那条给"让模型生成一段视频"写 prompt；
@@ -21,6 +15,13 @@ platforms:
 >
 > 参考实现：`pipeline/voice_room/gen_paperdoll_pv.py`（《明月天涯》纸片人卡点 PV）。
 > 源头文档：`docs/语音厅 : CG : 国乙短视频 七级视觉包装标准化执行手册.md`（V2.0，本手册已全量吸收并按项目铁律暖化改写，以本文为准）。
+
+### 强制读取路由
+
+- **从歌曲与立绘开始做新片、重排现有 MV、修复“电子相册/角色轮播”**：先完整读取 [references/director-orchestration.md](references/director-orchestration.md)，产出 `music_map.yaml`、`character_map.yaml`、`visual_score.yaml`、`asset_plan.yaml`。这些是包装层的上游输入，不得跳过。
+- **只调整已批准分镜的包装参数**：可直接使用本文 §2-§8，但不得改变 `visual_score.yaml` 的导演任务、人物关系或能量曲线。
+- **需要验证视觉总谱**：复制 [assets/visual-score.template.yaml](assets/visual-score.template.yaml) 起稿，并运行 `python3 .agents/skills/paperdoll-mv-packaging/scripts/validate_visual_score.py <visual_score.yaml>`。
+- **需要生成补姿势图**：同时读取项目静态图 prompt skill；需要 i2v 时按 `docs/RULES/06_SKILL_TRIGGERS.md` 组合对应视频 skill。本 skill 只负责决定何时该补图/用 i2v，不替代其 prompt 规范。
 
 ---
 
@@ -38,11 +39,11 @@ platforms:
 
 > **水墨只是其中一种,不是默认底。** 原手册把「水墨/宣纸/卷轴」当通用背景库——那其实是国乙一年跑两三次的**古风限定活动皮**。现代都市线、高奢室内、男团影棚/暗调舞台各有自己的原生视觉语言,把它们统一水墨化/暖化 = 把限定皮当通用底,世界观直接崩。
 
-背景走 12 个**确定性程序化生成器**(`pipeline/paperdoll/backgrounds.py`,同 seed 同结果,除 `photoreal_location` 外零外部素材依赖)。**按题材选,不按「暖不暖」选**:
+先用 12 个背景类型做**场景语法与构图路由**（`pipeline/paperdoll/backgrounds.py`，按题材选，不按“暖不暖”选）。正式背景优先级为：用户/授权原素材 → 与立绘同画风的图像模型 plate → 通过插画质感门的确定性生成器。确定性生成器默认用于概念预览、构图占位和明确的平面/材质风格；若成片帧呈现廉价渐变或模糊多边形，按项目 `feedback_no-cheap-procedural-background` fail，必须替换为同画风 plate，不能因“同 seed 可复现”豁免。
 
 | 生成器 | 题材归属 | 画的是什么 |
 |---|---|---|
-| `bokeh_light_gradient` | 通用 | 暖渐变 + 散景光斑,最省事起手,任何题材不出错 |
+| `bokeh_light_gradient` | 通用 | 暖渐变 + 散景光斑，适合概念预览和留白背景；正式片须过插画质感门 |
 | `flat_color_negative_space` | 通用 | 平面大色块 + 负空间,海报感最强,厚度靠排版不靠特效 |
 | `material_texture` | 通用 | 材质肌理(宣纸/亚麻/涂布纸),近单色靠纤维走向出质感 |
 | `liminal_dreamcore` | 通用 | 失焦雾面/梦核,低对比高亮度,回忆与破防段 |
@@ -98,7 +99,7 @@ platforms:
 
 | # | 铁律 | 判据 |
 |---|------|------|
-| **R1** | **立绘像素零改动** | 只允许：仿射（位移/缩放/旋转）、裁切换景别、alpha 边缘羽化/描边。**禁**：i2v/gpt-image 重画、liquify、改脸改造型、换色、贴滤镜改肤色。立绘身上的深色礼服=人物设定，不算违规。 |
+| **R1** | **源立绘像素零改动；补姿势必须隔离登记** | 用户提供的源立绘只允许仿射、裁切换景别、alpha 边缘羽化/描边；禁 liquify、改脸、换色、贴滤镜改肤色。分镜确需侧身、背影、动作或关系图时，可用参考图生成**补充资产**，但必须在 `asset_plan.yaml` 登记为 `source_type: synthetic_visual` + `asset_role: generated_supplement`、保留源图引用与 prompt、通过身份/服装/比例一致性检查，并在 `visual_score.yaml` 明确使用。补图不得覆盖或冒充源立绘。 |
 | **R2** | **每套风格包自声明色板（取代「全暖」）** | 色板是**风格包属性**,不是全局铁律。每套包在 `style_packs.py` 写清自己的 `palette` + `rationale`(为什么是这套色)。反 AI 味的判据是**两条实质规则**(见 §1.3 R2_RULES):①禁 Linear/Vercel/Cursor 式开发者工具暗色气质;②禁无意义赛博紫青渐变。**冷色本身不违规**——夜戏/雨戏/暗调舞台/角色主色是蓝青紫,都是题材原生语言。判据是「这颜色是不是这个世界该有的」,不是「暖不暖」。 |
 | **R3** | **禁 AI 味深色画布** | **禁**自造深色画布（`#0a0e14/#141922` 一类无质感冷蓝灰）、Linear/Vercel/Cursor 式冷暗开发者美学。**区分**:`urban_night_neon` 的夜城底色带光污染褐调、`dark_studio_fog` 的暗是灯没打到——那是题材物理事实,不是自造深色画布,合规。 |
 | **R4** | **角色主色优先于风格包基色** | 角色身份标识色(萧逸深蓝/齐司礼青/查理苏紫一类)压过风格包 accent,用 `pack.with_character(color)` 覆盖。这类冷色是**角色身份**,必须进声明色板(R1 立绘像素不可改,肤色发色也跑不掉)。禁为了「统一暖」把角色主色刷暖。 |
@@ -573,9 +574,9 @@ platforms:
 |---|---|---|---|
 | **−1 需求对话** | 先自由对话（用户把手上物料 + 想法一股脑说）→ LLM 解析、只对缺格发定向选择题 → 填满**需求契约**（物料位置/格式 · 约束 · 做几条 · 多视频模式） | 👤 对话·选择 | `brief.json`（需求契约） |
 | — | **👤 拍板点 0：确认需求契约**（画幅/题材/条数/tier 一次拍完） | 用户 | — |
-| **0 物料预处理** | 抠图 → `doll.png` · `load_beats` → `beats.json` · 歌词对齐（无码走 onset+whisper）→ `lyrics_timed.json` · 段落表 · **多角色立绘↔段落映射**（§9.0.2） | agent（自动·段落表 10 秒人工核对） | 中间产物 + 契约 `doll_segment_map` 补全 |
-| **① 创意矩阵多选** | 矩阵机械出 **20 个**纯文字创意 → 独立 agent 默认毙稿杀到 8–12 → 只给幸存者出概念图 → **用户多选**（做多条时逐条派风格/创意，§9.0.1 同素材多风格 A/B） | 👤 拍板点 1（多选式） | 概念图 ×8–12 + `per_video[]`（每条 style_pack + creative_ids） |
-| **② 分镜** | 选中创意 → 详细分镜脚本（逐镜：景别/运镜/立绘/背景/特效/歌词/拍点）+ 视觉语言约束（色板、材质、明暗结构、字体，**每条带数**） | agent | `storyboard.md` + `design_language.md` |
+| **0 物料预处理 + 导演地图** | 抠图 → `doll.png` · 音频分析 → `beats.json` · 歌词对齐 → `lyrics_timed.json`；再按导演 reference 产出音乐结构、歌词语义、人物功能/关系/出场预算和能量曲线 | agent（自动·不确定段落人工核对） | `music_map.yaml` + `character_map.yaml` + 契约 `doll_segment_map` 补全 |
+| **① 创意矩阵多选** | 创意矩阵必须消费导演地图，机械出 **20 个**纯文字创意 → 独立 agent 默认毙稿杀到 8–12 → 只给幸存者出概念图 → 用户多选。创意可改变表现方式，不得破坏已确认的歌词主语、人物关系和能量职责 | 👤 拍板点 1（多选式） | 概念图 ×8–12 + `per_video[]`（每条 style_pack + creative_ids） |
+| **② 视觉总谱 + 分镜** | 选中创意 → 逐镜写导演任务、数据杠杆、人物/关系推进、能量、首尾帧、共享转场元素和技术路线，再补景别/运镜/背景/特效/歌词/拍点及量化视觉语言 | agent | `visual_score.yaml` + `asset_plan.yaml` + `storyboard.md` + `design_language.md` |
 | — | **👤 拍板点 2：确认分镜** | 用户 | — |
 | **③ 小样（两拍合并）** | **拍 3a 静帧拼图**：前 5 镜各取 1 帧拼一张图，验色板/景别/明暗结构（吸收原「关键图」，秒级零成本）→ **拍 3b 动态粗剪**：3a 过后以 **draft 模式**（540p·跳提升3级·跳全门）渲前 5 镜动态，让用户找运动/卡点/气质的感觉 | agent | `keyframes_preview.png` + `first5_draft.mp4` |
 | — | **👤 拍板点 3：进 / 退**（3a 确认静态成立 · 3b 确认动态感觉对，才起 ④） | 用户 | — |
@@ -646,13 +647,28 @@ platforms:
 
 ### 9.1 阶段 ② 分镜的逐步细则（承接原 SOP）
 
+**导演前置门**：先完整读取 [references/director-orchestration.md](references/director-orchestration.md)。从 [assets/visual-score.template.yaml](assets/visual-score.template.yaml) 起稿，并运行：
+
+```bash
+python3 .agents/skills/paperdoll-mv-packaging/scripts/validate_visual_score.py \
+  pipeline/voice_room/<片名>/visual_score.yaml
+```
+
+退出码非 0 时禁止进入背景生成、补姿势、i2v、风格包装或正式渲染。`storyboard.md` 是给人看的解释，`visual_score.yaml` 才是渲染器和自动任务消费的导演合同；两者冲突以视觉总谱为准。
+
+**逐镜强制字段**：`purpose`（唯一导演任务）· `leverage`（完播/理解/收藏/评论）· `energy`（1-5）· `characters` · `lyric` · `composition` · `primary_action`（唯一核心动作）· `beats`（三级卡点）· `first_frame` · `last_frame` · `transition_out.shared_element` · `technique`（2.5d/static/i2v/hybrid）· `assets.use/missing`。
+
 ```
 ① 画幅+素材入库 确认画幅（9:16 / 16:9，未指定默认 9:16，§0.3）；
               立绘 rembg 抠图 + alpha 硬化羽化 → doll.png（此后像素零改动）
 ② 音频分析    load_beats → beats.json；RMS/onset → 段落表（前奏/主歌/副歌/…+能量档）
 ③ 歌词对齐    → lyrics_timed.json（每句锚人声起音）
-④ 情绪定调    歌词语义 + 调式速度 → 全片主情绪（甜/燃/虐）+ 每段情绪标签
-⑤ 定档定级    production_tier → 成片档（标准/精品/天花板）→ 按 §3.0 表给每段分配 L 级
+④ 导演地图    按 reference 完成 music_map（三级卡点+能量）与 character_map（功能+关系+出场预算）；
+              多角色片必须有首次介绍、双人关系、高潮群像与高潮后回收，禁 A→B→C→D 纯轮播
+⑤ 视觉总谱    先写逐镜 purpose/energy/人物/首尾帧/转场共享元素/技术路线 → visual_score.yaml；
+              运行 validate_visual_score.py 通过后，再进入风格与包装；从分镜反推 asset_plan.yaml
+⑤.5 情绪定调  歌词语义 + 调式速度 → 全片主情绪（甜/燃/虐）+ 每段情绪标签
+⑤.6 定档定级  production_tier → 成片档（标准/精品/天花板）→ 按 §3.0 表给每段分配 L 级
               → 查 §3.1 支线表得到每段的 L{n}-{A/B/C} + 固定参数
 ⑥ 选风格包    先按题材（§5 的 4 组）再按角色气质，从 §5 十四套选 1 主风格（全片只用这一套色板）；
               有角色主色则 `pack.with_character(色)` 覆盖 accent；记下 `palette.gate_arg()` 供 ⑬ 声明式 gate
@@ -665,7 +681,7 @@ platforms:
               用户选定范围后，**我做最优编排**：按歌曲结构+情绪强度把选定技法分配到时间段，
               A 轴全程底层开、B+C 同帧不超过各一种、高潮段给最强组合、间奏给轻柔组合。
               输出「时间段 × 技法 × 组合理由」对照表，用户确认后进入 ⑨。
-⑨ 分镜        按 Shot 排镜：切镜落 downbeats + 乐句结尾 · 叙事段最长 2s 一镜（2s 硬线，§2.5/§10.2）·
+⑨ 分镜细化    只在已通过的 visual_score 上补制作字段：切镜落 downbeats + 乐句结尾 · 叙事段最长 2s 一镜（2s 硬线，§2.5/§10.2）·
               慢档不切镜也须让主体 2s 内有可见位移/缩放 · 景别靠裁切换（全景/半身/特写/局部）· 相邻镜景别不重复 ·
               构图按画幅规则排（§0.4：竖屏居中纵切 / 横屏偏置横切）·
               L4 开场 0 秒即爆发 · 禁从上一条克隆分镜
@@ -793,7 +809,10 @@ platforms:
 
 ## 11. 终审质检清单（每条视频输出前逐项核对）
 
-- [ ] **§9 七阶段流程跑完**：需求契约（阶段 −1）拍板 → 物料预处理（阶段 0）产全中间产物 → 创意多选（①）→ 分镜确认（②）→ **小样两拍**（③ 拍 3a 静帧拼图过 + 拍 3b 动态粗剪用户说「进」）后才起自动任务（阶段 ③ 任一拍未过禁止起阶段 ④）
+- [ ] **§9 七阶段流程跑完**：需求契约（阶段 −1）拍板 → 物料预处理与导演地图（阶段 0）→ 创意多选（①）→ 视觉总谱/素材计划/分镜确认（②）→ **小样两拍**（③ 拍 3a 静帧拼图过 + 拍 3b 动态粗剪用户说「进」）后才起自动任务
+- [ ] **导演前置门通过**：`music_map.yaml`、`character_map.yaml`、`visual_score.yaml`、`asset_plan.yaml` 均存在；`validate_visual_score.py` 退出 0；多角色片不是纯角色轮播
+- [ ] **逐镜导演合同完整**：唯一导演任务、数据杠杆、能量、人物关系、唯一核心动作、首尾帧、共享转场元素与技术路线均已填写
+- [ ] **能量曲线成立**：副歌相对主歌至少提高两项；全曲峰值至少提高四项；峰值后有释放或歌曲本身直接截断
 - [ ] **每个原子有探针有数、且产出即检过**（§9.2 表；新增原子已补表行 **+ 补一个反例**）：`python3 -m pipeline.paperdoll.probes selftest` 退出 0
 - [ ] **每镜过 L-镜 装配判据**：`p95 ≥150` 且 `p95-p5 ≥90`、主体占幅 ≥ 景别 share×70%（§9.3）：`python3 -m pipeline.paperdoll.probes shot <帧目录> --track motion.json --shot <镜号> --framing <景别> --declared "$(cat design/declared_palette_*.txt)"` 逐镜退出 0
 - [ ] 画幅正确：分辨率与 ① 确认的画幅一致（9:16 1080×1920 / 16:9 1920×1080），背景/构图按画幅原生排布非 resize（§0.4）
@@ -807,7 +826,7 @@ platforms:
 - [ ] 五道机器门全过：开关对比 / 小屏 / 动态基准 / 卡点精度 / 层级计数（§10.1）
 - [ ] **艺术字够厚**：主视觉/海报帧信息层级 ≥5、字号跨度 ≥6:1，大字压立绘后（`check_thickness` 过，`zen-void` 除外）；厚度靠层级不靠特效（§8A）
 - [ ] 540p（手机模拟）字幕逐句清晰可读
-- [ ] 立绘像素保真核验（R1：仅仿射+裁切+边缘处理）
+- [ ] 源立绘像素保真核验（R1：仅仿射+裁切+边缘处理）；补姿势均以 `source_type: synthetic_visual` + `asset_role: generated_supplement` 登记并过身份一致性门
 - [ ] 景别丰富度：相邻镜不同景别，非单景别贴图循环
 - [ ] **冻结自检过（R9 / §2.5 · 2s 硬线 · 机器门 `python3 pipeline/gate_check_motion.py <片>.motion.json` 退出 0）**：滑窗任意 2s 片段，主体位移峰值 ≥ 画面宽 4% 或面积峰值 ≥ 8%（切镜 / 运镜 / 转场任一手段达成即可）；目的是观众不会觉得"人/画面不动"；慢档/留白也不豁免；不是"静止构图叠特效"当动感
 - [ ] **每道"觉得能过"先自问：能不能再提 3 级？**（元规范）
@@ -886,6 +905,7 @@ CLI：`python3 -m pipeline.paperdoll.probes selftest`（拿真原子跑 25 项�
 10. **背景提升3级**（P1）：宣纸纹理叠底 · 景深分层模糊 + 错位位移（L5 机关）。
 11. **draft 模式**（§9.0 阶段 ③ 拍 3b 快速小样）：`render(paths, shots, start, end, draft=True)` —— 540p 降分辨率 + 跳三件套提升3级层（只留基础呼吸）+ **关掉结尾自动跑的冻结门/palette 门**（draft 本就允许带 bug、不过门禁）+ 可抽帧。目的是前 5 镜几分钟出动态粗剪给用户找感觉，不是成片。`draft=True` 产物命名 `*_draft.mp4`，**禁外发**（同 `--force` 语义，退出码不校验门）。成片阶段 ④ 一律 `draft=False` 走全门。
 12. **需求契约 intake**（§9.0.1）：`brief.json` schema 校验器 + 阶段 −1 对话把缺格映射成选择题的模板（模型无关：Claude Code → AskUserQuestion，其他模型 → 各自选择 UI）；阶段 0 `doll_segment_map` 多角色默认「verse 轮流 + 副歌合体」草稿生成器。
+13. **导演编译器**：读取 `music_map.yaml` + `character_map.yaml` + 已通过本 skill `validate_visual_score.py` 的 `visual_score.yaml`，生成当前引擎可消费的 `shots_*.yaml` / `build_shots()` 与逐镜任务清单；按 `technique` 路由 2.5D、静态合成、补图和 i2v，并在正式渲染入口再次 fail-closed 校验。当前已落地导演规则、模板和独立校验器，尚未接入主渲染入口。
 
 ### 12.3 Style Pack / Level 参数 schema（现状代码 · `pipeline/paperdoll/style_packs.py`）
 ```python

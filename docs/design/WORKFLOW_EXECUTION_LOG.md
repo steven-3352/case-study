@@ -283,3 +283,40 @@
   ④ "函数被调用"≠"效果被交付"——凡承诺可观察效果（烟/光/粒子/运镜），交付前必须**逐帧目视**确认人眼读得成该效果，不能因为"代码里调了该基元"就当已实现（这是 Ken Burns 事故的同构复发，第 2 次）。
   ⑤ 加法光效基元的默认参数极易被"更亮的邻层"淹没：任何加性效果落地后，都要在**它所处的真实合成环境**里核对可见性（不是单独看这一层），弱到淹没=没做。
 
+---
+
+## 2026-07-27 · paperdoll-mv-packaging · 导演编排层接入
+
+```yaml
+- run_id: paperdoll-director-orchestration-2026-07-27
+  date: 2026-07-27
+  stage: 参考片拆解 / 方法提炼 / skill 工程化
+  production_tier: design-system
+  deliverable:
+    - .agents/skills/paperdoll-mv-packaging/SKILL.md
+    - .agents/skills/paperdoll-mv-packaging/references/director-orchestration.md
+    - .agents/skills/paperdoll-mv-packaging/assets/visual-score.template.yaml
+    - .agents/skills/paperdoll-mv-packaging/scripts/validate_visual_score.py
+    - docs/design/PAPERDOLL_DIRECTOR_HANDOFF_2026-07-27.md
+  role_reasoning_reviewed: []
+  errors_found: []
+  what_was_built:
+    - 将“歌曲结构 / 歌词语义 / 人物关系 / 能量曲线 / 技术路由”固化为导演编排 reference。
+    - 将新片流程改为 music_map + character_map → visual_score + asset_plan → storyboard/animatic → 包装与渲染。
+    - 新增 visual_score YAML 模板与 fail-closed 结构校验器。
+    - 修正 R1：用户源立绘像素不改；GPT-image-2 补姿势按 synthetic_visual/generated_supplement 隔离登记。
+    - 修正程序化背景定位：只作场景语法/预览路由，廉价结果不得进入正式片。
+  gates_passed:
+    - skill-creator quick_validate: PASS
+    - visual-score template validator: PASS · 0 errors · 0 warnings
+    - Python py_compile: PASS
+    - git diff --check: PASS
+  known_gap: >
+    当前已落地的是导演合同与校验层，尚缺 music_map/character_map 自动生成、导演编译器、
+    visual_score 到 shots/build_shots 的适配、Animatic、素材计划执行和一键 final.mp4 入口。
+  carry_forward: >
+    明日不要继续先加风格包/特效；优先打通三输入 → music_map/character_map → visual_score →
+    validated 540p Animatic → shots/build_shots。P0 的完成标准是单命令从歌曲、歌词和立绘产出
+    校验通过的导演总谱与可观看粗剪。完整上下文、验证命令和未跟踪文件边界见
+    docs/design/PAPERDOLL_DIRECTOR_HANDOFF_2026-07-27.md。
+```

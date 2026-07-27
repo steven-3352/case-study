@@ -1,0 +1,182 @@
+version: 1
+
+project:
+  title: example
+  duration: 32.0
+  fps: 24
+  canvas: "16:9"
+  premise: 四名角色在同一世界中从相识走向共同选择
+
+characters:
+  - id: A
+    name: 主视角
+    director_function: 带观众进入世界
+    source_asset: assets/A.png
+    appearance_budget:
+      intro: 1
+      solo: 2
+      relation: 2
+      group: 2
+  - id: B
+    name: 对手
+    director_function: 制造关系张力
+    source_asset: assets/B.png
+    appearance_budget:
+      intro: 1
+      solo: 2
+      relation: 2
+      group: 2
+
+sections:
+  - id: intro
+    time: [0.0, 4.0]
+    music_role: intro
+    energy: 1
+    emotion: 建立世界
+  - id: verse_a
+    time: [4.0, 12.0]
+    music_role: verse
+    energy: 2
+    emotion: 认识人物
+  - id: chorus
+    time: [12.0, 24.0]
+    music_role: chorus
+    energy: 4
+    emotion: 关系汇合
+  - id: release
+    time: [24.0, 32.0]
+    music_role: outro
+    energy: 2
+    emotion: 释放与闭环
+
+shots:
+  - id: S01
+    time: [0.0, 4.0]
+    section: intro
+    energy: 1
+    purpose: 建立四名角色所属的世界
+    leverage: completion_3s
+    characters: [A, B]
+    lyric:
+      text: ""
+      onset: null
+    composition:
+      shot_size: 全景
+      arrangement: 双人位于画面下三分之一，远景建立空间
+      subject_position: center
+    primary_action: 镜头从月亮缓慢拉到人物群像
+    beats:
+      - at: 0.0
+        level: 1
+        event: 群像显现
+      - at: 2.0
+        level: 3
+        event: 月光扫过标题区
+    first_frame: 月亮与空舞台，人物只见剪影
+    last_frame: 人物群像完整可见，月光留在画面中央
+    transition_out:
+      type: hard_cut
+      shared_element: 月光与冷蓝色方向
+    technique: 2.5d
+    assets:
+      use: [assets/A.png, assets/B.png]
+      missing: [月下主舞台背景]
+
+  - id: S02
+    time: [4.0, 12.0]
+    section: verse_a
+    energy: 2
+    purpose: 让观众第一次记住A的身份
+    leverage: completion_rate
+    characters: [A]
+    lyric:
+      text: 示例歌词
+      onset: 4.0
+    composition:
+      shot_size: 全身
+      arrangement: A居左，右侧留歌词负空间
+      subject_position: left
+    primary_action: A从雾中显现后保持稳定
+    beats:
+      - at: 4.0
+        level: 1
+        event: 切入A
+      - at: 8.0
+        level: 2
+        event: 关键词出现
+    first_frame: 同一月光空间，A的轮廓位于左侧雾中
+    last_frame: A完整出现，雾覆盖画面右侧准备转场
+    transition_out:
+      type: occlusion_cut
+      shared_element: 雾
+    technique: hybrid
+    assets:
+      use: [assets/A.png]
+      missing: [月下主舞台背景, 雾层]
+
+  - id: S03
+    time: [12.0, 24.0]
+    section: chorus
+    energy: 4
+    purpose: 建立A与B既合作又对立的关系
+    leverage: completion_rate
+    characters: [A, B]
+    lyric:
+      text: 示例副歌
+      onset: 12.0
+    composition:
+      shot_size: 半身
+      arrangement: A与B左右对称，中间由剑光分隔
+      subject_position: split
+    primary_action: 剑光从两人中间扫过并揭示关系关键词
+    beats:
+      - at: 12.0
+        level: 1
+        event: 双人硬切进入
+      - at: 16.0
+        level: 2
+        event: 关键词冲击
+      - at: 20.0
+        level: 3
+        event: 粒子增强
+    first_frame: 雾散开，A与B分别位于两侧暗部
+    last_frame: 剑光覆盖中线，两人完整显现
+    transition_out:
+      type: light_wipe
+      shared_element: 剑光方向
+    technique: 2.5d
+    assets:
+      use: [assets/A.png, assets/B.png]
+      missing: [关系场景背景, 剑光层]
+
+  - id: S04
+    time: [24.0, 32.0]
+    section: release
+    energy: 2
+    purpose: 释放高潮能量并回到可记忆的封面
+    leverage: completion_rate
+    characters: [A, B]
+    lyric:
+      text: ""
+      onset: null
+    composition:
+      shot_size: 远景
+      arrangement: 人物逐渐退入远景，标题回到中心
+      subject_position: center
+    primary_action: 人物淡出为空场后封面群像回归
+    beats:
+      - at: 24.0
+        level: 1
+        event: 从剑光切回远景
+      - at: 28.0
+        level: 2
+        event: 封面标题出现
+    first_frame: 剑光消退后的远景人物
+    last_frame: 最终群像封面稳定定格
+    transition_out:
+      type: none
+      shared_element: 月亮
+    technique: 2.5d
+    assets:
+      use: [assets/A.png, assets/B.png]
+      missing: [最终群像背景]
