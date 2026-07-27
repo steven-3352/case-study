@@ -1,0 +1,28 @@
+# CODEOWNERS
+#
+# 受保护路径 —— 任何 PR 若改动以下路径，必须经 @steven-3352 审核通过才能合并。
+# 语法: <路径> <GitHub用户名>
+# 文档: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── 引擎核心（原子库 + 渲染引擎 + 求解器）──────────────────────
+pipeline/mv_engine/                     @steven-3352
+
+# ── 项目规则 SSOT ──────────────────────────────────────────────
+docs/RULES/                             @steven-3352
+
+# ── MV 模板（给新片用的官方模板）──────────────────────────────
+templates/mv/                           @steven-3352
+
+# ── 模型入口文件（CLAUDE.md / AGENTS.md / GPT.md）─────────────
+CLAUDE.md                               @steven-3352
+AGENTS.md                               @steven-3352
+GPT.md                                  @steven-3352
+
+# ── CI / 治理配置 ──────────────────────────────────────────────
+.github/                                @steven-3352
+
+# ────────────────────────────────────────────────────────────────
+# 用户业务目录（不在此限制）：
+#   pipeline/voice_room/<你的片名>/     ← 自由创建，无需 owner review
+#   pipeline/gen_*.py                   ← 片级生成脚本
+# ────────────────────────────────────────────────────────────────
