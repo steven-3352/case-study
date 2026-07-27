@@ -24,6 +24,8 @@ docs/RULES/06_SKILL_TRIGGERS.md           skill 触发关键词表(权威规范)
 docs/RULES/07_ENVIRONMENT.md              环境配置 · 5 步初始化 · Git
 docs/RULES/08_ASSETS_LIFECYCLE.md         素材生命周期
 docs/RULES/09_MIGRATION_SOP.md            新模型接入 SOP(装新 skill 也读这个)
+docs/RULES/10_MV_ENGINE.md                MV 引擎规范(相机 · 原子 · 缓存 · 求解器)
+docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md     新片对话剧本(**用户说做片时按此主导**)
 docs/RULES/decisions/DECISIONS.md         战略辩论锁定(Q1-Q11)
 docs/RULES/decisions/CONVERSION.md        私信转化路径
 docs/RULES/memory/                        40+ 条稳定 feedback / project 规则
@@ -79,14 +81,31 @@ docs/RULES/memory/README.md               memory 分类索引
 
 ---
 
+## 触发规则:用户说"做片"→ 主导对话
+
+**识别关键词**:「做一支 MV」「新做一个片子」「卡点视频」「音乐动画」「短片」「做个视频」
+
+命中任一,**立即读 `docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md` 全文,按 6 阶段(A→B→C→D→E→F)主导对话**——不要等用户问下一步做什么。
+
+**边界铁规**(playbook §边界铁规):
+- 只在 `pipeline/voice_room/<片名>/` 下读写文件
+- 不改 `pipeline/mv_engine/` 任何文件(要新原子 → 起草 PR 给 owner)
+- 不改 `docs/RULES/` 任何规则
+- 不直接 `git push origin main`(会被 GitHub 拒绝)
+
+---
+
 ## 快速链接
 
 - 每次开工前 4 步:见 `docs/RULES/02_WORKFLOW.md §一 顶层工作模式`
+- **新片对话剧本**:`docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md`
+- MV 引擎规范:`docs/RULES/10_MV_ENGINE.md`
 - 视觉创意硬门:`docs/RULES/03_VISUAL_CREATIVE_GATE.md`
 - i2v/t2v prompt 硬门:`docs/RULES/04_CONTENT_CONSTRAINTS.md §15`
 - 生成后诊断硬门:`docs/RULES/04_CONTENT_CONSTRAINTS.md §16`
 - Skill 触发对照表:`docs/RULES/06_SKILL_TRIGGERS.md`
 - 装新模型:`docs/RULES/09_MIGRATION_SOP.md`
+- 双层协作模型:`.github/CONTRIBUTING.md`
 
 ---
 

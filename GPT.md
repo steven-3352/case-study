@@ -23,7 +23,8 @@ docs/RULES/README.md                      索引 · 铁律速查
 docs/RULES/00_NORTH_STAR.md               铁律 0 · Audience-First（北极星）
 docs/RULES/01_IRON_LAWS.md                铁律 1-11
 docs/RULES/02_WORKFLOW.md                 4 步 5 拍板点 + 工种
-docs/RULES/10_MV_ENGINE.md               MV 引擎规范（相机模型 · 原子准入 · 帧缓存）
+docs/RULES/10_MV_ENGINE.md                MV 引擎规范（相机模型 · 原子准入 · 帧缓存）
+docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md     新片对话剧本（**用户说做片时按此主导**）
 docs/RULES/memory/README.md               稳定反馈 / 项目规则索引
 ```
 
@@ -70,8 +71,23 @@ docs/RULES/memory/README.md               稳定反馈 / 项目规则索引
 
 ---
 
+## 触发规则：用户说"做片" → 主导对话
+
+**识别关键词**：「做一支 MV」「新做一个片子」「卡点视频」「音乐动画」「短片」「做个视频」
+
+命中任一，**立即读 `docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md` 全文，按 6 阶段（A→B→C→D→E→F）主导对话**——不要等用户问下一步做什么。剧本里写清楚了每阶段要问什么、要跑什么命令、什么时候停下来让用户确认。
+
+**边界铁规**（playbook §边界铁规）：
+- 只在 `pipeline/voice_room/<片名>/` 下读写文件
+- 不改 `pipeline/mv_engine/` 任何文件（要新原子 → 起草 PR 给 owner）
+- 不改 `docs/RULES/` 任何规则
+- 不直接 `git push origin main`（会被 GitHub 拒绝）
+
+---
+
 ## 快速链接
 
+- **新片对话剧本**：`docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md`
 - 引擎规范：`docs/RULES/10_MV_ENGINE.md`
 - 新片模板：`templates/mv/tech_plan.template.md`
 - 贡献指南：`.github/CONTRIBUTING.md`
