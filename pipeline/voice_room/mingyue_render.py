@@ -57,10 +57,22 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import mingyue_atoms as atoms  # noqa: E402
 import paperdoll_engine as pe  # noqa: E402
 from paperdoll_engine import bloom, full_doll, grain, screen  # noqa: E402
+from mv_engine.camera import (  # noqa: E402
+    Cam, View, quad_of, sample_plane, solve_scale, tilt, w2s,
+)
+from mv_engine.assets import flat_tex, plate, plate_arr, tex, tint  # noqa: E402
+from mv_engine.compose import warp  # noqa: E402
+from mv_engine.config import FPS, FRAMING, H, OX, OY, PAD_H, PAD_W, W  # noqa: E402
+from mv_engine.ease import EASES, _clamp, _out_back, ease  # noqa: E402
+from mv_engine.fx import _hblur, _lerp  # noqa: E402
+from mv_engine.items import Item  # noqa: E402
+import mv_engine.session as _mvsession  # noqa: E402
+from mv_engine.shot import MShot, active, shot_scales  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "publish" / "语音厅" / "script_v2_assets"
@@ -69,13 +81,9 @@ GEN = TEX / "scanner_gen"
 OUT = ROOT / "publish" / "语音厅" / "sample_22465_29780"
 WAV = ROOT / "publish" / "语音厅" / "明月天涯 导唱(1).WAV"
 
-W, H = 1920, 1080
-FPS = 30
 SEG_T0, SEG_T1 = 22.465, 29.780
 
-# 平面画布留的透视余量(见模块 docstring)。dx_max = W*0.50, dy_max = H*0.30。
-PAD_W, PAD_H = int(W * 2.0), int(H * 1.70)
-OX, OY = (PAD_W - W) // 2, (PAD_H - H) // 2
+_mvsession.configure(ASSETS, TEX, GEN)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("mingyue")
@@ -106,274 +114,15 @@ B_STACK = _hex("#B5AB98")       # 叠层缝
 B_DROP = _hex("#A08A6B")        # 投影(桌面色的暗版偏暖,不是灰)
 
 
-# ————————————————— 缓动 —————————————————
-def _clamp(x: float, a: float = 0.0, b: float = 1.0) -> float:
-    return max(a, min(b, x))
+# 缓动 / 景别表已迁至 mv_engine.{ease,config},见模块顶部 import。
 
 
-def _out_back(x: float, amount: float) -> float:
-    c1 = 1.70158 * (amount / 0.10) if amount else 1.70158
-    return 1 + (c1 + 1) * (x - 1) ** 3 + c1 * (x - 1) ** 2
-
-
-EASES = {
-    "linear": lambda x: x,
-    "ease_out_quad": lambda x: 1 - (1 - x) ** 2,
-    "ease_out_cubic": lambda x: 1 - (1 - x) ** 3,
-    "ease_out_quart": lambda x: 1 - (1 - x) ** 4,
-    "ease_out_expo": lambda x: 1.0 if x >= 1 else 1 - 2 ** (-10 * x),
-    "ease_in_sine": lambda x: 1 - math.cos(x * math.pi / 2),
-    "ease_out_sine": lambda x: math.sin(x * math.pi / 2),
-    "ease_in_out_quad": lambda x: 2 * x * x if x < .5 else 1 - (-2 * x + 2) ** 2 / 2,
-    "ease_in_out_cubic": lambda x: 4 * x ** 3 if x < .5 else 1 - (-2 * x + 2) ** 3 / 2,
-    "ease_in_out_sine": lambda x: -(math.cos(math.pi * x) - 1) / 2,
-    "ease_in_out_expo": lambda x: (
-        0.0 if x <= 0 else 1.0 if x >= 1 else
-        2 ** (20 * x - 10) / 2 if x < .5 else (2 - 2 ** (-20 * x + 10)) / 2),
-}
-
-
-def ease(name: str, x: float, back: float = 0.0) -> float:
-    x = _clamp(x)
-    if name == "ease_out_back":
-        return _out_back(x, back)
-    return EASES[name](x)
-
-
-# ————————————————— 景别 → 目标画面占比 —————————————————
-# 分镜写的是景别,渲染要的是数;这张表是两者之间唯一的翻译处。
-# 「占比」= 主体 bbox 面积 / 画幅面积。大特写 >1 表示主体溢出画幅(脸切边)。
-FRAMING = {
-    "极端全景": 0.05,
-    "全景": 0.13,
-    "中景": 0.30,
-    "近景": 0.48,
-    "特写": 0.72,
-    "大特写": 1.15,
-}
-
-
-# ————————————————— 素材 —————————————————
-_TEX: dict = {}
-
-
-def tex(name: str) -> Image.Image:
-    if name not in _TEX:
-        for base in (GEN, TEX):
-            for ext in (".png", ".jpg"):
-                p = base / f"{name}{ext}"
-                if p.exists():
-                    _TEX[name] = Image.open(p).convert("RGB")
-                    return _TEX[name]
-        raise FileNotFoundError(f"找不到素材 {name} (在 {GEN} / {TEX})")
-    return _TEX[name]
-
-
-def flat_tex(name: str) -> str:
-    """派生一张「只剩纹理、不带原片打光」的素材,返回新素材名.
-
-    实拍素材里同时有两种东西:高频的**材质**(纸纤维、木纹)和低频的**当时的打光**。
-    我们要的是前者 —— 后者是别人现场的光,搬进本片就成了一块跟画面无关的阴影
-    (纸纤维那张左半边压着一道大暗影,上色后整张纸看着像一块脏灰板)。
-    减掉低频、保留高频,纸就回到「一张平整的纸,凑近能看见纤维」。
-    """
-    out = f"{name}__flat"
-    if out not in _TEX:
-        im = tex(name)
-        small = im.convert("L").resize((160, 160), Image.LANCZOS)
-        lo = np.asarray(small.filter(ImageFilter.GaussianBlur(24)), dtype=float)
-        lo = np.asarray(Image.fromarray(lo.astype(np.uint8)).resize(im.size, Image.BICUBIC),
-                        dtype=float)
-        hi = np.asarray(im.convert("L"), dtype=float) - lo + lo.mean()
-        _TEX[out] = Image.fromarray(
-            np.clip(hi, 0, 255).astype(np.uint8)).convert("RGB")
-    return out
-
-
-def tint(im: Image.Image, color, contrast: float = 1.0) -> Image.Image:
-    """把一张实拍/生成纹理压成某个声明色的明暗变化.
-
-    只保留纹理的**相对明暗**,色相整体换成声明色 —— 这样纹理是真的(不是现搓的),
-    颜色是声明色板里的(不偷带一套色进来)。`contrast` 放大明暗差。
-
-    调制是**围绕 1.0 相乘**,不是把纹理拉到某个绝对亮度:声明色就是这块面的
-    平均色,纹理只在它上下浮动。早期版本把每张纹理都归一到 0.5,象牙白的
-    玻璃板和深色木地板于是渲成同一坨中灰 —— 声明色等于白写了。
-
-    归一用的是**分位数不是均值**:纸纤维那张实拍图 L 跨 7~242(带阴影和折痕),
-    除以均值后浮动能到 ±50%,声明的近白 #F6F3EC 渲出来是一块脏灰板。
-    改成「中位数 = 声明色,contrast 就是上下摆动的幅度」后,幅度是写死的,
-    不再随纹理本身有多脏而放大。
-    """
-    g = np.asarray(im.convert("L"), dtype=float) / 255.0
-    p5, p50, p95 = np.percentile(g, (5, 50, 95))
-    g = np.clip(1.0 + (g - p50) / max(p95 - p5, 1e-3) * contrast, 0.25, 1.55)
-    out = g[:, :, None] * np.asarray(color, dtype=float)[None, None, :]
-    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
-
-
-_PLATE: dict = {}
-
-
-def plate(name: str, color=None, contrast: float = 1.0, size=None) -> Image.Image:
-    """取一张纹理,按需上色并缩放到世界尺寸,结果缓存(每帧重算太贵)."""
-    key = (name, color, contrast, size)
-    if key not in _PLATE:
-        im = tex(name)
-        if color is not None:
-            im = tint(im, color, contrast)
-        if size is not None:
-            im = im.resize(size, Image.LANCZOS)
-        _PLATE[key] = im
-    return _PLATE[key]
-
-
-_PLATE_ARR: dict = {}
-
-
-def plate_arr(name: str, color=None, contrast: float = 1.0) -> np.ndarray:
-    """`plate` 的 ndarray 版(缓存)—— 供需要按取模索引环绕采样的地方用。"""
-    key = (name, color, contrast)
-    if key not in _PLATE_ARR:
-        _PLATE_ARR[key] = np.asarray(plate(name, color, contrast).convert("RGB"))
-    return _PLATE_ARR[key]
-
-
-# ————————————————— 相机 —————————————————
-@dataclass(frozen=True)
-class Cam:
-    """一镜的相机轨迹。位移/滚转/俯仰照抄分镜,缩放由目标占比反解(见 docstring)。"""
-    size0: str                       # 起始景别
-    size1: str = ""                  # 结束景别(空 = 用 zoom 比值推)
-    zoom: float = 1.0                # 镜内缩放比值(分镜声明的 scale 末/初)
-    dx: float = 0.0                  # 中心横移,取景框宽的几分之几
-    dy: float = 0.0                  # 中心纵移,取景框高的几分之几
-    look: tuple = (0.0, 0.0)         # 看向哪个世界点(默认世界原点 = 主体所在)
-    r0: float = 0.0
-    r1: float = 0.0
-    e0: float = 90.0                 # 俯仰:90 正俯视 · 0 平视 · 负 仰拍
-    e1: float | None = None
-    ease: str = "linear"
-    back: float = 0.0
-    hold_from: float = 1.0           # k 过此值后相机锁死(A06 提前 0.22s 停)
-    snap: float = 1.0                # <1 表示运动在镜内前 snap 比例就走完(A10 4 帧)
-    delay: float = 0.0               # k 到此值之前完全静止(B06 死寂 0.244s)
-    hold_size: bool = False          # 镜末不按占比重解缩放(见 shot_scales)
-
-    def progress(self, k: float) -> float:
-        k = _clamp((k - self.delay) / max(1e-6, self.snap - self.delay))
-        return ease(self.ease, min(k, self.hold_from), self.back)
-
-    def scale_progress(self, k: float) -> float:
-        """缩放专用的进度 —— 夹在 [0,1]。
-
-        `ease_out_back` 的回弹越过 1 是要的:位移多滑一点、转多转几度,然后荡回来。
-        但缩放是**比值**插值,B06 镜首镜末差 200 倍,越界 46% 就是 200^0.46 ≈ 11 倍,
-        整块纸直接缩成一个点(画面只剩桌面)。回弹给位移和滚转,不给推拉。
-        """
-        return _clamp(self.progress(k))
-
-    def at(self, k: float, s: float) -> tuple[float, float, float, float]:
-        """→ (中心偏移x, 中心偏移y, 滚转, 俯仰)。偏移是**世界**量,所以要先有缩放。
-
-        `dx/dy` 是"横移过取景框的几分之几",取景框在世界里有 W/s 宽 —— 早期版本
-        直接写成 `W*(0.5+dx*...)`,那是屏幕坐标,而所有物件都摆在世界原点附近,
-        于是相机永远在看主体旁边的空地,主体被挤到角上或干脆出画。
-        偏移的基准点(看向谁)由 `shot_scales` 给。
-        """
-        e = self.progress(k)
-        cx = (W / s) * self.dx * (e - 0.5)
-        cy = (H / s) * self.dy * (e - 0.5)
-        r = self.r0 + (self.r1 - self.r0) * e
-        e1 = self.e0 if self.e1 is None else self.e1
-        el = self.e0 + (e1 - self.e0) * e
-        # ease_out_back 会让 e 越过 1;位移越界是要的回弹,俯仰越过 90° 却是平面翻个面
-        # (观众看到人物上下颠倒),必须夹住。
-        return cx, cy, r, _clamp(el, -88.0, 90.0)
-
-    @property
-    def share0(self) -> float:
-        return FRAMING[self.size0]
-
-    @property
-    def share1(self) -> float:
-        return FRAMING[self.size1] if self.size1 else FRAMING[self.size0] * self.zoom ** 2
-
-
-def solve_scale(share: float, world_w: float, world_h: float) -> float:
-    """由目标占比与主体的世界尺寸反解相机缩放。"""
-    area = max(1.0, world_w * world_h)
-    return math.sqrt(_clamp(share, 0.002, 4.0) * W * H / area)
-
-
-def sample_plane(src: Image.Image, cx: float, cy: float, s: float, r: float,
-                 out_size: tuple[int, int]) -> Image.Image:
-    """从世界底图取一个取景框:中心 (cx,cy) 世界像素、缩放 s、滚转 r 度。
-
-    走一次透视反解而不是 rotate+crop+resize 三步 —— 三步会累计三次重采样,
-    平移小于一个像素时还会抖。
-    """
-    ow, oh = out_size
-    a = math.radians(-r)
-    ca, sa = math.cos(a), math.sin(a)
-    out_quad = [(0, 0), (ow, 0), (ow, oh), (0, oh)]
-    in_quad = []
-    for (u, v) in out_quad:
-        dx, dy = (u - ow / 2) / s, (v - oh / 2) / s
-        in_quad.append((cx + dx * ca - dy * sa, cy + dx * sa + dy * ca))
-    coeffs = atoms.solve_perspective(out_quad, in_quad)
-    return src.transform(out_size, Image.Transform.PERSPECTIVE, coeffs, Image.BICUBIC)
-
-
-def w2s(pt: tuple[float, float], cx: float, cy: float, s: float, r: float,
-        origin: tuple[int, int] = (OX, OY)) -> tuple[float, float]:
-    """世界像素 → 平面画布像素(与 `sample_plane` 互逆)。"""
-    a = math.radians(r)
-    ca, sa = math.cos(a), math.sin(a)
-    dx, dy = pt[0] - cx, pt[1] - cy
-    return (origin[0] + W / 2 + s * (dx * ca - dy * sa),
-            origin[1] + H / 2 + s * (dx * sa + dy * ca))
-
-
-def tilt(im: Image.Image, elev: float) -> Image.Image:
-    """把画好的平面按俯仰角做一次透视,并裁回画幅。
-
-    elev=90 正俯视 → 直接中心裁切(不重采样)。
-    elev<90 远端(上沿)变宽变高 → 透视收缩,读作"镜头压低了"。
-    elev<0 仰拍 → 换成近端(下沿)变宽。
-    """
-    box = (OX, OY, OX + W, OY + H)
-    if abs(elev) >= 89.5:
-        return im.crop(box)
-    k = _clamp(math.cos(math.radians(_clamp(elev, -89.0, 90.0))), 0.0, 1.0)
-    dx, dy = W * 0.50 * k, H * 0.30 * k
-    if elev >= 0:
-        in_quad = [(OX - dx, OY - dy), (OX + W + dx, OY - dy),
-                   (OX + W, OY + H), (OX, OY + H)]
-    else:
-        in_quad = [(OX, OY), (OX + W, OY),
-                   (OX + W + dx, OY + H + dy), (OX - dx, OY + H + dy)]
-    out_quad = [(0, 0), (W, 0), (W, H), (0, H)]
-    coeffs = atoms.solve_perspective(out_quad, in_quad)
-    return im.transform((W, H), Image.Transform.PERSPECTIVE, coeffs, Image.BICUBIC)
+# tex / flat_tex / tint / plate / plate_arr 已迁至 mv_engine.assets,见模块顶部 import。
+# 相机 · View · 平面采样已迁至 mv_engine.camera,见模块顶部 import。
 
 
 # ————————————————— 世界元件 —————————————————
-class View(NamedTuple):
-    cx: float
-    cy: float
-    s: float
-    r: float
-
-
-@dataclass(frozen=True)
-class Item:
-    """世界平面上的一块内容。`key` 决定去哪儿取图,`rect` 是它在世界里占的矩形。"""
-    key: tuple
-    rect: tuple                      # (x, y, w, h) 世界像素,左上角
-    grey: float = 0.0                # 0 原色 · 1 全灰(未扫描的那半)
-    opacity: float = 1.0
-    scan_split: bool = False         # 光条以下用原色,以上用灰版
+# Item 已迁至 mv_engine.items。
 
 
 _LAYER: dict = {}
@@ -485,25 +234,10 @@ def tex_item(name: str, rect: tuple, col=None, contrast: float = 1.0,
 
 
 # ————————————————— 平面合成 —————————————————
-def quad_of(rect: tuple, v: View) -> list:
-    x, y, w, h = rect
-    return [w2s(p, v.cx, v.cy, v.s, v.r)
-            for p in ((x, y), (x + w, y), (x + w, y + h), (x, y + h))]
+# quad_of 已迁至 mv_engine.camera。
 
 
-def warp(lay: Image.Image, quad: list, bound: tuple) -> tuple | None:
-    """把图层贴到 quad 上,只在它的包围盒里做变换(整张画布做太贵)。"""
-    xs, ys = [p[0] for p in quad], [p[1] for p in quad]
-    x0, y0 = max(0, int(math.floor(min(xs)))), max(0, int(math.floor(min(ys))))
-    x1, y1 = min(bound[0], int(math.ceil(max(xs)))), min(bound[1], int(math.ceil(max(ys))))
-    if x1 - x0 < 1 or y1 - y0 < 1:
-        return None
-    lw, lh = lay.size
-    coeffs = atoms.solve_perspective(
-        [(p[0] - x0, p[1] - y0) for p in quad],
-        [(0, 0), (lw, 0), (lw, lh), (0, lh)])
-    im = lay.transform((x1 - x0, y1 - y0), Image.Transform.PERSPECTIVE, coeffs, Image.BICUBIC)
-    return im, (x0, y0)
+# warp 已迁至 mv_engine.compose。
 
 
 def place(canvas: Image.Image, it: Item, v: View, mask: Image.Image | None,
@@ -716,59 +450,7 @@ def paper_item(t: float, kind: str = "cy", center=(0.0, 0.0), n: int | None = No
 
 
 # ————————————————— 镜 —————————————————
-@dataclass(frozen=True)
-class MShot:
-    sid: str
-    t0: float
-    t1: float
-    cam: Cam
-    items: object                    # (t, k) -> tuple[Item, ...]
-    subject: tuple = (0,)            # 哪些 item 计入 R9 的主体 bbox
-    bg: tuple = ()                   # (纹理名, 上色, 对比, 世界瓷砖边长)
-    fx: dict = field(default_factory=dict)
-    note: str = ""
-
-    def k(self, t: float) -> float:
-        return _clamp((t - self.t0) / max(1e-6, self.t1 - self.t0))
-
-
-def active(shots: list, t: float) -> MShot:
-    cur = shots[0]
-    for s in shots:
-        if t >= s.t0:
-            cur = s
-    return cur
-
-
-_SCALES: dict = {}
-
-
-def shot_scales(sh: MShot) -> tuple[float, float, tuple]:
-    """镜首/镜末各解一次缩放,外加相机该看向哪儿。
-
-    返回 `(s0, s1, look)`。`look` 是镜首主体包围盒的世界中心 —— 相机默认盯着主体,
-    `Cam.look` 在此之上作偏移。物件不一定摆在世界原点(A01 的机器整个在原点上方),
-    盯原点会把主体挤出画。
-    """
-    if sh.sid in _SCALES:
-        return _SCALES[sh.sid]
-    out, look = [], (0.0, 0.0)
-    for k, share in ((0.0, sh.cam.share0), (1.0, sh.cam.share1)):
-        its = sh.items(sh.t0 + k * (sh.t1 - sh.t0), k)
-        xs = [its[i].rect for i in sh.subject]
-        x0, y0 = min(r[0] for r in xs), min(r[1] for r in xs)
-        x1 = max(r[0] + r[2] for r in xs)
-        y1 = max(r[1] + r[3] for r in xs)
-        if k == 0.0:
-            look = (sh.cam.look[0] + (x0 + x1) / 2, sh.cam.look[1] + (y0 + y1) / 2)
-        out.append(solve_scale(share, x1 - x0, y1 - y0))
-    if sh.cam.hold_size:
-        # 镜末不重解:主体自己在镜内缩小的那部分,就该让观众看见。
-        # 反解占比的前提是"主体尺寸不变,靠相机决定它多大";B 段的纸每半拍面积减半,
-        # 镜末再解一次等于相机同步推近,四折之后纸在屏幕上还是那么大 —— 折了跟没折一样。
-        out[1] = out[0] * sh.cam.zoom
-    _SCALES[sh.sid] = (out[0], out[1], look)
-    return _SCALES[sh.sid]
+# MShot · active · shot_scales 已迁至 mv_engine.shot。
 
 
 # ————————————————— 屏幕层 FX —————————————————
@@ -780,18 +462,7 @@ def shot_scales(sh: MShot) -> tuple[float, float, tuple]:
 DARK_FLOOR = 0.62
 
 
-def _hblur(arr: np.ndarray, px: int) -> np.ndarray:
-    """横向盒糊 —— 甩镜的运动模糊。高斯会把竖边也糊掉,甩镜只糊一个轴。"""
-    if px < 2:
-        return arr
-    pad = np.pad(arr, ((0, 0), (px, px), (0, 0)), mode="edge")
-    c = np.cumsum(np.pad(pad, ((0, 0), (1, 0), (0, 0))), axis=1)
-    n = 2 * px + 1
-    return (c[:, n:, :] - c[:, :-n, :]) / n
-
-
-def _lerp(pair, e: float) -> float:
-    return pair[0] + (pair[1] - pair[0]) * e
+# _hblur · _lerp 已迁至 mv_engine.fx。
 
 
 def fx_pass(arr: np.ndarray, sh: MShot, t: float, k: float) -> np.ndarray:
@@ -1300,6 +971,7 @@ def _init_worker(version: str) -> None:
     分摊到每人几十帧上可以忽略。
     """
     pe._PATHS = pe.PVPaths(assets_dir=ASSETS, wav=WAV, out_dir=OUT, slug="mingyue")
+    _mvsession.configure(ASSETS, TEX, GEN)   # spawn 子进程不继承父进程模块级状态
     _WORKER["version"] = version
     _WORKER["shots"] = A_SHOTS if version == "a" else B_SHOTS
     _WORKER["dir"] = OUT / version / "_frames"

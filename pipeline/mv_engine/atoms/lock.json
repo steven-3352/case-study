@@ -1,0 +1,17 @@
+{
+ "_compress": "7c6e0c0ca171dec212dd53e721fdbdd6",
+ "banding": "fa745ac188de822332d062a7906579a9",
+ "crease/horizontal": "781be42162bd59c214f09d60a363ed6f",
+ "crease/vertical": "c94f4f1f4d8d5be332df74964c5b5453",
+ "fold_press": "3020e93b519a78fd4e34c3ae8815cf74",
+ "jam_smear": "22933a8479d2ff5618e1b84e4a2aebd4",
+ "jam_smear/horizontal": "4e9b297ebcd7f6d6ef72b18f2eaa5918",
+ "lid_flare": "e15b875be6c2de4686424d0407e8a9c7",
+ "paper_fold/1": "91e8a1910c7d688cbcdb7b907b94fc9e",
+ "paper_fold/5": "293f9efc11f8f3f1500f81d16674331a",
+ "scan_bar": "0122e8bb86013829f87544759aca3c9e",
+ "scan_bar/right": "0a458642b157a1f1cb527d537e2248c6",
+ "solve_perspective": "6ceb5efb21d5df31a6eae8552811174a",
+ "stack_edge": "15efca5f7c6ebf9e2ac9fa06c6af9dcb",
+ "stack_edge/bottom": "5ad5302c4c79ad58c6dd943f6b697f9a"
+}
