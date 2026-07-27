@@ -35,7 +35,7 @@ def _init(out: str, version: str) -> None:
     mr.OUT = o
     pe._PATHS = pe.PVPaths(assets_dir=mr.ASSETS, wav=mr.WAV, out_dir=o, slug="mingyue")
     _W["version"] = version
-    _W["shots"] = mr.A_SHOTS if version == "a" else mr.B_SHOTS
+    _W["shots"] = mr._load_shots(version)
     _W["dir"] = o / version / "_frames"
 
 

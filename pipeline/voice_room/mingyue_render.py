@@ -924,6 +924,24 @@ B_SHOTS = [
 ]
 
 
+_YAML_SHOTS_CACHE: dict[str, list] = {}
+
+
+def _load_shots(version: str) -> list:
+    """从 YAML 加载分镜列表（带进程级缓存）。
+
+    lazy import 避免 mingyue_render ↔ mingyue.layouts 循环:
+    layouts.py 在模块级 import mingyue_render，所以这里必须把 loader import
+    放进函数体，等 mingyue_render 完全加载后才触发。
+    """
+    if version not in _YAML_SHOTS_CACHE:
+        from mingyue.loader import load  # noqa: PLC0415
+        yaml_path = (Path(__file__).resolve().parent / "mingyue" /
+                     f"shots_{version}.yaml")
+        _YAML_SHOTS_CACHE[version] = load(yaml_path)
+    return _YAML_SHOTS_CACHE[version]
+
+
 # ————————————————— 渲染 —————————————————
 def render_frame(t: float, shots: list, version: str) -> tuple[Image.Image, tuple | None]:
     sh = active(shots, t)
@@ -973,7 +991,7 @@ def _init_worker(version: str) -> None:
     pe._PATHS = pe.PVPaths(assets_dir=ASSETS, wav=WAV, out_dir=OUT, slug="mingyue")
     _mvsession.configure(ASSETS, TEX, GEN)   # spawn 子进程不继承父进程模块级状态
     _WORKER["version"] = version
-    _WORKER["shots"] = A_SHOTS if version == "a" else B_SHOTS
+    _WORKER["shots"] = _load_shots(version)
     _WORKER["dir"] = OUT / version / "_frames"
 
 
@@ -985,7 +1003,7 @@ def _render_one(i: int) -> tuple:
 
 
 def render(version: str, make_video: bool = True, jobs: int = 1) -> int:
-    shots = A_SHOTS if version == "a" else B_SHOTS
+    shots = _load_shots(version)
     out = OUT / version
     frames = out / "_frames"
     frames.mkdir(parents=True, exist_ok=True)

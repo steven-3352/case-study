@@ -1,0 +1,186 @@
+# 《明月天涯》创意 B(对折)分镜参数 22.465–29.780s
+# design_language.md §1.B — 白蜡木桌面 + 折纸
+
+shots:
+
+  - sid: B01
+    t: [22.465, 23.394]
+    cam:
+      size0: 特写
+      dx: 0.23
+      e0: 90.0
+      e1: 68.0
+      ease: ease_out_quart
+      hold_size: true
+    layout:
+      items:
+        - group: paper_item
+          kind: cy
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: 折 1–4 · 每折面积 -50% —— 相机不跟,纸从压满画幅缩到五分之一
+
+  - sid: B02
+    t: [23.394, 24.323]
+    cam:
+      size0: 特写
+      zoom: 1.44
+      dx: 0.25
+      e0: 40.0
+      e1: 6.0
+      ease: ease_in_out_quad
+    layout:
+      items:
+        - group: paper_item
+          kind: cy
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: |
+      折 5–8 · 相机降到桌面高度 · 单层纸边 3px→40px —— 本镜起相机**跟**:
+      hold_size 从 B01 一路挂到 B04 会累乘,折到第 12 折纸只剩一条白丝浮在木地板上,
+      「对折」看不见了。缩得看得见是 B01 一镜的活,之后由叠层厚度和折痕密度接着讲
+
+  - sid: B03
+    t: [24.323, 24.799]
+    cam:
+      size0: 特写
+      zoom: 0.91
+      dx: 0.34
+      r0: 0.0
+      r1: 86.0
+      e0: 30.0
+      e1: 52.0
+      ease: ease_in_out_sine
+    layout:
+      items:
+        - group: paper_item
+          kind: cy
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: "环绕 86° · 折不动:压下去弹回来,第二下才压死"
+
+  - sid: B04
+    t: [24.799, 25.252]
+    cam:
+      size0: 近景
+      zoom: 0.61
+      dx: 0.37
+      e0: 52.0
+      e1: 70.0
+      ease: ease_in_out_expo
+    layout:
+      items:
+        - group: paper_item
+          kind: cy
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    fx:
+      blur: [2, 40]
+    note: 甩 · 用木纹当尺子
+
+  - sid: B05
+    t: [25.252, 25.960]
+    cam:
+      size0: 中景
+      size1: 近景
+      dx: 0.21
+      e0: 70.0
+      e1: 58.0
+      ease: ease_out_back
+      back: 0.12
+    layout:
+      items:
+        - group: paper_item
+          kind: cy
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: 折 13–16 · 物理面积 -94% 而占比维持(本镜相机反而追下去)· 逐折跳变 ≥18%
+
+  - sid: B06
+    t: [25.960, 26.668]
+    cam:
+      size0: 中景
+      size1: 近景
+      dx: 0.28
+      e0: 58.0
+      e1: 84.0
+      ease: ease_out_back
+      back: 0.34
+      delay: 0.345
+    layout:
+      handler: b06_unfold
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    fx:
+      white: [0.34, 0.52, 0.88]
+    note: "⭐ 空拍 · 死寂 0.244s 完全静止,然后弹开 · 弹开的不是原来那张画"
+
+  - sid: B07
+    t: [26.668, 27.609]
+    cam:
+      size0: 中景
+      zoom: 1.22
+      dx: 0.44
+      dy: 0.19
+      e0: 84.0
+      e1: 90.0
+      ease: ease_in_out_cubic
+    layout:
+      items:
+        - group: grid_item
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: 段界 · 斜向摇 · 16 条折痕全可见
+
+  - sid: B08
+    t: [27.609, 28.514]
+    cam:
+      size0: 特写
+      dx: 0.39
+      e0: 90.0
+      e1: 74.0
+      ease: linear
+    layout:
+      items:
+        - group: grid_item
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: 本段唯一匀速镜 · 透光
+
+  - sid: B09
+    t: [28.514, 29.013]
+    cam:
+      size0: 中景
+      zoom: 1.105
+      dx: 0.30
+      r0: 0.0
+      r1: 118.0
+      e0: 74.0
+      e1: 88.0
+      ease: ease_out_back
+      back: 0.05
+      snap: 0.32
+    layout:
+      items:
+        - group: grid_item
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    note: "旋转甩入 118°"
+
+  - sid: B10
+    t: [29.013, 29.780]
+    cam:
+      size0: 近景
+      size1: 全景
+      dy: 0.27
+      e0: 88.0
+      e1: 66.0
+      ease: ease_in_out_cubic
+    layout:
+      items:
+        - group: grid_item
+    subject: [0]
+    bg: [old_wood_floor_4k, B_DROP, 0.72, 900.0]
+    fx:
+      leak: [0.0, 0.34]
+    note: 升镜出场 · 画面上沿 6% 由窗光占走 · 与 A11 同拍反向呼应

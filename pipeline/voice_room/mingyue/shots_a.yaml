@@ -1,0 +1,282 @@
+# 《明月天涯》创意 A(扫描仪)分镜参数 22.465–29.780s
+# design_language.md §1.A — 暗箱 + 一道光
+#
+# 字段说明:
+#   t:       [t0, t1] 时间区间
+#   cam:     Cam 参数(省略 = 使用 Cam 默认值)
+#   layout:  items 工厂声明
+#     base: bed      → chassis_plastic + glass_platen 两层底
+#     items:         → 追加的 item 列表
+#   subject: items 索引列表(计入 R9 主体 bbox)
+#   bg:      [纹理名, 色板名, contrast, world_tile_size]
+#   fx:      FX 参数字典(原样传入 fx_pass)
+
+shots:
+
+  - sid: A01
+    t: [22.465, 23.394]
+    cam:
+      size0: 大特写
+      size1: 特写
+      dy: 0.27
+      e0: -34.0
+      e1: -22.0
+      ease: linear
+    layout:
+      items:
+        - fn: prop
+          name: scanner_body
+          rect: [-1780, -2380, 3560, 2390]
+    subject: [0]
+    bg: [grey_plaster_4k, A_DARK, 0.55, 2600.0]
+    fx:
+      scan: [0.98, 0.86, 0.62, 0.62]
+      band: [46.0, 0.05, 30.0]
+    note: |
+      仰拍进场 · 机器高得像一栋楼 —— 分镜写的「极端全景」按 0.05 占比渲出来是
+      一枚邮票,读不出压迫感;以「看到什么」为准改成主体压满画幅、上沿切边
+
+  - sid: A02
+    t: [23.394, 24.323]
+    cam:
+      size0: 大特写
+      zoom: 1.22
+      dx: 0.16
+      ease: ease_out_quad
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 2600
+          crop: EYE
+          scan_split: true
+        - fn: tex
+          name: glass_dust
+          rect: [-620, -420, 1240, 840]
+          col: A_SHADOW
+          contrast: 2.4
+          keying: dark
+    subject: [2]
+    bg: [glass_platen, A_SHADOW, 0.62, 1400.0]
+    fx:
+      scan: [0.86, 0.62, 0.66, 0.66]
+      band: [60.0, 0.06, 40.0]
+    note: |
+      与 A01 尺寸差 90× —— 原设计是「同一粒灰尘」,但灰尘在 A01 里根本没被看见过,
+      跳过来只是一块认不出的金属板;换成她的眼睛,尺寸差照旧而且看得懂,
+      灰尘降为压在玻璃上的脏(它本来就该是脏,不是主角)
+
+  - sid: A03
+    t: [24.323, 24.799]
+    cam:
+      size0: 特写
+      dx: 0.32
+      ease: ease_in_out_expo
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 1500
+          crop: FACE
+          scan_split: true
+    subject: [2]
+    bg: [grey_plaster_4k, A_DARK, 0.55, 2600.0]
+    fx:
+      scan: [0.62, 0.54, 0.66, 0.66]
+      band: [52.0, 0.05, 30.0]
+      blur: [2, 34]
+    note: 甩 · 本段唯一快动作
+
+  - sid: A04
+    t: [24.799, 25.252]
+    cam:
+      size0: 特写
+      zoom: 1.06
+      dx: 0.21
+      r1: 14.0
+      ease: ease_in_sine
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 1620
+          scan_split: true
+    subject: [2]
+    bg: [grey_plaster_4k, A_DARK, 0.55, 2600.0]
+    fx:
+      scan: [0.54, 0.46, 0.66, 0.66]
+      band: [52.0, 0.06, 30.0]
+      flash: [black, 0.067, 0.92]
+    note: 正俯 + 旋转 · 黑闪入(电已经不稳了)
+
+  - sid: A05
+    t: [25.252, 25.728]
+    cam:
+      size0: 近景
+      zoom: 1.075
+      dx: 0.24
+      r0: -9.0
+      r1: 4.0
+      e0: 90.0
+      e1: 68.0
+      ease: ease_out_cubic
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 2050
+          crop: FACE
+          scan_split: true
+    subject: [2]
+    bg: [glass_platen, A_SHADOW, 0.62, 1400.0]
+    fx:
+      scan: [0.46, 0.38, 0.70, 0.70]
+      band: [44.0, 0.05, 30.0]
+    note: 环绕 · 嘴那半活的,眼睛那半死的
+
+  - sid: A06
+    t: [25.728, 26.204]
+    cam:
+      size0: 特写
+      size1: 大特写
+      dx: 0.20
+      e0: 68.0
+      e1: 84.0
+      ease: ease_out_expo
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 2150
+          crop: EYE
+          scan_split: true
+    subject: [2]
+    bg: [glass_platen, A_SHADOW, 0.62, 1400.0]
+    fx:
+      scan: [0.38, 0.355, 0.70, 0.55, 0.53]
+      band: [40.0, 0.07, 22.0]
+    note: 光条比镜头先停 0.22s · 唯一不挂转场的切
+
+  - sid: A07
+    t: [26.204, 26.668]
+    cam:
+      size0: 大特写
+      size1: 中景
+      dx: 0.26
+      e0: 84.0
+      e1: 90.0
+      ease: ease_out_quart
+    layout:
+      base: bed
+      items:
+        - fn: doll
+          name: cy
+          world_h: 2150
+          crop: FACE
+          scan_split: true
+    subject: [2]
+    bg: [glass_platen, A_SHADOW, 0.62, 1400.0]
+    fx:
+      scan: [0.355, 0.355, 0.55, 0.34]
+      band: [36.0, 0.09, 14.0]
+      dark: [0.62, 0.20]
+    note: "⭐ 空拍 · 明度事件 4 · 唯一一次镜头往后退"
+
+  - sid: A08
+    t: [26.668, 27.609]
+    cam:
+      size0: 特写
+      e0: 78.0
+      e1: 59.0
+      ease: ease_out_sine
+    layout:
+      handler: a08_dual_doll
+    subject: [2, 3]
+    bg: [glass_platen, A_SHADOW, 0.7, 1400.0]
+    fx:
+      scan: [0.355, 0.355, 0.50, 0.52]
+      band: [36.0, 0.09, 14.0]
+      dark: [0.34, 0.46]
+    note: |
+      段界 · 相对位移 45% 画宽(全段最大)· 本镜不是 4 次明度事件之一,
+      dark 只是环境;压到 A07 那个深度会让全段最大的一次位移发生在看不见的地方。
+      景别取特写不取近景:两张脸边分开边被相机拉远时,暗台板越占越大,
+      全段最大的一次位移反而发生在一片黑里 —— 顶到特写,人脸撑住画面,
+      分离才读得出是「被扯开」。光条同理回到基准 0.50,
+      它是这个暗箱里唯一的光,非事件镜不该比事件镜还弱
+
+  - sid: A09
+    t: [27.609, 28.514]
+    cam:
+      size0: 大特写
+      dx: 0.38
+      e0: 30.0
+      e1: 24.0
+      ease: linear
+    layout:
+      base: bed
+      items:
+        - group: four
+          crop: FACE
+          h: 760.0
+        - fn: tex
+          name: glass_platen
+          rect: [-1420, -80, 2840, 150]
+          col: A_GLASS
+          contrast: 1.3
+          opacity: 0.85
+    subject: [2, 3, 4, 5]
+    bg: [chassis_plastic, A_DARK, 0.62, 2000.0]
+    fx:
+      scan: [0.355, 0.355, 0.36, 0.36]
+      band: [36.0, 0.08, 14.0]
+      dark: [0.30, 0.34]
+    note: 唯一匀速镜 · 玻璃绿边拉到全片最大 7% · 本镜起唱的是诺兰+Cy,这两张上墨
+
+  - sid: A10
+    t: [28.514, 29.013]
+    cam:
+      size0: 大特写
+      e0: 24.0
+      e1: 90.0
+      ease: ease_out_back
+      back: 0.06
+      snap: 0.28
+    layout:
+      base: bed
+      items:
+        - group: grid_four
+    subject: [2, 3, 4, 5]
+    bg: [chassis_plastic, A_DARK, 0.62, 2000.0]
+    fx:
+      scan: [0.355, 0.355, 0.36, 0.40]
+      band: [36.0, 0.07, 14.0]
+      dark: [0.34, 0.42]
+    note: "90° 翻面 4 帧 · 同一道光切开四个人的眼睛"
+
+  - sid: A11
+    t: [29.013, 29.780]
+    cam:
+      size0: 大特写
+      size1: 中景
+      dy: 0.29
+      e0: 90.0
+      e1: 72.0
+      ease: ease_in_out_cubic
+    layout:
+      base: bed
+      items:
+        - group: grid_four
+    subject: [0]
+    bg: [grey_plaster_4k, A_DARK, 0.55, 2600.0]
+    fx:
+      scan: [0.355, 0.355, 0.40, 0.46]
+      band: [30.0, 0.05, 14.0]
+      dark: [0.42, 1.0]
+      leak: [0.0, 0.40]
+    note: 升镜出场 · 暗场被日光顶开 · 与 A01 一对(最低进,最高出)
