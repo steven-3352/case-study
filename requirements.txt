@@ -29,6 +29,9 @@
 
 # ---- 核心 HTTP + 环境 ----
 requests>=2.31,<3.0                  # HTTP 客户端 · 所有 API 调用基础
+httpx>=0.26,<1.0                    # FastAPI TestClient · 本地接口契约测试
+fastapi>=0.109,<1.0                 # Local MV Studio · REST + SSE 适配层
+uvicorn>=0.27,<1.0                  # Local MV Studio · 本地 ASGI 服务器
 python-dotenv>=1.0,<2.0              # .env 文件加载 · pipeline/env_loader.py 用
 
 # ---- OpenAI 生态(GPT-image-2 + LLM · 走 tonbirds 中转) ----

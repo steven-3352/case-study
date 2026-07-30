@@ -1,0 +1,155 @@
+manifest_version: 1
+status: approved_for_m0_m1
+architecture_ref: docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
+architecture_sha256: fb8ff83f377e2eeb90b5fed0840107f96799a306b937ccd1b984f774d8272ab3
+default_model_policy:
+  mechanical_worker: gpt-5.6-luna
+  independent_reviewer: gpt-5.6-terra
+  supervisor_uses_model: false
+
+global_constraints:
+  allowed_new_roots:
+    - apps/mv_api
+    - apps/mv_cli
+    - apps/mv_codex
+    - mv_platform
+    - tests/mv_platform
+  allowed_existing_files:
+    - requirements.txt
+    - .env.example
+  forbidden_paths:
+    - docs/RULES
+    - pipeline/mv_engine
+    - pipeline/paperdoll
+    - pipeline/voice_room
+    - publish
+  forbidden_actions:
+    - git_commit
+    - git_push
+    - lower_acceptance_thresholds
+    - invoke_model_from_supervisor
+    - accept_arbitrary_shell_from_api
+    - bind_api_to_public_interface
+
+tasks:
+  - id: M0_T1_domain_contracts
+    model: gpt-5.6-luna
+    goal: Implement immutable Project, JobSpec, JobState, Event and Artifact contracts plus canonical hashing.
+    depends_on: []
+    allowed_paths:
+      - mv_platform/domain
+      - tests/mv_platform/unit/test_contracts.py
+    required_tests:
+      - python3 -m pytest tests/mv_platform/unit/test_contracts.py -q
+    acceptance:
+      - Canonical equivalent briefs produce identical sha256 digests.
+      - Invalid state transitions fail closed.
+      - Runtime state and business stage are separate fields.
+
+  - id: M0_T2_config_and_sqlite
+    model: gpt-5.6-luna
+    goal: Implement local-only configuration, SQLite migrations, repositories and artifact metadata storage.
+    depends_on:
+      - M0_T1_domain_contracts
+    allowed_paths:
+      - mv_platform/infrastructure
+      - mv_platform/config.py
+      - tests/mv_platform/unit/test_repositories.py
+    required_tests:
+      - python3 -m pytest tests/mv_platform/unit/test_repositories.py -q
+    acceptance:
+      - SQLite enables WAL, foreign_keys and busy_timeout.
+      - Event uniqueness is enforced by job_id and seq.
+      - Artifact publication rejects paths outside the job/project roots.
+
+  - id: M1_T1_supervisor
+    model: gpt-5.6-luna
+    goal: Implement a zero-token spawn-based supervisor with fake executor, idempotency, cancellation and recovery.
+    depends_on:
+      - M0_T1_domain_contracts
+      - M0_T2_config_and_sqlite
+    allowed_paths:
+      - mv_platform/supervisor
+      - mv_platform/executors/fake.py
+      - tests/mv_platform/integration/test_supervisor.py
+    required_tests:
+      - python3 -m pytest tests/mv_platform/integration/test_supervisor.py -q
+    acceptance:
+      - Supervisor imports no Codex/OpenAI client and model call count is zero.
+      - All child processes use multiprocessing spawn.
+      - Repeated idempotency key creates no duplicate side effect.
+      - Cancellation and restart recovery produce one terminal state.
+
+  - id: M1_T2_application_service
+    model: gpt-5.6-luna
+    goal: Implement project creation and job submit, inspect, cancel and event application services.
+    depends_on:
+      - M0_T1_domain_contracts
+      - M0_T2_config_and_sqlite
+      - M1_T1_supervisor
+    allowed_paths:
+      - mv_platform/application
+      - tests/mv_platform/unit/test_application.py
+    required_tests:
+      - python3 -m pytest tests/mv_platform/unit/test_application.py -q
+    acceptance:
+      - Every entry point can call the same methods without duplicated normalization.
+      - Missing approval or invalid contract returns blocked, not false success.
+
+  - id: M1_T3_api_cli
+    model: gpt-5.6-luna
+    goal: Implement FastAPI REST/SSE and CLI adapters over the application service.
+    depends_on:
+      - M1_T2_application_service
+    allowed_paths:
+      - apps/mv_api
+      - apps/mv_cli
+      - apps/mv_codex
+      - tests/mv_platform/contract
+      - requirements.txt
+      - .env.example
+    required_tests:
+      - python3 -m pytest tests/mv_platform/contract -q
+    acceptance:
+      - API binds to 127.0.0.1 by default.
+      - SSE supports Last-Event-ID from persistent events.
+      - CLI and API fixture submissions return identical canonical digests.
+      - No interface module imports renderers, multiprocessing or ffmpeg.
+
+  - id: M1_T4_security_e2e
+    model: gpt-5.6-terra
+    role: independent_reviewer
+    goal: Independently test M0-M1 without reading implementation rationale; return binary PASS or FAIL.
+    depends_on:
+      - M1_T3_api_cli
+    allowed_paths:
+      - tests/mv_platform/security
+      - docs/design/reviews/LOCAL_MV_STUDIO_M0_M1_REVIEW.md
+    required_tests:
+      - python3 -m pytest tests/mv_platform -q
+    acceptance:
+      - Injection, traversal, symlink escape, env leakage and secret logging fixtures fail closed.
+      - Two concurrent fake jobs have zero cross references.
+      - All ten frozen M0-M1 acceptance criteria pass without threshold changes.
+
+worker_packet_contract:
+  run_outside_repo_root: true
+  required_files:
+    - TASK.md
+    - INPUT_MANIFEST.json
+    - CONTRACT.json
+    - ACCEPTANCE.md
+  record:
+    - packet_sha256
+    - input_file_sha256s
+    - output_schema_sha256
+    - model
+    - codex_cli_version
+  codex_flags:
+    - --ephemeral
+    - --json
+    - --sandbox=workspace-write
+    - --output-schema=<packet/CONTRACT.json>
+  output_policy:
+    only_packet_output_is_writable: true
+    apply_to_repo_after_validation: true

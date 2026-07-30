@@ -23,6 +23,82 @@
   carry_forward: <下次新项目开工前要注意的，会被 Phase 0 读取>
 ```
 
+---
+
+## 2026-07-30 · Local MV Studio · 文档先行与便宜模型实现试运行
+
+```yaml
+- run_id: local-mv-studio-m0-bootstrap-2026-07-30
+  date: 2026-07-30
+  stage: 架构子 PRD / 独立文档验收 / M0 实现
+  production_tier: full
+  deliverable:
+    - docs/design/subagent_prds/local_mv_studio/system_architect.md
+    - docs/design/subagent_prds/local_mv_studio/workflow_contract_designer.md
+    - docs/design/subagent_prds/local_mv_studio/agent_runtime_architect.md
+    - docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
+    - docs/design/LOCAL_MV_STUDIO_IMPLEMENTATION_MANIFEST.yaml
+    - docs/design/reviews/LOCAL_MV_STUDIO_DOCUMENT_REVIEW.md
+    - mv_platform/domain/
+    - tests/mv_platform/unit/
+  role_reasoning_reviewed:
+    - 独立系统架构师
+    - 业务流程与数据契约设计师
+    - 本地 Agent / 安全架构师
+    - 独立架构与安全验收者
+  gates_passed:
+    - 三份子 PRD schema 字段完整，observable_metric 有可观察量级
+    - Terra 文档独立审查 G1-G10 全 PASS
+    - M0_T1 worker 自测 12 pass
+    - 主流程追加边界测试后 15 pass
+    - 禁止依赖扫描 PASS
+  errors_found:
+    - role: 低成本领域合同实现者
+      what_went_wrong: worker 自测未覆盖 bool-as-int、异常类型稳定性和 Event payload 外层类型，首次结果存在 3 个缺陷
+      root_cause: [flow, mechanism]
+      mitigation_applied: 主流程在应用候选文件前增加独立 adversarial tests，失败证据退回 worker，未用 worker 自报结果直接放行
+      carry_forward: 便宜模型的 frozen acceptance 仍需由非产出者补边界测试；尤其检查 Python 隐式类型、错误类型和输入容器外层
+    - role: 主编排器
+      what_went_wrong: 前三份子 PRD 和首个 compact worker 仍加载了大量默认上下文；首个 worker 报告 111616 input tokens
+      root_cause: [mechanism]
+      mitigation_applied: 后续 worker 使用 --ignore-rules、显式关闭 MCP/plugins，并保持仓库外 task packet；保留 user config 以加载 custom provider
+      carry_forward: 仓库外 cwd 不能单独保证低 token；launcher 必须关闭规则/MCP/plugin 注入但保留 provider 配置，记录 token counters，并只复制 task refs
+    - role: 低成本基础设施实现者
+      what_went_wrong: M0_T2 连续两次在首次响应前网络超时，未产生候选文件
+      root_cause: [environment]
+      mitigation_applied: 等待内建重试与 HTTPS fallback 后主动终止；仓库保持零部分实现
+      carry_forward: 外部 worker 的 transport failure 必须落为 task not_started/failed，不得被 supervisor 轮询或主模型补写伪装成成功
+  carry_forward: >
+    文档 gate 和代码 gate 分离：主架构经不同模型二元 PASS 后才派实现；每个便宜 worker 只拿仓库外精简任务包，
+    只向 output 写候选；主流程做路径审计、独立边界测试和禁止依赖扫描后才应用。
+    Supervisor 永远零 token，模型 transport 故障是显式任务失败，不由模型监控进度。
+```
+
+### M0-M1 交付追记
+
+```yaml
+- run_id: local-mv-studio-m0-m1-final-2026-07-30
+  stage: M0-M1 实现 / 独立安全复审
+  gates_passed:
+    - M0-M1 全套测试 91 passed
+    - Terra correction review G1-G10 PASS
+    - Supervisor model/token counter 0/0
+    - 入口禁止 renderer/process/ffmpeg 依赖扫描零命中
+  errors_found:
+    - role: M1_T3 接口实现者
+      what_went_wrong: 首稿泄露异常路径、CLI follow 提前退出、auto_start 丢 executor 参数
+      root_cause: [mechanism]
+      mitigation_applied: 候选实现合入前由非产出者补 15 项契约测试并逐项修正
+    - role: M1_T4 安全边界
+      what_went_wrong: 父目录 symlink 检查因过早 resolve 失效；已知异常正文可带出 secret；spawn child 未收缩 env
+      root_cause: [cognition, mechanism]
+      mitigation_applied: 写入前检查未解析路径链、对外固定错误类别、worker 启动即重建环境白名单；Terra 二次独立复审 PASS
+  carry_forward: >
+    便宜 worker 的自报 PASS 不能合入；必须先做受保护树 hash、独立攻击测试和禁止依赖扫描。
+    `--ephemeral` 无法 resume，且本轮 Luna/Terra 即使使用精简包仍报告数十万 token（多数 cached）；
+    后续编排器应把确定性微修交给 Python/apply_patch，把模型留给有语义判断的有界任务，并持续记录真实 token。
+```
+
 `root_cause` 三分类沿用 `PRE_NODE_CHECKLIST_MISS_LOG.md` 的定义：
 - **flow**：该跑的流程步骤没跑（比如角色被跳过、门禁没触发）
 - **cognition**：认知判断错了（比如把"效果名字"当成"效果已实现"）
