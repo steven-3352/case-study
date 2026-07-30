@@ -18,33 +18,23 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import io
 import os
 import sys
 import time
-import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline.gpt_image_client import GPTImageClient  # noqa: E402
 
 RAW_SIZE = "1536x1024"          # gpt-image-2 原生 16:9
 FINAL_W, FINAL_H = 1920, 1080
-
-
-def _decode(first) -> bytes:
-    b64 = getattr(first, "b64_json", None)
-    if b64:
-        return base64.b64decode(b64)
-    url = getattr(first, "url", None)
-    if url:
-        with urllib.request.urlopen(url) as r:  # noqa: S310
-            return r.read()
-    raise RuntimeError(f"无 b64_json/url: {first!r}")
 
 
 def _upscale(png_bytes: bytes) -> bytes:
@@ -55,20 +45,17 @@ def _upscale(png_bytes: bytes) -> bytes:
     return buf.getvalue()
 
 
-def gen_bg(client: OpenAI, model: str, out: Path, prompt: str, retries: int = 4) -> bool:
+def gen_bg(client: GPTImageClient, out: Path, prompt: str) -> bool:
     out.parent.mkdir(parents=True, exist_ok=True)
-    for attempt in range(1, retries + 2):
-        try:
-            t0 = time.time()
-            resp = client.images.generate(model=model, prompt=prompt, size=RAW_SIZE, n=1)
-            out.write_bytes(_upscale(_decode(resp.data[0])))
-            print(f"[ok] {out.name} ({time.time() - t0:.0f}s, {out.stat().st_size // 1024} KB)")
-            return True
-        except Exception as exc:  # noqa: BLE001
-            print(f"[warn] attempt {attempt} 失败: {type(exc).__name__}: {exc}")
-            time.sleep(5 * attempt)
-    print(f"[err] {out.name} 全部重试失败")
-    return False
+    try:
+        t0 = time.time()
+        raw = client.generate(prompt=prompt, size=RAW_SIZE)
+        out.write_bytes(_upscale(raw))
+        print(f"[ok] {out.name} ({time.time() - t0:.0f}s, {out.stat().st_size // 1024} KB)")
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[err] {out.name} 生成失败: {type(exc).__name__}: {exc}")
+        return False
 
 
 def main() -> int:
@@ -85,14 +72,18 @@ def main() -> int:
 
     load_dotenv(ROOT / ".env")
     api_key = os.environ["GPT_IMAGE_API_KEY"]
-    base_url = os.environ["GPT_IMAGE_BASE_URL"].rstrip("/")
-    if not base_url.endswith("/v1"):
-        base_url += "/v1"
+    base_url = os.environ["GPT_IMAGE_BASE_URL"]
     model = os.environ.get("GPT_IMAGE_MODEL", "gpt-image-2")
-    client = OpenAI(api_key=api_key, base_url=base_url, timeout=300.0, max_retries=2)
-    print(f"[info] model={model} base_url={base_url} out={args.out}")
+    client = GPTImageClient(
+        api_key=api_key,
+        base_url=base_url,
+        model=model,
+        timeout=300.0,
+        attempts=5,
+    )
+    print(f"[info] model={model} base_url={client.base_url} out={args.out}")
 
-    return 0 if gen_bg(client, model, args.out, prompt) else 1
+    return 0 if gen_bg(client, args.out, prompt) else 1
 
 
 if __name__ == "__main__":
