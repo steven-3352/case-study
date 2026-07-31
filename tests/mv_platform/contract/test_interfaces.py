@@ -194,6 +194,10 @@ def test_director_api_actions_are_fixed_job_only_commands():
             self.calls.append(("intake", job_id))
             return {"action": "intake"}
 
+        def start_director_animatic_test(self, job_id):
+            self.calls.append(("animatic-test", job_id))
+            return {"action": "animatic-test"}
+
         def approve_director_artifacts(self, job_id):
             self.calls.append(("approve", job_id))
             return {"action": "approve"}
@@ -206,6 +210,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
     client = TestClient(create_app(service=service))
     paths = (
         ("/api/v1/jobs/job-1/director/intake", "intake"),
+        ("/api/v1/jobs/job-1/director/animatic-test", "animatic-test"),
         ("/api/v1/jobs/job-1/director/approve", "approve"),
         ("/api/v1/jobs/job-1/director/publish", "publish"),
     )
@@ -216,6 +221,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
         assert client.post(path, json={"path": "/tmp/escape"}).status_code == 200
     assert service.calls == [
         ("intake", "job-1"), ("intake", "job-1"),
+        ("animatic-test", "job-1"), ("animatic-test", "job-1"),
         ("approve", "job-1"), ("approve", "job-1"),
         ("publish", "job-1"), ("publish", "job-1"),
     ]
@@ -232,6 +238,10 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
             self.calls.append(("intake", job_id))
             return {"action": "intake"}
 
+        def start_director_animatic_test(self, job_id):
+            self.calls.append(("animatic-test", job_id))
+            return {"action": "animatic-test"}
+
         def approve_director_artifacts(self, job_id):
             self.calls.append(("approve", job_id))
             return {"action": "approve"}
@@ -243,12 +253,18 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
     service = RecordingService()
     for command, action in (
         ("director-intake", "intake"),
+        ("director-animatic-test", "animatic-test"),
         ("director-approve", "approve"),
         ("director-publish", "publish"),
     ):
         assert cli_main(["job", command, "job-1", "--json"], service=service) == 0
         assert json.loads(capsys.readouterr().out) == {"action": action}
-    assert service.calls == [("intake", "job-1"), ("approve", "job-1"), ("publish", "job-1")]
+    assert service.calls == [
+        ("intake", "job-1"),
+        ("animatic-test", "job-1"),
+        ("approve", "job-1"),
+        ("publish", "job-1"),
+    ]
 
 
 def test_sse_is_ordered_replayable_and_follow_false_closes(service):

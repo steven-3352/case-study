@@ -180,3 +180,17 @@
 - Provider usage is returned as `ModelResult` and remains subject to the caller's total token hard limit.
 - Verification: `132 passed, 69 warnings`; provider plus bounded-drafting focused suite `15 passed`.
 - M3 remains `in_progress`. Carry forward: wire map drafting into a dedicated Job/Application action, then add story/visual-score drafting and the one-command LRC-to-Animatic test workflow.
+
+## 2026-07-31 · M3 One-Command Structural Animatic Test
+
+- Added deterministic structural visual-score planning from music map, character map, lyric semantics, and project brief.
+- Python owns section boundaries, energy, cues, source assets, cast assignment, shot IDs, and timeline continuity. The planner emits one structural shot per section and blocks flat energy, gaps, missing relationships, unknown lyrics, and invalid cues.
+- Multi-character plans always include a relationship/peak group shot. Every shot has a unique structural purpose, one primary action, first/last frame contracts, a shared transition element, and source-portrait references.
+- Added the fixed ordinary-user action director-animatic-test to CLI and API. It accepts only a queued operation=animatic Job ID and no paths, executor settings, staging directory, or output destination.
+- The application copies project inputs into Job staging, validates timed LRC intake, runs two bounded/audited semantic calls in the application process, and submits only the draft package to a credential-free spawn worker.
+- The worker compiles the package only in explicit structural-test mode and renders a silent 540p Animatic. Maps, visual score, compiled artifacts, and manifest remain draft_self_generated with approval_required=true.
+- The action waits for the worker and publishes only the clearly named preview to projects/<slug>/outputs/structural_animatic_<job-id>.mp4. Source portraits remain byte-identical; runtime inputs, logs, maps, and manifests remain under <workspace>/.mvstudio/jobs/<job-id>.
+- Offline end-to-end evidence: real WAV/LRC/PNG parsing, fake bounded semantic port, spawn worker, ffmpeg render, ffprobe 540x960 validation, manifest checks, project output publication, and source-image hash preservation all pass.
+- Full verification: 137 passed, 69 warnings; focused workflow/interface suite 47 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
+- Real-provider smoke is blocked by external configuration, not hidden as passed: configured LLM_API_KEY is a 3-character placeholder and returned HTTP 401; one valid key from the same configured gateway authenticated but claude-opus-4-8 returned HTTP 503 on two attempts. No endpoint or credential value was logged.
+- M3 remains in_progress. Carry forward: install a valid semantic credential/model route, rerun the same real smoke, then implement plain-text lyric alignment and creative (not merely structural) visual-score drafting.

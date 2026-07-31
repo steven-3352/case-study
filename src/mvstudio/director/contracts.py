@@ -67,7 +67,9 @@ def _project_path(value, label):
     return value
 
 
-def validate_package(value):
+def validate_package(value, required_status="approved"):
+    if required_status not in {"approved", "draft_self_generated"}:
+        raise DirectorContractError("unsupported director contract status")
     root = _mapping(value, "director package")
     allowed = {"project_id", "brief", "music_map", "character_map", "visual_score", "animatic"}
     if set(root) - allowed:
@@ -80,8 +82,8 @@ def validate_package(value):
     for label, contract in (
         ("music_map", music), ("character_map", characters), ("visual_score", score)
     ):
-        if contract.get("status") != "approved":
-            raise DirectorContractError(label + " must be approved")
+        if contract.get("status") != required_status:
+            raise DirectorContractError(label + " must be " + required_status)
 
     canvas = brief.get("canvas", score.get("project", {}).get("canvas", "9:16"))
     if canvas not in {"9:16", "16:9"}:

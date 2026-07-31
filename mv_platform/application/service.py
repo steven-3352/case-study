@@ -94,7 +94,16 @@ class ApplicationService:
         ".mvstudio/jobs", ".mvstudio/work", ".mvstudio/logs",
     )
 
-    def __init__(self, settings, database, supervisor=None, workspace_root=None, source_root=None):
+    def __init__(
+        self,
+        settings,
+        database,
+        supervisor=None,
+        workspace_root=None,
+        source_root=None,
+        semantic_port=None,
+        semantic_model=None,
+    ):
         self.settings = settings
         self.database = database
         self.supervisor = supervisor
@@ -103,6 +112,8 @@ class ApplicationService:
         self.workspace_root = Path(workspace_root).resolve()
         self.repository = Repository(database)
         self.source_root = Path(source_root).resolve() if source_root is not None else None
+        self.semantic_port = semantic_port
+        self.semantic_model = semantic_model
         self._initialized = False
 
     def _reject_source_workspace(self):
@@ -263,6 +274,135 @@ class ApplicationService:
         }
         return self.supervisor.submit(job_id, "director_intake", payload)
 
+    def start_director_animatic_test(self, job_id):
+        """Draft maps and render a non-approved structural animatic by Job ID."""
+        self._require_initialized()
+        if self.supervisor is None:
+            raise ApplicationBlocked("job supervisor is not configured")
+        try:
+            job = self.repository.get_job(job_id)
+            status = self.repository.get_status(job_id)
+            project = self.repository.get_project(job.project_id)
+        except RepositoryNotFound as exc:
+            raise ApplicationNotFound(job_id) from exc
+        if job.operation != "animatic" or status.runtime_state is not RuntimeState.QUEUED:
+            raise ApplicationConflict("director animatic test requires a queued animatic job")
+        audio = [path for path in job.input_refs if path.startswith("inputs/audio/")]
+        lyrics = [path for path in job.input_refs if path.startswith("inputs/lyrics/")]
+        characters = [path for path in job.input_refs if path.startswith("inputs/characters/")]
+        if len(audio) != 1 or len(lyrics) != 1 or not characters:
+            raise ApplicationConflict(
+                "director animatic test requires one audio, one timed lyrics file and character images"
+            )
+        if len(audio) + len(lyrics) + len(characters) != len(job.input_refs):
+            raise ApplicationConflict("director animatic test contains unsupported input refs")
+        staging = self._job_root() / job_id
+        if staging.is_symlink():
+            raise ApplicationBlocked("job staging path is a symlink")
+        staging.mkdir(parents=True, exist_ok=True)
+        for relative in job.input_refs:
+            source = self._safe_project_input(project, relative)
+            current = staging
+            for part in Path(relative).parts[:-1]:
+                current = current / part
+                if current.is_symlink():
+                    raise ApplicationBlocked("staged input path contains a symlink")
+                current.mkdir(exist_ok=True)
+                if current.is_symlink():
+                    raise ApplicationBlocked("staged input path contains a symlink")
+            self._atomic_copy(source, current / Path(relative).name)
+
+        from mvstudio.director.drafting import draft_maps
+        from mvstudio.director.intake import inspect_intake
+        from mvstudio.director.structural_planner import plan_structural_score
+        from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
+
+        intake = inspect_intake(
+            {
+                "project_id": project.project_id,
+                "audio": audio[0],
+                "lyrics": lyrics[0],
+                "characters": characters,
+            },
+            staging,
+        )
+        timed_path = staging / "intake" / "lyrics_timed.json"
+        if not timed_path.is_file() or intake["lyrics"]["alignment_state"] != "aligned":
+            raise ApplicationBlocked("director animatic test requires timed LRC lyrics")
+        brief_path = self._project_root() / project.slug / "brief.json"
+        try:
+            brief = json.loads(brief_path.read_bytes())
+            timed = json.loads(timed_path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ApplicationBlocked("director animatic test input contract is invalid") from exc
+        port = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        drafted = draft_maps(intake, timed, brief, port, staging, model)
+        score = plan_structural_score(
+            drafted["music_map"],
+            drafted["character_map"],
+            drafted["lyrics_semantic"],
+            brief,
+            staging,
+        )
+        package = {
+            "project_id": project.project_id,
+            "brief": brief,
+            "music_map": drafted["music_map"],
+            "character_map": drafted["character_map"],
+            "visual_score": score,
+            "animatic": {"enabled": True, "fps": 6},
+        }
+        self.supervisor.submit(job_id, "director_structural", package)
+        try:
+            completed = self.supervisor.wait(job_id, 300)
+        except TimeoutError as exc:
+            raise ApplicationBlocked("director animatic test timed out") from exc
+        if completed.runtime_state is not RuntimeState.SUCCEEDED:
+            raise ApplicationBlocked("director animatic test failed")
+        _job, completed_status, manifest, _manifest_path, staging = self._director_manifest(
+            job_id, "draft_self_generated"
+        )
+        artifact = next(
+            (item for item in manifest["artifacts"] if item["path"] == "outputs/animatic.mp4"),
+            None,
+        )
+        if artifact is None:
+            raise ApplicationBlocked("director animatic output is missing")
+        destination_relative = "outputs/structural_animatic_" + job_id + ".mp4"
+        store = ArtifactStore(self._project_root(), self._job_root())
+        destination = store.validate_project_path(project.slug, destination_relative)
+        if destination.exists():
+            if not destination.is_file():
+                raise ApplicationConflict("structural animatic destination is not a file")
+            if "sha256:" + self._file_digest(destination).hex() != artifact["content_hash"]:
+                raise ApplicationConflict("structural animatic destination differs")
+        else:
+            try:
+                store.publish(
+                    staging / artifact["path"],
+                    project.slug,
+                    destination_relative,
+                    overwrite=False,
+                )
+            except (UnsafePathError, OSError) as exc:
+                raise ApplicationBlocked("structural animatic publication failed") from exc
+        payload = {
+            "project_id": project.project_id,
+            "job_id": job_id,
+            "status": "draft_self_generated",
+            "approval_required": True,
+            "output": destination_relative,
+            "content_hash": artifact["content_hash"],
+        }
+        self._set_business_stage(
+            completed_status,
+            BusinessStage.VISUAL_SCORE_PENDING_USER,
+            "director.structural_animatic_published",
+            payload,
+        )
+        return _immutable(payload)
+
     def _director_manifest(self, job_id, required_status):
         try:
             job = self.repository.get_job(job_id)
@@ -314,15 +454,27 @@ class ApplicationService:
             if digest != artifact.get("content_hash"):
                 raise ApplicationBlocked("director artifact hash mismatch")
             declared.add(relative)
-        actual = {
+        all_files = {
             path.relative_to(staging).as_posix()
             for path in staging.rglob("*")
             if path.is_file()
-            and path.relative_to(staging).as_posix()
-            not in {"artifact-manifest.json", "approval-record.json"}
+        }
+        actual = {
+            relative for relative in all_files
+            if relative.startswith(("creative/", "outputs/"))
+        }
+        operational = {
+            relative for relative in all_files
+            if relative.startswith(("inputs/audio/", "inputs/lyrics/", "inputs/characters/"))
+            or relative in {"intake/intake_manifest.json", "intake/lyrics_timed.json"}
+        }
+        unexpected = all_files - actual - operational - {
+            "artifact-manifest.json", "approval-record.json"
         }
         if any(path.is_symlink() for path in staging.rglob("*")):
             raise ApplicationBlocked("director staging contains a symlink")
+        if unexpected:
+            raise ApplicationBlocked("staging contains unexpected operational files")
         if actual != declared:
             raise ApplicationBlocked("staging contains undeclared director artifacts")
         return job, status, manifest, manifest_path, staging

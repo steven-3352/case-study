@@ -160,8 +160,8 @@ def _storyboard(package):
     return "\n".join(rows).encode("utf-8")
 
 
-def compile_package(package, staging, job_id="local"):
-    package = validate_package(package)
+def compile_package(package, staging, job_id="local", required_status="approved"):
+    package = validate_package(package, required_status=required_status)
     staging_path = Path(staging)
     if staging_path.is_symlink():
         raise ValueError("staging directory cannot be a symlink")
@@ -195,7 +195,10 @@ def compile_package(package, staging, job_id="local"):
         key: _digest(package[key]) for key in ("brief", "music_map", "character_map", "visual_score")
     }
     artifacts = []
-    for path in sorted(path for path in root.rglob("*") if path.is_file()):
+    artifact_paths = []
+    for directory in (creative, outputs):
+        artifact_paths.extend(path for path in directory.rglob("*") if path.is_file())
+    for path in sorted(artifact_paths):
         if path.name == "artifact-manifest.json":
             continue
         content = path.read_bytes()

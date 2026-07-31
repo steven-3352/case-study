@@ -48,12 +48,21 @@ acceptance:
   - Draft semantic maps cannot authorize Director compilation until approved.
   - Ordinary-user API and CLI actions start intake, approve, and publish by Job ID
     without accepting staging paths, executor settings, cwd, or output destinations.
-  - Publication requires explicit approval and rejects hash drift, undeclared files,
-    symlinks, project mismatches, and conflicting destination content.
+  - A fixed director-animatic-test action accepts only an animatic Job ID, drafts
+    maps and a structural visual score, renders a 540p preview, and publishes the
+    explicitly draft output under the user project's outputs directory.
+  - Structural Animatic testing does not mutate map or visual-score status and
+    cannot authorize final rendering or external release.
+  - Publication of the director artifact package requires explicit approval and
+    rejects hash drift, undeclared files, symlinks, project mismatches, and
+    conflicting destination content; the fixed test action may publish only its
+    clearly named non-approved structural preview.
   - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
 
 deferred:
   - Plain-lyric alignment provider integration.
-  - Map-drafting Job and Application Service workflow wiring.
-  - Story framework and visual score drafting through bounded model ports.
+  - Production credentials for the configured semantic provider; the locally
+    configured LLM key is a placeholder and the current upstream model returned 503
+    when tested with another valid key on the same gateway.
+  - Creative visual-score drafting beyond the deterministic structural test plan.
   - Final-resolution rendering and media-provider generation.
