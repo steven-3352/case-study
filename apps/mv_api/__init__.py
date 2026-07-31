@@ -174,6 +174,10 @@ def create_app(service=None, workspace_root=None):
     async def publish_director_artifacts(job_id: str):
         return _result(require_service().publish_director_artifacts(job_id))
 
+    @app.post("/api/v1/jobs/{job_id}/seedance/shot")
+    async def start_seedance_shot(job_id: str):
+        return _result(require_service().start_seedance_shot(job_id))
+
     @app.get("/api/v1/jobs/{job_id}")
     async def inspect_job(job_id: str):
         return _result(require_service().inspect_job(job_id))

@@ -279,6 +279,41 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
     ]
 
 
+def test_seedance_actions_are_fixed_job_only_commands(capsys):
+    class RecordingService:
+        supervisor = None
+
+        def __init__(self):
+            self.calls = []
+
+        def start_seedance_shot(self, job_id):
+            self.calls.append(job_id)
+            return {"action": "seedance-shot", "job_id": job_id}
+
+    service = RecordingService()
+    client = TestClient(create_app(service=service))
+
+    response = client.post("/api/v1/jobs/job-1/seedance/shot")
+    assert response.status_code == 200
+    assert response.json() == {"action": "seedance-shot", "job_id": "job-1"}
+    with_body = client.post(
+        "/api/v1/jobs/job-1/seedance/shot",
+        json={"path": "/tmp/escape", "prompt": "override"},
+    )
+    assert with_body.status_code == 200
+    assert cli_main(["job", "seedance-shot", "job-2", "--json"], service=service) == 0
+    assert json.loads(capsys.readouterr().out) == {
+        "action": "seedance-shot",
+        "job_id": "job-2",
+    }
+    with pytest.raises(SystemExit):
+        cli_main(
+            ["job", "seedance-shot", "job-3", "--path", "/tmp/escape"],
+            service=service,
+        )
+    assert service.calls == ["job-1", "job-1", "job-2"]
+
+
 def test_sse_is_ordered_replayable_and_follow_false_closes(service):
     _project, job = create_project_and_job(service)
     now = datetime.now(timezone.utc)

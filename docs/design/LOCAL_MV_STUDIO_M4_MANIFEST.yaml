@@ -1,0 +1,92 @@
+manifest_version: 1
+milestone: M4
+status: in_progress
+architecture_ref: docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
+directory_contract_ref: docs/design/LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md
+
+goal: >
+  Turn user-approved storyboards and scene keyframes into diagnosed Seedance
+  shot clips, then compose the approved clips with source audio into a final
+  quality-checked video.
+
+user_contract:
+  visible:
+    - Human-readable storyboard with shot order, duration, cast, action, and transition.
+    - One inspectable scene keyframe per generated shot.
+    - Shot generation progress, failed-shot reason, retry state, and approved preview.
+    - Final video and QC result.
+  internal_only:
+    - Structural Animatic cards.
+    - Music, character, semantic, compiler, provider, and artifact manifests.
+    - Job staging, raw provider envelopes, logs, hashes, and diagnosis measurements.
+  approval_points:
+    - Storyboard approval before keyframe production.
+    - Scene-keyframe approval before any paid Seedance request.
+    - Shot-preview approval after bounded diagnosis and before final composition.
+
+constraints:
+  - Product code lives under src/mvstudio and never imports pipeline.
+  - Runtime data, logs, provider evidence, clips, and outputs never enter the source tree.
+  - Seedance generates approved shots, not an entire song in one request.
+  - Every request is bound to one approved shot and one approved scene keyframe.
+  - A provider cannot receive arbitrary source or destination paths.
+  - Source audio, lyrics, portraits, and approved keyframes remain byte-identical.
+  - Provider failures never silently fall back to another model.
+  - Generated clips remain unapproved until per-shot diagnosis passes and the user accepts them.
+  - Structural Animatics cannot authorize paid generation or final publication.
+
+slice_1_seedance_provider:
+  inputs:
+    - shot_id
+    - model
+    - bounded motion prompt
+    - duration_seconds
+    - aspect_ratio
+    - resolution
+    - approved first-frame bytes and sha256
+    - optional approved reference-frame bytes and sha256
+  outputs:
+    - MP4 bytes and sha256
+    - provider/model/task identity
+    - request-contract sha256
+    - first-frame and reference-frame hashes
+  acceptance:
+    - Configuration requires SEEDANCE_BASE_URL, SEEDANCE_API_KEY, and SEEDANCE_MODEL.
+    - Base and returned media URLs reject credentials, fragments, and unsafe schemes.
+    - Prompt, duration, image count, image bytes, response bytes, polling, and download bytes are bounded.
+    - First-frame and reference-frame hashes are rechecked before any network request.
+    - Sync and async provider responses are supported without exposing upstream bodies in errors.
+    - Downloaded output must be a non-empty MP4 before it can leave the provider boundary.
+    - Provider code performs no project or source-tree file writes.
+
+slice_2_approved_single_shot:
+  status: implemented
+  project_inputs:
+    - creative/approved_shots/<shot_id>.json
+    - assets/source/keyframes/<frame>
+  internal_job_artifacts:
+    - generated/<shot_id>.mp4
+    - generated/provider_audit.json
+    - generated/shot_qc.json
+  user_preview:
+    - assets/generated/shot-previews/<shot_id>_<job_id>_pending-diagnosis.mp4
+  acceptance:
+    - The approval contract is strict, canonical, timezone-aware, and bound to project identity.
+    - The Job digest equals the approved contract hash, which includes the first-frame hash.
+    - Project input paths are limited to approved-shot and keyframe namespaces and reject symlinks.
+    - Contract, first-frame, provider response, video, polling, and download sizes are bounded.
+    - An exclusive pre-request claim prevents automatic duplicate paid calls.
+    - Provider configuration errors occur before the paid-attempt claim.
+    - Provider credentials never enter the QC worker.
+    - QC checks hash, H.264, 720x1280, and duration within one second.
+    - Passing technical QC remains pending diagnosis and pending user approval.
+    - CLI and API generation actions accept a Job ID only.
+  verification:
+    focused: 36_passed
+    full_suite: 199_passed
+    pipeline_imports: zero
+
+deferred:
+  - Keyframe generation and user approval state.
+  - Per-shot diagnosis and bounded regeneration.
+  - Multi-shot scheduling, final composition, audio, transitions, subtitles, and final QC.

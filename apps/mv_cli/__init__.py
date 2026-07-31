@@ -28,6 +28,7 @@ def _parser():
     director_animatic_offline = job.add_parser("director-animatic-offline-test"); director_animatic_offline.add_argument("id"); director_animatic_offline.add_argument("--json", action="store_true")
     director_approve = job.add_parser("director-approve"); director_approve.add_argument("id"); director_approve.add_argument("--json", action="store_true")
     director_publish = job.add_parser("director-publish"); director_publish.add_argument("id"); director_publish.add_argument("--json", action="store_true")
+    seedance_shot = job.add_parser("seedance-shot"); seedance_shot.add_argument("id"); seedance_shot.add_argument("--json", action="store_true")
     return parser
 
 
@@ -82,6 +83,8 @@ def main(argv=None, service=None):
             result = service.approve_director_artifacts(args.id)
         elif args.job_command == "director-publish":
             result = service.publish_director_artifacts(args.id)
+        elif args.job_command == "seedance-shot":
+            result = service.start_seedance_shot(args.id)
         else:
             result = service.cancel_job(args.id, args.grace)
         print(json.dumps(result if isinstance(result, dict) else _json(result), sort_keys=True, separators=(",", ":")))

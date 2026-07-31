@@ -53,6 +53,11 @@ def _executor(executor):
     if executor == "legacy":
         from mvstudio.executors.legacy import run_legacy, validate_input as validate_legacy
         return validate_legacy, run_legacy
+    if executor == "seedance_shot_qc":
+        from mvstudio.executors.seedance_shot_qc import (
+            run_seedance_shot_qc, validate_input as validate_seedance_shot_qc
+        )
+        return validate_seedance_shot_qc, run_seedance_shot_qc
     if executor == "director":
         from mvstudio.executors.director import run_director, validate_input as validate_director
         return validate_director, run_director

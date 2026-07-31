@@ -419,3 +419,33 @@
     workspace/job staging。公共能力迁入可安装代码包，单片数据和输出迁入用户项目，
     临时文件与日志进入 .mvstudio；任何 pipeline 迁移必须逐文件判定归属。
 ```
+
+---
+
+## 2026-07-31 · Local MV Studio M4 · Seedance 单镜受控生成
+
+```yaml
+- run_id: local-mv-studio-m4-approved-seedance-shot-2026-07-31
+  date: 2026-07-31
+  stage: M4 工程链路 · 批准首帧到待诊断单镜
+  role_reasoning_reviewed:
+    - 产品边界: 用户只看分镜、场景首帧、单镜预览和最终片
+    - 安全边界: provider 持凭证，QC worker 无凭证
+    - 验收边界: 技术 QC 通过不等于视觉诊断通过或用户批准
+  errors_found:
+    - role: 实现
+      what_went_wrong: >
+        初稿把防重复付费 claim 放在 provider 配置构造之前，配置缺失也会占用一次尝试。
+      root_cause: [flow]
+      should_have_done: 先完成无副作用的配置与输入校验，再原子 claim，随后才允许网络调用。
+  fix_applied: >
+    claim 已移动到配置校验之后，并增加回归测试：配置失败不生成 claim，
+    修复配置后同一 Job 可首次调用；上游结果不确定时 claim 保留，禁止自动二次扣费。
+  verification: >
+    M4 聚焦链路 36 passed；全量 199 passed；git diff --check PASS；
+    产品代码对 pipeline 零导入。
+  carry_forward: >
+    下一步不能直接用角色立绘消耗 Seedance 额度。先让用户确认《qingyi》第一镜的
+    大白话分镜与真实场景首帧，再进行一次 4-15 秒单镜生成；生成后必须执行
+    i2v-video-diagnose 的逐镜内环，预览保持 pending_diagnosis，用户确认后才可进入合成。
+```

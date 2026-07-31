@@ -104,6 +104,7 @@ class ApplicationService:
         semantic_port=None,
         semantic_model=None,
         alignment_port=None,
+        seedance_port=None,
     ):
         self.settings = settings
         self.database = database
@@ -116,6 +117,7 @@ class ApplicationService:
         self.semantic_port = semantic_port
         self.semantic_model = semantic_model
         self.alignment_port = alignment_port
+        self.seedance_port = seedance_port
         self._initialized = False
 
     def _reject_source_workspace(self):
@@ -233,6 +235,211 @@ class ApplicationService:
         if not candidate.is_file():
             raise ApplicationBlocked("director input must be a regular file")
         return candidate
+
+    def _safe_seedance_input(self, project, relative):
+        prefixes = ("creative/approved_shots/", "assets/source/keyframes/")
+        if not isinstance(relative, str) or not relative.startswith(prefixes):
+            raise ApplicationConflict("Seedance refs must be approved-shot or keyframe paths")
+        path = Path(relative)
+        if path.is_absolute() or "\\" in relative or any(
+            part in {"", ".", ".."} for part in path.parts
+        ):
+            raise ApplicationConflict("invalid Seedance input path")
+        root = self._project_root() / project.slug
+        candidate = root / path
+        current = root
+        for part in path.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ApplicationBlocked("Seedance input path contains a symlink")
+        try:
+            candidate.resolve(strict=True).relative_to(root.resolve(strict=True))
+        except (FileNotFoundError, ValueError) as exc:
+            raise ApplicationBlocked("Seedance input is missing or escapes project") from exc
+        if not candidate.is_file():
+            raise ApplicationBlocked("Seedance input must be a regular file")
+        return candidate
+
+    def _claim_seedance_request(self, staging, contract_hash):
+        claim = staging / ".seedance-request-claimed"
+        try:
+            descriptor = os.open(claim, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError as exc:
+            raise ApplicationBlocked(
+                "Seedance request was already attempted; automatic paid retry is disabled"
+            ) from exc
+        try:
+            with os.fdopen(descriptor, "wb") as handle:
+                handle.write((contract_hash + "\n").encode("ascii"))
+                handle.flush()
+                os.fsync(handle.fileno())
+        except Exception:
+            try:
+                claim.unlink()
+            except OSError:
+                pass
+            raise
+
+    def start_seedance_shot(self, job_id):
+        self._require_initialized()
+        if self.supervisor is None:
+            raise ApplicationBlocked("job supervisor is not configured")
+        try:
+            job = self.repository.get_job(job_id)
+            status = self.repository.get_status(job_id)
+            project = self.repository.get_project(job.project_id)
+        except RepositoryNotFound as exc:
+            raise ApplicationNotFound(job_id) from exc
+        if job.operation != "generate" or status.runtime_state is not RuntimeState.QUEUED:
+            raise ApplicationConflict("Seedance shot requires a queued generate job")
+        contracts = [
+            item for item in job.input_refs
+            if item.startswith("creative/approved_shots/") and item.endswith(".json")
+        ]
+        frames = [
+            item for item in job.input_refs
+            if item.startswith("assets/source/keyframes/")
+        ]
+        if len(contracts) != 1 or len(frames) != 1 or len(job.input_refs) != 2:
+            raise ApplicationConflict(
+                "Seedance shot requires one approved-shot contract and one keyframe"
+            )
+        contract_source = self._safe_seedance_input(project, contracts[0])
+        frame_source = self._safe_seedance_input(project, frames[0])
+        if contract_source.stat().st_size > 256 * 1024:
+            raise ApplicationBlocked("approved-shot contract exceeds byte budget")
+        if frame_source.stat().st_size > 20 * 1024 * 1024:
+            raise ApplicationBlocked("approved keyframe exceeds byte budget")
+        try:
+            contract_value = json.loads(contract_source.read_bytes())
+            from mvstudio.generation.shot_contract import parse_approved_shot
+
+            approved = parse_approved_shot(contract_value, project.project_id)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            raise ApplicationBlocked("approved-shot contract is invalid") from exc
+        if Path(contracts[0]).stem != approved.shot_id:
+            raise ApplicationConflict("approved-shot filename must match shot_id")
+        if frames[0] != approved.first_frame_path:
+            raise ApplicationConflict("Job keyframe differs from approved-shot contract")
+        if job.input_digest != approved.contract_sha256:
+            raise ApplicationConflict("Job input digest differs from approved-shot contract")
+        frame_bytes = frame_source.read_bytes()
+        frame_hash = "sha256:" + hashlib.sha256(frame_bytes).hexdigest()
+        if frame_hash != approved.first_frame_sha256:
+            raise ApplicationBlocked("approved keyframe hash changed")
+        staging = self._job_root() / job_id
+        if staging.is_symlink():
+            raise ApplicationBlocked("job staging path is a symlink")
+        staging.mkdir(parents=True, exist_ok=True)
+        for relative, source in ((contracts[0], contract_source), (frames[0], frame_source)):
+            destination = staging / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            self._atomic_copy(source, destination)
+        from mvstudio.providers.seedance import (
+            SeedanceFrame, SeedancePort, SeedanceProviderError, SeedanceTask,
+        )
+
+        try:
+            port = self.seedance_port or SeedancePort.from_env()
+        except SeedanceProviderError as exc:
+            raise ApplicationBlocked("Seedance provider configuration is invalid") from exc
+        self._claim_seedance_request(staging, approved.contract_sha256)
+        try:
+            result = port.generate(
+                SeedanceTask(
+                    shot_id=approved.shot_id,
+                    model=approved.model,
+                    prompt=approved.prompt,
+                    duration_seconds=approved.duration_seconds,
+                    first_frame=SeedanceFrame(frame_bytes, frame_hash),
+                    aspect_ratio=approved.aspect_ratio,
+                    resolution=approved.resolution,
+                )
+            )
+        except SeedanceProviderError as exc:
+            raise ApplicationBlocked(
+                "Seedance request failed; automatic paid retry is disabled"
+            ) from exc
+        if (
+            not isinstance(result.video_bytes, bytes)
+            or not result.video_bytes
+            or result.video_sha256
+            != "sha256:" + hashlib.sha256(result.video_bytes).hexdigest()
+            or result.first_frame_sha256 != frame_hash
+            or result.model != approved.model
+        ):
+            raise ApplicationBlocked("Seedance result identity or hash is invalid")
+        generated_relative = "generated/" + approved.shot_id + ".mp4"
+        generated = staging / generated_relative
+        self._write_atomic_file(generated, result.video_bytes, ".seedance-video-")
+        audit = {
+            "version": 1,
+            "project_id": project.project_id,
+            "job_id": job_id,
+            "shot_id": approved.shot_id,
+            "provider": result.provider,
+            "model": result.model,
+            "task_id": result.task_id,
+            "approved_contract_sha256": approved.contract_sha256,
+            "request_contract_sha256": result.request_contract_sha256,
+            "first_frame_sha256": result.first_frame_sha256,
+            "video_sha256": result.video_sha256,
+            "status": "generated_pending_qc",
+        }
+        self._write_atomic_file(
+            staging / "generated" / "provider_audit.json",
+            canonical_json(audit),
+            ".seedance-audit-",
+        )
+        self.supervisor.submit(
+            job_id,
+            "seedance_shot_qc",
+            {
+                "project_id": project.project_id,
+                "shot_id": approved.shot_id,
+                "video_path": generated_relative,
+                "video_sha256": result.video_sha256,
+                "duration_seconds": approved.duration_seconds,
+                "width": 720,
+                "height": 1280,
+            },
+        )
+        try:
+            completed = self.supervisor.wait(job_id, 60)
+        except TimeoutError as exc:
+            raise ApplicationBlocked("Seedance shot QC timed out") from exc
+        if completed.runtime_state is not RuntimeState.SUCCEEDED:
+            raise ApplicationBlocked("Seedance shot failed technical QC")
+        preview_relative = (
+            "assets/generated/shot-previews/" + approved.shot_id + "_"
+            + job_id + "_pending-diagnosis.mp4"
+        )
+        store = ArtifactStore(self._project_root(), self._job_root())
+        try:
+            digest, _size = store.publish(
+                generated, project.slug, preview_relative, overwrite=False
+            )
+        except (UnsafePathError, OSError) as exc:
+            raise ApplicationBlocked("Seedance preview publication failed") from exc
+        payload = {
+            "version": 1,
+            "project_id": project.project_id,
+            "job_id": job_id,
+            "shot_id": approved.shot_id,
+            "status": "pending_diagnosis",
+            "diagnosis_required": True,
+            "user_approval_required": True,
+            "preview": preview_relative,
+            "content_hash": digest,
+        }
+        completed_status = self.repository.get_status(job_id)
+        self._set_business_stage(
+            completed_status,
+            BusinessStage.GENERATION_PARTIAL,
+            "seedance.shot_pending_diagnosis",
+            payload,
+        )
+        return _immutable(payload)
 
     def start_director_intake(self, job_id):
         self._require_initialized()
