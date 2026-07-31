@@ -54,6 +54,6 @@ acceptance:
 
 deferred:
   - Plain-lyric alignment provider integration.
-  - Concrete low-cost semantic model adapter and map-drafting workflow wiring.
+  - Map-drafting Job and Application Service workflow wiring.
   - Story framework and visual score drafting through bounded model ports.
   - Final-resolution rendering and media-provider generation.

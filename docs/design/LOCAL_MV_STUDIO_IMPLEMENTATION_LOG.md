@@ -170,3 +170,13 @@
 - API and CLI return the same structured Application Service results and retain existing redacted error behavior.
 - Verification: `124 passed, 69 warnings`; interface contract suite `17 passed`. Warning increase is from exercising the existing FastAPI startup/shutdown deprecation path in two additional contract tests.
 - M3 remains `in_progress`. Carry forward: add the concrete semantic provider and map workflow action, plain-lyric alignment, then story framework/visual-score drafting through approval to Animatic.
+
+## 2026-07-31 · M3 OpenAI-Compatible Semantic Provider
+
+- Added a concrete OpenAI-compatible adapter for the bounded semantic model port using the existing `LLM_BASE_URL`, `LLM_API_KEY`, and task-selected model contract.
+- The adapter uses a fixed `/chat/completions` endpoint, JSON-only response mode, fixed system instruction, temperature zero, timeout, response byte limit, and the task token budget.
+- External HTTP is HTTPS-only except loopback HTTP. URL credentials, query strings, fragments, non-HTTP schemes, malformed envelopes, non-JSON model content, oversized responses, and transport failures fail closed.
+- Provider errors are redacted; API keys and upstream error details are never included in application exceptions or audit output.
+- Provider usage is returned as `ModelResult` and remains subject to the caller's total token hard limit.
+- Verification: `132 passed, 69 warnings`; provider plus bounded-drafting focused suite `15 passed`.
+- M3 remains `in_progress`. Carry forward: wire map drafting into a dedicated Job/Application action, then add story/visual-score drafting and the one-command LRC-to-Animatic test workflow.
