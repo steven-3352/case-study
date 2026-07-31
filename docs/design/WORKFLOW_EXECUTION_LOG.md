@@ -396,3 +396,26 @@
     校验通过的导演总谱与可观看粗剪。完整上下文、验证命令和未跟踪文件边界见
     docs/design/PAPERDOLL_DIRECTOR_HANDOFF_2026-07-27.md。
 ```
+
+---
+
+## 2026-07-31 · Local MV Studio 目录与产品边界修正
+
+```yaml
+- run_id: local-mv-studio-directory-boundary-2026-07-31
+  date: 2026-07-31
+  stage: M2 前置架构修正
+  trigger: >
+    用户指出 pipeline 同时承载代码、项目数据和输出，不符合普通用户只使用功能、
+    并把产物写入自己项目目录的产品边界。
+  correction:
+    - 应用源码和内置资源只读，默认运行工作区移到操作系统用户数据目录。
+    - 项目统一写入 <workspace>/projects/<slug>，运行状态统一写入 <workspace>/.mvstudio。
+    - pipeline 作为 legacy 混合目录逐文件归类，禁止整目录搬迁或继续承载新项目。
+    - M2 增加源码树零写入、仓库内工作区 fail-closed 和只读 golden fixture 门禁。
+  verification: 93 passed, 65 warnings
+  carry_forward: >
+    普通用户入口不得要求修改代码；测试、低成本 worker 和 stage executor 只能写隔离的
+    workspace/job staging。公共能力迁入可安装代码包，单片数据和输出迁入用户项目，
+    临时文件与日志进入 .mvstudio；任何 pipeline 迁移必须逐文件判定归属。
+```

@@ -62,7 +62,7 @@ class Project:
         _nonempty(self.project_id, "project_id")
         if not isinstance(self.slug, str) or not _SLUG.fullmatch(self.slug):
             raise DomainValidationError("invalid slug")
-        if self.root != "pipeline/voice_room/" + self.slug:
+        if self.root != "projects/" + self.slug:
             raise DomainValidationError("root must match project slug")
         _hash(self.brief_sha256)
         _aware(self.created_at)

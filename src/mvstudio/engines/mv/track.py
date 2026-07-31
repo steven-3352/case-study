@@ -11,7 +11,7 @@ alpha **凸包**(不是外接矩形 —— 有滚转时角点 AABB 会高估几�
 这把 R9 冻结门从「渲 3 分钟再看」变成「毫秒级预检」,也就是 Phase 2 求解器
 能存在的前提。
 
-本模块**不重写几何**,一律 import `mingyue_render` 里那份 —— 重写就会漂移。
+本模块**不重写几何**,一律 import `adapter runtime` 里那份 —— 重写就会漂移。
 Phase 1 拆包后把 import 指向 `mv_engine` 即可。
 """
 from __future__ import annotations
@@ -169,7 +169,7 @@ def clip_rect(poly: np.ndarray, x0: float, y0: float, x1: float, y1: float) -> n
 # ————————————————— 正向 tilt —————————————————
 
 def tilt_forward(poly: np.ndarray, elev: float, mr) -> np.ndarray:
-    """`mingyue_render.tilt` 的正向映射(平面画布 px → 画幅 px)。
+    """`adapter runtime tilt` 的正向映射(平面画布 px → 画幅 px)。
 
     PIL 的 PERSPECTIVE 系数是**反向**映射(输出→输入),`tilt` 里解的就是那个方向。
     这里要输入→输出,所以把两个 quad 对调再解一次 —— 直接拿 `tilt` 的系数
@@ -215,9 +215,9 @@ class Session:
 
 
 def _w2s_vec(pts: np.ndarray, v, mr) -> np.ndarray:
-    """`mingyue_render.w2s` 的向量化版本(相似变换:旋转 + 缩放 + 平移)。
+    """`adapter runtime w2s` 的向量化版本(相似变换:旋转 + 缩放 + 平移)。
 
-    这是本模块唯一一处重写了 `mingyue_render` 的几何 —— 逐点调 `w2s` 在
+    这是本模块唯一一处重写了 `adapter runtime` 的几何 —— 逐点调 `w2s` 在
     64 带 × 上千顶点下太慢。代价是可能漂移,所以 `Session` 构造时用
     `_assert_w2s` 拿真函数对一遍。
     """
@@ -236,7 +236,7 @@ def _assert_w2s(mr) -> None:
     got = _w2s_vec(p, v, mr)
     want = np.asarray([mr.w2s(tuple(q), v.cx, v.cy, v.s, v.r) for q in p])
     if not np.allclose(got, want, atol=1e-9):
-        raise AssertionError(f"_w2s_vec 与 mingyue_render.w2s 漂移了\n{got}\n{want}")
+        raise AssertionError(f"_w2s_vec 与 adapter runtime w2s 漂移了\n{got}\n{want}")
 
 
 def _band_minmax(pts: np.ndarray, starts: np.ndarray

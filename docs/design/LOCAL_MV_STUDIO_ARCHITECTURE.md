@@ -12,8 +12,9 @@
 4. 低成本模型只处理白名单语义任务；强模型只处理架构、创意总控、冲突、升级和最终独立审查。
 5. 本地 Codex CLI 的优势是可以在用户授权范围内读取项目文件、运行工具并产出结构化结果。它并不天然比同模型的 HTTP API 更“聪明”；能力增益来自工具、上下文、sandbox 和可恢复执行。媒体生成仍通过 provider adapter 调用相应服务。
 6. 所有入口只提交结构化请求，禁止 Web 传入任意 shell、cwd、环境变量或 Codex flags。
-7. `pipeline/voice_room/<project_slug>/` 是项目内容边界；`data/jobs/<job_id>/` 是运行隔离边界。新路径不得默认引用 `mingyue` 或 `publish/语音厅`。
-8. 首轮实现只交付 M0-M1 基座。旧 `mv_engine`、`mingyue_render.py` 和现有成片路径保持不变，后续通过 adapter 迁移。
+7. 应用源码和内置资源只读；用户项目位于用户工作区的 `projects/<project_slug>/`，应用状态位于 `<workspace>/.mvstudio/`。项目数据、日志、缓存、临时文件和输出不得写入源码仓库。
+8. `pipeline/` 是待逐文件分类迁移的 legacy 混合目录，不是新代码、新项目或新输出的落点。完整约束以 [`LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md`](LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md) 为准。
+9. 首轮实现只交付 M0-M1 基座。旧 `mv_engine`、`mingyue_render.py` 和现有成片路径保持不变，后续通过 adapter 迁移。
 
 ## 2. 用户体验
 
@@ -129,30 +130,37 @@ generation_clip:
 
 ## 6. 分层架构
 
-建议目录：
+目录分为应用代码、应用状态和用户项目三类。目标代码采用可安装包，普通用户只通过 Web、CLI 或 Codex 入口使用功能，不修改源码：
 
 ```text
 apps/
   mv_api/                 # FastAPI REST、SSE，只做协议适配
   mv_cli/                 # mvstudio 命令，只做协议适配
   mv_codex/               # 受控 Codex 任务适配器
-mv_platform/
+src/mvstudio/
   domain/                 # immutable contracts、状态和错误
   application/            # create/submit/approve/cancel/inspect
   infrastructure/         # SQLite、artifact、locks、events
   supervisor/             # 零 token 队列、worker、恢复
   executors/              # Python、Codex、media provider
-pipeline/
-  mv_engine/              # 现有确定性渲染核心
-  paperdoll/              # 包装能力与探针
-  mv_adapters/            # legacy 与声明式 film adapters
-data/
-  app.sqlite3
-  jobs/<job_id>/
-  cache/mv_engine/
+  engines/                # 可复用确定性渲染能力
+  providers/              # image、TTS、video provider adapters
+  workflows/              # 产品工作流编排
+  resources/              # 随应用发布的只读 schema、模板和默认资源
+
+<user-workspace>/
+  .mvstudio/              # SQLite、jobs、cache、service logs
+  projects/<project_slug>/
+    inputs/               # 用户提供的原料
+    creative/             # 可编辑项目合同
+    assets/               # 项目专属源素材与生成素材
+    outputs/              # animatic、final 和 QC 报告
+    .mvstudio/            # 项目级 staging、work 和 logs
 ```
 
 依赖方向只能是 `interfaces -> application -> domain`；infrastructure 和 executors 实现 application ports。入口层不得 import `mingyue_render`、片级 renderer、multiprocessing 或自行拼 ffmpeg 命令。
+
+当前 `apps/` 与 `mv_platform/` 是 M0-M1 过渡布局；迁入 `src/mvstudio/` 时必须逐模块完成，不能把整个 `pipeline/` 原样搬入包。公共代码、只读 golden fixture、单片项目数据和可清理输出须按目录合同分别归类。
 
 ## 7. Job 与事件合同
 
@@ -264,12 +272,14 @@ mvstudio job cancel <job_id>
 
 - M0 可启动骨架：配置、domain contracts、SQLite migration、health/ready、CLI doctor。
 - M1 Job Supervisor：提交、事件、SSE、取消、恢复、artifact registry，使用 fake executor 完成 E2E。
-- M2 Legacy adapter：冻结明月 golden，显式 Session 和 canvas，两个并发 job 零串写。
+- M2 Legacy adapter：先通过目录合同门禁，再冻结只读明月 golden，提供显式 Session 和 canvas，验证两个并发 job 零串写且源码树零写入。
 - M3 导演编译器：三输入到 maps、story framework、visual score、generation plan 和 540p Animatic。
 - M4 正式生成与合成：关键帧选择、provider adapters、逐镜诊断、转场和 final QC。
 - M5 三入口产品化：Web 工作台、重试/版本比较、导出包和完整本地安装体验。
 
 每个里程碑独立验收；前一里程碑未通过，不得把下一里程碑的代码混入同一任务。
+
+M2 的额外前置门禁见 [`LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md`](LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md)：默认工作区必须位于仓库外，显式把源码根设为工作区必须 fail-closed，公共能力不得继续写入 `pipeline/voice_room` 或片名目录。
 
 ## 12. M0-M1 冻结验收
 

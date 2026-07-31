@@ -105,7 +105,7 @@ def create_app(service=None, workspace_root=None):
 
     @app.on_event("startup")
     async def startup():
-        if app.state.service is None and workspace_root is not None:
+        if app.state.service is None:
             app.state.service = build_service(workspace_root)
 
     @app.on_event("shutdown")

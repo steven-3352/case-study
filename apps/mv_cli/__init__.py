@@ -9,8 +9,11 @@ from apps.runtime import build_service
 
 
 def _parser():
-    parser = argparse.ArgumentParser(prog="mv")
-    parser.add_argument("--workspace", default=".")
+    parser = argparse.ArgumentParser(prog="mvstudio")
+    parser.add_argument(
+        "--workspace",
+        help="user-owned MV Studio workspace; defaults to the operating-system application data directory",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     doctor = sub.add_parser("doctor"); doctor.add_argument("--json", action="store_true")
     project = sub.add_parser("project").add_subparsers(dest="project_command", required=True)
@@ -26,7 +29,7 @@ def _parser():
 def main(argv=None, service=None):
     args = _parser().parse_args(argv)
     owned = service is None
-    service = service or build_service(Path(args.workspace))
+    service = service or build_service(Path(args.workspace) if args.workspace else None)
     try:
         if args.command == "doctor":
             result = {"status": "ready"}

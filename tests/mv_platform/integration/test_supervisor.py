@@ -14,7 +14,7 @@ def make_supervisor(tmp_path, count=2):
     database.migrate()
     repository = Repository(database)
     now = datetime.now(timezone.utc)
-    repository.add_project(Project("p1", "demo", "pipeline/voice_room/demo", "sha256:" + "a" * 64, now))
+    repository.add_project(Project("p1", "demo", "projects/demo", "sha256:" + "a" * 64, now))
     for number in range(1, 4):
         job_id = "job-" + str(number)
         repository.add_job(JobSpec(job_id, "p1", "analyze", (), "sha256:" + "b" * 64, "v1", "v1", "policy", "consent", (), job_id))

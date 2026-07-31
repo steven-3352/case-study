@@ -29,7 +29,7 @@ H2 = "sha256:" + "2" * 64
 
 
 def project(project_id="p1", slug="film-one"):
-    return Project(project_id, slug, "pipeline/voice_room/" + slug, H1, NOW)
+    return Project(project_id, slug, "projects/" + slug, H1, NOW)
 
 
 def job(job_id="j1", project_id="p1", key="idem-1"):

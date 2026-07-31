@@ -20,9 +20,9 @@ def _relative(value, name):
 class Settings:
     host: str = "127.0.0.1"
     port: int = 8787
-    project_root: str = "pipeline/voice_room"
-    data_root: str = "data"
-    db_path: str = "data/app.sqlite3"
+    project_root: str = "projects"
+    data_root: str = ".mvstudio"
+    db_path: str = ".mvstudio/app.sqlite3"
     max_active_jobs: int = 1
 
     def __post_init__(self):

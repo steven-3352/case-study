@@ -1,0 +1,95 @@
+manifest_version: 1
+status: complete
+milestone: M2_legacy_adapter
+architecture_ref: docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
+architecture_sha256: 6b79fcb9cc0fc793aebac2c4142b5cabfc1988b249163e7cfa314334d4a61d22
+directory_contract_ref: docs/design/LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md
+directory_contract_sha256: 7360d4eae85a53c9258a2bb500467365abb3beb21897be863d6b64383fdf9ff2
+inventory_ref: docs/design/LOCAL_MV_STUDIO_M2_INVENTORY.md
+
+scope_decisions:
+  mingyue_example: obsolete_not_a_golden
+  verification_fixture: deterministic_synthetic
+  independent_review: waived_by_user_for_this_iteration
+  preserve_existing_user_changes: true
+
+global_constraints:
+  source_tree_read_only_at_runtime: true
+  runtime_workspace_outside_source_tree: true
+  pipeline_migration_unit: file_or_dependency_cluster
+  application_imports_pipeline: false
+  supervisor_uses_model: false
+  process_start_method: spawn
+  forbidden_actions:
+    - write_runtime_files_under_repository
+    - move_pipeline_directory_wholesale
+    - depend_on_mingyue_or_untracked_publish_output
+    - mutate_legacy_module_paths_in_parent_process
+    - lower_existing_atom_or_motion_acceptance
+
+tasks:
+  - id: M2_T0_synthetic_fixture
+    goal: Provide a tracked deterministic fixture for package, session, and isolation verification.
+    allowed_paths:
+      - tests/mvstudio
+    acceptance:
+      - Tests do not read publish directories or user voice-room projects.
+      - Fixture output is deterministic and contains no external media.
+
+  - id: M2_T1_package_boundary
+    depends_on: [M2_T0_synthetic_fixture]
+    goal: Move reusable engine implementation into the installable mvstudio package by dependency cluster.
+    allowed_paths:
+      - pyproject.toml
+      - src/mvstudio
+      - pipeline/mv_engine
+      - tests/mvstudio/engine
+    acceptance:
+      - Product modules import no pipeline package.
+      - Remaining pipeline modules are compatibility shims or explicitly classified legacy tools.
+      - Atom lock check is byte-identical.
+
+  - id: M2_T2_explicit_session
+    depends_on: [M2_T1_package_boundary]
+    goal: Replace mutable engine session singletons with an explicit per-job session contract.
+    allowed_paths:
+      - src/mvstudio/engines
+      - tests/mvstudio/engine
+    acceptance:
+      - Two sessions with different asset roots return no shared cached object.
+      - Imports perform no configuration, directory creation, logging setup, or output writes.
+      - Asset and cache paths are immutable values scoped to one session.
+
+  - id: M2_T3_legacy_adapter
+    depends_on: [M2_T2_explicit_session]
+    goal: Execute a deterministic synthetic legacy stage through a bounded adapter with explicit output roots.
+    allowed_paths:
+      - src/mvstudio/executors
+      - mv_platform/supervisor
+      - tests/conftest.py
+      - tests/mvstudio/integration
+    acceptance:
+      - Adapter receives structured values and never accepts shell text.
+      - Legacy globals exist only inside a spawned child and cannot mutate the parent.
+      - Outputs are staged under the current job root and atomically published.
+
+  - id: M2_T4_isolation_security
+    depends_on: [M2_T3_legacy_adapter]
+    goal: Prove two concurrent legacy jobs have zero cross-writes and the protected source tree is unchanged.
+    allowed_paths:
+      - tests/mvstudio/security
+      - docs/design/reviews/LOCAL_MV_STUDIO_M2_REVIEW.md
+    acceptance:
+      - Protected tracked-file hashes are identical before and after execution.
+      - Concurrent job outputs contain zero paths, IDs, bytes, or events from the other job.
+      - Traversal, symlink escape, source-root output, and inherited-secret fixtures fail closed.
+      - Full M0-M2 suite passes without acceptance changes.
+
+required_commands:
+  - python3 -m pytest tests/mv_platform tests/mvstudio -q
+  - python3 -m mvstudio.engines.mv.atoms.lock --check src/mvstudio/engines/mv/atoms/lock.json
+  - git diff --check
+
+review:
+  independent_review: waived_by_user_for_this_iteration
+  final_verdict: pass

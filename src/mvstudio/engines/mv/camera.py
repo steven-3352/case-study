@@ -6,7 +6,7 @@
 **缩放为什么是解出来的**:分镜写景别(极端全景/大特写),`FRAMING` 表把景别翻成
 「主体占画幅的比例」,再由 `solve_scale` 反解出 `s`。逐帧解会让占比恒等于目标,
 物体自己的尺寸变化在画面上被完全抵消(B 段每半拍面积减半 → 折了跟没折一样)。
-所以只解镜首镜末,中间做对数插值 —— 见 `mingyue_render` docstring。
+所以只解镜首镜末,中间做对数插值 —— 见 `adapter runtime` docstring。
 
 `sample_plane` 走一次透视反解而不是 `rotate + crop + resize` 三步:三步会累计三次
 重采样,平移小于一个像素时还会抖。`tilt` 的 `in_quad / out_quad` 传给

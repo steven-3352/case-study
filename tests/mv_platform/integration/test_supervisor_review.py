@@ -21,7 +21,7 @@ def make_env(tmp_path, job_ids, max_active=4):
     database.migrate()
     repository = Repository(database)
     now = datetime.now(timezone.utc)
-    repository.add_project(Project("project", "film", "pipeline/voice_room/film", H, now))
+    repository.add_project(Project("project", "film", "projects/film", H, now))
     for job_id in job_ids:
         repository.add_job(JobSpec(job_id, "project", "analyze", (), H, "v1", "v1", "policy", "consent", (), "key-" + job_id))
         repository.set_status(JobStatus(job_id, RuntimeState.QUEUED, BusinessStage.INTAKE_PENDING, 1, now))

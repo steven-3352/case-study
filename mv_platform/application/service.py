@@ -84,7 +84,13 @@ _SLUG = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 
 
 class ApplicationService:
-    def __init__(self, settings, database, supervisor=None, workspace_root=None):
+    _PROJECT_DIRECTORIES = (
+        "inputs/audio", "inputs/lyrics", "inputs/characters",
+        "creative", "assets/source", "assets/generated", "outputs",
+        ".mvstudio/jobs", ".mvstudio/work", ".mvstudio/logs",
+    )
+
+    def __init__(self, settings, database, supervisor=None, workspace_root=None, source_root=None):
         self.settings = settings
         self.database = database
         self.supervisor = supervisor
@@ -92,7 +98,14 @@ class ApplicationService:
             raise ApplicationBlocked("workspace_root is required")
         self.workspace_root = Path(workspace_root).resolve()
         self.repository = Repository(database)
+        self.source_root = Path(source_root).resolve() if source_root is not None else None
         self._initialized = False
+
+    def _reject_source_workspace(self):
+        if self.source_root is None:
+            return
+        if self.workspace_root == self.source_root or self.source_root in self.workspace_root.parents:
+            raise ApplicationBlocked("workspace must be outside the application source tree")
 
     def _under_workspace(self, relative, label):
         path = Path(relative)
@@ -112,6 +125,7 @@ class ApplicationService:
 
     def initialize(self):
         # Resolve every configured root before making any directory or database change.
+        self._reject_source_workspace()
         project_root = self._project_root()
         data_root = self._data_root()
         job_root = self._job_root()
@@ -150,6 +164,11 @@ class ApplicationService:
         finally:
             if os.path.exists(temporary): os.unlink(temporary)
 
+    def _initialize_project_directory(self, directory, brief_bytes):
+        for relative in self._PROJECT_DIRECTORIES:
+            (directory / relative).mkdir(parents=True, exist_ok=True)
+        self._write_brief(directory, brief_bytes)
+
     def create_project(self, slug, brief, project_id=None):
         self._require_initialized()
         if not isinstance(slug, str) or not _SLUG.fullmatch(slug):
@@ -174,7 +193,7 @@ class ApplicationService:
             project = self.repository.get_project(project_id)
             if project.slug != slug or project.brief_sha256 != digest:
                 raise ApplicationConflict("project id already has different content")
-            self._write_brief(root, brief_bytes)
+            self._initialize_project_directory(root, brief_bytes)
             return ProjectResult(project, _immutable(frozen))
         except RepositoryNotFound:
             pass
@@ -183,11 +202,11 @@ class ApplicationService:
         if row:
             if row[1] == digest:
                 project = self.repository.get_project(row[0])
-                self._write_brief(root, brief_bytes)
+                self._initialize_project_directory(root, brief_bytes)
                 return ProjectResult(project, _immutable(frozen))
             raise ApplicationConflict("slug already has different content")
-        self._write_brief(root, brief_bytes)
-        project = Project(project_id, slug, "pipeline/voice_room/" + slug, digest, datetime.now(timezone.utc))
+        self._initialize_project_directory(root, brief_bytes)
+        project = Project(project_id, slug, "projects/" + slug, digest, datetime.now(timezone.utc))
         try:
             self.repository.add_project(project)
         except RepositoryConflict as exc:

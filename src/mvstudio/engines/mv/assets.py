@@ -19,8 +19,8 @@ from PIL import Image, ImageFilter
 from . import session as _sess
 
 
-def tex(name: str) -> Image.Image:
-    s = _sess.get()
+def tex(name: str, session: _sess.Session | None = None) -> Image.Image:
+    s = _sess.get(session)
     if name not in s._tex:
         for base in (s.gen_dir, s.tex_dir):
             for ext in (".png", ".jpg"):
@@ -32,7 +32,7 @@ def tex(name: str) -> Image.Image:
     return s._tex[name]
 
 
-def flat_tex(name: str) -> str:
+def flat_tex(name: str, session: _sess.Session | None = None) -> str:
     """派生一张「只剩纹理、不带原片打光」的素材,返回新素材名.
 
     实拍素材里同时有两种东西:高频的**材质**(纸纤维、木纹)和低频的**当时的打光**。
@@ -40,10 +40,10 @@ def flat_tex(name: str) -> str:
     (纸纤维那张左半边压着一道大暗影,上色后整张纸看着像一块脏灰板)。
     减掉低频、保留高频,纸就回到「一张平整的纸,凑近能看见纤维」。
     """
-    s = _sess.get()
+    s = _sess.get(session)
     out = f"{name}__flat"
     if out not in s._tex:
-        im = tex(name)
+        im = tex(name, session=s)
         small = im.convert("L").resize((160, 160), Image.LANCZOS)
         lo = np.asarray(small.filter(ImageFilter.GaussianBlur(24)), dtype=float)
         lo = np.asarray(Image.fromarray(lo.astype(np.uint8)).resize(im.size, Image.BICUBIC),
@@ -76,12 +76,13 @@ def tint(im: Image.Image, color, contrast: float = 1.0) -> Image.Image:
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
-def plate(name: str, color=None, contrast: float = 1.0, size=None) -> Image.Image:
+def plate(name: str, color=None, contrast: float = 1.0, size=None,
+          session: _sess.Session | None = None) -> Image.Image:
     """取一张纹理,按需上色并缩放到世界尺寸,结果缓存(每帧重算太贵)."""
-    s = _sess.get()
+    s = _sess.get(session)
     key = (name, color, contrast, size)
     if key not in s._plate:
-        im = tex(name)
+        im = tex(name, session=s)
         if color is not None:
             im = tint(im, color, contrast)
         if size is not None:
@@ -90,10 +91,13 @@ def plate(name: str, color=None, contrast: float = 1.0, size=None) -> Image.Imag
     return s._plate[key]
 
 
-def plate_arr(name: str, color=None, contrast: float = 1.0) -> np.ndarray:
+def plate_arr(name: str, color=None, contrast: float = 1.0,
+              session: _sess.Session | None = None) -> np.ndarray:
     """`plate` 的 ndarray 版(缓存)—— 供需要按取模索引环绕采样的地方用。"""
-    s = _sess.get()
+    s = _sess.get(session)
     key = (name, color, contrast)
     if key not in s._plate_arr:
-        s._plate_arr[key] = np.asarray(plate(name, color, contrast).convert("RGB"))
+        s._plate_arr[key] = np.asarray(
+            plate(name, color, contrast, session=s).convert("RGB")
+        )
     return s._plate_arr[key]

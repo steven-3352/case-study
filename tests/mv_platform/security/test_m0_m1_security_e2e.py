@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from apps.mv_api import create_app
 from apps.mv_cli import main as cli_main
-from apps.runtime import build_service
+from apps.runtime import SOURCE_ROOT, build_service, default_workspace_root
 from mv_platform.application.service import ApplicationBlocked, ApplicationConflict
 from mv_platform.config import InfrastructureError, Settings
 from mv_platform.domain.states import RuntimeState
@@ -66,10 +66,22 @@ def test_paths_and_unsafe_configured_roots_fail_closed(tmp_path, value):
 def test_symlink_escape_fails_before_initialize_or_project_write(tmp_path):
     outside = tmp_path / "outside"
     outside.mkdir()
-    (tmp_path / "pipeline").symlink_to(outside, target_is_directory=True)
+    (tmp_path / "projects").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ApplicationBlocked):
         build_service(tmp_path)
-    assert not (tmp_path / "data" / "app.sqlite3").exists()
+    assert not (tmp_path / ".mvstudio" / "app.sqlite3").exists()
+
+
+def test_workspace_defaults_can_be_owned_by_the_user(tmp_path):
+    assert default_workspace_root({"MV_WORKSPACE_ROOT": str(tmp_path)}) == tmp_path
+
+
+def test_source_tree_cannot_be_used_as_runtime_workspace():
+    database_path = SOURCE_ROOT / ".mvstudio" / "app.sqlite3"
+    before = database_path.exists()
+    with pytest.raises(ApplicationBlocked):
+        build_service(SOURCE_ROOT)
+    assert database_path.exists() is before
 
 
 def test_api_and_cli_do_not_disclose_paths_or_inherited_secrets(tmp_path, capsys, monkeypatch):
@@ -121,6 +133,7 @@ def test_worker_environment_is_reduced_to_allowlist(monkeypatch):
         os.environ.update(original_environment)
 
     assert "M0_M1_REVIEW_SECRET" not in observed
+    assert observed["PYTHONDONTWRITEBYTECODE"] == "1"
     assert set(observed) <= supervisor_module._CHILD_ENV_ALLOWLIST
 
 
@@ -140,8 +153,8 @@ def test_two_fake_jobs_are_isolated_and_events_replay_in_sequence(tmp_path):
     assert service.list_events(left.job_id, left_events[0].seq) == left_events[1:]
     assert {event.job_id for event in left_events} == {left.job_id}
     assert {event.job_id for event in right_events} == {right.job_id}
-    left_stage = tmp_path / "data" / "jobs" / left.job_id
-    right_stage = tmp_path / "data" / "jobs" / right.job_id
+    left_stage = tmp_path / ".mvstudio" / "jobs" / left.job_id
+    right_stage = tmp_path / ".mvstudio" / "jobs" / right.job_id
     assert (left_stage / "result.txt").read_text() == "left-only"
     assert (right_stage / "result.txt").read_text() == "right-only"
     assert right.job_id not in "\n".join(path.read_text() for path in left_stage.rglob("*") if path.is_file())
@@ -163,7 +176,7 @@ def test_running_cancellation_reaps_worker_and_publishes_no_artifact(tmp_path):
     after = service.supervisor.snapshot(job.job_id)
     assert not after.alive
     assert service.list_artifacts(job.job_id) == ()
-    assert not (tmp_path / "data" / "jobs" / job.job_id / "result.txt").exists()
+    assert not (tmp_path / ".mvstudio" / "jobs" / job.job_id / "result.txt").exists()
     service.shutdown()
 
 
@@ -174,7 +187,7 @@ def test_idempotency_counters_and_cli_api_canonical_digests(tmp_path, capsys):
     assert wait(service, one.job_id).runtime_state is RuntimeState.SUCCEEDED
     duplicate = service.submit_job(project.project_id, "analyze", HASH, idempotency_key="one")
     assert duplicate.job_id == one.job_id
-    assert list((tmp_path / "data" / "jobs").iterdir()) == [tmp_path / "data" / "jobs" / one.job_id]
+    assert list((tmp_path / ".mvstudio" / "jobs").iterdir()) == [tmp_path / ".mvstudio" / "jobs" / one.job_id]
     assert service.supervisor.model_call_count == 0
     assert service.supervisor.token_count == 0
 

@@ -16,8 +16,8 @@
 
 用法::
 
-    python3 -m mv_engine.atoms.lock --write pipeline/mv_engine/atoms/lock.json
-    python3 -m mv_engine.atoms.lock --check pipeline/mv_engine/atoms/lock.json
+    python3 -m mvstudio.engines.mv.atoms.lock --write src/mvstudio/engines/mv/atoms/lock.json
+    python3 -m mvstudio.engines.mv.atoms.lock --check src/mvstudio/engines/mv/atoms/lock.json
 """
 from __future__ import annotations
 

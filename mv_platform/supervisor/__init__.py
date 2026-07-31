@@ -29,7 +29,7 @@ class InvalidExecutorInput(SupervisorError, ValueError):
 
 
 _CHILD_ENV_ALLOWLIST = frozenset({
-    "LANG", "LC_ALL", "LC_CTYPE", "PATH", "SYSTEMROOT", "TZ", "WINDIR",
+    "LANG", "LC_ALL", "LC_CTYPE", "PATH", "PYTHONDONTWRITEBYTECODE", "SYSTEMROOT", "TZ", "WINDIR",
 })
 
 
@@ -47,17 +47,28 @@ class SupervisorSnapshot:
         return self.runtime_state in {RuntimeState.SUCCEEDED, RuntimeState.FAILED, RuntimeState.CANCELLED, RuntimeState.BLOCKED}
 
 
-def _worker(executor_input, staging, cancelled, messages):
+def _executor(executor):
+    if executor == "fake":
+        return validate_input, run_fake
+    if executor == "legacy":
+        from mvstudio.executors.legacy import run_legacy, validate_input as validate_legacy
+        return validate_legacy, run_legacy
+    raise UnknownExecutor(executor)
+
+
+def _worker(executor_input, staging, cancelled, messages, executor="fake"):
     child_environment = {
         key: value for key, value in os.environ.items() if key in _CHILD_ENV_ALLOWLIST
     }
+    child_environment["PYTHONDONTWRITEBYTECODE"] = "1"
     os.environ.clear()
     os.environ.update(child_environment)
 
     def send(message):
         messages.put(message)
     try:
-        run_fake(executor_input, staging, cancelled, send)
+        _validate, run = _executor(executor)
+        run(executor_input, staging, cancelled, send)
     except Exception as exc:
         messages.put({"kind": "failed", "error_code": "worker_error", "detail": type(exc).__name__})
 
@@ -118,8 +129,7 @@ class JobSupervisor:
 
     def submit(self, job_id, executor="fake", executor_input=None):
         staging = self._staging_path(job_id)
-        if executor != "fake":
-            raise UnknownExecutor(executor)
+        validate, _run = _executor(executor)
         try:
             status = self._status(job_id)
             self.repository.get_job(job_id)
@@ -130,7 +140,7 @@ class JobSupervisor:
         if status.runtime_state != RuntimeState.QUEUED:
             raise SupervisorError("terminal or non-queued job")
         try:
-            executor_input = validate_input(executor_input)
+            executor_input = validate(executor_input)
         except ValueError as exc:
             raise InvalidExecutorInput(str(exc)) from exc
         if len(self._workers) >= self.max_active_jobs:
@@ -138,7 +148,11 @@ class JobSupervisor:
         staging.mkdir(parents=True, exist_ok=True)
         messages = self._context.Queue()
         cancelled = self._context.Event()
-        process = self._context.Process(target=_worker, args=(executor_input, str(staging), cancelled, messages))
+        process = self._context.Process(
+            target=_worker,
+            args=(executor_input, str(staging), cancelled, messages),
+            kwargs={"executor": executor},
+        )
         process.start()
         self._workers[job_id] = {"process": process, "messages": messages, "cancelled": cancelled, "staging": staging}
         try:

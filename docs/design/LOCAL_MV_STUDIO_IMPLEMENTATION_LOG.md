@@ -98,3 +98,28 @@
 - Repository-external cwd alone did not make workers cheap. The reliable launcher combination is `--ignore-rules` plus explicit `mcp_servers={}` / `plugins={}` and a minimal packet.
 - Do not use `--ignore-user-config` with the current custom provider: it removes provider configuration and caused transport failure.
 - `--ephemeral` sessions cannot be resumed. For tiny deterministic corrections, opening a fresh 100k+ worker turn costs more than applying the frozen-test-derived patch directly.
+
+## 2026-07-31 · Directory And Product Boundary Correction
+
+- Contract: `docs/design/LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md`
+- Scope: M2 entry correction; M2 implementation has not started
+- Corrected runtime defaults:
+  - project roots use `<workspace>/projects/<slug>` instead of `pipeline/voice_room/<slug>`
+  - application state uses `<workspace>/.mvstudio/` instead of repository-local `data/`
+  - no-argument CLI/API startup selects an OS user-data directory; `MV_WORKSPACE_ROOT` remains the explicit override
+- Source protection: Application Service rejects a workspace equal to or nested under the source repository.
+- New project layout separates inputs, creative contracts, source/generated assets, outputs, and project-local `.mvstudio` work/log directories.
+- Migration decision: classify `pipeline/` per file; do not relocate the mixed directory wholesale into the installable package.
+- Verification: `93 passed, 65 warnings`; warnings are existing FastAPI/Starlette deprecations.
+- Carry forward to M2: tests and cheap workers may write only to isolated workspace/job staging; protected source files must remain unchanged before and after execution.
+
+
+## 2026-07-31 · M2 Engine Package And Isolation Adapter
+
+- User scope decision: the Mingyue example is obsolete; M2 uses a deterministic synthetic fixture and no Mingyue visual-equivalence claim.
+- Independent review: waived by the user for this iteration.
+- Reusable engine implementation moved from `pipeline/mv_engine/` to `src/mvstudio/engines/mv/`; the old path contains only a compatibility namespace.
+- Mingyue-specific engine tools moved to `archive/legacy/mv_engine_tools/`; generic frame digest moved to `tests/support/`.
+- Added installable package metadata, explicit per-job Session use, and a bounded `legacy` supervisor executor.
+- Synthetic concurrent jobs write only to their own `.mvstudio/jobs/<job_id>` staging directories.
+- Verification: `95 passed, 65 warnings`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero.

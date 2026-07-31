@@ -32,19 +32,19 @@ def make_service(tmp_path, supervisor=None, initialize=True):
 def test_construction_has_no_side_effect_and_initialize_is_idempotent(tmp_path):
     service, database = make_service(tmp_path, initialize=False)
     assert not database.path.exists()
-    assert not (tmp_path / "pipeline" / "voice_room").exists()
+    assert not (tmp_path / "projects").exists()
     service.initialize()
     service.initialize()
     assert database.path.exists()
-    assert (tmp_path / "pipeline" / "voice_room").is_dir()
-    assert (tmp_path / "data" / "jobs").is_dir()
+    assert (tmp_path / "projects").is_dir()
+    assert (tmp_path / ".mvstudio" / "jobs").is_dir()
 
 
 def test_initialize_rejects_symlink_escape_before_database_write(tmp_path):
     outside = tmp_path.parent / (tmp_path.name + "-outside")
     outside.mkdir()
-    (tmp_path / "pipeline").symlink_to(outside, target_is_directory=True)
-    settings = Settings(project_root="pipeline/voice_room")
+    (tmp_path / "projects").symlink_to(outside, target_is_directory=True)
+    settings = Settings(project_root="projects")
     database = Database(tmp_path / settings.db_path)
     service = ApplicationService(settings, database, workspace_root=tmp_path)
     with pytest.raises(ApplicationBlocked):
@@ -59,9 +59,17 @@ def test_project_is_canonical_atomic_and_slug_participates_in_identity(tmp_path)
     second = service.create_project("second", {"a": 1, "b": [2]})
     assert same.project_id == first.project_id
     assert second.project_id != first.project_id
-    brief_path = tmp_path / "pipeline" / "voice_room" / "first" / "brief.json"
+    brief_path = tmp_path / "projects" / "first" / "brief.json"
     assert brief_path.read_bytes() == b'{"a":1,"b":[2]}'
     assert not list(brief_path.parent.glob(".brief-*"))
+    expected_directories = {
+        "inputs/audio", "inputs/lyrics", "inputs/characters", "creative",
+        "assets/source", "assets/generated", "outputs",
+        ".mvstudio/jobs", ".mvstudio/work", ".mvstudio/logs",
+    }
+    assert expected_directories <= {
+        path.relative_to(brief_path.parent).as_posix() for path in brief_path.parent.rglob("*") if path.is_dir()
+    }
     with pytest.raises(TypeError):
         first.brief["x"] = 1
 
@@ -69,7 +77,7 @@ def test_project_is_canonical_atomic_and_slug_participates_in_identity(tmp_path)
 def test_project_idempotency_detects_disk_tampering_and_conflicts(tmp_path):
     service, _ = make_service(tmp_path)
     created = service.create_project("film", {"a": 1})
-    brief_path = tmp_path / "pipeline" / "voice_room" / "film" / "brief.json"
+    brief_path = tmp_path / "projects" / "film" / "brief.json"
     brief_path.write_text('{"a":2}', encoding="utf-8")
     with pytest.raises(ApplicationConflict):
         service.create_project("film", {"a": 1})
@@ -83,7 +91,7 @@ def test_project_rejects_non_json_and_project_symlink(tmp_path):
         service.create_project("bad", {"x": object()})
     outside = tmp_path / "outside"
     outside.mkdir()
-    (tmp_path / "pipeline" / "voice_room" / "linked").symlink_to(outside, target_is_directory=True)
+    (tmp_path / "projects" / "linked").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ApplicationBlocked):
         service.create_project("linked", {"x": 1})
 

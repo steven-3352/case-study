@@ -1,17 +1,16 @@
 """每片运行时状态 —— 路径 + 各级缓存。
 
-**为什么需要 Session**:`_LAYER / _PLATE / _TEX` 原来是 `mingyue_render.py` 里的
+**为什么需要 Session**:`_LAYER / _PLATE / _TEX` 原来是 `adapter runtime.py` 里的
 模块级全局 —— 无界、不可注入、spawn 子进程各建各的。把它们收进 Session 有三个好处:
 1. `_init_worker` 不再靠 monkey-patch 全局路径,只要拿到同一个 Session 对象
 2. 单进程测试里可以用独立 Session 隔离状态,不会跨用例污染
 3. Phase 3 帧缓存的 cache key 里需要「这帧用了哪些素材」——Session 是计入的天然位置
 
-**当前(Phase 1a)**:模块级单例(`_CURRENT`),行为与旧全局完全等价 ——
-所有缓存仍然是进程级共享的,所以 438 帧 sha256 一字不变。
-Phase 3 会把 Session 改成可注入的构造器参数。
+产品代码显式创建并传递 Session。模块级单例只保留给迁移期 legacy 调用，
+不得由新 executor 使用。
 
 **`configure()` 一定要在任何 `tex/plate/layer` 调用之前调用**。
-`mingyue_render.py` 在模块顶部调一次;`_init_worker` 在 spawn 子进程里再调一次
+`adapter runtime.py` 在模块顶部调一次;`_init_worker` 在 spawn 子进程里再调一次
 (spawn 子进程从头 import,模块级 configure 不会重跑)。
 """
 from __future__ import annotations
@@ -21,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 
-@dataclass
+@dataclass(frozen=True)
 class Session:
     assets_dir: Path = field(default_factory=Path)
     tex_dir: Path = field(default_factory=Path)
@@ -38,7 +37,9 @@ class Session:
 _CURRENT: Session | None = None
 
 
-def get() -> Session:
+def get(session: Session | None = None) -> Session:
+    if session is not None:
+        return session
     if _CURRENT is None:
         raise RuntimeError("mv_engine.session 未初始化 —— 先调 mv_engine.session.configure()")
     return _CURRENT

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from mv_engine.config import FRAMING
+from ..config import FRAMING
 
 from .constraints import check_all
 from .objective import score

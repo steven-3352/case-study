@@ -58,7 +58,7 @@
 - 「空拍 bbox=None」是反模式——门读不到主体不等于画面在动（裁定 2 已结案）
 - 任何"让验收器测不到"的提案默认驳回
 
-**Phase 0 的关键突破**：bbox 轨迹可以在**不渲染**的情况下解析预测——整条链路（`shot_scales → Cam.at → View → warp/place → tilt`）是纯几何。预测器在 `mv_engine/track.py`，精度 p95 = 0.041%W，gate 判定与真实轨迹**逐字节一致**。冻结门从渲后 3 分钟变成渲前 72 ms。
+**Phase 0 的关键突破**：bbox 轨迹可以在**不渲染**的情况下解析预测——整条链路（`shot_scales → Cam.at → View → warp/place → tilt`）是纯几何。预测器在 `src/mvstudio/engines/mv/track.py`，精度 p95 = 0.041%W，gate 判定与真实轨迹**逐字节一致**。冻结门从渲后 3 分钟变成渲前 72 ms。
 
 ---
 
@@ -73,12 +73,12 @@
 
 ---
 
-## 5 · 帧缓存设计（`mv_engine/cache.py`）
+## 5 · 帧缓存设计（`src/mvstudio/engines/mv/cache.py`）
 
 **cache key = blake2b**(规范化 JSON，包含):
 - `version`, `t`(1μs精度), `sid`
 - `cam` kwargs, `items(t,k)` 序列化, `subject`, `bg`, `fx`（**不含 `note`**）
-- `code` = mv_engine/*.py + 本片包 *.py 的 sha256 合并摘要
+- `code` = src/mvstudio/engines/mv/*.py + 本片包 *.py 的 sha256 合并摘要
 - `render_cfg` = W/H/FPS/PAD_W/PAD_H
 
 **存储布局**：

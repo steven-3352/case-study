@@ -37,8 +37,8 @@ def test_dataclasses_are_frozen_and_aliases_do_not_mutate_payload():
 
 
 def test_project_and_paths_validate():
-    Project("p", "room-1", "pipeline/voice_room/room-1", H, NOW)
-    for root in ("/pipeline/voice_room/x", "pipeline/voice_room/../x", "pipeline/voice_room/X"):
+    Project("p", "room-1", "projects/room-1", H, NOW)
+    for root in ("/projects/x", "projects/../x", "projects/X"):
         with pytest.raises(DomainValidationError):
             Project("p", "room-1", root, H, NOW)
 

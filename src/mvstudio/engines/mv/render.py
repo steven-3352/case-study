@@ -1,13 +1,13 @@
 """引擎级帧渲染入口 —— 给定 shot 列表和时间戳,返回一帧图像和 bbox。
 
 **不放这里的**:调色板常量、素材路径、FX 的具体参数解析(scan 颜色 / flare 颜色)——
-那些是每片 `voice_room/<film>/` 的事。这里只做:
+那些由用户项目合同和 adapter 注入。这里只做:
 - 找当前 shot → 解相机状态
 - 铺背景 → 逐 item place → tilt
 - 把 arr 交给片级 `fx_pass` → draw_lyrics → return (im, bb)
 
 `fx_pass` 和 `draw_lyrics` 由调用方注入(None 表示跳过),保持引擎与内容解耦。
-Phase 1a 里 `mingyue_render.py` 直接传自己的 `fx_pass` / `draw_lyrics`。
+片级 adapter 传入自己的 `fx_pass` / `draw_lyrics`。
 """
 from __future__ import annotations
 
