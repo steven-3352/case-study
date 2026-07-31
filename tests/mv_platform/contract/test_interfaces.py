@@ -198,6 +198,10 @@ def test_director_api_actions_are_fixed_job_only_commands():
             self.calls.append(("animatic-test", job_id))
             return {"action": "animatic-test"}
 
+        def start_director_animatic_offline_test(self, job_id):
+            self.calls.append(("animatic-offline-test", job_id))
+            return {"action": "animatic-offline-test"}
+
         def approve_director_artifacts(self, job_id):
             self.calls.append(("approve", job_id))
             return {"action": "approve"}
@@ -211,6 +215,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
     paths = (
         ("/api/v1/jobs/job-1/director/intake", "intake"),
         ("/api/v1/jobs/job-1/director/animatic-test", "animatic-test"),
+        ("/api/v1/jobs/job-1/director/animatic-offline-test", "animatic-offline-test"),
         ("/api/v1/jobs/job-1/director/approve", "approve"),
         ("/api/v1/jobs/job-1/director/publish", "publish"),
     )
@@ -222,6 +227,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
     assert service.calls == [
         ("intake", "job-1"), ("intake", "job-1"),
         ("animatic-test", "job-1"), ("animatic-test", "job-1"),
+        ("animatic-offline-test", "job-1"), ("animatic-offline-test", "job-1"),
         ("approve", "job-1"), ("approve", "job-1"),
         ("publish", "job-1"), ("publish", "job-1"),
     ]
@@ -242,6 +248,10 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
             self.calls.append(("animatic-test", job_id))
             return {"action": "animatic-test"}
 
+        def start_director_animatic_offline_test(self, job_id):
+            self.calls.append(("animatic-offline-test", job_id))
+            return {"action": "animatic-offline-test"}
+
         def approve_director_artifacts(self, job_id):
             self.calls.append(("approve", job_id))
             return {"action": "approve"}
@@ -254,6 +264,7 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
     for command, action in (
         ("director-intake", "intake"),
         ("director-animatic-test", "animatic-test"),
+        ("director-animatic-offline-test", "animatic-offline-test"),
         ("director-approve", "approve"),
         ("director-publish", "publish"),
     ):
@@ -262,6 +273,7 @@ def test_director_cli_actions_delegate_without_path_or_executor_arguments(capsys
     assert service.calls == [
         ("intake", "job-1"),
         ("animatic-test", "job-1"),
+        ("animatic-offline-test", "job-1"),
         ("approve", "job-1"),
         ("publish", "job-1"),
     ]

@@ -161,6 +161,10 @@ def create_app(service=None, workspace_root=None):
     async def start_director_animatic_test(job_id: str):
         return _result(require_service().start_director_animatic_test(job_id))
 
+    @app.post("/api/v1/jobs/{job_id}/director/animatic-offline-test")
+    async def start_director_animatic_offline_test(job_id: str):
+        return _result(require_service().start_director_animatic_offline_test(job_id))
+
     @app.post("/api/v1/jobs/{job_id}/director/approve")
     async def approve_director_artifacts(job_id: str):
         return _result(require_service().approve_director_artifacts(job_id))

@@ -2,6 +2,7 @@ import hashlib
 import json
 import subprocess
 
+import pytest
 import yaml
 from PIL import Image
 
@@ -17,10 +18,12 @@ def _digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def test_job_id_action_drafts_and_publishes_540p_structural_animatic(tmp_path):
+@pytest.mark.parametrize("semantic_mode", ["configured_model", "offline_unclassified"])
+def test_job_id_action_drafts_and_publishes_540p_structural_animatic(tmp_path, semantic_mode):
     service = build_service(tmp_path)
-    service.semantic_port = FixturePort()
-    service.semantic_model = "fixture-model"
+    if semantic_mode == "configured_model":
+        service.semantic_port = FixturePort()
+        service.semantic_model = "fixture-model"
     project = service.create_project(
         "animatic-test",
         {
@@ -57,13 +60,18 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(tmp_path):
         ],
     )
 
-    result = service.start_director_animatic_test(job.job_id)
+    result = (
+        service.start_director_animatic_test(job.job_id)
+        if semantic_mode == "configured_model"
+        else service.start_director_animatic_offline_test(job.job_id)
+    )
     inspection = service.inspect_job(job.job_id)
     output = root / result["output"]
     staging = tmp_path / ".mvstudio" / "jobs" / job.job_id
 
     assert result["status"] == "draft_self_generated"
     assert result["approval_required"] is True
+    assert result["semantic_mode"] == semantic_mode
     assert inspection.status.runtime_state is RuntimeState.SUCCEEDED
     assert inspection.status.business_stage is BusinessStage.VISUAL_SCORE_PENDING_USER
     assert output.is_file()
@@ -74,6 +82,11 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(tmp_path):
     assert score["approval_required"] is True
     manifest = json.loads((staging / "artifact-manifest.json").read_text())
     assert all(item["status"] == "draft_self_generated" for item in manifest["artifacts"])
+    audit = json.loads((staging / "creative/model_audit.json").read_text())
+    assert len(audit["calls"]) == 2
+    if semantic_mode == "offline_unclassified":
+        assert {item["model"] for item in audit["calls"]} == {"offline-structural-v1"}
+        assert all(item["usage"] == {"input_tokens": 0, "output_tokens": 0} for item in audit["calls"])
     probe = subprocess.run(
         [
             "ffprobe", "-v", "error", "-select_streams", "v:0",

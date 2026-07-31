@@ -53,6 +53,9 @@ acceptance:
     explicitly draft output under the user project's outputs directory.
   - Structural Animatic testing does not mutate map or visual-score status and
     cannot authorize final rendering or external release.
+  - The explicit director-animatic-offline-test action uses only unclassified
+    structural placeholders with zero model tokens; it is never an automatic
+    fallback and makes no lyric, emotion, or relationship semantic claim.
   - Publication of the director artifact package requires explicit approval and
     rejects hash drift, undeclared files, symlinks, project mismatches, and
     conflicting destination content; the fixed test action may publish only its

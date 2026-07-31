@@ -275,7 +275,14 @@ class ApplicationService:
         return self.supervisor.submit(job_id, "director_intake", payload)
 
     def start_director_animatic_test(self, job_id):
-        """Draft maps and render a non-approved structural animatic by Job ID."""
+        """Use the configured semantic provider for a structural Animatic test."""
+        return self._start_director_animatic_test(job_id, offline=False)
+
+    def start_director_animatic_offline_test(self, job_id):
+        """Use explicit non-semantic placeholders for an offline structural test."""
+        return self._start_director_animatic_test(job_id, offline=True)
+
+    def _start_director_animatic_test(self, job_id, offline):
         self._require_initialized()
         if self.supervisor is None:
             raise ApplicationBlocked("job supervisor is not configured")
@@ -315,8 +322,6 @@ class ApplicationService:
         from mvstudio.director.drafting import draft_maps
         from mvstudio.director.intake import inspect_intake
         from mvstudio.director.structural_planner import plan_structural_score
-        from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
-
         intake = inspect_intake(
             {
                 "project_id": project.project_id,
@@ -335,8 +340,16 @@ class ApplicationService:
             timed = json.loads(timed_path.read_bytes())
         except (OSError, json.JSONDecodeError) as exc:
             raise ApplicationBlocked("director animatic test input contract is invalid") from exc
-        port = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
-        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        if offline:
+            from mvstudio.providers.semantic_offline import OfflineStructuralPort
+
+            port = OfflineStructuralPort()
+            model = port.model
+        else:
+            from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
+
+            port = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+            model = self.semantic_model or os.environ.get("LLM_MODEL", "")
         drafted = draft_maps(intake, timed, brief, port, staging, model)
         score = plan_structural_score(
             drafted["music_map"],
@@ -392,6 +405,7 @@ class ApplicationService:
             "job_id": job_id,
             "status": "draft_self_generated",
             "approval_required": True,
+            "semantic_mode": "offline_unclassified" if offline else "configured_model",
             "output": destination_relative,
             "content_hash": artifact["content_hash"],
         }

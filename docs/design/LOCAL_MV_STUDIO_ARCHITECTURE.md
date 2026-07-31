@@ -251,6 +251,7 @@ GET  /api/v1/jobs/{job_id}
 GET  /api/v1/jobs/{job_id}/events
 POST /api/v1/jobs/{job_id}/cancel
 POST /api/v1/jobs/{job_id}/director/animatic-test
+POST /api/v1/jobs/{job_id}/director/animatic-offline-test
 GET  /api/v1/jobs/{job_id}/artifacts
 GET  /healthz
 GET  /readyz
@@ -266,6 +267,7 @@ mvstudio job inspect <job_id> --json
 mvstudio job events <job_id> --follow
 mvstudio job cancel <job_id>
 mvstudio job director-animatic-test <job_id> --json
+mvstudio job director-animatic-offline-test <job_id> --json
 ```
 
 The structural Animatic action requires an operation=animatic Job with one
@@ -273,6 +275,12 @@ project audio input, one timed LRC input, and one or more project character
 images. It writes runtime files only under <workspace>/.mvstudio/jobs/<job_id>
 and publishes the explicitly non-approved preview to
 projects/<slug>/outputs/structural_animatic_<job_id>.mp4.
+
+The offline action is explicit and never serves as an automatic provider
+fallback. It follows the same project and staging boundaries, but labels lyric,
+emotion, and relationship fields as unclassified structural placeholders and
+makes no semantic claim. Both actions keep every generated contract at
+draft_self_generated with approval_required=true.
 
 同一 canonical brief 从 Web、CLI 和 Codex 提交时，`brief_sha256`、`pipeline_version` 和 `job_spec_sha256` 必须一致。
 

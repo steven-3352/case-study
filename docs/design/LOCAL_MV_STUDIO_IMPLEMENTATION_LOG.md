@@ -194,3 +194,13 @@
 - Full verification: 137 passed, 69 warnings; focused workflow/interface suite 47 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
 - Real-provider smoke is blocked by external configuration, not hidden as passed: configured LLM_API_KEY is a 3-character placeholder and returned HTTP 401; one valid key from the same configured gateway authenticated but claude-opus-4-8 returned HTTP 503 on two attempts. No endpoint or credential value was logged.
 - M3 remains in_progress. Carry forward: install a valid semantic credential/model route, rerun the same real smoke, then implement plain-text lyric alignment and creative (not merely structural) visual-score drafting.
+
+## 2026-07-31 · M3 Explicit Offline Structural Test
+
+- Added `director-animatic-offline-test` to the Application Service, CLI, and API so ordinary users can exercise the complete LRC-to-540p path without editing source code or configuring a network model.
+- The offline port is deliberately non-semantic: every timed lyric remains an independent `unclassified_lyric`, emotion is `unclassified`, character functions follow declared brief order, and multi-character relationships are explicitly marked as structural placeholders with no semantic claim.
+- Offline execution is an explicit action, never a silent fallback from the configured-model action. Its fixed audit model is `offline-structural-v1`, both bounded calls report zero input/output tokens, and all generated artifacts remain `draft_self_generated` with approval required.
+- The output boundary is unchanged: runtime data stays under `<workspace>/.mvstudio/jobs/<job-id>` and the preview is published only to `projects/<slug>/outputs/structural_animatic_<job-id>.mp4`; no code, logs, temporary files, or outputs are written under `pipeline/`.
+- Independent-process smoke evidence uses a new temporary workspace with generated WAV/LRC/PNG inputs, crosses the spawn worker and ffmpeg boundary, and produces a 3-second 540x960 MP4. It does not use the retired example material.
+- Full verification: 141 passed, 69 warnings; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
+- M3 remains `in_progress`. Carry forward: add plain-text lyric alignment, then creative visual-score drafting and a valid configured semantic provider route; offline placeholders must never satisfy those semantic acceptance requirements.
