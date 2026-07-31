@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from apps.mv_api import create_app
 from apps.mv_cli import main as cli_main
 from apps.mv_codex import main as codex_main
-from apps.runtime import build_service
+from apps.runtime import build_service, load_runtime_environment
 from mv_platform.application.service import (
     ApplicationBlocked,
     ApplicationConflict,
@@ -340,6 +340,20 @@ def test_cli_exit_codes_stderr_and_codex_delegation(service, capsys):
     assert captured.err.strip() == "not found"
 
 
+def test_cli_owned_service_loads_runtime_environment(monkeypatch, capsys):
+    class Service:
+        supervisor = None
+
+    loaded = []
+    cli_module = importlib.import_module("apps.mv_cli")
+    monkeypatch.setattr(cli_module, "load_runtime_environment", lambda: loaded.append(True))
+    monkeypatch.setattr(cli_module, "build_service", lambda _root: Service())
+
+    assert cli_main(["doctor", "--json"]) == 0
+    assert loaded == [True]
+    assert json.loads(capsys.readouterr().out) == {"status": "ready"}
+
+
 def test_runtime_import_has_no_filesystem_side_effects(tmp_path):
     output_root = Path(__file__).resolve().parents[3]
     code = "import apps.runtime; from mv_platform.config import Settings; print(Settings().host)"
@@ -351,6 +365,26 @@ def test_runtime_import_has_no_filesystem_side_effects(tmp_path):
     )
     assert completed.stdout.strip() == "127.0.0.1"
     assert list(tmp_path.iterdir()) == []
+
+
+def test_runtime_environment_loads_dotenv_without_overriding_explicit_values(
+    tmp_path, monkeypatch
+):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "LLM_BASE_URL=https://example.invalid/v1\n"
+        "LLM_API_KEY=from-dotenv\n"
+        "LLM_MODEL=from-dotenv-model\n",
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    monkeypatch.setenv("LLM_MODEL", "explicit-model")
+
+    assert load_runtime_environment(env_file) is True
+    assert os.environ["LLM_BASE_URL"] == "https://example.invalid/v1"
+    assert os.environ["LLM_API_KEY"] == "from-dotenv"
+    assert os.environ["LLM_MODEL"] == "explicit-model"
 
 
 def test_lifespan_shutdown_ownership(monkeypatch):
@@ -368,10 +402,14 @@ def test_lifespan_shutdown_ownership(monkeypatch):
 
     owned = Service()
     api_module = importlib.import_module("apps.mv_api")
+    loaded = []
+    monkeypatch.setattr(api_module, "load_runtime_environment", lambda: loaded.append(True))
     monkeypatch.setattr(api_module, "build_service", lambda _root: owned)
     with TestClient(create_app(workspace_root=".")):
         pass
     assert owned.shutdown_calls == 1
+
+    assert loaded == [True]
 
 
 def test_interface_modules_have_no_forbidden_dependencies():

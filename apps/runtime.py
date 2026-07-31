@@ -2,12 +2,19 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from mv_platform.application.service import ApplicationService
 from mv_platform.config import Settings
 from mv_platform.infrastructure.database import Database
 
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_runtime_environment(path=None):
+    env_path = Path(path) if path is not None else SOURCE_ROOT / ".env"
+    return load_dotenv(env_path, override=False)
 
 
 def default_workspace_root(environ=None):

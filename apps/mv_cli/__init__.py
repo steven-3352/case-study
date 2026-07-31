@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 from mv_platform.application.service import ApplicationError, ApplicationNotFound
-from apps.runtime import build_service
+from apps.runtime import build_service, load_runtime_environment
 
 
 def _parser():
@@ -34,6 +34,8 @@ def _parser():
 def main(argv=None, service=None):
     args = _parser().parse_args(argv)
     owned = service is None
+    if owned:
+        load_runtime_environment()
     service = service or build_service(Path(args.workspace) if args.workspace else None)
     try:
         if args.command == "doctor":

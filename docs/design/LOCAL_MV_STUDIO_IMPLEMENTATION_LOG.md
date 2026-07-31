@@ -237,3 +237,4 @@
 - The credential-free worker rendered a 3-second 540x960 creative Animatic. Both staged portrait copies remained byte-identical to their project inputs, and `creative/model_audit.json` contained no credential value.
 - Smoke workspace evidence: `/tmp/mvstudio-real-smoke-4clxaype`; published preview: `projects/real-provider-smoke/outputs/creative_animatic_job-df3e27f228a93989a4e5ee93b3d04084.mp4` within that workspace.
 - M3 has no remaining configured-model credential blocker. Deployment still requires the documented environment variables, and the explicit offline structural action remains the credential-free test path.
+- CLI and API owned-service startup now load the repository-root `.env` without overriding explicitly exported environment variables, so ordinary users do not need to source credentials manually or edit code.

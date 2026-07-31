@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from mv_platform.application.service import (
     ApplicationBlocked, ApplicationConflict, ApplicationError, ApplicationNotFound,
 )
-from apps.runtime import build_service
+from apps.runtime import build_service, load_runtime_environment
 
 
 class StrictModel(BaseModel):
@@ -106,6 +106,7 @@ def create_app(service=None, workspace_root=None):
     @app.on_event("startup")
     async def startup():
         if app.state.service is None:
+            load_runtime_environment()
             app.state.service = build_service(workspace_root)
 
     @app.on_event("shutdown")
