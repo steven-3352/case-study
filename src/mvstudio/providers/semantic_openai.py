@@ -58,6 +58,7 @@ class OpenAICompatibleSemanticPort:
                             "event_type": task.event_type,
                             "reason": task.reason,
                             "output_schema_hash": task.output_schema_hash,
+                            "output_schema": task.output_schema,
                             "payload": task.payload,
                         },
                         ensure_ascii=True,

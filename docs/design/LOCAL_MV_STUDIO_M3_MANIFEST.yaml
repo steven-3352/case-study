@@ -51,8 +51,9 @@ acceptance:
     evidence; missing or conflicting evidence fails closed.
   - Audio RMS, onset, energy, and BPM candidates are deterministic and hash-bound
     to the validated Job-local audio copy.
-  - Semantic model tasks are allowlisted, byte/token bounded, schema checked, and
-    audited without sending portrait pixels or paths.
+  - Semantic model tasks are allowlisted, byte/token bounded, and send both the
+    output schema and its hash; responses are schema checked and audited without
+    sending portrait pixels or paths.
   - Draft semantic maps cannot authorize Director compilation until approved.
   - Ordinary-user API and CLI actions start intake, approve, and publish by Job ID
     without accepting staging paths, executor settings, cwd, or output destinations.

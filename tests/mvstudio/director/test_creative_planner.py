@@ -45,9 +45,15 @@ def test_creative_draft_changes_only_allowlisted_shot_decisions(tmp_path):
     assert [shot["assets"]["use"] for shot in score["shots"]] == [
         shot["assets"]["use"] for shot in original["shots"]
     ]
+    assert score["shots"][-1]["transition_out"] == {
+        "type": "none",
+        "shared_element": "final held composition",
+    }
     payload = json.dumps(port.tasks[-1].payload, sort_keys=True)
     assert "inputs/characters/" not in payload
     assert "digest" not in payload
+    assert "hard_cut" in port.tasks[-1].output_schema["shots"][0]["transition_out"]["type"]
+    assert "bridge_clip" in port.tasks[-1].output_schema["shots"][0]["transition_out"]["type"]
     assert yaml.safe_load((tmp_path / "creative/visual_score.yaml").read_text()) == score
 
 

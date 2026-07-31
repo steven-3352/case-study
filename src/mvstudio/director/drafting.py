@@ -41,6 +41,7 @@ class ModelTask:
     reason: str
     input_contract_hash: str
     output_schema_hash: str
+    output_schema: Mapping
     payload: Mapping
 
 
@@ -84,7 +85,13 @@ _SCHEMAS = {
             "primary_action": "text",
             "first_frame": "text",
             "last_frame": "text",
-            "transition_out": {"type": "allowlisted transition", "shared_element": "text"},
+            "transition_out": {
+                "type": (
+                    "none|hard_cut|occlusion_cut|action_match|crossfade|"
+                    "flash_white|ink_wipe|light_wipe|bridge_clip"
+                ),
+                "shared_element": "text; may be empty only when type is none",
+            },
             "technique": "2.5d|static|i2v|hybrid",
             "missing_assets": ["description"],
         }],
@@ -135,16 +142,19 @@ def run_bounded_task(port, event_type, payload, model, budget, reason):
         raise MapDraftError("semantic task is not allowlisted")
     if not isinstance(model, str) or not model.strip():
         raise MapDraftError("model must be configured")
-    payload_bytes = _canonical(payload)
-    if len(payload_bytes) > budget.max_input_bytes:
+    schema = _SCHEMAS[event_type]
+    request_contract = {"output_schema": schema, "payload": payload}
+    contract_bytes = _canonical(request_contract)
+    if len(contract_bytes) > budget.max_input_bytes:
         raise MapDraftError("semantic task input exceeds budget")
     task = ModelTask(
         event_type=event_type,
         model=model.strip(),
         budget=budget,
         reason=_text(reason, "reason"),
-        input_contract_hash="sha256:" + hashlib.sha256(payload_bytes).hexdigest(),
-        output_schema_hash=_hash(_SCHEMAS[event_type]),
+        input_contract_hash="sha256:" + hashlib.sha256(contract_bytes).hexdigest(),
+        output_schema_hash=_hash(schema),
+        output_schema=schema,
         payload=payload,
     )
     try:

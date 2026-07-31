@@ -15,6 +15,7 @@ def _task(max_output_bytes=4096):
         reason="fixture",
         input_contract_hash="sha256:" + "a" * 64,
         output_schema_hash="sha256:" + "b" * 64,
+        output_schema={"groups": [{"id": "text", "line_ids": ["line_id"]}]},
         payload={"lines": [{"id": "line_001", "text": "hello"}]},
     )
 
@@ -55,6 +56,11 @@ def test_provider_builds_fixed_json_request_and_returns_usage(monkeypatch):
     assert request_body["response_format"] == {"type": "json_object"}
     assert request_body["max_tokens"] == 200
     assert "file paths" in request_body["messages"][0]["content"]
+    user_contract = json.loads(request_body["messages"][1]["content"])
+    assert user_contract["output_schema"] == {
+        "groups": [{"id": "text", "line_ids": ["line_id"]}]
+    }
+    assert user_contract["output_schema_hash"] == "sha256:" + "b" * 64
     assert result.output == {"groups": []}
     assert (result.input_tokens, result.output_tokens) == (31, 12)
     assert captured["timeout"] == 12

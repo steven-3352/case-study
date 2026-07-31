@@ -12,6 +12,7 @@ def _task(event_type, payload, model="offline-structural-v1"):
         reason="offline structural fixture",
         input_contract_hash="sha256:" + "a" * 64,
         output_schema_hash="sha256:" + "b" * 64,
+        output_schema={"fixture": True},
         payload=payload,
     )
 

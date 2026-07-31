@@ -59,7 +59,7 @@ class FixturePort:
                             "transition_out": {
                                 "type": "none" if index == len(shots) - 1 else "hard_cut",
                                 "shared_element": (
-                                    "final held composition"
+                                    ""
                                     if index == len(shots) - 1
                                     else f"screen position {index + 1}"
                                 ),

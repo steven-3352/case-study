@@ -142,6 +142,14 @@ def _creative_shots(response, structural_shots):
             raise CreativePlanError("creative transition is not allowlisted")
         if index == len(raw) - 1 and transition_type != "none":
             raise CreativePlanError("final creative shot transition must be none")
+        shared_element = transition.get("shared_element")
+        if not isinstance(shared_element, str):
+            raise CreativePlanError("creative shared element must be text")
+        shared_element = shared_element.strip()
+        if transition_type == "none":
+            shared_element = shared_element or "final held composition"
+        elif not shared_element:
+            raise CreativePlanError("creative shared element must be non-empty text")
         technique = item.get("technique")
         if technique not in TECHNIQUES:
             raise CreativePlanError("creative technique is not allowlisted")
@@ -166,9 +174,7 @@ def _creative_shots(response, structural_shots):
             "last_frame": _text(item.get("last_frame"), "creative last frame"),
             "transition_out": {
                 "type": transition_type,
-                "shared_element": _text(
-                    transition.get("shared_element"), "creative shared element"
-                ),
+                "shared_element": shared_element,
             },
             "technique": technique,
             "missing_assets": missing,

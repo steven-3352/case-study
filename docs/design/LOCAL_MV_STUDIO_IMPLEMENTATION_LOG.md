@@ -226,3 +226,14 @@
 - Real configured-provider execution remains deployment-blocked by the local placeholder credential and upstream 503 evidence already recorded above. This is now an explicit operational prerequisite, not missing repository implementation.
 - Final verification: 160 passed, 69 warnings; creative planner/Animatic focused suite 20 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
 - M3 status is `complete`. M4 may begin only with approved M3 artifacts and covers keyframe selection, media-provider generation, per-shot diagnosis, final compositing, and QC.
+
+## 2026-07-31 · M3 Real Configured-Model Smoke
+
+- Re-ran the configured-model creative action in a new temporary workspace with generated WAV/LRC/PNG inputs after valid `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL` configuration became available. No retired example material was used.
+- The first real calls exposed two contract gaps that fixture providers had hidden: model tasks sent only an output-schema hash instead of the schema body, and the creative schema did not enumerate transition values or permit an empty shared element for a final `none` transition.
+- `ModelTask` now carries the output schema body. The schema is included in the provider request, byte budget, and input-contract hash while the separate output-schema hash remains in the audit contract.
+- The creative transition schema now enumerates every allowlisted transition. Python normalizes an empty final `none` shared element to `final held composition`; every non-`none` transition still requires a non-empty shared element.
+- The real action completed with `semantic_mode=configured_model`, `visual_score_mode=creative_model_draft`, `status=draft_self_generated`, and three audited model calls. Reported token pairs were 345/191, 425/320, and 1363/757.
+- The credential-free worker rendered a 3-second 540x960 creative Animatic. Both staged portrait copies remained byte-identical to their project inputs, and `creative/model_audit.json` contained no credential value.
+- Smoke workspace evidence: `/tmp/mvstudio-real-smoke-4clxaype`; published preview: `projects/real-provider-smoke/outputs/creative_animatic_job-df3e27f228a93989a4e5ee93b3d04084.mp4` within that workspace.
+- M3 has no remaining configured-model credential blocker. Deployment still requires the documented environment variables, and the explicit offline structural action remains the credential-free test path.
