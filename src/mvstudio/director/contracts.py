@@ -77,6 +77,11 @@ def validate_package(value):
     music = _mapping(root.get("music_map"), "music_map")
     characters = _mapping(root.get("character_map"), "character_map")
     score = _mapping(root.get("visual_score"), "visual_score")
+    for label, contract in (
+        ("music_map", music), ("character_map", characters), ("visual_score", score)
+    ):
+        if contract.get("status") != "approved":
+            raise DirectorContractError(label + " must be approved")
 
     canvas = brief.get("canvas", score.get("project", {}).get("canvas", "9:16"))
     if canvas not in {"9:16", "16:9"}:

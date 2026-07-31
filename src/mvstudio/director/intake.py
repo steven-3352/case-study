@@ -193,9 +193,14 @@ def _probe_character(path):
 
 def inspect_intake(value, staging):
     value = validate_intake(value)
-    root = Path(staging).resolve()
-    if root.is_symlink():
+    staging_path = Path(staging)
+    if staging_path.is_symlink():
         raise IntakeContractError("staging directory cannot be a symlink")
+    root = staging_path.resolve()
+    intake_directory = root / "intake"
+    if intake_directory.is_symlink():
+        raise IntakeContractError("intake output directory cannot be a symlink")
+    intake_directory.mkdir(parents=True, exist_ok=True)
     audio_path = _regular_file(root, value["audio"])
     lyrics_path = _regular_file(root, value["lyrics"])
     audio_hash, audio_size = _digest(audio_path)

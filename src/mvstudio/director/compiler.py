@@ -162,12 +162,17 @@ def _storyboard(package):
 
 def compile_package(package, staging, job_id="local"):
     package = validate_package(package)
-    root = Path(staging).resolve()
-    root.mkdir(parents=True, exist_ok=True)
-    if root.is_symlink():
+    staging_path = Path(staging)
+    if staging_path.is_symlink():
         raise ValueError("staging directory cannot be a symlink")
+    root = staging_path.resolve()
+    root.mkdir(parents=True, exist_ok=True)
     creative = root / "creative"
     outputs = root / "outputs"
+    for directory in (creative, outputs):
+        if directory.is_symlink():
+            raise ValueError("director output directory cannot be a symlink")
+        directory.mkdir(parents=True, exist_ok=True)
     values = {
         "creative/story_framework.yaml": _yaml(_story_framework(package)),
         "creative/asset_plan.yaml": _yaml(_asset_plan(package)),

@@ -93,3 +93,13 @@ def test_intake_rejects_timed_lyrics_past_audio_duration(tmp_path):
     value = _inputs(tmp_path, "[00:02.00]too late\n")
     with pytest.raises(IntakeContractError, match="exceed audio duration"):
         inspect_intake(value, tmp_path)
+
+
+def test_intake_rejects_symlink_staging_root(tmp_path):
+    real = tmp_path / "real"
+    real.mkdir()
+    value = _inputs(real)
+    linked = tmp_path / "linked"
+    linked.symlink_to(real, target_is_directory=True)
+    with pytest.raises(IntakeContractError, match="staging directory cannot be a symlink"):
+        inspect_intake(value, linked)

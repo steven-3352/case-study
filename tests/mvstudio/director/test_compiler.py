@@ -40,6 +40,12 @@ def test_invalid_or_flat_contract_fails_closed(director_package):
         validate_package(director_package)
 
 
+def test_draft_maps_cannot_authorize_compilation(director_package):
+    director_package["music_map"]["status"] = "draft_self_generated"
+    with pytest.raises(DirectorContractError, match="music_map must be approved"):
+        validate_package(director_package)
+
+
 def test_unknown_fields_fail_closed(director_package):
     director_package["output_path"] = "/tmp/escape"
     with pytest.raises(DirectorContractError, match="unknown director package field"):
@@ -50,6 +56,16 @@ def test_asset_path_traversal_fails_closed(director_package):
     director_package["visual_score"]["shots"][0]["assets"]["use"] = ["../../outside.png"]
     with pytest.raises(DirectorContractError, match="project-relative"):
         validate_package(director_package)
+
+
+def test_compiler_rejects_symlink_staging_root(tmp_path, director_package):
+    real = tmp_path / "real"
+    real.mkdir()
+    linked = tmp_path / "linked"
+    linked.symlink_to(real, target_is_directory=True)
+    with pytest.raises(ValueError, match="staging directory cannot be a symlink"):
+        compile_package(director_package, linked)
+    assert not list(real.iterdir())
 
 
 def test_vertical_animatic_is_validated_540p(tmp_path, director_package):

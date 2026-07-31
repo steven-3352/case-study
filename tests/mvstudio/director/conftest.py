@@ -9,6 +9,7 @@ def director_package():
         "project_id": "project-fixture",
         "brief": {"canvas": "9:16", "premise": "Two characters choose to stand together."},
         "music_map": {
+            "status": "approved",
             "duration": 1.0,
             "bpm": 96.0,
             "sections": [
@@ -18,6 +19,7 @@ def director_package():
             "cues": [{"at": 0.0, "level": 1, "source": "phrase_start"}],
         },
         "character_map": {
+            "status": "approved",
             "characters": [
                 {"id": "A", "name": "A", "director_function": "lead the audience", "source_asset": "assets/source/A.png"},
                 {"id": "B", "name": "B", "director_function": "create relationship tension", "source_asset": "assets/source/B.png"},
@@ -25,6 +27,7 @@ def director_package():
             "relationships": [{"pair": ["A", "B"], "dramatic_function": "allies and rivals"}],
         },
         "visual_score": {
+            "status": "approved",
             "project": {"duration": 1.0, "canvas": "9:16", "premise": "A and B choose together."},
             "shots": [
                 {

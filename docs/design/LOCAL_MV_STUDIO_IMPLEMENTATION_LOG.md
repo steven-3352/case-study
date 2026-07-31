@@ -148,3 +148,16 @@
 - Publication control records live under project `.mvstudio/jobs/<job_id>/`, not in source or `pipeline/`.
 - Verification: `112 passed, 65 warnings`; M3 focused suite `11 passed`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero.
 - M3 remains `in_progress`. Carry forward: implement bounded beat/lyric alignment and semantic map drafting ports, then expose the complete ordinary-user workflow through CLI/API without source-code edits.
+
+## 2026-07-31 · M3 Deterministic Audio Analysis And Bounded Map Drafting
+
+- Added deterministic ffmpeg PCM decoding plus 50 ms RMS, onset, energy, and BPM candidate analysis. Analysis is restricted to the Job-local audio copy and rechecks the intake sha256 before any model cost.
+- Added bounded semantic task contracts for the architecture allowlist events `lyrics.semantic_segment.requested` and `relationship_map.draft_requested`.
+- Every semantic call freezes the configured model, byte/token budgets, reason, input contract hash, output schema hash, response hash, and reported token usage.
+- The model only groups immutable timed lyric line IDs and drafts character functions/relationships. Python retains ownership of timestamps, section boundaries, audio-derived energy, cues, source assets, and file writes.
+- Portrait paths, portrait hashes, and portrait pixels are excluded from semantic model payloads.
+- Semantic grouping must cover every timed lyric line exactly once in original order. Multi-character drafts require a valid relationship; unknown characters, groups, fields, reordered lines, budget overruns, hash drift, and symlinks fail closed.
+- Added draft outputs under Job staging: `creative/beats.json`, `lyrics_semantic.json`, `music_map.yaml`, `character_map.yaml`, and `model_audit.json`.
+- Added a real compiler approval gate: `music_map`, `character_map`, and `visual_score` must each carry `status: approved`; `draft_self_generated` can no longer authorize compilation.
+- Verification: `122 passed, 65 warnings`; M3 focused suite `27 passed`.
+- M3 remains `in_progress`. Carry forward: implement a concrete low-cost model adapter, plain-lyric alignment provider, story/visual-score drafting and Application Service/CLI/API orchestration.
