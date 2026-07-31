@@ -18,6 +18,10 @@ constraints:
   - Animatics are structural approval artifacts, never final deliverables.
 
 outputs:
+  - intake/lyrics_plain.json
+  - intake/lyrics_timed.json
+  - intake/lyrics_alignment_audit.json
+  - intake/lyrics_alignment_evidence.json
   - creative/beats.json
   - creative/lyrics_semantic.json
   - creative/music_map.yaml
@@ -41,6 +45,10 @@ acceptance:
   - Two concurrent director jobs have no cross-job files or content.
   - Raw input refs are restricted to project audio, lyrics, and character directories.
   - Timed LRC and plain lyrics are distinguished without invented timestamps.
+  - Plain lyrics align only through an explicitly configured local
+    Faster Whisper model with word timestamps, exact normalized text coverage,
+    strictly advancing line starts, source hashes, confidence, and persisted
+    evidence; missing or conflicting evidence fails closed.
   - Audio RMS, onset, energy, and BPM candidates are deterministic and hash-bound
     to the validated Job-local audio copy.
   - Semantic model tasks are allowlisted, byte/token bounded, schema checked, and
@@ -63,7 +71,6 @@ acceptance:
   - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
 
 deferred:
-  - Plain-lyric alignment provider integration.
   - Production credentials for the configured semantic provider; the locally
     configured LLM key is a placeholder and the current upstream model returned 503
     when tested with another valid key on the same gateway.

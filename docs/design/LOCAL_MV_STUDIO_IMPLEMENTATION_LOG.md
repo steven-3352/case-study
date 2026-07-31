@@ -204,3 +204,14 @@
 - Independent-process smoke evidence uses a new temporary workspace with generated WAV/LRC/PNG inputs, crosses the spawn worker and ffmpeg boundary, and produces a 3-second 540x960 MP4. It does not use the retired example material.
 - Full verification: 141 passed, 69 warnings; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
 - M3 remains `in_progress`. Carry forward: add plain-text lyric alignment, then creative visual-score drafting and a valid configured semantic provider route; offline placeholders must never satisfy those semantic acceptance requirements.
+
+## 2026-07-31 · M3 Evidence-Backed Plain-Lyric Alignment
+
+- Intake now preserves non-empty plain lyrics as `intake/lyrics_plain.json` with original line numbers and source digest. Empty lyrics and mixed timed/plain files fail closed instead of silently dropping content.
+- Added a bounded alignment contract that rechecks the staged audio hash, preserves every source line exactly, requires strictly advancing starts within the probed duration, validates confidence, and writes timed lyrics plus separate audit and provider-evidence artifacts.
+- Added a local Faster Whisper adapter with word timestamps. The model is explicitly selected through `MVSTUDIO_WHISPER_MODEL`, loaded with `local_files_only=true`, and never downloaded or replaced by an online/equal-spacing fallback.
+- Normalized transcription must exactly cover the supplied lyrics, and each lyric line must begin at a distinct provider word boundary. Transcript drift, missing speech, missing models, symlink replacement, changed audio, or incomplete evidence blocks before map drafting.
+- Existing configured-semantic and offline-unclassified Animatic actions now accept either timed LRC or verified provider-aligned plain lyrics and return `lyrics_alignment_mode`. Runtime and evidence files stay under `<workspace>/.mvstudio/jobs/<job-id>`; only the non-approved preview enters the user project's outputs directory.
+- Local cached-model smoke loaded Faster Whisper Small and correctly rejected a synthetic tone-only WAV with no word timestamp evidence. No retired example material was used.
+- Full verification: 155 passed, 69 warnings; focused alignment/Animatic suite 25 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
+- M3 remains `in_progress`. Carry forward: creative visual-score drafting and a valid configured semantic provider route; offline semantic placeholders and failed lyric alignment cannot satisfy creative acceptance.

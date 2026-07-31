@@ -282,6 +282,18 @@ emotion, and relationship fields as unclassified structural placeholders and
 makes no semantic claim. Both actions keep every generated contract at
 draft_self_generated with approval_required=true.
 
+Plain-text lyrics use the same two actions after local, evidence-backed
+alignment. Set `MVSTUDIO_WHISPER_MODEL` to an installed Faster Whisper model
+directory or locally cached model ID; optional `MVSTUDIO_WHISPER_DEVICE`,
+`MVSTUDIO_WHISPER_COMPUTE_TYPE`, and `MVSTUDIO_WHISPER_LANGUAGE` select the
+runtime. The adapter sets `local_files_only=true` and never downloads a model
+or falls back to estimated equal spacing. Its normalized transcript must cover
+the supplied lyrics exactly, every line boundary must have word-timestamp
+evidence, and starts must advance within the probed audio duration. Otherwise
+the Job remains blocked. Provider/model identity, audio and lyric hashes,
+confidence, word evidence, and a core-computed evidence hash stay under the
+Job's `.mvstudio` staging directory.
+
 同一 canonical brief 从 Web、CLI 和 Codex 提交时，`brief_sha256`、`pipeline_version` 和 `job_spec_sha256` 必须一致。
 
 ## 11. 交付里程碑

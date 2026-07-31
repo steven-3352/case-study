@@ -43,6 +43,9 @@ Pillow>=10.0,<12.0                   # import 名 PIL · 尺寸 resize / draw / 
 # ---- TTS 声音层(edge · minimax 走 requests) ----
 edge-tts>=7.0,<8.0                   # Edge TTS provider · pipeline/tts/gen_speech.py
 
+# ---- 本地歌词对齐 ----
+faster-whisper>=1.1,<2.0             # 纯文本歌词与音频的本地 word-timestamp 对齐
+
 # ---- 视频 / 浏览器渲染(P001 HTML 截图 · 三平台数据抓取) ----
 playwright>=1.50,<2.0                # 无头浏览器 · 装完需跑 `playwright install chromium`
 

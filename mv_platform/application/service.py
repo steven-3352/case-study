@@ -103,6 +103,7 @@ class ApplicationService:
         source_root=None,
         semantic_port=None,
         semantic_model=None,
+        alignment_port=None,
     ):
         self.settings = settings
         self.database = database
@@ -114,6 +115,7 @@ class ApplicationService:
         self.source_root = Path(source_root).resolve() if source_root is not None else None
         self.semantic_port = semantic_port
         self.semantic_model = semantic_model
+        self.alignment_port = alignment_port
         self._initialized = False
 
     def _reject_source_workspace(self):
@@ -332,12 +334,24 @@ class ApplicationService:
             staging,
         )
         timed_path = staging / "intake" / "lyrics_timed.json"
-        if not timed_path.is_file() or intake["lyrics"]["alignment_state"] != "aligned":
-            raise ApplicationBlocked("director animatic test requires timed LRC lyrics")
+        alignment_mode = "timed_lrc"
+        if intake["lyrics"]["alignment_state"] == "alignment_required":
+            from mvstudio.director.alignment import LyricAlignmentError, align_plain_lyrics
+            from mvstudio.providers.alignment_faster_whisper import FasterWhisperAlignmentPort
+
+            try:
+                alignment_port = self.alignment_port or FasterWhisperAlignmentPort.from_env()
+                intake, timed = align_plain_lyrics(intake, staging, alignment_port)
+            except LyricAlignmentError as exc:
+                raise ApplicationBlocked(str(exc)) from exc
+            alignment_mode = "provider_word_timestamps"
+        elif intake["lyrics"]["alignment_state"] != "aligned" or not timed_path.is_file():
+            raise ApplicationBlocked("director animatic test lyrics alignment is invalid")
         brief_path = self._project_root() / project.slug / "brief.json"
         try:
             brief = json.loads(brief_path.read_bytes())
-            timed = json.loads(timed_path.read_bytes())
+            if alignment_mode == "timed_lrc":
+                timed = json.loads(timed_path.read_bytes())
         except (OSError, json.JSONDecodeError) as exc:
             raise ApplicationBlocked("director animatic test input contract is invalid") from exc
         if offline:
@@ -406,6 +420,7 @@ class ApplicationService:
             "status": "draft_self_generated",
             "approval_required": True,
             "semantic_mode": "offline_unclassified" if offline else "configured_model",
+            "lyrics_alignment_mode": alignment_mode,
             "output": destination_relative,
             "content_hash": artifact["content_hash"],
         }
@@ -480,7 +495,13 @@ class ApplicationService:
         operational = {
             relative for relative in all_files
             if relative.startswith(("inputs/audio/", "inputs/lyrics/", "inputs/characters/"))
-            or relative in {"intake/intake_manifest.json", "intake/lyrics_timed.json"}
+            or relative in {
+                "intake/intake_manifest.json",
+                "intake/lyrics_plain.json",
+                "intake/lyrics_timed.json",
+                "intake/lyrics_alignment_audit.json",
+                "intake/lyrics_alignment_evidence.json",
+            }
         }
         unexpected = all_files - actual - operational - {
             "artifact-manifest.json", "approval-record.json"

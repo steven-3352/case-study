@@ -164,11 +164,20 @@ def _probe_lyrics(path):
     except UnicodeDecodeError as exc:
         raise IntakeContractError("lyrics must be UTF-8 text") from exc
     timed = parse_lrc(text)
-    plain_lines = [line.strip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith("[")]
+    plain_lines = [
+        {"text": line.strip(), "source_line": line_number}
+        for line_number, line in enumerate(text.splitlines(), 1)
+        if line.strip() and not line.lstrip().startswith("[")
+    ]
+    if timed and plain_lines:
+        raise IntakeContractError("lyrics cannot mix timed and plain lines")
+    if not timed and not plain_lines:
+        raise IntakeContractError("lyrics cannot be empty")
     return {
         "kind": "timed_lrc" if timed else "plain_text",
         "alignment_state": "aligned" if timed else "alignment_required",
         "timed_entries": timed,
+        "plain_lines": plain_lines,
         "plain_line_count": len(plain_lines),
     }
 
@@ -233,4 +242,12 @@ def inspect_intake(value, staging):
     if lyrics["timed_entries"]:
         timed = {"version": 1, "source": value["lyrics"], "entries": lyrics["timed_entries"]}
         _atomic_write(root / "intake/lyrics_timed.json", _canonical_bytes(timed))
+    elif lyrics["plain_lines"]:
+        plain = {
+            "version": 1,
+            "source": value["lyrics"],
+            "source_digest": lyrics_hash,
+            "lines": lyrics["plain_lines"],
+        }
+        _atomic_write(root / "intake/lyrics_plain.json", _canonical_bytes(plain))
     return manifest

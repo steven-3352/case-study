@@ -42,6 +42,11 @@ def test_lrc_is_sorted_and_plain_lyrics_require_alignment(tmp_path):
     manifest = inspect_intake(value, tmp_path)
     assert manifest["lyrics"]["alignment_state"] == "alignment_required"
     assert not (tmp_path / "intake/lyrics_timed.json").exists()
+    plain = json.loads((tmp_path / "intake/lyrics_plain.json").read_text())
+    assert plain["lines"] == [
+        {"text": "line one", "source_line": 1},
+        {"text": "line two", "source_line": 2},
+    ]
 
 
 def test_timed_intake_probes_without_altering_portrait(tmp_path):
@@ -92,6 +97,13 @@ def test_intake_rejects_symlink_even_when_target_is_inside_staging(tmp_path):
 def test_intake_rejects_timed_lyrics_past_audio_duration(tmp_path):
     value = _inputs(tmp_path, "[00:02.00]too late\n")
     with pytest.raises(IntakeContractError, match="exceed audio duration"):
+        inspect_intake(value, tmp_path)
+
+
+@pytest.mark.parametrize("lyrics", ["", "[00:00.00]timed\nplain\n"])
+def test_intake_rejects_empty_or_mixed_lyrics(tmp_path, lyrics):
+    value = _inputs(tmp_path, lyrics)
+    with pytest.raises(IntakeContractError, match="empty|mix"):
         inspect_intake(value, tmp_path)
 
 
