@@ -114,7 +114,7 @@ class SeedancePort:
             raise SeedanceProviderError("Seedance polling budget is invalid")
         base = base_url.rstrip("/")
         self.api_base = base if parsed.path.rstrip("/").endswith("/v1") else base + "/v1"
-        self.endpoint = self.api_base + "/videos/generations"
+        self.endpoint = self.api_base + "/video/generations"
         self.api_key = api_key
         self.model = model.strip()
         self.timeout_seconds = float(timeout_seconds)
@@ -208,6 +208,8 @@ class SeedancePort:
                 candidates.extend(item.get(key) for key in ("url", "video_url", "output_url"))
         if isinstance(envelope.get("output"), dict):
             candidates.extend(envelope["output"].get(key) for key in ("url", "video_url"))
+        if isinstance(envelope.get("metadata"), dict):
+            candidates.append(envelope["metadata"].get("url"))
         return next((item for item in candidates if isinstance(item, str) and item), None)
 
     @staticmethod
@@ -261,10 +263,14 @@ class SeedancePort:
         body = {
             "model": task.model,
             "prompt": contract["prompt"],
-            "duration": task.duration_seconds,
-            "aspect_ratio": task.aspect_ratio,
-            "resolution": task.resolution,
-            "image": {"url": self._data_url(task.first_frame, first_type)},
+            "image": self._data_url(task.first_frame, first_type),
+            "metadata": {
+                "duration": task.duration_seconds,
+                "ratio": task.aspect_ratio,
+                "generate_audio": False,
+                "watermark": False,
+                "resolution": task.resolution,
+            },
         }
         if task.reference_frames:
             body["reference_images"] = [

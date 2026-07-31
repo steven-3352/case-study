@@ -47,7 +47,7 @@ def test_sync_generation_sends_fixed_contract_and_returns_mp4_evidence():
 
     def opener(request, timeout):
         captured.append((request, timeout))
-        if request.full_url == "https://seedance.example/v1/videos/generations":
+        if request.full_url == "https://seedance.example/v1/video/generations":
             return Response(json.dumps({"video": {"url": "https://cdn.example/clip.mp4"}}).encode())
         return Response(MP4)
 
@@ -57,11 +57,20 @@ def test_sync_generation_sends_fixed_contract_and_returns_mp4_evidence():
     result = port.generate(_task())
     request, timeout = captured[0]
     body = json.loads(request.data)
-    assert request.full_url == "https://seedance.example/v1/videos/generations"
+    assert request.full_url == "https://seedance.example/v1/video/generations"
     assert request.headers["Authorization"] == "Bearer secret"
     assert body["model"] == "doubao-seedance-2-0"
-    assert body["duration"] == 5
-    assert body["image"]["url"].startswith("data:image/png;base64,")
+    assert body["metadata"] == {
+        "duration": 5,
+        "ratio": "9:16",
+        "generate_audio": False,
+        "watermark": False,
+        "resolution": "720p",
+    }
+    assert "duration" not in body
+    assert "aspect_ratio" not in body
+    assert "resolution" not in body
+    assert body["image"].startswith("data:image/png;base64,")
     assert result.video_bytes == MP4
     assert result.video_sha256 == _digest(MP4)
     assert result.first_frame_sha256 == _digest(PNG)
@@ -123,7 +132,7 @@ def test_provider_rejects_unsafe_base_url(url):
 
 def test_provider_allows_loopback_http_and_v1_base():
     port = SeedancePort("http://127.0.0.1:8000/v1", "local", "model")
-    assert port.endpoint == "http://127.0.0.1:8000/v1/videos/generations"
+    assert port.endpoint == "http://127.0.0.1:8000/v1/video/generations"
 
 
 @pytest.mark.parametrize(
