@@ -270,17 +270,22 @@ mvstudio job director-animatic-test <job_id> --json
 mvstudio job director-animatic-offline-test <job_id> --json
 ```
 
-The structural Animatic action requires an operation=animatic Job with one
-project audio input, one timed LRC input, and one or more project character
-images. It writes runtime files only under <workspace>/.mvstudio/jobs/<job_id>
-and publishes the explicitly non-approved preview to
-projects/<slug>/outputs/structural_animatic_<job_id>.mp4.
+Both Animatic actions require an operation=animatic Job with one project audio
+input, one lyrics input, and one or more project character images. The
+configured-model action performs bounded semantic map drafting followed by a
+third bounded creative-shot task and publishes the explicitly non-approved
+preview to projects/<slug>/outputs/creative_animatic_<job_id>.mp4. Python
+preserves shot IDs/order, timeline, section, energy, cast, lyrics, beats, and
+source assets while accepting only allowlisted composition, action,
+first/last-frame, transition, technique, leverage, and missing-asset decisions.
 
 The offline action is explicit and never serves as an automatic provider
 fallback. It follows the same project and staging boundaries, but labels lyric,
 emotion, and relationship fields as unclassified structural placeholders and
-makes no semantic claim. Both actions keep every generated contract at
-draft_self_generated with approval_required=true.
+makes no semantic claim. It publishes only
+projects/<slug>/outputs/structural_animatic_<job_id>.mp4. Both actions write
+runtime files only under <workspace>/.mvstudio/jobs/<job_id> and keep every
+generated contract at draft_self_generated with approval_required=true.
 
 Plain-text lyrics use the same two actions after local, evidence-backed
 alignment. Set `MVSTUDIO_WHISPER_MODEL` to an installed Faster Whisper model

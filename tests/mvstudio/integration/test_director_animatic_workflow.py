@@ -101,6 +101,11 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(
     assert result["approval_required"] is True
     assert result["semantic_mode"] == semantic_mode
     assert result["lyrics_alignment_mode"] == lyrics_mode
+    assert result["visual_score_mode"] == (
+        "creative_model_draft"
+        if semantic_mode == "configured_model"
+        else "structural_offline"
+    )
     assert inspection.status.runtime_state is RuntimeState.SUCCEEDED
     assert inspection.status.business_stage is BusinessStage.VISUAL_SCORE_PENDING_USER
     assert output.is_file()
@@ -112,7 +117,9 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(
     manifest = json.loads((staging / "artifact-manifest.json").read_text())
     assert all(item["status"] == "draft_self_generated" for item in manifest["artifacts"])
     audit = json.loads((staging / "creative/model_audit.json").read_text())
-    assert len(audit["calls"]) == 2
+    assert len(audit["calls"]) == (
+        3 if semantic_mode == "configured_model" else 2
+    )
     if lyrics_mode == "provider_word_timestamps":
         alignment_audit = json.loads(
             (staging / "intake/lyrics_alignment_audit.json").read_text()
@@ -121,6 +128,11 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(
     if semantic_mode == "offline_unclassified":
         assert {item["model"] for item in audit["calls"]} == {"offline-structural-v1"}
         assert all(item["usage"] == {"input_tokens": 0, "output_tokens": 0} for item in audit["calls"])
+        assert output.name.startswith("structural_animatic_")
+        assert score["purpose"] == "structural_animatic_test_only"
+    else:
+        assert output.name.startswith("creative_animatic_")
+        assert score["purpose"] == "creative_visual_score_draft"
     probe = subprocess.run(
         [
             "ffprobe", "-v", "error", "-select_streams", "v:0",

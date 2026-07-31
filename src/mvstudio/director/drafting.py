@@ -74,6 +74,21 @@ _SCHEMAS = {
         "relationships": [{"pair": ["character_id", "character_id"],
                            "dramatic_function": "text", "reveal_group": "group_id"}],
     },
+    "visual_score.creative_draft_requested": {
+        "shots": [{
+            "id": "shot_id",
+            "purpose": "text",
+            "leverage": "completion_3s|completion_rate|comprehension|save|comment",
+            "composition": {"shot_size": "extreme_close|close|medium|full|wide",
+                            "arrangement": "text"},
+            "primary_action": "text",
+            "first_frame": "text",
+            "last_frame": "text",
+            "transition_out": {"type": "allowlisted transition", "shared_element": "text"},
+            "technique": "2.5d|static|i2v|hybrid",
+            "missing_assets": ["description"],
+        }],
+    },
 }
 
 
@@ -115,7 +130,7 @@ def _atomic_write(path, content):
             os.unlink(temporary)
 
 
-def _call(port, event_type, payload, model, budget, reason):
+def run_bounded_task(port, event_type, payload, model, budget, reason):
     if event_type not in _SCHEMAS:
         raise MapDraftError("semantic task is not allowlisted")
     if not isinstance(model, str) or not model.strip():
@@ -316,7 +331,7 @@ def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
         analysis = analyze_audio(staging, dict(audio_manifest))
     except IntakeContractError as exc:
         raise MapDraftError(str(exc)) from exc
-    semantic_response, semantic_audit = _call(
+    semantic_response, semantic_audit = run_bounded_task(
         port,
         "lyrics.semantic_segment.requested",
         {"duration_seconds": duration, "lines": lines},
@@ -325,7 +340,7 @@ def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
         "Group timed lyric lines by complete semantic meaning without changing timing.",
     )
     groups = _semantic_groups(semantic_response, lines)
-    relationship_response, relationship_audit = _call(
+    relationship_response, relationship_audit = run_bounded_task(
         port,
         "relationship_map.draft_requested",
         {

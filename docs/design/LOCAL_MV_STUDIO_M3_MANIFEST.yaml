@@ -1,6 +1,6 @@
 manifest_version: 1
 milestone: M3
-status: in_progress
+status: complete
 architecture_ref: docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
 directory_contract_ref: docs/design/LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md
 
@@ -15,7 +15,7 @@ constraints:
   - Self-generated director contracts remain draft and cannot authorize final render.
   - Editorial shots and provider generation clips are separate contracts.
   - Generation clips are at least 4000 ms and preserve usable-range handles.
-  - Animatics are structural approval artifacts, never final deliverables.
+  - Animatics are draft approval artifacts, never final deliverables.
 
 outputs:
   - intake/lyrics_plain.json
@@ -56,9 +56,13 @@ acceptance:
   - Draft semantic maps cannot authorize Director compilation until approved.
   - Ordinary-user API and CLI actions start intake, approve, and publish by Job ID
     without accepting staging paths, executor settings, cwd, or output destinations.
-  - A fixed director-animatic-test action accepts only an animatic Job ID, drafts
-    maps and a structural visual score, renders a 540p preview, and publishes the
-    explicitly draft output under the user project's outputs directory.
+  - A fixed director-animatic-test action accepts only an animatic Job ID,
+    drafts semantic maps plus allowlisted shot-level creative decisions, renders
+    a 540p preview, and publishes the explicitly draft creative output under the
+    user project's outputs directory.
+  - Creative drafting cannot change shot IDs/order, timeline, sections, energy,
+    cast, lyrics, beats, or source assets; malformed, incomplete, duplicate, or
+    non-allowlisted decisions fail before worker submission.
   - Structural Animatic testing does not mutate map or visual-score status and
     cannot authorize final rendering or external release.
   - The explicit director-animatic-offline-test action uses only unclassified
@@ -66,13 +70,14 @@ acceptance:
     fallback and makes no lyric, emotion, or relationship semantic claim.
   - Publication of the director artifact package requires explicit approval and
     rejects hash drift, undeclared files, symlinks, project mismatches, and
-    conflicting destination content; the fixed test action may publish only its
-    clearly named non-approved structural preview.
+    conflicting destination content; fixed test actions may publish only their
+    clearly named non-approved creative or structural preview.
   - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
 
+operational_prerequisites:
+  - The configured creative action requires a valid LLM_BASE_URL, LLM_API_KEY,
+    and LLM_MODEL. Missing or upstream-failing configuration blocks explicitly;
+    the offline structural action is available without those credentials.
+
 deferred:
-  - Production credentials for the configured semantic provider; the locally
-    configured LLM key is a placeholder and the current upstream model returned 503
-    when tested with another valid key on the same gateway.
-  - Creative visual-score drafting beyond the deterministic structural test plan.
   - Final-resolution rendering and media-provider generation.

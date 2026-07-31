@@ -277,7 +277,7 @@ class ApplicationService:
         return self.supervisor.submit(job_id, "director_intake", payload)
 
     def start_director_animatic_test(self, job_id):
-        """Use the configured semantic provider for a structural Animatic test."""
+        """Use the configured semantic provider for a creative Animatic draft."""
         return self._start_director_animatic_test(job_id, offline=False)
 
     def start_director_animatic_offline_test(self, job_id):
@@ -372,6 +372,23 @@ class ApplicationService:
             brief,
             staging,
         )
+        visual_score_mode = "structural_offline"
+        if not offline:
+            from mvstudio.director.creative_planner import draft_creative_score
+
+            creative = draft_creative_score(
+                score,
+                drafted["music_map"],
+                drafted["character_map"],
+                drafted["lyrics_semantic"],
+                brief,
+                port,
+                model,
+                staging,
+                drafted["model_audit"],
+            )
+            score = creative["visual_score"]
+            visual_score_mode = "creative_model_draft"
         package = {
             "project_id": project.project_id,
             "brief": brief,
@@ -396,7 +413,9 @@ class ApplicationService:
         )
         if artifact is None:
             raise ApplicationBlocked("director animatic output is missing")
-        destination_relative = "outputs/structural_animatic_" + job_id + ".mp4"
+        destination_relative = (
+            "outputs/structural_animatic_" if offline else "outputs/creative_animatic_"
+        ) + job_id + ".mp4"
         store = ArtifactStore(self._project_root(), self._job_root())
         destination = store.validate_project_path(project.slug, destination_relative)
         if destination.exists():
@@ -421,6 +440,7 @@ class ApplicationService:
             "approval_required": True,
             "semantic_mode": "offline_unclassified" if offline else "configured_model",
             "lyrics_alignment_mode": alignment_mode,
+            "visual_score_mode": visual_score_mode,
             "output": destination_relative,
             "content_hash": artifact["content_hash"],
         }

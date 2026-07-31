@@ -215,3 +215,14 @@
 - Local cached-model smoke loaded Faster Whisper Small and correctly rejected a synthetic tone-only WAV with no word timestamp evidence. No retired example material was used.
 - Full verification: 155 passed, 69 warnings; focused alignment/Animatic suite 25 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
 - M3 remains `in_progress`. Carry forward: creative visual-score drafting and a valid configured semantic provider route; offline semantic placeholders and failed lyric alignment cannot satisfy creative acceptance.
+
+## 2026-07-31 · M3 Creative Visual Score And Completion
+
+- Upgraded `director-animatic-test` from a structural preview to the configured-model creative path. It now makes a third bounded, schema-hashed, token/byte-limited call for shot-level creative decisions and publishes only `outputs/creative_animatic_<job-id>.mp4`.
+- Python retains structural authority: model output cannot change shot IDs/order, timeline, sections, energy, cast, lyrics, beats, or source assets. Only allowlisted leverage, composition, primary action, first/last frame, transition, technique, and missing-asset descriptions are merged.
+- Every creative shot must be present once in structural order, have distinct purpose/action, use bounded text, use allowlisted enums, and end with transition `none`. Any violation fails before writing the creative score or submitting the worker.
+- The offline command remains a separate two-call, zero-token, unclassified structural path and continues to publish only `outputs/structural_animatic_<job-id>.mp4`; there is no provider fallback between the actions.
+- Both paths retain `draft_self_generated` and `approval_required=true`, cross the credential-free spawn worker, compile story/asset/generation/storyboard/shot artifacts, render 540p, preserve source portraits, and use the existing explicit approval/publication gates.
+- Real configured-provider execution remains deployment-blocked by the local placeholder credential and upstream 503 evidence already recorded above. This is now an explicit operational prerequisite, not missing repository implementation.
+- Final verification: 160 passed, 69 warnings; creative planner/Animatic focused suite 20 passed; atom lock 15 cases/10 registered atoms byte-identical; product imports from pipeline: zero; git diff --check clean.
+- M3 status is `complete`. M4 may begin only with approved M3 artifacts and covers keyframe selection, media-provider generation, per-shot diagnosis, final compositing, and QC.

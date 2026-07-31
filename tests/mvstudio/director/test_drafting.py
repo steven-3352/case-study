@@ -40,6 +40,39 @@ class FixturePort:
                 ]
             }
             return ModelResult(output, input_tokens=120, output_tokens=80)
+        if task.event_type == "visual_score.creative_draft_requested":
+            shots = task.payload["shots"]
+            return ModelResult(
+                {
+                    "shots": [
+                        {
+                            "id": shot["id"],
+                            "purpose": f"Creative purpose {index + 1}",
+                            "leverage": "completion_3s" if index == 0 else "completion_rate",
+                            "composition": {
+                                "shot_size": "close" if shot["energy"] >= 4 else "medium",
+                                "arrangement": f"Observable arrangement {index + 1}",
+                            },
+                            "primary_action": f"Observable primary action {index + 1}",
+                            "first_frame": f"Observable opening state {index + 1}",
+                            "last_frame": f"Observable exit state {index + 1}",
+                            "transition_out": {
+                                "type": "none" if index == len(shots) - 1 else "hard_cut",
+                                "shared_element": (
+                                    "final held composition"
+                                    if index == len(shots) - 1
+                                    else f"screen position {index + 1}"
+                                ),
+                            },
+                            "technique": "2.5d",
+                            "missing_assets": [],
+                        }
+                        for index, shot in enumerate(shots)
+                    ]
+                },
+                input_tokens=180,
+                output_tokens=140,
+            )
         output = {
             "characters": [
                 {
