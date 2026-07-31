@@ -23,6 +23,9 @@ def _parser():
     inspect = job.add_parser("inspect"); inspect.add_argument("id"); inspect.add_argument("--json", action="store_true")
     ev = job.add_parser("events"); ev.add_argument("id"); ev.add_argument("--after", type=int, default=0); ev.add_argument("--follow", action="store_true")
     cancel = job.add_parser("cancel"); cancel.add_argument("id"); cancel.add_argument("--grace", type=float, default=1.0); cancel.add_argument("--json", action="store_true")
+    director_intake = job.add_parser("director-intake"); director_intake.add_argument("id"); director_intake.add_argument("--json", action="store_true")
+    director_approve = job.add_parser("director-approve"); director_approve.add_argument("id"); director_approve.add_argument("--json", action="store_true")
+    director_publish = job.add_parser("director-publish"); director_publish.add_argument("id"); director_publish.add_argument("--json", action="store_true")
     return parser
 
 
@@ -65,6 +68,12 @@ def main(argv=None, service=None):
                 else:
                     terminal_seen = False
                 time.sleep(0 if terminal_seen else 0.25)
+        elif args.job_command == "director-intake":
+            result = service.start_director_intake(args.id)
+        elif args.job_command == "director-approve":
+            result = service.approve_director_artifacts(args.id)
+        elif args.job_command == "director-publish":
+            result = service.publish_director_artifacts(args.id)
         else:
             result = service.cancel_job(args.id, args.grace)
         print(json.dumps(result if isinstance(result, dict) else _json(result), sort_keys=True, separators=(",", ":")))

@@ -46,12 +46,14 @@ acceptance:
   - Semantic model tasks are allowlisted, byte/token bounded, schema checked, and
     audited without sending portrait pixels or paths.
   - Draft semantic maps cannot authorize Director compilation until approved.
+  - Ordinary-user API and CLI actions start intake, approve, and publish by Job ID
+    without accepting staging paths, executor settings, cwd, or output destinations.
   - Publication requires explicit approval and rejects hash drift, undeclared files,
     symlinks, project mismatches, and conflicting destination content.
   - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
 
 deferred:
   - Plain-lyric alignment provider integration.
-  - Concrete low-cost semantic model adapter and Application Service workflow wiring.
+  - Concrete low-cost semantic model adapter and map-drafting workflow wiring.
   - Story framework and visual score drafting through bounded model ports.
   - Final-resolution rendering and media-provider generation.

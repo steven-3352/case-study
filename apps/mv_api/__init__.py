@@ -153,6 +153,18 @@ def create_app(service=None, workspace_root=None):
     async def start_job(job_id: str, body: StartRequest):
         return _result(require_service().start_job(job_id, body.executor, body.executor_input))
 
+    @app.post("/api/v1/jobs/{job_id}/director/intake")
+    async def start_director_intake(job_id: str):
+        return _result(require_service().start_director_intake(job_id))
+
+    @app.post("/api/v1/jobs/{job_id}/director/approve")
+    async def approve_director_artifacts(job_id: str):
+        return _result(require_service().approve_director_artifacts(job_id))
+
+    @app.post("/api/v1/jobs/{job_id}/director/publish")
+    async def publish_director_artifacts(job_id: str):
+        return _result(require_service().publish_director_artifacts(job_id))
+
     @app.get("/api/v1/jobs/{job_id}")
     async def inspect_job(job_id: str):
         return _result(require_service().inspect_job(job_id))

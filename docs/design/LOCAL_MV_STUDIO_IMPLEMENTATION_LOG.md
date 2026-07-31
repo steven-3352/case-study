@@ -161,3 +161,12 @@
 - Added a real compiler approval gate: `music_map`, `character_map`, and `visual_score` must each carry `status: approved`; `draft_self_generated` can no longer authorize compilation.
 - Verification: `122 passed, 65 warnings`; M3 focused suite `27 passed`.
 - M3 remains `in_progress`. Carry forward: implement a concrete low-cost model adapter, plain-lyric alignment provider, story/visual-score drafting and Application Service/CLI/API orchestration.
+
+## 2026-07-31 · M3 Ordinary-User Director Actions
+
+- Added fixed API actions: `POST /api/v1/jobs/{job_id}/director/intake`, `director/approve`, and `director/publish`.
+- Added matching CLI actions: `mvstudio job director-intake|director-approve|director-publish <job_id>`.
+- These actions accept only a Job ID and delegate to Application Service. They do not expose staging paths, output destinations, cwd, shell, executor names, or executor payloads.
+- API and CLI return the same structured Application Service results and retain existing redacted error behavior.
+- Verification: `124 passed, 69 warnings`; interface contract suite `17 passed`. Warning increase is from exercising the existing FastAPI startup/shutdown deprecation path in two additional contract tests.
+- M3 remains `in_progress`. Carry forward: add the concrete semantic provider and map workflow action, plain-lyric alignment, then story framework/visual-score drafting through approval to Animatic.
