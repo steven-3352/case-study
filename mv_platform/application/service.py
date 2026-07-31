@@ -1,5 +1,8 @@
+import hashlib
+import json
 import os
 import re
+import shutil
 import sqlite3
 import tempfile
 from dataclasses import dataclass
@@ -12,6 +15,7 @@ from mv_platform.domain import DomainValidationError, Event, JobSpec, JobStatus,
 from mv_platform.domain.hashing import canonical_hash, canonical_json, freeze_json
 from mv_platform.domain.states import BusinessStage, RuntimeState
 from mv_platform.infrastructure.repositories import Repository, RepositoryConflict, RepositoryNotFound
+from mv_platform.infrastructure.artifacts import ArtifactStore, UnsafePathError
 
 
 class ApplicationError(Exception):
@@ -168,6 +172,279 @@ class ApplicationService:
         for relative in self._PROJECT_DIRECTORIES:
             (directory / relative).mkdir(parents=True, exist_ok=True)
         self._write_brief(directory, brief_bytes)
+
+    def _atomic_copy(self, source, destination):
+        if destination.is_symlink():
+            raise ApplicationBlocked("staged input path is a symlink")
+        source_digest = self._file_digest(source)
+        if destination.exists():
+            if not destination.is_file() or self._file_digest(destination) != source_digest:
+                raise ApplicationConflict("staged input differs")
+            return
+        fd, temporary = tempfile.mkstemp(prefix=".input-", dir=str(destination.parent))
+        try:
+            with source.open("rb") as reader, os.fdopen(fd, "wb") as writer:
+                shutil.copyfileobj(reader, writer, 1024 * 1024)
+                writer.flush()
+                os.fsync(writer.fileno())
+            os.replace(temporary, destination)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def _file_digest(self, path):
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.digest()
+
+    def _safe_project_input(self, project, relative):
+        prefixes = ("inputs/audio/", "inputs/lyrics/", "inputs/characters/")
+        if not isinstance(relative, str) or not relative.startswith(prefixes):
+            raise ApplicationConflict("director intake refs must be project input paths")
+        path = Path(relative)
+        if path.is_absolute() or "\\" in relative or any(part in {"", ".", ".."} for part in path.parts):
+            raise ApplicationConflict("invalid director intake path")
+        root = self._project_root() / project.slug
+        candidate = root / path
+        current = root
+        for part in path.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ApplicationBlocked("director input path contains a symlink")
+        try:
+            candidate.resolve(strict=True).relative_to(root.resolve(strict=True))
+        except (FileNotFoundError, ValueError) as exc:
+            raise ApplicationBlocked("director input is missing or escapes project") from exc
+        if not candidate.is_file():
+            raise ApplicationBlocked("director input must be a regular file")
+        return candidate
+
+    def start_director_intake(self, job_id):
+        self._require_initialized()
+        if self.supervisor is None:
+            raise ApplicationBlocked("job supervisor is not configured")
+        try:
+            job = self.repository.get_job(job_id)
+            status = self.repository.get_status(job_id)
+            project = self.repository.get_project(job.project_id)
+        except RepositoryNotFound as exc:
+            raise ApplicationNotFound(job_id) from exc
+        if job.operation != "analyze" or status.runtime_state is not RuntimeState.QUEUED:
+            raise ApplicationConflict("director intake requires a queued analyze job")
+        audio = [path for path in job.input_refs if path.startswith("inputs/audio/")]
+        lyrics = [path for path in job.input_refs if path.startswith("inputs/lyrics/")]
+        characters = [path for path in job.input_refs if path.startswith("inputs/characters/")]
+        if len(audio) != 1 or len(lyrics) != 1 or not characters:
+            raise ApplicationConflict("director intake requires one audio, one lyrics file and character images")
+        if len(audio) + len(lyrics) + len(characters) != len(job.input_refs):
+            raise ApplicationConflict("director intake contains unsupported input refs")
+        staging = self._job_root() / job_id
+        if staging.is_symlink():
+            raise ApplicationBlocked("job staging path is a symlink")
+        staging.mkdir(parents=True, exist_ok=True)
+        for relative in job.input_refs:
+            source = self._safe_project_input(project, relative)
+            current = staging
+            for part in Path(relative).parts[:-1]:
+                current = current / part
+                if current.is_symlink():
+                    raise ApplicationBlocked("staged input path contains a symlink")
+                current.mkdir(exist_ok=True)
+                if current.is_symlink():
+                    raise ApplicationBlocked("staged input path contains a symlink")
+            self._atomic_copy(source, current / Path(relative).name)
+        payload = {
+            "project_id": project.project_id,
+            "audio": audio[0],
+            "lyrics": lyrics[0],
+            "characters": characters,
+        }
+        return self.supervisor.submit(job_id, "director_intake", payload)
+
+    def _director_manifest(self, job_id, required_status):
+        try:
+            job = self.repository.get_job(job_id)
+            status = self.repository.get_status(job_id)
+        except RepositoryNotFound as exc:
+            raise ApplicationNotFound(job_id) from exc
+        if job.operation not in {"compile", "animatic"} or status.runtime_state is not RuntimeState.SUCCEEDED:
+            raise ApplicationConflict("director artifacts require a successful compile or animatic job")
+        staging = self._job_root() / job_id
+        manifest_path = staging / "artifact-manifest.json"
+        if manifest_path.is_symlink() or not manifest_path.is_file():
+            raise ApplicationBlocked("director artifact manifest is missing or unsafe")
+        try:
+            manifest = json.loads(manifest_path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ApplicationBlocked("director artifact manifest is invalid") from exc
+        if manifest.get("project_id") != job.project_id or manifest.get("job_id") != job_id:
+            raise ApplicationBlocked("director artifact manifest identity mismatch")
+        artifacts = manifest.get("artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            raise ApplicationBlocked("director artifact manifest has no artifacts")
+        declared = set()
+        for artifact in artifacts:
+            if not isinstance(artifact, dict):
+                raise ApplicationBlocked("director artifact entry is invalid")
+            relative = artifact.get("path")
+            path = Path(relative) if isinstance(relative, str) else Path()
+            if (
+                not isinstance(relative, str)
+                or not relative.startswith(("creative/", "outputs/"))
+                or path.is_absolute()
+                or "\\" in relative
+                or any(part in {"", ".", ".."} for part in path.parts)
+                or relative in declared
+            ):
+                raise ApplicationBlocked("director artifact path is invalid")
+            if artifact.get("project_id") != job.project_id or artifact.get("job_id") != job_id:
+                raise ApplicationBlocked("director artifact identity mismatch")
+            if artifact.get("status") != required_status:
+                raise ApplicationBlocked("director artifact is not " + required_status)
+            source = staging / path
+            if source.is_symlink() or not source.is_file():
+                raise ApplicationBlocked("director artifact file is missing or unsafe")
+            try:
+                source.resolve(strict=True).relative_to(staging.resolve(strict=True))
+            except (FileNotFoundError, ValueError) as exc:
+                raise ApplicationBlocked("director artifact escapes staging") from exc
+            digest = "sha256:" + self._file_digest(source).hex()
+            if digest != artifact.get("content_hash"):
+                raise ApplicationBlocked("director artifact hash mismatch")
+            declared.add(relative)
+        actual = {
+            path.relative_to(staging).as_posix()
+            for path in staging.rglob("*")
+            if path.is_file()
+            and path.relative_to(staging).as_posix()
+            not in {"artifact-manifest.json", "approval-record.json"}
+        }
+        if any(path.is_symlink() for path in staging.rglob("*")):
+            raise ApplicationBlocked("director staging contains a symlink")
+        if actual != declared:
+            raise ApplicationBlocked("staging contains undeclared director artifacts")
+        return job, status, manifest, manifest_path, staging
+
+    def _set_business_stage(self, status, stage, event_type, payload):
+        now = datetime.now(timezone.utc)
+        with self.database.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE job_id=?", (status.job_id,)).fetchone()
+            db.execute(
+                "UPDATE job_status SET business_stage=?,updated_at=? WHERE job_id=?",
+                (stage.value, now.isoformat(), status.job_id),
+            )
+            db.execute(
+                "INSERT INTO events VALUES (?,?,?,?,?)",
+                (status.job_id, row[0] + 1, event_type, now.isoformat(), canonical_json(payload).decode("utf-8")),
+            )
+            db.commit()
+
+    def approve_director_artifacts(self, job_id):
+        self._require_initialized()
+        job, status, manifest, manifest_path, _staging = self._director_manifest(
+            job_id, "draft_self_generated"
+        )
+        approved_at = datetime.now(timezone.utc).isoformat()
+        for artifact in manifest["artifacts"]:
+            artifact["status"] = "approved"
+            artifact["approved_at"] = approved_at
+        manifest["approval"] = {"status": "approved", "approved_at": approved_at}
+        manifest_bytes = canonical_json(manifest)
+        self._write_atomic_file(manifest_path, manifest_bytes, ".manifest-")
+        approval = {
+            "version": 1,
+            "project_id": job.project_id,
+            "job_id": job_id,
+            "manifest_hash": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+            "status": "approved",
+            "approved_at": approved_at,
+        }
+        self._write_atomic_file(
+            manifest_path.parent / "approval-record.json", canonical_json(approval), ".approval-"
+        )
+        self._set_business_stage(status, BusinessStage.QC_PASSED, "director.artifacts_approved", approval)
+        return _immutable(approval)
+
+    def _write_atomic_file(self, target, content, prefix):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.is_symlink():
+            raise ApplicationBlocked("atomic target is a symlink")
+        fd, temporary = tempfile.mkstemp(prefix=prefix, dir=str(target.parent))
+        try:
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(content)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def publish_director_artifacts(self, job_id):
+        self._require_initialized()
+        job, status, manifest, _manifest_path, staging = self._director_manifest(job_id, "approved")
+        project = self.repository.get_project(job.project_id)
+        approval_path = staging / "approval-record.json"
+        if approval_path.is_symlink() or not approval_path.is_file():
+            raise ApplicationBlocked("director approval record is missing or unsafe")
+        try:
+            approval = json.loads(approval_path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ApplicationBlocked("director approval record is invalid") from exc
+        manifest_hash = "sha256:" + hashlib.sha256(canonical_json(manifest)).hexdigest()
+        if (
+            approval.get("status") != "approved"
+            or approval.get("project_id") != job.project_id
+            or approval.get("job_id") != job_id
+            or approval.get("manifest_hash") != manifest_hash
+        ):
+            raise ApplicationBlocked("director approval does not match the manifest")
+        store = ArtifactStore(self._project_root(), self._job_root())
+        pending = []
+        for artifact in manifest["artifacts"]:
+            destination = store.validate_project_path(project.slug, artifact["path"])
+            project_root = self._project_root() / project.slug
+            current = project_root
+            for part in Path(artifact["path"]).parts:
+                current = current / part
+                if current.is_symlink():
+                    raise ApplicationBlocked("director publication destination contains a symlink")
+            if destination.exists():
+                if not destination.is_file():
+                    raise ApplicationConflict("director publication destination is not a file")
+                digest = "sha256:" + self._file_digest(destination).hex()
+                if digest != artifact["content_hash"]:
+                    raise ApplicationConflict("director publication would overwrite existing content")
+            else:
+                pending.append((staging / artifact["path"], artifact["path"]))
+        created = []
+        try:
+            for source, relative in pending:
+                store.publish(source, project.slug, relative, overwrite=False)
+                created.append(store.validate_project_path(project.slug, relative))
+        except (UnsafePathError, OSError) as exc:
+            for path in reversed(created):
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+            raise ApplicationConflict("director publication failed without overwriting content") from exc
+        receipt = {
+            "version": 1,
+            "project_id": job.project_id,
+            "job_id": job_id,
+            "manifest_hash": manifest_hash,
+            "status": "published",
+            "paths": [artifact["path"] for artifact in manifest["artifacts"]],
+            "published_at": datetime.now(timezone.utc).isoformat(),
+        }
+        receipt_path = self._project_root() / project.slug / ".mvstudio/jobs" / job_id / "publication.json"
+        self._write_atomic_file(receipt_path, canonical_json(receipt), ".publication-")
+        self._set_business_stage(status, BusinessStage.EXPORTED, "director.artifacts_published", receipt)
+        return _immutable(receipt)
 
     def create_project(self, slug, brief, project_id=None):
         self._require_initialized()

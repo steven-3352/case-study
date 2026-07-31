@@ -34,10 +34,13 @@ acceptance:
   - 9:16 animatics are 540x960 and 16:9 animatics are 960x540.
   - Supervisor model_call_count and token_count remain zero.
   - Two concurrent director jobs have no cross-job files or content.
+  - Raw input refs are restricted to project audio, lyrics, and character directories.
+  - Timed LRC and plain lyrics are distinguished without invented timestamps.
+  - Publication requires explicit approval and rejects hash drift, undeclared files,
+    symlinks, project mismatches, and conflicting destination content.
   - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
 
 deferred:
-  - Raw audio beat extraction and lyric alignment provider integration.
+  - Beat extraction and plain-lyric alignment provider integration.
   - Low-cost model drafting of semantic maps and visual score.
-  - User approval state transitions and atomic publication from staging.
   - Final-resolution rendering and media-provider generation.

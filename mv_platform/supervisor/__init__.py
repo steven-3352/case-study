@@ -56,6 +56,9 @@ def _executor(executor):
     if executor == "director":
         from mvstudio.executors.director import run_director, validate_input as validate_director
         return validate_director, run_director
+    if executor == "director_intake":
+        from mvstudio.executors.director_intake import run_director_intake, validate_input as validate_director_intake
+        return validate_director_intake, run_director_intake
     raise UnknownExecutor(executor)
 
 

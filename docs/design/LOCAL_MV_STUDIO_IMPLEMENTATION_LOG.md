@@ -135,3 +135,16 @@
 - Added a bounded spawn-based `director` Supervisor executor. It writes only to current job staging and keeps model/token counters at zero.
 - Verification: `102 passed, 65 warnings`; M3 focused suite `7 passed`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero; `git diff --check` clean.
 - Carry forward: next M3 slice must add raw audio/lyrics/portrait intake, deterministic media probing and lyric parsing, semantic map drafting through a bounded model port, approval transitions, and atomic publication into `projects/<slug>/creative|outputs`. Do not label M3 complete before those paths are tested end to end.
+
+## 2026-07-31 · M3 Raw Intake And Controlled Publication
+
+- Added project-scoped three-input intake for one audio file, one lyrics file, and one or more character images.
+- Application Service validates every project input path, rejects traversal, backslashes, symlinks, missing files, and cross-directory type mismatches, then copies bytes into the current Job staging before execution.
+- Added deterministic ffprobe audio metadata, UTF-8 timed LRC parsing, explicit `alignment_required` for plain lyrics, and Pillow image metadata/hash inspection without rewriting source portrait pixels.
+- Added the bounded `director_intake` Supervisor executor; it reads only the Job-local input copy and writes `intake/intake_manifest.json` plus timed lyric data when present.
+- Corrected Director compiler manifests to use the real supervised Job ID instead of a placeholder identity.
+- Added explicit Application Service approval and controlled publication. Publication rechecks project/Job identity, manifest status, content hashes, declared paths, symlinks, and destination conflicts before writing `creative/` and `outputs/`.
+- Existing differing project artifacts are never overwritten. Same-hash publication is idempotent; conflicting content fails closed.
+- Publication control records live under project `.mvstudio/jobs/<job_id>/`, not in source or `pipeline/`.
+- Verification: `112 passed, 65 warnings`; M3 focused suite `11 passed`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero.
+- M3 remains `in_progress`. Carry forward: implement bounded beat/lyric alignment and semantic map drafting ports, then expose the complete ordinary-user workflow through CLI/API without source-code edits.

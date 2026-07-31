@@ -41,7 +41,7 @@ class ArtifactStore:
         job_id = self._validate_identifier(job_id)
         return self._validate(self.job_root / job_id, relative_path)
 
-    def publish(self, staged_file, project_slug, relative_path):
+    def publish(self, staged_file, project_slug, relative_path, overwrite=True):
         staged = Path(staged_file)
         try: staged.resolve().relative_to(self.job_root)
         except ValueError: raise UnsafePathError("staged file outside job root")
@@ -60,7 +60,14 @@ class ArtifactStore:
                         if not chunk: break
                         target.write(chunk); digest.update(chunk); size += len(chunk)
                     target.flush(); os.fsync(target.fileno())
-                os.replace(temporary, destination)
+                if overwrite:
+                    os.replace(temporary, destination)
+                else:
+                    try:
+                        os.link(temporary, destination)
+                    except FileExistsError as exc:
+                        raise UnsafePathError("destination already exists") from exc
+                    os.unlink(temporary)
             finally:
                 if os.path.exists(temporary): os.unlink(temporary)
         return "sha256:" + digest.hexdigest(), size
