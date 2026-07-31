@@ -123,3 +123,15 @@
 - Added installable package metadata, explicit per-job Session use, and a bounded `legacy` supervisor executor.
 - Synthetic concurrent jobs write only to their own `.mvstudio/jobs/<job_id>` staging directories.
 - Verification: `95 passed, 65 warnings`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero.
+
+## 2026-07-31 · M3 Director Compiler Foundation
+
+- Manifest: `docs/design/LOCAL_MV_STUDIO_M3_MANIFEST.yaml`; milestone remains `in_progress`.
+- Added a fail-closed director package contract for brief, music map, character map, visual score, asset paths, timeline continuity, energy arc, relationship shots, transitions, techniques, and animatic settings.
+- Added deterministic compilation to story framework, asset plan, editorial/generation plan, human storyboard, and engine-neutral shots.
+- Editorial shots remain separate from provider generation clips; i2v/hybrid clips are at least 4000 ms with explicit usable ranges and handles.
+- Added a silent 540p structural Animatic renderer and ffprobe QC. Outputs are 540x960 for 9:16 or 960x540 for 16:9 and are explicitly marked not for external release.
+- Added per-artifact schema/version, input hashes, content hash, producer, job/project identity, and draft status in `artifact-manifest.json`.
+- Added a bounded spawn-based `director` Supervisor executor. It writes only to current job staging and keeps model/token counters at zero.
+- Verification: `102 passed, 65 warnings`; M3 focused suite `7 passed`; atom lock `15 cases/10 registered atoms` byte-identical; product imports from `pipeline`: zero; `git diff --check` clean.
+- Carry forward: next M3 slice must add raw audio/lyrics/portrait intake, deterministic media probing and lyric parsing, semantic map drafting through a bounded model port, approval transitions, and atomic publication into `projects/<slug>/creative|outputs`. Do not label M3 complete before those paths are tested end to end.

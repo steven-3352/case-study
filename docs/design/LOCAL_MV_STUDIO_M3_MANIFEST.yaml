@@ -1,0 +1,43 @@
+manifest_version: 1
+milestone: M3
+status: in_progress
+architecture_ref: docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md
+directory_contract_ref: docs/design/LOCAL_MV_STUDIO_DIRECTORY_CONTRACT.md
+
+goal: >
+  Compile approved director maps and a validated visual score into immutable
+  story, asset, generation, storyboard, shot, and 540p animatic artifacts.
+
+constraints:
+  - Product code lives under src/mvstudio and never imports pipeline.
+  - Executors write only to their current job staging directory.
+  - Source portraits and user inputs are read-only.
+  - Self-generated director contracts remain draft and cannot authorize final render.
+  - Editorial shots and provider generation clips are separate contracts.
+  - Generation clips are at least 4000 ms and preserve usable-range handles.
+  - Animatics are structural approval artifacts, never final deliverables.
+
+outputs:
+  - creative/story_framework.yaml
+  - creative/asset_plan.yaml
+  - creative/generation_plan.yaml
+  - creative/storyboard.md
+  - creative/shots.yaml
+  - outputs/animatic.mp4
+  - outputs/qc_report.json
+  - artifact-manifest.json
+
+acceptance:
+  - Invalid timelines, unknown characters, flat energy, and unsafe input fail closed.
+  - A valid visual score compiles without model calls.
+  - Every output is registered with hashes and source input hashes.
+  - 9:16 animatics are 540x960 and 16:9 animatics are 960x540.
+  - Supervisor model_call_count and token_count remain zero.
+  - Two concurrent director jobs have no cross-job files or content.
+  - Full M0-M3 tests, atom lock, import scan, and git diff check pass.
+
+deferred:
+  - Raw audio beat extraction and lyric alignment provider integration.
+  - Low-cost model drafting of semantic maps and visual score.
+  - User approval state transitions and atomic publication from staging.
+  - Final-resolution rendering and media-provider generation.
