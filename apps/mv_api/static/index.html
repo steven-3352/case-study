@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>本地音乐视频制作台</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 fill=%22%23171816%22/><text x=%224%22 y=%2221%22 fill=%22white%22 font-size=%2212%22 font-family=%22Arial%22>MV</text></svg>">
+  <link rel="stylesheet" href="/assets/app.css?v=20260801-24">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true">影</span>
+        <div><strong>本地音乐视频制作台</strong><span>制作工作台</span></div>
+      </div>
+      <div class="topbar-actions"><button class="secondary-button config-button" id="settings-button" type="button">系统配置 <span id="config-state">读取中</span></button><div class="service-state" id="service-state"><i></i><span>正在连接</span></div></div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar">
+        <div class="section-title">
+          <div><span>项目列表</span><h1>项目</h1></div>
+          <button class="icon-button" id="new-project-button" type="button" title="新建项目" aria-label="新建项目">+</button>
+        </div>
+        <div class="project-list" id="project-list"></div>
+      </aside>
+
+      <section class="main-stage">
+        <div class="empty-state" id="empty-state">
+          <div class="empty-number">01</div>
+          <h2>建立第一个项目</h2>
+          <p>从本地素材到分镜、单镜生成和最终产物，所有运行记录留在你的工作区。</p>
+          <button class="primary-button" id="empty-create-button" type="button">新建项目</button>
+        </div>
+
+        <div class="project-view hidden" id="project-view">
+          <div class="project-header">
+            <div><span class="eyebrow">当前项目</span><h2 id="project-name">-</h2><div class="project-meta"><span id="current-stage-label">读取制作进度</span><span id="blocking-reason"></span></div></div>
+            <div class="project-actions">
+              <button class="danger-button" id="delete-project-button" type="button">删除项目</button>
+              <button class="primary-button" id="new-job-button" type="button">导入项目素材</button>
+            </div>
+          </div>
+
+          <section class="cost-band" aria-label="项目制作成本">
+            <div><span>项目累计制作成本</span><strong id="cost-total">¥0.00000000</strong></div>
+            <dl><div><dt>大语言模型</dt><dd id="cost-llm">¥0.00000000</dd></div><div><dt>图片</dt><dd id="cost-image">¥0.00</dd></div><div><dt>视频</dt><dd id="cost-video">¥0.00</dd></div></dl>
+          </section>
+
+          <div class="workflow-layout">
+            <nav class="stage-rail" id="stage-rail" aria-label="制作流程"></nav>
+            <section class="stage-workspace" id="stage-workspace"></section>
+          </div>
+
+          <details class="operations-drawer">
+            <summary><span>运行记录与费用明细</span><small>排错和审计信息，不影响制作拍板</small></summary>
+            <div class="operations-toolbar"><button class="secondary-button" id="run-mvp-button" type="button">运行两镜自动测试</button><button class="text-button" id="refresh-button" type="button">刷新</button></div>
+            <div class="operations-grid"><div><h3>运行记录</h3><div id="job-list" class="job-list"></div></div><div><h3>费用明细</h3><div class="cost-ledger" id="cost-ledger"></div></div></div>
+          </details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="project-dialog">
+    <form id="project-form">
+      <div class="dialog-head"><div><span>创建项目</span><h2>新建项目</h2></div><button class="icon-button close-button" type="button" data-close aria-label="关闭">×</button></div>
+      <label>项目名称<input name="title" required maxlength="80" placeholder="例如：夏日角色短片"></label>
+      <label>项目标识<input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="summer-character-pv"></label>
+      <div class="form-row"><label>画幅<select name="canvas"><option value="9:16">9:16 竖屏</option><option value="16:9">16:9 横屏</option></select></label><label>目标平台<select name="platform"><option>抖音</option><option>小红书</option><option>本地预览</option></select></label></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close>取消</button><button class="primary-button" type="submit">创建项目</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="job-dialog">
+    <form id="job-form">
+      <div class="dialog-head"><div><span>创建任务</span><h2>新建任务</h2></div><button class="icon-button close-button" type="button" data-close aria-label="关闭">×</button></div>
+      <input type="hidden" name="operation" value="analyze">
+      <label class="folder-picker">项目素材文件夹<input name="asset_folder" type="file" webkitdirectory directory multiple required><span>选择包含音频、歌词、角色图片及可选背景参考的文件夹</span></label>
+      <p class="folder-note" id="folder-summary">系统会读取子文件夹并自动识别素材，不会上传文件夹路径。</p>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close>取消</button><button class="primary-button" type="submit">创建任务</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="delete-dialog">
+    <form id="delete-form">
+      <div class="dialog-head"><div><span>危险操作</span><h2>彻底删除项目</h2></div><button class="icon-button close-button" type="button" data-close aria-label="关闭">×</button></div>
+      <p class="danger-copy">项目文件、任务、事件与产物记录将被永久删除。</p>
+      <label>输入项目标识 <strong id="delete-slug-label">-</strong><input name="confirmation_slug" required autocomplete="off"></label>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close>取消</button><button class="danger-submit" type="submit">永久删除</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="asset-remove-dialog">
+    <form id="asset-remove-form">
+      <div class="dialog-head"><div><span>项目素材</span><h2>从项目移除图片</h2></div><button class="icon-button close-button" type="button" data-close aria-label="关闭">×</button></div>
+      <p class="danger-copy">图片会移入当前项目的回收区，故事和分镜将标记为需要重新生成。之后可以恢复。</p>
+      <div class="asset-remove-target"><strong id="asset-remove-name">-</strong><code id="asset-remove-path">-</code></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close>取消</button><button class="danger-submit" type="submit">确认移除</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="settings-dialog" class="wide-dialog">
+    <form id="settings-form">
+      <div class="dialog-head"><div><span>运行配置</span><h2>系统配置</h2></div><button class="icon-button close-button" type="button" data-close aria-label="关闭">×</button></div>
+      <p class="settings-note" id="settings-summary">正在读取本机已有配置。</p>
+      <div class="provider-grid">
+        <fieldset data-provider="llm"><legend>文本分析服务 <span class="provider-state" id="llm-provider-state"></span></legend><label>服务地址<input name="llm_base_url" placeholder="https://example.com/v1"></label><label>使用模型<input name="llm_model"></label><label>访问密钥 <span class="key-state" id="llm-key-state"></span><input name="llm_api_key" type="password" autocomplete="new-password" placeholder="已配置时无需重复填写"></label></fieldset>
+        <fieldset data-provider="image"><legend>画面生成服务 <span class="provider-state" id="image-provider-state"></span></legend><label>服务地址<input name="image_base_url" placeholder="https://example.com/v1"></label><label>使用模型<input name="image_model"></label><label>访问密钥 <span class="key-state" id="image-key-state"></span><input name="image_api_key" type="password" autocomplete="new-password" placeholder="已配置时无需重复填写"></label></fieldset>
+        <fieldset data-provider="video"><legend>视频生成服务 <span class="provider-state" id="video-provider-state"></span></legend><label>服务地址<input name="video_base_url" placeholder="https://example.com/v1"></label><label>使用模型<input name="video_model"></label><label>访问密钥 <span class="key-state" id="video-key-state"></span><input name="video_api_key" type="password" autocomplete="new-password" placeholder="已配置时无需重复填写"></label></fieldset>
+      </div>
+      <details class="advanced-settings"><summary>高级设置 <span id="local-tools-state">本机组件自动检测中</span></summary><div class="advanced-fields"><p>工作区保存项目、任务和费用数据；修改后重启服务生效，现有文件不会自动搬迁。其他项目通常无需修改，系统启动时会自动检测。</p><label>工作区<input id="setting-workspace" name="workspace_root" placeholder="绝对路径"><span class="field-note" id="workspace-state"></span></label><label>视频处理程序<input name="ffmpeg_path" placeholder="系统自动检测"></label><label>媒体检查程序<input name="ffprobe_path" placeholder="系统自动检测"></label><label>语音识别模型<input name="whisper_model_path" placeholder="可选，本地模型名称或绝对路径"></label><div class="log-paths"><strong>今日错误日志</strong><span>后端</span><code id="backend-log-path">读取中</code><span>前端</span><code id="frontend-log-path">读取中</code></div></div></details>
+      <div class="pricing-note">计费标准：图片 ¥0.5/张 · 视频 ¥0.6/秒 · 大语言模型输入 ¥5/百万词元、缓存 ¥0.5/百万词元、输出 ¥30/百万词元，再乘 0.04。</div>
+      <div class="dialog-actions settings-actions"><button class="secondary-button restart-button" id="restart-service-button" type="button">重启服务</button><span class="action-spacer"></span><button class="secondary-button" type="button" data-close>取消</button><button class="primary-button" type="submit">保存配置</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/assets/app.js?v=20260801-24" defer></script>
+</body>
+</html>

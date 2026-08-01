@@ -6,7 +6,9 @@ import pytest
 import yaml
 from PIL import Image
 
-from mvstudio.director.drafting import MapDraftError, ModelBudget, ModelResult, draft_maps
+from mvstudio.director.drafting import (
+    MapDraftError, ModelBudget, ModelResult, draft_maps, run_bounded_task,
+)
 from mvstudio.director.intake import inspect_intake
 
 
@@ -48,30 +50,33 @@ class FixturePort:
                         {
                             "id": shot["id"],
                             "purpose": f"Creative purpose {index + 1}",
-                            "leverage": "completion_3s" if index == 0 else "completion_rate",
-                            "composition": {
-                                "shot_size": "close" if shot["energy"] >= 4 else "medium",
-                                "arrangement": f"Observable arrangement {index + 1}",
-                            },
+                            "arrangement": f"Observable arrangement {index + 1}",
                             "primary_action": f"Observable primary action {index + 1}",
                             "first_frame": f"Observable opening state {index + 1}",
                             "last_frame": f"Observable exit state {index + 1}",
-                            "transition_out": {
-                                "type": "none" if index == len(shots) - 1 else "hard_cut",
-                                "shared_element": (
-                                    ""
-                                    if index == len(shots) - 1
-                                    else f"screen position {index + 1}"
-                                ),
-                            },
-                            "technique": "2.5d",
-                            "missing_assets": [],
                         }
                         for index, shot in enumerate(shots)
                     ]
                 },
                 input_tokens=180,
                 output_tokens=140,
+            )
+        if task.event_type == "visual_score.quality_review_requested":
+            return ModelResult(
+                {
+                    "baseline_concept": "Readable but ordinary lyric coverage",
+                    "level_1": "Increase shot and composition contrast",
+                    "level_2": "Build a recurring relationship motif",
+                    "level_3": "Create a full emotional arc and visual closure",
+                    "selected_plan": "Level three relationship-led MV",
+                    "why_this_is_best": "It connects every lyric beat into one progression",
+                    "rejected_alternatives": [
+                        "Portrait carousel lacks relationship development",
+                        "Effect-led montage weakens character consistency",
+                    ],
+                },
+                input_tokens=90,
+                output_tokens=80,
             )
         output = {
             "characters": [
@@ -197,12 +202,134 @@ def test_plain_lyrics_cannot_enter_semantic_drafting(tmp_path):
 
 
 def test_bounded_port_enforces_reported_token_usage(tmp_path):
+    class OutputHeavyPort(FixturePort):
+        def run(self, task):
+            result = super().run(task)
+            return ModelResult(
+                result.output, input_tokens=result.input_tokens,
+                output_tokens=11, cache_read_tokens=result.cache_read_tokens,
+            )
+
     intake, timed, brief = _contracts(tmp_path)
     with pytest.raises(MapDraftError, match="token usage exceeds budget"):
         draft_maps(
-            intake, timed, brief, FixturePort(), tmp_path, "fixture",
+            intake, timed, brief, OutputHeavyPort(), tmp_path, "fixture",
             budget=ModelBudget(max_input_bytes=10000, max_output_bytes=10000, max_tokens=10),
         )
+
+
+def test_bounded_task_retries_a_truncated_response_once_with_more_tokens():
+    class TruncatedResponse(RuntimeError):
+        finish_reason = "length"
+
+    class TruncatingPort:
+        translate_chinese_prompts = False
+
+        def __init__(self):
+            self.tasks = []
+
+        def run(self, task):
+            self.tasks.append(task)
+            if len(self.tasks) == 1:
+                raise TruncatedResponse("truncated")
+            return ModelResult({"groups": []}, input_tokens=40, output_tokens=300)
+
+    port = TruncatingPort()
+    response, audit = run_bounded_task(
+        port,
+        "lyrics.semantic_segment.requested",
+        {"duration_seconds": 1, "lines": []},
+        "fixture",
+        ModelBudget(max_input_bytes=4096, max_output_bytes=4096, max_tokens=200),
+        "fixture",
+    )
+
+    assert response == {"groups": []}
+    assert [task.budget.max_tokens for task in port.tasks] == [200, 400]
+    assert audit["budget"]["max_tokens"] == 400
+
+
+def test_bounded_task_never_retries_a_truncated_response_more_than_once():
+    class TruncatedResponse(RuntimeError):
+        finish_reason = "max_tokens"
+
+    class AlwaysTruncatingPort:
+        translate_chinese_prompts = False
+
+        def __init__(self):
+            self.tasks = []
+
+        def run(self, task):
+            self.tasks.append(task)
+            raise TruncatedResponse("truncated")
+
+    port = AlwaysTruncatingPort()
+    with pytest.raises(MapDraftError, match="semantic model port failed"):
+        run_bounded_task(
+            port,
+            "lyrics.semantic_segment.requested",
+            {"duration_seconds": 1, "lines": []},
+            "fixture",
+            ModelBudget(max_input_bytes=4096, max_output_bytes=4096, max_tokens=200),
+            "fixture",
+        )
+    assert [task.budget.max_tokens for task in port.tasks] == [200, 400]
+
+
+def test_online_port_translates_chinese_prompt_before_bounded_task():
+    class TranslatingPort:
+        translate_chinese_prompts = True
+
+        def __init__(self):
+            self.tasks = []
+
+        def run(self, task):
+            self.tasks.append(task)
+            if task.event_type == "prompt.translate_requested":
+                assert "system_prompt_zh" in task.payload
+                return ModelResult({
+                    "english_system_prompt": "You are a lyric analyst.",
+                    "english_task_prompt": "Group the timed lyric lines.",
+                }, 30, 20, 4)
+            assert task.instruction.startswith("You are a lyric analyst.")
+            return ModelResult({"groups": []}, 40, 10)
+
+    port = TranslatingPort()
+    _response, audit = run_bounded_task(
+        port,
+        "lyrics.semantic_segment.requested",
+        {"lines": []},
+        "fixture-model",
+        ModelBudget(max_tokens=500),
+        "test translation",
+    )
+    assert [task.event_type for task in port.tasks] == [
+        "prompt.translate_requested", "lyrics.semantic_segment.requested",
+    ]
+    assert audit["prompt_translation"]["usage"] == {
+        "input_tokens": 30, "cache_read_tokens": 4, "output_tokens": 20,
+    }
+    assert audit["source_prompt_hash"].startswith("sha256:")
+
+
+def test_translation_budget_limits_output_not_billed_input_tokens():
+    class TranslatingPort:
+        translate_chinese_prompts = True
+
+        def run(self, task):
+            if task.event_type == "prompt.translate_requested":
+                return ModelResult({
+                    "english_system_prompt": "You are a lyric analyst.",
+                    "english_task_prompt": "Group the timed lyric lines.",
+                }, input_tokens=7837, output_tokens=193)
+            return ModelResult({"groups": []}, input_tokens=6000, output_tokens=200)
+
+    response, audit = run_bounded_task(
+        TranslatingPort(), "lyrics.semantic_segment.requested", {"lines": []},
+        "fixture-model", ModelBudget(max_tokens=1600), "test real provider usage",
+    )
+    assert response == {"groups": []}
+    assert audit["prompt_translation"]["usage"]["input_tokens"] == 7837
 
 
 def test_drafting_rechecks_audio_hash_before_model_cost(tmp_path):

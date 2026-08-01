@@ -1,6 +1,13 @@
 import asyncio
 import json
+import logging
+import os
+import sys
+import threading
 import time
+import tempfile
+import traceback
+from pathlib import Path
 from dataclasses import fields, is_dataclass
 from datetime import datetime
 from enum import Enum
@@ -8,13 +15,21 @@ from types import MappingProxyType
 from typing import Any, Mapping, Optional
 
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.concurrency import run_in_threadpool
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from mv_platform.application.service import (
     ApplicationBlocked, ApplicationConflict, ApplicationError, ApplicationNotFound,
 )
+from mv_platform.application.error_logs import ErrorLogStore
 from apps.runtime import build_service, load_runtime_environment
+
+
+logger = logging.getLogger(__name__)
 
 
 class StrictModel(BaseModel):
@@ -47,6 +62,70 @@ class StartRequest(StrictModel):
 
 class CancelRequest(StrictModel):
     grace_seconds: float = 1.0
+
+
+class DeleteProjectRequest(StrictModel):
+    confirmation_slug: str
+
+
+class ProviderSettingsRequest(StrictModel):
+    base_url: str = ""
+    api_key: str = ""
+    model: str = ""
+
+
+class PathSettingsRequest(StrictModel):
+    workspace_root: str
+    media_binary_path: str = Field(default="", alias="ff" + "mpeg_path")
+    probe_binary_path: str = Field(default="", alias="ff" + "probe_path")
+    whisper_model_path: str = ""
+
+
+class RuntimeSettingsRequest(StrictModel):
+    paths: PathSettingsRequest
+    llm: ProviderSettingsRequest
+    image: ProviderSettingsRequest
+    video: ProviderSettingsRequest
+
+
+class PromptSettingsRequest(StrictModel):
+    prompts: dict[str, str]
+
+
+class WorkflowDecisionRequest(StrictModel):
+    action: str
+    note: str = Field(default="", max_length=8000)
+
+
+class DisplayContentRequest(StrictModel):
+    fields: dict[str, str]
+
+
+class CharacterAssetRemoveRequest(StrictModel):
+    relative_path: str = Field(min_length=1, max_length=1000)
+    confirmation_name: str = Field(min_length=1, max_length=500)
+
+
+class CharacterAssetRestoreRequest(StrictModel):
+    relative_path: str = Field(min_length=1, max_length=1000)
+
+
+class ShotBackgroundRequest(StrictModel):
+    relative_path: str = Field(min_length=1, max_length=1000)
+
+
+class ShotKeyframeSelectionRequest(StrictModel):
+    relative_path: str = Field(min_length=1, max_length=1000)
+
+
+class FrontendErrorRequest(StrictModel):
+    message: str = Field(min_length=1, max_length=4000)
+    path: str = Field(default="", max_length=500)
+    method: str = Field(default="", max_length=12)
+    status: int = Field(default=0, ge=0, le=599)
+    project_id: str = Field(default="", max_length=100)
+    job_id: str = Field(default="", max_length=100)
+    user_agent: str = Field(default="", max_length=500)
 
 
 def _jsonable(value):
@@ -83,18 +162,49 @@ def _result(value):
 
 
 def _error_response(exc):
+    public_details = {
+        "invalid job request": "任务参数无效，请检查输入引用",
+        "another task is already running": "已有任务正在运行，请等待完成后重试",
+        "idempotency key conflict": "检测到重复任务，请刷新任务列表",
+        "project deletion confirmation does not match": "项目删除确认不匹配",
+        "running jobs must finish before restart": "有任务正在运行，完成后才能重启",
+        "asset upload is empty": "所选文件为空，请重新选择素材文件夹",
+        "asset upload is too large": "单个素材超过 1GB，暂时无法导入",
+        "keyframe upload is too large": "组合首帧超过 40MB，请压缩后重新上传",
+        "keyframe upload is empty": "组合首帧文件为空，请重新选择",
+        "reference image is too large": "参考图片超过 40MB，请压缩后重新上传",
+        "reference image is invalid": "参考图片无法读取，请选择有效的 PNG、JPG 或 WebP 图片",
+        "reference image extension does not match content": "参考图片的扩展名与实际格式不一致",
+        "reference image dimensions are unsupported": "参考图片尺寸无效或过大",
+        "keyframe candidate is invalid": "所选组合首帧不属于当前镜头，请重新选择",
+        "shot background path is invalid": "背景参考不属于当前项目，请重新选择",
+        "image provider is not configured": "图片服务尚未配置，请先在系统设置中填写地址、密钥和模型",
+        "image generation failed": "GPT-image-2 生成失败，请查看错误日志后重试",
+        "image provider returned an invalid image": "图片服务返回的内容不是有效图片，本次结果未保存",
+        "image prompt translation failed": "生图提示词翻译失败，请查看错误日志后重试",
+        "image prompt translation returned an invalid result": "生图提示词翻译结果无效，请重试",
+        "shot background is required before keyframe generation": "请先为本镜选择或生成背景，再生成组合首帧",
+        "story approval is required before background generation": "请先确认故事框架，再生成分镜背景",
+        "storyboard approval is required before keyframe generation": "请先确认分镜方案，再生成组合首帧",
+        "lyrics spreadsheet is invalid": "歌词表格无法读取，请检查 xlsx 文件",
+        "spreadsheet is too large": "歌词表格过大，暂时无法导入",
+        "lyrics spreadsheet is empty": "歌词表格中没有内容",
+        "lyrics spreadsheet needs a lyrics column": "歌词表格需要包含“歌词”列",
+        "lyrics spreadsheet start time is invalid": "歌词表格的起始时间格式无效",
+        "lyrics spreadsheet has no lyrics": "歌词表格中没有识别到歌词",
+    }
     if isinstance(exc, ApplicationNotFound):
         status = 404
-        detail = "not found"
+        detail = "未找到请求的内容"
     elif isinstance(exc, ApplicationConflict):
         status = 409
-        detail = "conflict"
+        detail = public_details.get(str(exc), "当前状态与本次操作冲突")
     elif isinstance(exc, ApplicationBlocked):
         status = 423
-        detail = "blocked"
+        detail = public_details.get(str(exc), "当前条件不足，操作已阻止")
     else:
         status = 400
-        detail = "application error"
+        detail = "应用处理失败，请查看错误日志"
     return JSONResponse({"detail": detail}, status_code=status)
 
 
@@ -102,34 +212,92 @@ def create_app(service=None, workspace_root=None):
     owned = service is None
     app = FastAPI()
     app.state.service = service
+    app.state.error_logs = None
+    web_root = Path(__file__).with_name("static")
+    app.mount("/assets", StaticFiles(directory=web_root), name="web-assets")
 
     @app.on_event("startup")
     async def startup():
         if app.state.service is None:
             load_runtime_environment()
             app.state.service = build_service(workspace_root)
+        current = app.state.service
+        if hasattr(current, "workspace_root") and hasattr(current, "settings"):
+            app.state.error_logs = ErrorLogStore(
+                current.workspace_root, current.settings.data_root
+            )
 
     @app.on_event("shutdown")
     async def shutdown():
         if owned and app.state.service is not None:
             app.state.service.shutdown()
 
+    def record_error(source, event):
+        store = app.state.error_logs
+        if store is None:
+            return
+        try:
+            store.append(source, event)
+        except OSError:
+            logger.exception("Could not write local error log")
+
+    def backend_event(request, exc, response, include_traceback=False):
+        event = {
+            "event": "api_error",
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "exception_type": type(exc).__name__,
+            "message": str(exc),
+        }
+        if include_traceback:
+            event["traceback"] = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        record_error("backend", event)
+
     @app.exception_handler(ApplicationError)
-    async def application_error(_: Request, exc: ApplicationError):
-        return _error_response(exc)
+    async def application_error(request: Request, exc: ApplicationError):
+        response = _error_response(exc)
+        backend_event(request, exc, response)
+        return response
 
     @app.exception_handler(ValueError)
-    async def value_error(_: Request, exc: ValueError):
-        return _error_response(exc)
+    async def value_error(request: Request, exc: ValueError):
+        response = _error_response(exc)
+        backend_event(request, exc, response, include_traceback=True)
+        return response
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError):
+        response = JSONResponse({"detail": "request validation failed"}, status_code=422)
+        backend_event(request, exc, response)
+        return response
 
     @app.exception_handler(Exception)
-    async def unexpected_error(_: Request, exc: Exception):
-        return _error_response(exc)
+    async def unexpected_error(request: Request, exc: Exception):
+        logger.exception("Unhandled API error: %s", type(exc).__name__, exc_info=exc)
+        response = _error_response(exc)
+        backend_event(request, exc, response, include_traceback=True)
+        return response
 
     def require_service():
         if app.state.service is None:
             raise HTTPException(status_code=503, detail="service unavailable")
         return app.state.service
+
+    def tick_service():
+        current = require_service()
+        supervisor = getattr(current, "supervisor", None)
+        if supervisor is not None and hasattr(supervisor, "tick"):
+            supervisor.tick()
+        return current
+
+    def restart_process(current):
+        time.sleep(0.6)
+        current.shutdown()
+        os.execv(
+            sys.executable,
+            [sys.executable, "-m", "uvicorn", *sys.argv[1:]],
+        )
 
     @app.get("/healthz")
     async def healthz():
@@ -141,14 +309,208 @@ def create_app(service=None, workspace_root=None):
             return JSONResponse({"status": "unready"}, status_code=503)
         return {"status": "ready"}
 
+    @app.get("/", include_in_schema=False)
+    async def web_app():
+        return FileResponse(web_root / "index.html")
+
+    @app.get("/api/v1/projects")
+    async def list_projects():
+        return [
+            {
+                "project_id": project.project_id,
+                "slug": project.slug,
+                "brief_sha256": project.brief_sha256,
+                "created_at": project.created_at.isoformat(),
+            }
+            for project in require_service().list_projects()
+        ]
+
+    @app.get("/api/v1/settings")
+    async def get_settings():
+        return _result(require_service().get_runtime_configuration())
+
+    @app.get("/api/v1/logs")
+    async def get_error_log_paths():
+        if app.state.error_logs is None:
+            raise HTTPException(status_code=503, detail="error logs unavailable")
+        return app.state.error_logs.paths()
+
+    @app.post("/api/v1/logs/frontend", status_code=204)
+    async def record_frontend_error(body: FrontendErrorRequest):
+        record_error("frontend", {"event": "frontend_error", **body.model_dump()})
+        return Response(status_code=204)
+
+    @app.post("/api/v1/system/restart")
+    async def restart_system():
+        current = tick_service()
+        for project in current.list_projects():
+            if any(
+                job.status.runtime_state.value in {"queued", "running"}
+                for job in current.list_project_jobs(project.project_id)
+            ):
+                raise ApplicationBlocked("running jobs must finish before restart")
+        threading.Thread(target=restart_process, args=(current,), daemon=True).start()
+        return {"status": "restarting"}
+
+    @app.put("/api/v1/settings")
+    async def update_settings(body: RuntimeSettingsRequest):
+        return _result(require_service().update_runtime_configuration(body.model_dump(by_alias=True)))
+
     @app.post("/api/v1/projects")
     async def create_project(body: ProjectRequest):
         return _result(require_service().create_project(body.slug, body.brief, body.project_id))
+
+    @app.delete("/api/v1/projects/{project_id}")
+    async def delete_project(project_id: str, body: DeleteProjectRequest):
+        return _result(tick_service().delete_project(project_id, body.confirmation_slug))
+
+    @app.get("/api/v1/projects/{project_id}/prompts")
+    async def get_project_prompts(project_id: str):
+        return {"prompts": _result(require_service().get_project_prompts(project_id))}
+
+    @app.put("/api/v1/projects/{project_id}/prompts")
+    async def update_project_prompts(project_id: str, body: PromptSettingsRequest):
+        return {"prompts": _result(require_service().update_project_prompts(project_id, body.prompts))}
+
+    @app.post("/api/v1/projects/{project_id}/display-content/localize")
+    async def localize_project_content(project_id: str):
+        return _result(await run_in_threadpool(
+            require_service().localize_project_content, project_id,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/display-content")
+    async def update_project_display_content(project_id: str, body: DisplayContentRequest):
+        return _result(await run_in_threadpool(
+            require_service().update_project_display_content, project_id, body.fields,
+        ))
+
+    @app.get("/api/v1/projects/{project_id}/costs")
+    async def get_project_costs(project_id: str):
+        return _result(require_service().get_project_costs(project_id))
+
+    @app.get("/api/v1/projects/{project_id}/workflow")
+    async def get_project_workflow(project_id: str):
+        return _result(tick_service().get_project_workflow(project_id))
+
+    @app.post("/api/v1/projects/{project_id}/workflow/{stage_id}/decision")
+    async def record_workflow_decision(
+        project_id: str, stage_id: str, body: WorkflowDecisionRequest,
+    ):
+        return _result(require_service().record_workflow_decision(
+            project_id, stage_id, body.action, body.note,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/assets/characters/remove")
+    async def remove_project_character_asset(
+        project_id: str, body: CharacterAssetRemoveRequest,
+    ):
+        return _result(require_service().remove_project_character_asset(
+            project_id, body.relative_path, body.confirmation_name,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/assets/characters/restore")
+    async def restore_project_character_asset(
+        project_id: str, body: CharacterAssetRestoreRequest,
+    ):
+        return _result(require_service().restore_project_character_asset(
+            project_id, body.relative_path,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/background")
+    async def bind_shot_background(
+        project_id: str, shot_id: str, body: ShotBackgroundRequest,
+    ):
+        return _result(require_service().bind_shot_background(
+            project_id, shot_id, body.relative_path,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/background/generate")
+    async def generate_shot_background(project_id: str, shot_id: str):
+        return _result(await run_in_threadpool(
+            require_service().generate_shot_background, project_id, shot_id,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes")
+    async def import_shot_keyframe(
+        project_id: str, shot_id: str, request: Request, filename: str,
+    ):
+        size = 0
+        temporary = tempfile.NamedTemporaryFile(prefix="mvstudio-keyframe-", delete=False)
+        temporary_path = Path(temporary.name)
+        try:
+            with temporary:
+                async for chunk in request.stream():
+                    size += len(chunk)
+                    if size > 40 * 1024 * 1024:
+                        raise ApplicationConflict("keyframe upload is too large")
+                    temporary.write(chunk)
+            if size == 0:
+                raise ApplicationConflict("keyframe upload is empty")
+            return _result(require_service().import_shot_keyframe(
+                project_id, shot_id, temporary_path, filename,
+            ))
+        finally:
+            try:
+                temporary_path.unlink()
+            except OSError:
+                pass
+
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes/generate")
+    async def generate_shot_keyframe(project_id: str, shot_id: str):
+        return _result(await run_in_threadpool(
+            require_service().generate_shot_keyframe, project_id, shot_id,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes/selection")
+    async def select_shot_keyframe(
+        project_id: str, shot_id: str, body: ShotKeyframeSelectionRequest,
+    ):
+        return _result(require_service().select_shot_keyframe(
+            project_id, shot_id, body.relative_path,
+        ))
+
+    @app.get("/api/v1/projects/{project_id}/files")
+    async def get_project_file(project_id: str, path: str):
+        return FileResponse(require_service().get_project_file(project_id, path))
 
     @app.post("/api/v1/projects/{project_id}/jobs")
     async def submit_job(project_id: str, body: JobRequest):
         values = body.model_dump()
         return _result(require_service().submit_job(project_id, **values))
+
+    @app.post("/api/v1/projects/{project_id}/assets")
+    async def import_project_asset(
+        project_id: str, request: Request, filename: str, kind: str = "",
+    ):
+        size = 0
+        temporary = tempfile.NamedTemporaryFile(prefix="mvstudio-upload-", delete=False)
+        temporary_path = Path(temporary.name)
+        try:
+            with temporary:
+                async for chunk in request.stream():
+                    size += len(chunk)
+                    if size > 1024 * 1024 * 1024:
+                        raise ApplicationConflict("asset upload is too large")
+                    temporary.write(chunk)
+            if size == 0:
+                raise ApplicationConflict("asset upload is empty")
+            current = require_service()
+            if kind:
+                return _result(current.import_project_asset(
+                    project_id, temporary_path, filename, kind_hint=kind,
+                ))
+            return _result(current.import_project_asset(
+                project_id, temporary_path, filename,
+            ))
+        finally:
+            try:
+                temporary_path.unlink()
+            except OSError:
+                pass
+
+    @app.get("/api/v1/projects/{project_id}/jobs")
+    async def list_project_jobs(project_id: str):
+        return [_result(job) for job in tick_service().list_project_jobs(project_id)]
 
     @app.post("/api/v1/jobs/{job_id}/start")
     async def start_job(job_id: str, body: StartRequest):
@@ -166,6 +528,21 @@ def create_app(service=None, workspace_root=None):
     async def start_director_animatic_offline_test(job_id: str):
         return _result(require_service().start_director_animatic_offline_test(job_id))
 
+    @app.post("/api/v1/jobs/{job_id}/director/mvp-test")
+    async def run_director_mvp_test(job_id: str):
+        service = require_service()
+        return _result(await run_in_threadpool(service.run_director_mvp_test, job_id))
+
+    @app.post("/api/v1/jobs/{job_id}/director/plan")
+    async def run_director_plan(job_id: str):
+        service = require_service()
+        return _result(await run_in_threadpool(service.run_director_plan, job_id))
+
+    @app.post("/api/v1/jobs/{job_id}/director/plan/resume")
+    async def resume_director_plan(job_id: str):
+        service = require_service()
+        return _result(await run_in_threadpool(service.resume_director_plan, job_id))
+
     @app.post("/api/v1/jobs/{job_id}/director/approve")
     async def approve_director_artifacts(job_id: str):
         return _result(require_service().approve_director_artifacts(job_id))
@@ -180,7 +557,7 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/jobs/{job_id}")
     async def inspect_job(job_id: str):
-        return _result(require_service().inspect_job(job_id))
+        return _result(tick_service().inspect_job(job_id))
 
     @app.post("/api/v1/jobs/{job_id}/cancel")
     async def cancel_job(job_id: str, body: CancelRequest):

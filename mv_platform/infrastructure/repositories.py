@@ -56,6 +56,14 @@ class Repository:
         if not row: raise RepositoryNotFound(project_id)
         return Project(row[0], row[1], row[2], row[3], datetime.fromisoformat(row[4]))
 
+    def list_projects(self):
+        with self.database.connect() as db:
+            rows = db.execute(
+                "SELECT project_id,slug,root,brief_sha256,created_at "
+                "FROM projects ORDER BY created_at DESC, project_id DESC"
+            ).fetchall()
+        return [Project(row[0], row[1], row[2], row[3], datetime.fromisoformat(row[4])) for row in rows]
+
     def add_job(self, job):
         def run(db):
             try:
@@ -74,6 +82,22 @@ class Repository:
         with self.database.connect() as db: row = db.execute("SELECT * FROM jobs WHERE job_id=?", (job_id,)).fetchone()
         if not row: raise RepositoryNotFound(job_id)
         return self._job(row)
+
+    def list_jobs(self, project_id):
+        with self.database.connect() as db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone():
+                raise RepositoryNotFound(project_id)
+            rows = db.execute(
+                "SELECT jobs.*, job_status.runtime_state, job_status.business_stage, "
+                "job_status.attempt, job_status.updated_at, job_status.error_code "
+                "FROM jobs JOIN job_status ON job_status.job_id=jobs.job_id "
+                "WHERE jobs.project_id=? ORDER BY job_status.updated_at DESC, jobs.job_id DESC",
+                (project_id,),
+            ).fetchall()
+        return [
+            (self._job(row[:12]), JobStatus(row[0], RuntimeState(row[12]), BusinessStage(row[13]), row[14], datetime.fromisoformat(row[15]), row[16]))
+            for row in rows
+        ]
 
     def set_status(self, status):
         def run(db):

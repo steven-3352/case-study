@@ -30,6 +30,7 @@ class InvalidExecutorInput(SupervisorError, ValueError):
 
 _CHILD_ENV_ALLOWLIST = frozenset({
     "LANG", "LC_ALL", "LC_CTYPE", "PATH", "PYTHONDONTWRITEBYTECODE", "SYSTEMROOT", "TZ", "WINDIR",
+    "MVSTUDIO_FFMPEG_PATH", "MVSTUDIO_FFPROBE_PATH", "MVSTUDIO_WHISPER_MODEL",
 })
 
 

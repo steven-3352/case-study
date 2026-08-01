@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from pathlib import Path
@@ -10,6 +11,12 @@ from mv_platform.infrastructure.database import Database
 
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
+SOURCE_PACKAGE_ROOT = SOURCE_ROOT / "src"
+
+# Source checkouts must load the packaged executors without requiring users to
+# understand or run an editable Python installation first.
+if str(SOURCE_PACKAGE_ROOT) not in sys.path:
+    sys.path.insert(0, str(SOURCE_PACKAGE_ROOT))
 
 
 def load_runtime_environment(path=None):
@@ -22,6 +29,14 @@ def default_workspace_root(environ=None):
     configured = env.get("MV_WORKSPACE_ROOT")
     if configured:
         return Path(configured).expanduser().absolute()
+    pointer = workspace_pointer_path(env)
+    if pointer.is_file() and not pointer.is_symlink():
+        try:
+            saved = json.loads(pointer.read_text(encoding="utf-8")).get("workspace_root", "")
+            if saved and Path(saved).expanduser().is_absolute():
+                return Path(saved).expanduser().absolute()
+        except (OSError, ValueError, json.JSONDecodeError, AttributeError):
+            pass
     if sys.platform == "darwin":
         return Path.home() / "Library" / "Application Support" / "MVStudio"
     if os.name == "nt":
@@ -29,6 +44,17 @@ def default_workspace_root(environ=None):
         return base / "MVStudio"
     base = Path(env.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
     return base / "mvstudio"
+
+
+def workspace_pointer_path(environ=None):
+    env = os.environ if environ is None else environ
+    if sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support" / "MVStudio"
+    elif os.name == "nt":
+        base = Path(env.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "MVStudio"
+    else:
+        base = Path(env.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "mvstudio"
+    return base / "workspace.json"
 
 
 def build_service(workspace_root=None, settings=None, with_supervisor=True):
@@ -45,6 +71,7 @@ def build_service(workspace_root=None, settings=None, with_supervisor=True):
         supervisor=supervisor,
         workspace_root=root,
         source_root=SOURCE_ROOT,
+        workspace_pointer_path=workspace_pointer_path(),
     )
     service.initialize()
     return service

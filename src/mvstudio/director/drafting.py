@@ -5,9 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import tempfile
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Protocol
 
@@ -43,6 +44,7 @@ class ModelTask:
     output_schema_hash: str
     output_schema: Mapping
     payload: Mapping
+    instruction: str = ""
 
 
 @dataclass(frozen=True)
@@ -50,11 +52,12 @@ class ModelResult:
     output: Mapping
     input_tokens: int
     output_tokens: int
+    cache_read_tokens: int = 0
 
     def __post_init__(self):
         if not isinstance(self.output, Mapping):
             raise MapDraftError("semantic task output must be a mapping")
-        for value in (self.input_tokens, self.output_tokens):
+        for value in (self.input_tokens, self.output_tokens, self.cache_read_tokens):
             if isinstance(value, bool) or not isinstance(value, int) or value < 0:
                 raise MapDraftError("semantic task token usage must be non-negative integers")
 
@@ -65,6 +68,20 @@ class BoundedModelPort(Protocol):
 
 
 _SCHEMAS = {
+    "prompt.translate_requested": {
+        "english_system_prompt": "text",
+        "english_task_prompt": "text",
+    },
+    "asset.curate_requested": {
+        "groups": [{
+            "person_label": "text",
+            "candidate_paths": ["project_relative_path"],
+            "recommended_keep": ["project_relative_path"],
+            "recommended_remove": ["project_relative_path"],
+            "reason": "text",
+            "risk": "text",
+        }],
+    },
     "lyrics.semantic_segment.requested": {
         "groups": [{"id": "text", "line_ids": ["line_id"], "semantic_type": "text",
                     "emotion": "text", "summary": "text"}],
@@ -78,23 +95,21 @@ _SCHEMAS = {
     "visual_score.creative_draft_requested": {
         "shots": [{
             "id": "shot_id",
-            "purpose": "text",
-            "leverage": "completion_3s|completion_rate|comprehension|save|comment",
-            "composition": {"shot_size": "extreme_close|close|medium|full|wide",
-                            "arrangement": "text"},
-            "primary_action": "text",
-            "first_frame": "text",
-            "last_frame": "text",
-            "transition_out": {
-                "type": (
-                    "none|hard_cut|occlusion_cut|action_match|crossfade|"
-                    "flash_white|ink_wipe|light_wipe|bridge_clip"
-                ),
-                "shared_element": "text; may be empty only when type is none",
-            },
-            "technique": "2.5d|static|i2v|hybrid",
-            "missing_assets": ["description"],
+            "purpose": "one concise sentence, at most 120 characters",
+            "arrangement": "one concise sentence, at most 120 characters",
+            "primary_action": "one observable action, at most 120 characters",
+            "first_frame": "one drawable state, at most 120 characters",
+            "last_frame": "one drawable handoff state, at most 120 characters",
         }],
+    },
+    "visual_score.quality_review_requested": {
+        "baseline_concept": "concise review paragraph, at most 400 characters",
+        "level_1": "concise review paragraph, at most 400 characters",
+        "level_2": "concise review paragraph, at most 400 characters",
+        "level_3": "concise review paragraph, at most 400 characters",
+        "selected_plan": "concise selected plan, at most 400 characters",
+        "why_this_is_best": "concise rationale, at most 400 characters",
+        "rejected_alternatives": ["concise rejected option and reason"],
     },
 }
 
@@ -137,7 +152,30 @@ def _atomic_write(path, content):
             os.unlink(temporary)
 
 
-def run_bounded_task(port, event_type, payload, model, budget, reason):
+def _run_with_one_truncation_retry(port, task, max_retry_tokens):
+    try:
+        return port.run(task), task
+    except Exception as exc:
+        if getattr(exc, "finish_reason", "") not in {"length", "max_tokens"}:
+            raise
+        retry_tokens = min(task.budget.max_tokens * 2, max_retry_tokens)
+        if retry_tokens <= task.budget.max_tokens:
+            raise
+        retry_task = replace(
+            task,
+            budget=ModelBudget(
+                max_input_bytes=task.budget.max_input_bytes,
+                max_output_bytes=task.budget.max_output_bytes,
+                max_tokens=retry_tokens,
+            ),
+        )
+        return port.run(retry_task), retry_task
+
+
+def run_bounded_task(
+    port, event_type, payload, model, budget, reason, prompt_overrides=None,
+    translation_cache=None,
+):
     if event_type not in _SCHEMAS:
         raise MapDraftError("semantic task is not allowlisted")
     if not isinstance(model, str) or not model.strip():
@@ -147,6 +185,96 @@ def run_bounded_task(port, event_type, payload, model, budget, reason):
     contract_bytes = _canonical(request_contract)
     if len(contract_bytes) > budget.max_input_bytes:
         raise MapDraftError("semantic task input exceeds budget")
+    from .prompts import resolved_prompt, resolved_prompt_parts
+
+    instruction = resolved_prompt(event_type, prompt_overrides)
+    translation_audit = None
+    source_instruction = instruction
+    if event_type != "prompt.translate_requested" and getattr(
+        port, "translate_chinese_prompts", False
+    ):
+        parts = resolved_prompt_parts(event_type, prompt_overrides)
+        translator_instruction = resolved_prompt(
+            "prompt.translate_requested", prompt_overrides
+        )
+        cache_key = _hash({
+            "event_type": event_type,
+            "model": model.strip(),
+            "system_prompt": parts["system_prompt"],
+            "task_prompt": parts["task_prompt"],
+            "translator_instruction": translator_instruction,
+        })
+        cached_instruction = (
+            translation_cache.get(cache_key)
+            if isinstance(translation_cache, dict) else None
+        )
+        if isinstance(cached_instruction, str) and cached_instruction:
+            instruction = cached_instruction
+        else:
+            translation_schema = _SCHEMAS["prompt.translate_requested"]
+            translation_payload = {
+                "source_event": event_type,
+                "system_prompt_zh": parts["system_prompt"],
+                "task_prompt_zh": parts["task_prompt"],
+            }
+            translation_contract = {
+                "output_schema": translation_schema, "payload": translation_payload,
+            }
+            translation_bytes = _canonical(translation_contract)
+            translation_budget = ModelBudget(
+                max_input_bytes=min(budget.max_input_bytes, 32768),
+                max_output_bytes=min(budget.max_output_bytes, 32768),
+                max_tokens=min(budget.max_tokens, 1600),
+            )
+            translation_task = ModelTask(
+                event_type="prompt.translate_requested",
+                model=model.strip(),
+                budget=translation_budget,
+                reason="Translate Chinese prompts for " + event_type,
+                input_contract_hash="sha256:" + hashlib.sha256(translation_bytes).hexdigest(),
+                output_schema_hash=_hash(translation_schema),
+                output_schema=translation_schema,
+                payload=translation_payload,
+                instruction=translator_instruction,
+            )
+            try:
+                translated, translation_task = _run_with_one_truncation_retry(
+                    port, translation_task, min(budget.max_tokens, 4000),
+                )
+            except Exception as exc:
+                raise MapDraftError("prompt translation model call failed") from exc
+            if not isinstance(translated, ModelResult):
+                raise MapDraftError("prompt translation must return ModelResult")
+            if translated.output_tokens > translation_task.budget.max_tokens:
+                raise MapDraftError("prompt translation token usage exceeds budget")
+            english_system = _text(
+                translated.output.get("english_system_prompt"), "translated system prompt"
+            )
+            english_task = _text(
+                translated.output.get("english_task_prompt"), "translated task prompt"
+            )
+            instruction = english_system + "\n\nTask requirements:\n" + english_task
+            if isinstance(translation_cache, dict):
+                translation_cache[cache_key] = instruction
+            translated_bytes = _canonical(translated.output)
+            if len(translated_bytes) > translation_budget.max_output_bytes:
+                raise MapDraftError("prompt translation output exceeds budget")
+            translation_audit = {
+                "event_type": translation_task.event_type,
+                "source_event": event_type,
+                "model": translation_task.model,
+                "input_contract_hash": translation_task.input_contract_hash,
+                "output_schema_hash": translation_task.output_schema_hash,
+                "response_hash": "sha256:" + hashlib.sha256(translated_bytes).hexdigest(),
+                "prompt_hash": "sha256:" + hashlib.sha256(
+                    translation_task.instruction.encode("utf-8")
+                ).hexdigest(),
+                "usage": {
+                    "input_tokens": translated.input_tokens,
+                    "cache_read_tokens": translated.cache_read_tokens,
+                    "output_tokens": translated.output_tokens,
+                },
+            }
     task = ModelTask(
         event_type=event_type,
         model=model.strip(),
@@ -156,14 +284,15 @@ def run_bounded_task(port, event_type, payload, model, budget, reason):
         output_schema_hash=_hash(schema),
         output_schema=schema,
         payload=payload,
+        instruction=instruction,
     )
     try:
-        result = port.run(task)
+        result, task = _run_with_one_truncation_retry(port, task, 12000)
     except Exception as exc:
         raise MapDraftError("semantic model port failed") from exc
     if not isinstance(result, ModelResult):
         raise MapDraftError("semantic model port must return ModelResult")
-    if result.input_tokens + result.output_tokens > budget.max_tokens:
+    if result.output_tokens > task.budget.max_tokens:
         raise MapDraftError("semantic task token usage exceeds budget")
     response = result.output
     response_bytes = _canonical(response)
@@ -173,16 +302,26 @@ def run_bounded_task(port, event_type, payload, model, budget, reason):
         "event_type": task.event_type,
         "model": task.model,
         "budget": {
-            "max_input_bytes": budget.max_input_bytes,
-            "max_output_bytes": budget.max_output_bytes,
-            "max_tokens": budget.max_tokens,
+            "max_input_bytes": task.budget.max_input_bytes,
+            "max_output_bytes": task.budget.max_output_bytes,
+            "max_tokens": task.budget.max_tokens,
         },
         "reason": task.reason,
         "input_contract_hash": task.input_contract_hash,
         "output_schema_hash": task.output_schema_hash,
         "response_hash": "sha256:" + hashlib.sha256(response_bytes).hexdigest(),
-        "usage": {"input_tokens": result.input_tokens, "output_tokens": result.output_tokens},
+        "prompt_hash": "sha256:" + hashlib.sha256(instruction.encode("utf-8")).hexdigest(),
+        "source_prompt_hash": "sha256:" + hashlib.sha256(
+            source_instruction.encode("utf-8")
+        ).hexdigest(),
+        "usage": {
+            "input_tokens": result.input_tokens,
+            "cache_read_tokens": result.cache_read_tokens,
+            "output_tokens": result.output_tokens,
+        },
     }
+    if translation_audit is not None:
+        audit["prompt_translation"] = translation_audit
     return response, audit
 
 
@@ -201,17 +340,59 @@ def _timed_lines(value, duration):
         if start >= duration:
             raise MapDraftError("timed lyric exceeds audio duration")
         previous = float(start)
-        lines.append({
+        end = entry.get("end_seconds")
+        if end is not None and (
+            isinstance(end, bool) or not isinstance(end, (int, float))
+            or end <= start or end > duration + 0.05
+        ):
+            raise MapDraftError("timed lyric end is invalid")
+        line = {
             "id": f"line_{index:03d}",
             "start_seconds": round(float(start), 6),
             "text": _text(entry.get("text"), "timed lyric text"),
-        })
+        }
+        if end is not None:
+            line["end_seconds"] = round(float(end), 6)
+        names = entry.get("character_names")
+        if names is not None:
+            line["character_names"] = [
+                _text(name, "director character name")
+                for name in _sequence(names, "director character names")
+            ]
+            line["character_label"] = _text(
+                entry.get("character_label", "、".join(line["character_names"])),
+                "director character label",
+            )
+            line["source_row"] = entry.get("source_row")
+            line["source_sheet"] = entry.get("source_sheet", "")
+        lines.append(line)
     if not lines:
         raise MapDraftError("timed lyrics cannot be empty")
     for current, following in zip(lines, lines[1:]):
-        current["end_seconds"] = following["start_seconds"]
-    lines[-1]["end_seconds"] = round(float(duration), 6)
+        current.setdefault("end_seconds", following["start_seconds"])
+    lines[-1].setdefault("end_seconds", round(float(duration), 6))
     return lines
+
+
+def _bind_director_cast(lines, characters):
+    def aliases(item):
+        values = {item["name"].strip(), Path(item["source_asset"]).stem}
+        values.update(re.sub(r"-[0-9a-f]{10}$", "", value) for value in list(values))
+        return {value for value in values if value}
+
+    by_name = {alias: item["id"] for item in characters for alias in aliases(item)}
+    all_ids = [item["id"] for item in characters]
+    for line in lines:
+        names = line.get("character_names")
+        if names is None:
+            continue
+        if names == ["合"]:
+            line["character_ids"] = list(all_ids)
+            continue
+        unknown = [name for name in names if name not in by_name]
+        if unknown:
+            raise MapDraftError("spreadsheet character has no matching project portrait: " + "、".join(unknown))
+        line["character_ids"] = [by_name[name] for name in names]
 
 
 def _characters(intake, brief):
@@ -315,7 +496,9 @@ def _relationship_map(response, characters, group_ids):
     return profiles, relationships
 
 
-def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
+def draft_maps(
+    intake, lyrics_timed, brief, port, staging, model, budget=None, prompt_overrides=None
+):
     if not isinstance(intake, Mapping) or intake.get("status") != "intake_validated":
         raise MapDraftError("validated intake manifest is required")
     if not isinstance(brief, Mapping):
@@ -328,6 +511,7 @@ def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
         raise MapDraftError("audio duration is invalid")
     lines = _timed_lines(lyrics_timed, float(duration))
     characters = _characters(intake, brief)
+    _bind_director_cast(lines, characters)
     budget = budget or ModelBudget()
     staging_path = Path(staging)
     if staging_path.is_symlink():
@@ -348,6 +532,7 @@ def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
         model,
         budget,
         "Group timed lyric lines by complete semantic meaning without changing timing.",
+        prompt_overrides,
     )
     groups = _semantic_groups(semantic_response, lines)
     relationship_response, relationship_audit = run_bounded_task(
@@ -367,6 +552,7 @@ def draft_maps(intake, lyrics_timed, brief, port, staging, model, budget=None):
         model,
         budget,
         "Draft director functions and relationships without accessing portrait pixels.",
+        prompt_overrides,
     )
     profiles, relationships = _relationship_map(
         relationship_response, characters, {item["id"] for item in groups}

@@ -21,9 +21,14 @@ class CreativePlanError(ValueError):
 
 _SHOT_SIZES = frozenset({"extreme_close", "close", "medium", "full", "wide"})
 _FIELDS = frozenset({
-    "id", "purpose", "leverage", "composition", "primary_action",
-    "first_frame", "last_frame", "transition_out", "technique", "missing_assets",
+    "id", "purpose", "arrangement", "primary_action", "first_frame", "last_frame",
 })
+_REVIEW_FIELDS = frozenset({
+    "baseline_concept", "level_1", "level_2", "level_3", "selected_plan",
+    "why_this_is_best", "rejected_alternatives",
+})
+_CREATIVE_BATCH_SIZE = 1
+_CREATIVE_FIELD_MAX_BYTES = 480
 
 
 def _sequence(value, label):
@@ -86,8 +91,9 @@ def _payload(structural_score, character_map, lyrics_semantic, brief):
             "traits": list(item.get("traits", [])),
             "symbols": list(item.get("symbols", [])),
         })
+    structural_shots = _sequence(structural_score.get("shots", []), "structural shots")
     shots = []
-    for shot in _sequence(structural_score.get("shots", []), "structural shots"):
+    for shot in structural_shots:
         if not isinstance(shot, Mapping):
             raise CreativePlanError("structural shot must be a mapping")
         shots.append({
@@ -110,13 +116,18 @@ def _payload(structural_score, character_map, lyrics_semantic, brief):
         "constraints": {
             "preserve_shot_ids_and_order": True,
             "one_primary_action_per_shot": True,
-            "last_transition_must_be_none": True,
+            "one_sentence_per_text_field": True,
+            "max_characters_per_text_field": 120,
+            "last_transition_must_be_none": bool(
+                structural_shots
+                and structural_shots[-1].get("transition_out", {}).get("type") == "none"
+            ),
             "source_assets_are_python_owned": True,
         },
     }
 
 
-def _creative_shots(response, structural_shots):
+def _creative_shots(response, structural_shots, require_final_transition=False):
     if not isinstance(response, Mapping) or set(response) != {"shots"}:
         raise CreativePlanError("creative response has unknown or missing fields")
     raw = _sequence(response["shots"], "creative shots")
@@ -128,19 +139,19 @@ def _creative_shots(response, structural_shots):
             raise CreativePlanError("creative shot contract is invalid")
         if item.get("id") != structural.get("id"):
             raise CreativePlanError("creative shot ids must preserve structural order")
-        composition = item.get("composition")
-        if not isinstance(composition, Mapping) or set(composition) != {"shot_size", "arrangement"}:
-            raise CreativePlanError("creative composition contract is invalid")
+        composition = structural.get("composition")
+        if not isinstance(composition, Mapping):
+            raise CreativePlanError("structural composition contract is invalid")
         shot_size = composition.get("shot_size")
         if shot_size not in _SHOT_SIZES:
-            raise CreativePlanError("creative shot size is not allowlisted")
-        transition = item.get("transition_out")
-        if not isinstance(transition, Mapping) or set(transition) != {"type", "shared_element"}:
-            raise CreativePlanError("creative transition contract is invalid")
+            raise CreativePlanError("structural shot size is not allowlisted")
+        transition = structural.get("transition_out")
+        if not isinstance(transition, Mapping):
+            raise CreativePlanError("structural transition contract is invalid")
         transition_type = transition.get("type")
         if transition_type not in TRANSITIONS:
             raise CreativePlanError("creative transition is not allowlisted")
-        if index == len(raw) - 1 and transition_type != "none":
+        if require_final_transition and index == len(raw) - 1 and transition_type != "none":
             raise CreativePlanError("final creative shot transition must be none")
         shared_element = transition.get("shared_element")
         if not isinstance(shared_element, str):
@@ -150,39 +161,62 @@ def _creative_shots(response, structural_shots):
             shared_element = shared_element or "final held composition"
         elif not shared_element:
             raise CreativePlanError("creative shared element must be non-empty text")
-        technique = item.get("technique")
+        technique = structural.get("technique")
         if technique not in TECHNIQUES:
             raise CreativePlanError("creative technique is not allowlisted")
-        leverage = item.get("leverage")
+        leverage = structural.get("leverage")
         if leverage not in LEVERAGES:
             raise CreativePlanError("creative leverage is not allowlisted")
-        missing = [
-            _text(value, "missing asset", 300)
-            for value in _sequence(item.get("missing_assets"), "missing assets")
-        ]
-        if len(missing) > 12:
-            raise CreativePlanError("creative shot has too many missing assets")
         result.append({
-            "purpose": _text(item.get("purpose"), "creative purpose"),
+            "purpose": _text(
+                item.get("purpose"), "creative purpose", _CREATIVE_FIELD_MAX_BYTES
+            ),
             "leverage": leverage,
             "composition": {
                 "shot_size": shot_size,
-                "arrangement": _text(composition.get("arrangement"), "creative arrangement"),
+                "arrangement": _text(
+                    item.get("arrangement"), "creative arrangement",
+                    _CREATIVE_FIELD_MAX_BYTES,
+                ),
             },
-            "primary_action": _text(item.get("primary_action"), "creative primary action"),
-            "first_frame": _text(item.get("first_frame"), "creative first frame"),
-            "last_frame": _text(item.get("last_frame"), "creative last frame"),
+            "primary_action": _text(
+                item.get("primary_action"), "creative primary action",
+                _CREATIVE_FIELD_MAX_BYTES,
+            ),
+            "first_frame": _text(
+                item.get("first_frame"), "creative first frame", _CREATIVE_FIELD_MAX_BYTES
+            ),
+            "last_frame": _text(
+                item.get("last_frame"), "creative last frame", _CREATIVE_FIELD_MAX_BYTES
+            ),
             "transition_out": {
                 "type": transition_type,
                 "shared_element": shared_element,
             },
             "technique": technique,
-            "missing_assets": missing,
+            "missing_assets": list(structural.get("assets", {}).get("missing", [])),
         })
     purposes = [item["purpose"] for item in result]
     actions = [item["primary_action"] for item in result]
     if len(set(purposes)) != len(purposes) or len(set(actions)) != len(actions):
         raise CreativePlanError("creative shots require distinct purposes and primary actions")
+    return result
+
+
+def _quality_review(response):
+    if not isinstance(response, Mapping) or set(response) != _REVIEW_FIELDS:
+        raise CreativePlanError("creative quality review contract is invalid")
+    result = {
+        key: _text(response.get(key), "creative review " + key, 1200)
+        for key in _REVIEW_FIELDS - {"rejected_alternatives"}
+    }
+    rejected = [
+        _text(item, "rejected creative alternative", 800)
+        for item in _sequence(response.get("rejected_alternatives"), "rejected alternatives")
+    ]
+    if len(rejected) < 2:
+        raise CreativePlanError("creative quality review requires two rejected alternatives")
+    result["rejected_alternatives"] = rejected
     return result
 
 
@@ -197,6 +231,7 @@ def draft_creative_score(
     staging,
     upstream_audit,
     budget=None,
+    prompt_overrides=None,
 ):
     for label, value in (
         ("structural_score", structural_score),
@@ -218,23 +253,60 @@ def draft_creative_score(
     if creative.is_symlink():
         raise CreativePlanError("creative score output directory cannot be a symlink")
     creative.mkdir(parents=True, exist_ok=True)
+    structural_shots = list(_sequence(structural_score.get("shots"), "structural shots"))
+    task_budget = budget or ModelBudget(max_tokens=3000)
+    decisions = []
+    creative_audits = []
+    translation_cache = {}
     try:
-        response, call_audit = run_bounded_task(
+        for offset in range(0, len(structural_shots), _CREATIVE_BATCH_SIZE):
+            batch = structural_shots[offset:offset + _CREATIVE_BATCH_SIZE]
+            batch_score = copy.deepcopy(structural_score)
+            batch_score["shots"] = batch
+            response, call_audit = run_bounded_task(
+                port,
+                "visual_score.creative_draft_requested",
+                _payload(batch_score, character_map, lyrics_semantic, brief),
+                model,
+                task_budget,
+                "Draft observable shot decisions for this batch without changing time, cast, order or assets. Return exactly one concise sentence of at most 120 characters per text field.",
+                prompt_overrides,
+                translation_cache,
+            )
+            decisions.extend(_creative_shots(
+                response,
+                batch,
+                require_final_transition=offset + len(batch) == len(structural_shots),
+            ))
+            creative_audits.append(call_audit)
+        review_response, review_audit = run_bounded_task(
             port,
-            "visual_score.creative_draft_requested",
-            _payload(structural_score, character_map, lyrics_semantic, brief),
+            "visual_score.quality_review_requested",
+            {
+                "project": _payload(structural_score, character_map, lyrics_semantic, brief)["project"],
+                "shots": [
+                    {
+                        "id": shot["id"], "time": shot["time"],
+                        "characters": shot["characters"], "lyric": shot["lyric"].get("text", ""),
+                        "purpose": decision["purpose"], "primary_action": decision["primary_action"],
+                    }
+                    for shot, decision in zip(structural_shots, decisions)
+                ],
+            },
             model,
-            budget or ModelBudget(max_tokens=5000),
-            "Draft observable shot-level creative decisions without changing structure or source assets.",
+            ModelBudget(max_tokens=4000),
+            "Audit the complete MV plan, raise it three material levels, and select the strongest executable plan. Keep every text field within 400 characters.",
+            prompt_overrides,
+            translation_cache,
         )
+        review = _quality_review(review_response)
     except Exception as exc:
         if isinstance(exc, CreativePlanError):
             raise
         raise CreativePlanError("creative visual score model task failed") from exc
-    structural_shots = list(_sequence(structural_score.get("shots"), "structural shots"))
-    decisions = _creative_shots(response, structural_shots)
     score = copy.deepcopy(structural_score)
     score["purpose"] = "creative_visual_score_draft"
+    score["creative_review"] = review
     for shot, decision in zip(score["shots"], decisions):
         used_assets = copy.deepcopy(shot["assets"]["use"])
         shot.update({key: value for key, value in decision.items() if key != "missing_assets"})
@@ -243,7 +315,7 @@ def draft_creative_score(
     audit = {
         "version": 1,
         "status": "draft_self_generated",
-        "calls": calls + [call_audit],
+        "calls": calls + creative_audits + [review_audit],
     }
     _atomic_write(
         creative / "visual_score.yaml",

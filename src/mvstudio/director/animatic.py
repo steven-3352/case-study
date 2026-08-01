@@ -49,8 +49,8 @@ def _shot_card(shot, size, destination):
 
 
 def render_animatic(shots, canvas, fps, destination):
-    ffmpeg = shutil.which("ffmpeg")
-    ffprobe = shutil.which("ffprobe")
+    ffmpeg = os.environ.get("MVSTUDIO_FFMPEG_PATH") or shutil.which("ffmpeg")
+    ffprobe = os.environ.get("MVSTUDIO_FFPROBE_PATH") or shutil.which("ffprobe")
     if not ffmpeg or not ffprobe:
         raise AnimaticError("ffmpeg and ffprobe are required for animatic rendering")
     destination = Path(destination)

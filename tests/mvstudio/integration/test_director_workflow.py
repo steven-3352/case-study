@@ -106,6 +106,53 @@ def test_publication_rejects_hash_tampering_and_existing_conflict(tmp_path):
     before = hashlib.sha256(destination.read_bytes()).hexdigest()
     with pytest.raises(ApplicationConflict, match="overwrite"):
         service.publish_director_artifacts(job.job_id)
+    with pytest.raises(ApplicationConflict, match="unverified"):
+        service.publish_director_artifacts(job.job_id, supersede=True)
     assert hashlib.sha256(destination.read_bytes()).hexdigest() == before
     assert not (tmp_path / "projects/film/outputs/animatic.mp4").exists()
+    supervisor.shutdown()
+
+
+def test_publication_can_supersede_only_a_verified_prior_publication(tmp_path):
+    from tests.mvstudio.director.conftest import director_package as package_fixture
+
+    service, supervisor = _service(tmp_path)
+    project = service.create_project("film", {"canvas": "9:16"})
+
+    first_package = package_fixture.__wrapped__()
+    first_package["project_id"] = project.project_id
+    first_job = service.submit_job(
+        project.project_id, "compile", canonical_hash(first_package)
+    )
+    service.start_job(first_job.job_id, "director", first_package)
+    assert supervisor.wait(first_job.job_id, 20).runtime_state is RuntimeState.SUCCEEDED
+    service.approve_director_artifacts(first_job.job_id)
+    service.publish_director_artifacts(first_job.job_id)
+
+    second_package = package_fixture.__wrapped__()
+    second_package["project_id"] = project.project_id
+    second_package["visual_score"]["shots"][0]["primary_action"] = (
+        "A steps into the shared light before B becomes visible"
+    )
+    second_job = service.submit_job(
+        project.project_id, "compile", canonical_hash(second_package)
+    )
+    service.start_job(second_job.job_id, "director", second_package)
+    assert supervisor.wait(second_job.job_id, 20).runtime_state is RuntimeState.SUCCEEDED
+    service.approve_director_artifacts(second_job.job_id)
+
+    with pytest.raises(ApplicationConflict, match="overwrite"):
+        service.publish_director_artifacts(second_job.job_id)
+    receipt = service.publish_director_artifacts(second_job.job_id, supersede=True)
+    assert receipt["status"] == "published"
+    assert receipt["supersedes_job_ids"] == (first_job.job_id,)
+    second_manifest = json.loads(
+        (tmp_path / ".mvstudio/jobs" / second_job.job_id / "artifact-manifest.json").read_text()
+    )
+    expected = {
+        item["path"]: item["content_hash"] for item in second_manifest["artifacts"]
+    }
+    for relative, digest in expected.items():
+        published = tmp_path / "projects/film" / relative
+        assert "sha256:" + hashlib.sha256(published.read_bytes()).hexdigest() == digest
     supervisor.shutdown()

@@ -118,7 +118,7 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(
     assert all(item["status"] == "draft_self_generated" for item in manifest["artifacts"])
     audit = json.loads((staging / "creative/model_audit.json").read_text())
     assert len(audit["calls"]) == (
-        3 if semantic_mode == "configured_model" else 2
+        len(score["shots"]) + 3 if semantic_mode == "configured_model" else 2
     )
     if lyrics_mode == "provider_word_timestamps":
         alignment_audit = json.loads(
@@ -127,10 +127,18 @@ def test_job_id_action_drafts_and_publishes_540p_structural_animatic(
         assert alignment_audit["provider"] == "fixture-aligner"
     if semantic_mode == "offline_unclassified":
         assert {item["model"] for item in audit["calls"]} == {"offline-structural-v1"}
-        assert all(item["usage"] == {"input_tokens": 0, "output_tokens": 0} for item in audit["calls"])
+        assert all(
+            item["usage"] == {
+                "input_tokens": 0, "cache_read_tokens": 0, "output_tokens": 0,
+            }
+            for item in audit["calls"]
+        )
         assert output.name.startswith("structural_animatic_")
         assert score["purpose"] == "structural_animatic_test_only"
     else:
+        event_types = [item["event_type"] for item in audit["calls"]]
+        assert event_types.count("visual_score.creative_draft_requested") == len(score["shots"])
+        assert event_types.count("visual_score.quality_review_requested") == 1
         assert output.name.startswith("creative_animatic_")
         assert score["purpose"] == "creative_visual_score_draft"
     probe = subprocess.run(

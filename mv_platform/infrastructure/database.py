@@ -43,4 +43,12 @@ class Database:
               relative_path TEXT NOT NULL, input_hashes TEXT NOT NULL, content_hash TEXT NOT NULL,
               created_at TEXT NOT NULL, producer TEXT NOT NULL, status TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS cost_entries (
+              entry_id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(project_id),
+              job_id TEXT REFERENCES jobs(job_id), step_id TEXT NOT NULL, resource_type TEXT NOT NULL,
+              quantity REAL NOT NULL, unit_price REAL NOT NULL, input_tokens INTEGER NOT NULL,
+              cache_read_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL,
+              multiplier REAL NOT NULL, amount_yuan REAL NOT NULL, occurred_at TEXT NOT NULL,
+              metadata TEXT NOT NULL
+            );
             """)

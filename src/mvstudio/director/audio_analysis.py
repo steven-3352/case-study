@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -46,8 +48,11 @@ def _decode(path, duration):
         raise IntakeContractError("audio duration must be finite")
     if duration <= 0 or duration > 1800:
         raise IntakeContractError("audio analysis supports durations up to 1800 seconds")
+    ffmpeg = os.environ.get("MVSTUDIO_FFMPEG_PATH") or shutil.which("ffmpeg")
+    if not ffmpeg:
+        raise IntakeContractError("audio decode unavailable")
     command = [
-        "ffmpeg", "-v", "error", "-nostdin", "-i", str(path), "-t", str(duration + 0.1),
+        ffmpeg, "-v", "error", "-nostdin", "-i", str(path), "-t", str(duration + 0.1),
         "-f", "s16le", "-ac", "1", "-ar", "8000", "pipe:1",
     ]
     try:

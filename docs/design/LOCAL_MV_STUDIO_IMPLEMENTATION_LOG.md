@@ -1,5 +1,25 @@
 # Local MV Studio · Implementation Log
 
+## 2026-08-01 · Web MVP User Test Surface
+
+- Added a same-origin FastAPI Web workspace at `/` with responsive desktop/mobile layouts.
+- Ordinary-user flow now covers project creation and selection, job creation, automatic test execution, status polling, event history, artifacts, cancellation, and fixed director actions.
+- Added safe read-only project and project-job list contracts; project roots and absolute paths are not exposed.
+- Web polling advances the zero-token Supervisor before returning status, fixing jobs that otherwise remained visually `running` unless an SSE consumer was connected.
+- Fixed async form lifecycle handling so successful project/job creation updates the current page without a manual reload.
+- Verification: final contract suite `22 passed`; full final suite `201 passed`; JavaScript syntax and `git diff --check` pass.
+- Browser evidence: Chrome desktop 1440x1000 and mobile 390x844; create project -> create auto-start job -> `succeeded`; zero console errors and no mobile horizontal overflow.
+- Test service: `http://127.0.0.1:8790`, isolated workspace `/tmp/local-mv-studio-web-8790`.
+
+### Project deletion follow-up
+
+- Added permanent project deletion through a fixed `DELETE /api/v1/projects/{project_id}` contract.
+- Deletion requires an exact slug confirmation and refuses projects with running Jobs.
+- Successful deletion removes the project directory, Job staging directories, and associated artifacts, events, statuses, Jobs, and project database rows.
+- Web confirmation uses an explicit danger dialog; after deletion it selects the next project or returns to the empty state.
+- Browser evidence: create project -> type slug -> permanent delete -> empty project list; zero console errors.
+- Latest test service: `http://127.0.0.1:8791`, isolated workspace `/tmp/local-mv-studio-web-8791`.
+
 ## 2026-07-30 · Document Gate
 
 - Architecture: `docs/design/LOCAL_MV_STUDIO_ARCHITECTURE.md`
@@ -238,3 +258,24 @@
 - Smoke workspace evidence: `/tmp/mvstudio-real-smoke-4clxaype`; published preview: `projects/real-provider-smoke/outputs/creative_animatic_job-df3e27f228a93989a4e5ee93b3d04084.mp4` within that workspace.
 - M3 has no remaining configured-model credential blocker. Deployment still requires the documented environment variables, and the explicit offline structural action remains the credential-free test path.
 - CLI and API owned-service startup now load the repository-root `.env` without overriding explicitly exported environment variables, so ordinary users do not need to source credentials manually or edit code.
+
+## 2026-08-01 · Web Director Workflow Streaming, Recovery, And Pagination
+
+- OpenAI-compatible LLM requests used by the Web workflow now require SSE streaming with `stream=true` and `stream_options.include_usage=true`; a non-streaming upstream response fails closed. Final usage comes from the upstream stream and records input, cache-read, and output tokens separately.
+- Visual-storyboard drafting runs as one streamed request per shot. The Qingyi2 browser workflow produced all 25 shots from the imported director spreadsheet contract, including its sixth row, without replacing the user-visible Chinese editable prompts.
+- Publication recovery is idempotent and auditable. A retry may replace only a file whose prior ownership and bytes are proven by the old `publication.json`, artifact manifest, and SHA-256; unknown or user-authored files still produce a conflict. A completed but unpublished Job can finish publication without repeating model calls or charges.
+- Material-reference comparison is order-independent, and a current successful run no longer exposes an obsolete failed-run recovery panel.
+- The Web project view now paginates runtime records and cost details independently at 10 rows per page. Each table has its own previous/next controls and page indicator, and both reset to page 1 when the selected project changes.
+- Cost rows show the real `input_tokens`, `cache_read_tokens`, and `output_tokens` fields instead of an undefined aggregate. Existing image, video-duration, retry, failure, translation, and per-shot cost records remain visible through the same project ledger.
+- Real Chromium verification passed on `project-3531246c03670d497567f9eae3ddf2e6`: runtime records reached page 2/2, cost details reached page 2/15, each page contained at most 10 rows, adjacent pages had different first records, no `undefined` text appeared, and the browser console reported no errors.
+- Recovery evidence: `job-b27e500f87d75a72d64e6a7b5f6b8251` finished with `runtime_state=succeeded` and `business_stage=exported`; its cost remained `CNY 0.03467560`, proving publication recovery did not bill model work twice.
+- Final verification: `232 passed, 96 warnings`; `node --check apps/mv_api/static/app.js`; `git diff --check`; real Chromium workflow and pagination checks passed. The warnings are the existing FastAPI `on_event` deprecation warnings.
+
+## 2026-08-01 · GPT-image-2 Shot Background And Complete First-Frame Generation
+
+- Added a visible `用 GPT-image-2 生成背景` action to every storyboard shot and a separate complete character-and-background first-frame action to the keyframe workbench. Each action states `¥0.50 / 张` before invocation.
+- Background direction now consumes the bound lyric and time range, character director function and traits, source-art style anchors, music emotion and energy, story function, composition, first/last-frame contract, adjacent-shot continuity, project canvas, lighting and palette constraints. Character images are style references only for a background plate; the prompt explicitly forbids drawing people into the background.
+- Complete first-frame generation requires an approved storyboard and an approved or user-supplied background. Reference order is explicit: background first, then the shot's character source images for identity, face, hair, costume, accessories, proportion and original-art-style preservation.
+- Both Chinese system and task prompts are user-visible and editable. Runtime prompt conversion uses the existing streamed semantic provider, records its input/cache/output token cost, and stores the source prompt hash in `creative/image-generation-audit.json`.
+- Successful GPT-image-2 outputs are decoded, verified, normalized to PNG, stored under project-owned `assets/generated/backgrounds/` or `assets/generated/keyframes/`, and billed at `¥0.50` with shot ID, model, request ID and output path. Failed attempts are recorded with zero image quantity; invalid returned image content is treated as a billable provider output and is not exposed as a valid candidate.
+- Focused verification only, per user instruction to defer broad acceptance: director-context/reference/cost unit path passed; relevant HTTP contract tests passed; JavaScript syntax and `git diff --check` passed. Full browser and full-suite acceptance intentionally deferred until the remaining workflow changes are complete.

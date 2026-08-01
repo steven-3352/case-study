@@ -1,4 +1,5 @@
 import importlib
+import io
 import json
 import os
 import subprocess
@@ -8,6 +9,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from apps.mv_api import create_app
 from apps.mv_cli import main as cli_main
@@ -46,6 +48,124 @@ def test_health_ready_and_strict_requests(service):
         "/api/v1/projects", json={"slug": "demo", "brief": {}, "unknown": True}
     )
     assert response.status_code == 422
+
+
+def test_web_shell_and_safe_project_job_lists(service):
+    project, job = create_project_and_job(service)
+    client = TestClient(create_app(service=service))
+
+    page = client.get("/")
+    assert page.status_code == 200
+    assert "本地音乐视频制作台" in page.text
+
+    projects = client.get("/api/v1/projects").json()
+    assert projects == [{
+        "project_id": project.project_id,
+        "slug": "demo",
+        "brief_sha256": project.brief_sha256,
+        "created_at": project.project.created_at.isoformat(),
+    }]
+    assert "root" not in projects[0]
+
+    jobs = client.get(f"/api/v1/projects/{project.project_id}/jobs").json()
+    assert jobs[0]["job_spec"]["job_id"] == job.job_id
+    assert jobs[0]["status"]["runtime_state"] == "queued"
+    assert client.get("/api/v1/projects/missing/jobs").status_code == 404
+
+
+def test_daily_frontend_and_backend_error_logs_are_local_and_redacted(service):
+    original_inspect = service.inspect_job
+    app = create_app(service=service)
+    with TestClient(app, raise_server_exceptions=False) as client:
+        paths = client.get("/api/v1/logs").json()
+        assert paths["directory"].startswith(str(service.workspace_root))
+        assert Path(paths["frontend"]).name.startswith("frontend-")
+        assert Path(paths["backend"]).name.startswith("backend-")
+
+        response = client.post(
+            "/api/v1/logs/frontend",
+            json={"message": "request failed sk-secret123", "path": "/api/test", "status": 409},
+        )
+        assert response.status_code == 204
+        service.inspect_job = lambda _job_id: (_ for _ in ()).throw(RuntimeError("boom"))
+        assert client.get("/api/v1/jobs/broken").status_code == 400
+    service.inspect_job = original_inspect
+
+    frontend = Path(paths["frontend"]).read_text(encoding="utf-8")
+    backend = Path(paths["backend"]).read_text(encoding="utf-8")
+    assert "sk-secret123" not in frontend
+    assert "[REDACTED]" in frontend
+    assert '"source":"frontend"' in frontend
+    assert '"source":"backend"' in backend
+    assert "RuntimeError" in backend
+
+
+def test_web_polling_advances_supervisor_before_reading_lists():
+    class Supervisor:
+        def __init__(self):
+            self.ticks = 0
+
+        def tick(self):
+            self.ticks += 1
+
+    class Service:
+        def __init__(self):
+            self.supervisor = Supervisor()
+
+        def list_project_jobs(self, project_id):
+            assert project_id == "project-1"
+            return ()
+
+    service = Service()
+    response = TestClient(create_app(service=service)).get("/api/v1/projects/project-1/jobs")
+    assert response.status_code == 200
+    assert service.supervisor.ticks == 1
+
+
+def test_project_delete_requires_slug_and_removes_records_and_files(service):
+    project, job = create_project_and_job(service)
+    project_root = service.workspace_root / "projects" / project.slug
+    staging = service.workspace_root / ".mvstudio" / "jobs" / job.job_id
+    staging.mkdir(parents=True)
+    (staging / "worker.tmp").write_text("temporary", encoding="utf-8")
+    client = TestClient(create_app(service=service))
+
+    mismatch = client.request(
+        "DELETE", f"/api/v1/projects/{project.project_id}",
+        json={"confirmation_slug": "wrong"},
+    )
+    assert mismatch.status_code == 409
+    assert project_root.exists() and staging.exists()
+
+    deleted = client.request(
+        "DELETE", f"/api/v1/projects/{project.project_id}",
+        json={"confirmation_slug": project.slug},
+    )
+    assert deleted.status_code == 200
+    assert deleted.json() == {
+        "project_id": project.project_id, "slug": project.slug, "deleted": True,
+    }
+    assert not project_root.exists() and not staging.exists()
+    assert client.get(f"/api/v1/projects/{project.project_id}/jobs").status_code == 404
+    with service.database.connect() as db:
+        assert db.execute("SELECT COUNT(*) FROM projects").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM jobs").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM job_status").fetchone()[0] == 0
+
+
+def test_project_delete_blocks_while_a_job_is_running(service):
+    project, job = create_project_and_job(service)
+    status = service.repository.get_status(job.job_id)
+    service.repository.set_status(
+        status.transition(RuntimeState.RUNNING, datetime.now(timezone.utc))
+    )
+    response = TestClient(create_app(service=service)).request(
+        "DELETE", f"/api/v1/projects/{project.project_id}",
+        json={"confirmation_slug": project.slug},
+    )
+    assert response.status_code == 423
+    assert (service.workspace_root / "projects" / project.slug).exists()
+    assert service.repository.get_project(project.project_id).slug == project.slug
 
 
 def test_api_and_cli_return_identical_canonical_digests(service, tmp_path, capsys):
@@ -185,6 +305,85 @@ def test_api_auto_start_preserves_executor_fields():
     assert service.call[1]["executor_input"] == {"steps": 3}
 
 
+def test_browser_asset_upload_uses_server_selected_destination():
+    class RecordingService:
+        def import_project_asset(self, project_id, source_path, filename):
+            assert project_id == "project-1"
+            assert Path(source_path).read_bytes() == b"selected file"
+            assert filename == "role.png"
+            return {"ignored": False, "kind": "characters", "relative_path": "inputs/characters/role.png"}
+
+    response = TestClient(create_app(service=RecordingService())).post(
+        "/api/v1/projects/project-1/assets?filename=role.png",
+        content=b"selected file",
+        headers={"Content-Type": "image/png"},
+    )
+    assert response.status_code == 200
+    assert response.json()["relative_path"] == "inputs/characters/role.png"
+
+
+def test_shot_background_and_keyframe_http_contract(service):
+    project = service.create_project("shot-reference-api", {"title": "MV"})
+    root = service.workspace_root / "projects" / project.slug
+    (root / "creative" / "visual_score.yaml").write_text(
+        json.dumps({"shots": [{"id": "S001", "time": [0, 2]}]}), encoding="utf-8",
+    )
+    image = io.BytesIO()
+    Image.new("RGB", (24, 32), (130, 90, 50)).save(image, format="PNG")
+    image_bytes = image.getvalue()
+    client = TestClient(create_app(service=service))
+
+    imported = client.post(
+        f"/api/v1/projects/{project.project_id}/assets?filename=stage.png&kind=backgrounds",
+        content=image_bytes,
+        headers={"Content-Type": "image/png"},
+    )
+    assert imported.status_code == 200
+    background_path = imported.json()["relative_path"]
+
+    bound = client.put(
+        f"/api/v1/projects/{project.project_id}/shots/S001/background",
+        json={"relative_path": background_path},
+    )
+    assert bound.status_code == 200
+    storyboard = next(item for item in bound.json()["stages"] if item["id"] == "storyboard")
+    assert storyboard["data"]["shots"][0]["background"]["reference"] == background_path
+
+    uploaded = client.post(
+        f"/api/v1/projects/{project.project_id}/shots/S001/keyframes?filename=complete.png",
+        content=image_bytes,
+        headers={"Content-Type": "image/png"},
+    )
+    assert uploaded.status_code == 200
+    keyframes = next(item for item in uploaded.json()["stages"] if item["id"] == "keyframes")
+    candidate = keyframes["data"]["shots"][0]["keyframes"][0]
+
+    selected = client.put(
+        f"/api/v1/projects/{project.project_id}/shots/S001/keyframes/selection",
+        json={"relative_path": candidate},
+    )
+    assert selected.status_code == 200
+    selected_stage = next(
+        item for item in selected.json()["stages"] if item["id"] == "keyframes"
+    )
+    assert selected_stage["data"]["shots"][0]["selected_keyframe"] == candidate
+
+    invalid_candidate = client.put(
+        f"/api/v1/projects/{project.project_id}/shots/S001/keyframes/selection",
+        json={"relative_path": "assets/source/keyframes/S001/missing.png"},
+    )
+    assert invalid_candidate.status_code == 409
+    assert invalid_candidate.json()["detail"] == "所选组合首帧不属于当前镜头，请重新选择"
+
+    invalid_image = client.post(
+        f"/api/v1/projects/{project.project_id}/shots/S001/keyframes?filename=fake.png",
+        content=b"not a png",
+        headers={"Content-Type": "image/png"},
+    )
+    assert invalid_image.status_code == 409
+    assert invalid_image.json()["detail"] == "参考图片无法读取，请选择有效的 PNG、JPG 或 WebP 图片"
+
+
 def test_director_api_actions_are_fixed_job_only_commands():
     class RecordingService:
         def __init__(self):
@@ -202,6 +401,10 @@ def test_director_api_actions_are_fixed_job_only_commands():
             self.calls.append(("animatic-offline-test", job_id))
             return {"action": "animatic-offline-test"}
 
+        def run_director_plan(self, job_id):
+            self.calls.append(("plan", job_id))
+            return {"action": "plan"}
+
         def approve_director_artifacts(self, job_id):
             self.calls.append(("approve", job_id))
             return {"action": "approve"}
@@ -216,6 +419,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
         ("/api/v1/jobs/job-1/director/intake", "intake"),
         ("/api/v1/jobs/job-1/director/animatic-test", "animatic-test"),
         ("/api/v1/jobs/job-1/director/animatic-offline-test", "animatic-offline-test"),
+        ("/api/v1/jobs/job-1/director/plan", "plan"),
         ("/api/v1/jobs/job-1/director/approve", "approve"),
         ("/api/v1/jobs/job-1/director/publish", "publish"),
     )
@@ -228,6 +432,7 @@ def test_director_api_actions_are_fixed_job_only_commands():
         ("intake", "job-1"), ("intake", "job-1"),
         ("animatic-test", "job-1"), ("animatic-test", "job-1"),
         ("animatic-offline-test", "job-1"), ("animatic-offline-test", "job-1"),
+        ("plan", "job-1"), ("plan", "job-1"),
         ("approve", "job-1"), ("approve", "job-1"),
         ("publish", "job-1"), ("publish", "job-1"),
     ]

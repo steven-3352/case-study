@@ -1,10 +1,14 @@
 import json
 import wave
+import zipfile
 
 import pytest
 from PIL import Image
 
-from mvstudio.director.intake import IntakeContractError, inspect_intake, parse_lrc, validate_intake
+from mvstudio.director.intake import (
+    IntakeContractError, inspect_intake, parse_lrc, parse_xlsx_director_sheet,
+    validate_intake,
+)
 
 
 def _write_wave(path, frames=800):
@@ -30,6 +34,36 @@ def _inputs(tmp_path, lyrics="[00:00.00]first\n[00:00.05]second\n"):
         "lyrics": "inputs/lyrics/song.lrc",
         "characters": ["inputs/characters/lead.png"],
     }
+
+
+def _write_director_xlsx(path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    strings = ["角色", "歌词", "起始时间", "结束时间", "锦礼", "第一句", "锦礼+安玥", "第二句"]
+    shared = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        + "".join(f"<si><t>{value}</t></si>" for value in strings) + "</sst>"
+    )
+    workbook = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        '<sheets><sheet name="导演表" sheetId="1"/></sheets></workbook>'
+    )
+    sheet = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+        '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c>'
+        '<c r="C1" t="s"><v>2</v></c><c r="D1" t="s"><v>3</v></c></row>'
+        '<row r="2"><c r="A2" t="s"><v>4</v></c><c r="B2" t="s"><v>5</v></c>'
+        '<c r="C2"><v>0</v></c><c r="D2"><v>0.04</v></c></row>'
+        '<row r="3"><c r="A3" t="s"><v>6</v></c><c r="B3" t="s"><v>7</v></c>'
+        '<c r="C3"><v>0.04</v></c><c r="D3"><v>0.08</v></c></row>'
+        '</sheetData></worksheet>'
+    )
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("xl/sharedStrings.xml", shared)
+        archive.writestr("xl/workbook.xml", workbook)
+        archive.writestr("xl/worksheets/sheet1.xml", sheet)
 
 
 def test_lrc_is_sorted_and_plain_lyrics_require_alignment(tmp_path):
@@ -61,6 +95,29 @@ def test_timed_intake_probes_without_altering_portrait(tmp_path):
     assert manifest["characters"][0]["has_alpha"] is True
     assert timed["entries"][1]["start_seconds"] == 0.05
     assert portrait.read_bytes() == original
+
+
+def test_xlsx_preserves_binding_cast_end_times_and_source_rows(tmp_path):
+    value = _inputs(tmp_path)
+    xlsx = tmp_path / "inputs/lyrics/director.xlsx"
+    _write_director_xlsx(xlsx)
+    value["lyrics"] = "inputs/lyrics/director.xlsx"
+    parsed = parse_xlsx_director_sheet(xlsx)
+    assert parsed["director_contract"] == {
+        "sheet_name": "导演表",
+        "columns": ["角色", "歌词", "起始时间", "结束时间"],
+        "entry_count": 2,
+        "characters_are_binding": True,
+    }
+    assert parsed["timed_entries"][1]["character_names"] == ["锦礼", "安玥"]
+    assert parsed["timed_entries"][1]["end_seconds"] == 0.08
+    assert parsed["timed_entries"][1]["source_row"] == 3
+
+    manifest = inspect_intake(value, tmp_path)
+    timed = json.loads((tmp_path / "intake/lyrics_timed.json").read_text())
+    assert manifest["lyrics"]["kind"] == "timed_spreadsheet"
+    assert manifest["lyrics"]["alignment_state"] == "aligned_director_contract"
+    assert timed["entries"] == parsed["timed_entries"]
 
 
 @pytest.mark.parametrize(

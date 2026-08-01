@@ -137,6 +137,12 @@ def validate_package(value, required_status="approved"):
         seen.add(shot_id)
         start, end = _time_pair(shot.get("time"), f"{shot_id}.time")
         timeline.append((start, end, shot_id))
+        if end - start > 4.0:
+            events = _sequence(shot.get("visual_events", []), f"{shot_id}.visual_events")
+            if len(events) < 2:
+                raise DirectorContractError(
+                    f"{shot_id} exceeds four seconds without two observable visual events"
+                )
         if shot.get("section") not in section_ids:
             raise DirectorContractError(f"{shot_id} references an unknown section")
         energy = shot.get("energy")
@@ -153,6 +159,11 @@ def validate_package(value, required_status="approved"):
         if set(cast) - character_ids:
             raise DirectorContractError(f"{shot_id} references an unknown character")
         relation_count += int(len(cast) >= 2)
+        director_beat = shot.get("director_beat")
+        if director_beat is not None:
+            director_beat = _mapping(director_beat, f"{shot_id}.director_beat")
+            if director_beat.get("cast_is_binding") and not cast:
+                raise DirectorContractError(f"{shot_id} binding director cast cannot be empty")
         composition = _mapping(shot.get("composition"), f"{shot_id}.composition")
         _text(composition.get("shot_size"), f"{shot_id}.composition.shot_size")
         transition = _mapping(shot.get("transition_out"), f"{shot_id}.transition_out")

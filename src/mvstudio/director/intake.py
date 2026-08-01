@@ -8,6 +8,8 @@ import os
 import re
 import subprocess
 import tempfile
+import zipfile
+import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -24,6 +26,7 @@ _ALLOWED_PREFIXES = {
     "lyrics": "inputs/lyrics/",
     "characters": "inputs/characters/",
 }
+_XLSX_NS = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 
 def _canonical_bytes(value):
@@ -158,7 +161,116 @@ def parse_lrc(text):
     return entries
 
 
+def _xlsx_shared_strings(archive):
+    try:
+        root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+    except KeyError:
+        return []
+    return ["".join(node.itertext()).strip() for node in root.findall("x:si", _XLSX_NS)]
+
+
+def _xlsx_cell_value(cell, shared):
+    value_node = cell.find("x:v", _XLSX_NS)
+    if cell.get("t") == "inlineStr":
+        inline = cell.find("x:is", _XLSX_NS)
+        return "".join(inline.itertext()).strip() if inline is not None else ""
+    if value_node is None or value_node.text is None:
+        return ""
+    value = value_node.text.strip()
+    if cell.get("t") == "s":
+        try:
+            return shared[int(value)].strip()
+        except (ValueError, IndexError) as exc:
+            raise IntakeContractError("lyrics spreadsheet has an invalid shared string") from exc
+    return value
+
+
+def _split_character_names(value):
+    value = value.strip()
+    if not value:
+        raise IntakeContractError("lyrics spreadsheet character cannot be empty")
+    if value == "合":
+        return ["合"]
+    names = [item.strip() for item in re.split(r"[+＋、,，/&]", value) if item.strip()]
+    if not names:
+        raise IntakeContractError("lyrics spreadsheet character is invalid")
+    return names
+
+
+def parse_xlsx_director_sheet(path):
+    """Read the first XLSX sheet as an immutable lyric/director timing contract."""
+    try:
+        with zipfile.ZipFile(path) as archive:
+            infos = archive.infolist()
+            if len(infos) > 200 or any(item.file_size > 20 * 1024 * 1024 for item in infos):
+                raise IntakeContractError("lyrics spreadsheet is too large")
+            shared = _xlsx_shared_strings(archive)
+            workbook = ET.fromstring(archive.read("xl/workbook.xml"))
+            sheet_root = ET.fromstring(archive.read("xl/worksheets/sheet1.xml"))
+    except (KeyError, OSError, zipfile.BadZipFile, ET.ParseError) as exc:
+        raise IntakeContractError("lyrics spreadsheet is invalid") from exc
+    sheet_node = workbook.find(".//x:sheets/x:sheet", _XLSX_NS)
+    sheet_name = sheet_node.get("name", "工作表1") if sheet_node is not None else "工作表1"
+    rows = []
+    for row in sheet_root.findall(".//x:sheetData/x:row", _XLSX_NS):
+        values = {}
+        for cell in row.findall("x:c", _XLSX_NS):
+            reference = cell.get("r", "")
+            column = "".join(char for char in reference if char.isalpha())
+            if column:
+                values[column] = _xlsx_cell_value(cell, shared)
+        if values:
+            rows.append((int(row.get("r", len(rows) + 1)), values))
+    if len(rows) < 2:
+        raise IntakeContractError("lyrics spreadsheet is empty")
+    headers = {value.strip(): column for column, value in rows[0][1].items() if value.strip()}
+    required = ("角色", "歌词", "起始时间", "结束时间")
+    if any(name not in headers for name in required):
+        raise IntakeContractError("lyrics spreadsheet requires 角色、歌词、起始时间、结束时间 columns")
+    entries = []
+    previous_end = -1.0
+    for source_row, values in rows[1:]:
+        lyric = values.get(headers["歌词"], "").strip()
+        if not lyric:
+            continue
+        try:
+            start = float(values.get(headers["起始时间"], ""))
+            end = float(values.get(headers["结束时间"], ""))
+        except ValueError as exc:
+            raise IntakeContractError("lyrics spreadsheet time is invalid") from exc
+        if start < 0 or end <= start or start < previous_end - 0.001:
+            raise IntakeContractError("lyrics spreadsheet timeline is invalid")
+        previous_end = end
+        raw_characters = values.get(headers["角色"], "").strip()
+        entries.append({
+            "start_seconds": round(start, 6),
+            "end_seconds": round(end, 6),
+            "text": lyric,
+            "character_names": _split_character_names(raw_characters),
+            "character_label": raw_characters,
+            "source_row": source_row,
+            "source_sheet": sheet_name,
+        })
+    if not entries:
+        raise IntakeContractError("lyrics spreadsheet has no lyric rows")
+    return {
+        "kind": "timed_spreadsheet",
+        "alignment_state": "aligned_director_contract",
+        "timed_entries": entries,
+        "plain_lines": [],
+        "plain_line_count": 0,
+        "director_contract": {
+            "sheet_name": sheet_name,
+            "columns": list(required),
+            "entry_count": len(entries),
+            "characters_are_binding": True,
+        },
+    }
+
+
 def _probe_lyrics(path):
+    if path.suffix.lower() == ".xlsx":
+        return parse_xlsx_director_sheet(path)
     try:
         text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError as exc:
@@ -179,6 +291,7 @@ def _probe_lyrics(path):
         "timed_entries": timed,
         "plain_lines": plain_lines,
         "plain_line_count": len(plain_lines),
+        "director_contract": None,
     }
 
 
@@ -235,6 +348,7 @@ def inspect_intake(value, staging):
             "path": value["lyrics"], "digest": lyrics_hash, "size_bytes": lyrics_size,
             "kind": lyrics["kind"], "alignment_state": lyrics["alignment_state"],
             "plain_line_count": lyrics["plain_line_count"],
+            "director_contract": lyrics.get("director_contract"),
         },
         "characters": characters,
     }

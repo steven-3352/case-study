@@ -64,7 +64,7 @@ def _project_job(tmp_path, port):
     project = service.create_project("qingyi", {"title": "Qingyi", "canvas": "9:16"})
     root = tmp_path / "projects" / "qingyi"
     frame = root / "assets/source/keyframes/shot-001.png"
-    frame.parent.mkdir(parents=True)
+    frame.parent.mkdir(parents=True, exist_ok=True)
     Image.new("RGB", (720, 1280), (30, 40, 35)).save(frame)
     frame_hash = _hash_bytes(frame.read_bytes())
     contract = {
