@@ -173,6 +173,10 @@ def test_background_references_and_complete_keyframes_gate_shot_production(tmp_p
 
     service.record_workflow_decision(project.project_id, "story", "approve")
     service.record_workflow_decision(project.project_id, "storyboard", "approve")
+    _dp = root / "creative" / "workflow-decisions.json"
+    _d = json.loads(_dp.read_text()) if _dp.exists() else {}
+    _d["scenes"] = {"action": "approve", "note": "", "decided_at": datetime.now(timezone.utc).isoformat(), "actor": "local_user"}
+    _dp.write_text(json.dumps(_d, ensure_ascii=False))
     first = tmp_path / "first.png"
     second = tmp_path / "second.png"
     write_image(first, (100, 60, 30))
@@ -291,6 +295,10 @@ def test_gpt_image_background_and_keyframe_use_full_director_context_and_bill(tm
     assert image_provider.calls[0]["size"] == "1024x1536"
 
     service.record_workflow_decision(project.project_id, "storyboard", "approve")
+    _dp2 = root / "creative" / "workflow-decisions.json"
+    _d2 = json.loads(_dp2.read_text()) if _dp2.exists() else {}
+    _d2["scenes"] = {"action": "approve", "note": "", "decided_at": datetime.now(timezone.utc).isoformat(), "actor": "local_user"}
+    _dp2.write_text(json.dumps(_d2, ensure_ascii=False))
     workflow = service.generate_shot_keyframe(project.project_id, "S001")
     keyframes = next(item for item in workflow["stages"] if item["id"] == "keyframes")
     shot = next(item for item in keyframes["data"]["shots"] if item["id"] == "S001")
@@ -336,7 +344,7 @@ def test_project_workflow_surfaces_storyboard_and_requires_explicit_user_gates(t
     }), encoding="utf-8")
 
     workflow = service.get_project_workflow(project.project_id)
-    assert len(workflow["stages"]) == 8
+    assert len(workflow["stages"]) == 10  # PRD-007B added scene_planning stage
     assert workflow["current_stage_id"] == "story"
     assert next(item for item in workflow["stages"] if item["id"] == "story")["can_approve"]
     storyboard = next(item for item in workflow["stages"] if item["id"] == "storyboard")

@@ -14,7 +14,7 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Mapping, Optional
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Body, FastAPI, HTTPException, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -114,8 +114,54 @@ class ShotBackgroundRequest(StrictModel):
     relative_path: str = Field(min_length=1, max_length=1000)
 
 
+class GenerateShotBackgroundRequest(StrictModel):
+    en_prompt: Optional[str] = Field(default=None, max_length=10000)
+
+
+class GenerateShotKeyframeRequest(StrictModel):
+    en_prompt: Optional[str] = Field(default=None, max_length=10000)
+
+
 class ShotKeyframeSelectionRequest(StrictModel):
     relative_path: str = Field(min_length=1, max_length=1000)
+
+
+class ShotVideoGenerateRequest(StrictModel):
+    duration: int = Field(default=5, ge=1, le=60)
+
+
+class ShotVideoSelectionRequest(StrictModel):
+    path: str = Field(min_length=1, max_length=1000)
+
+
+class SceneGroupUpdateRequest(StrictModel):
+    name: Optional[str] = Field(default=None, max_length=40)
+    shot_ids: Optional[list[str]] = None
+
+
+class SceneGroupMergeRequest(StrictModel):
+    source_ids: list[str]
+    target_name: str = Field(default="", max_length=40)
+
+
+class ScenePlanningSuggestRequest(StrictModel):
+    system_prompt: Optional[str] = None
+    task_prompt: Optional[str] = None
+
+
+class ScenePlanningUpdateRequest(StrictModel):
+    action: str
+    groups: Optional[list[dict]] = None
+    system_prompt: Optional[str] = None
+    task_prompt: Optional[str] = None
+
+
+class SelectMasterRequest(StrictModel):
+    candidate_id: str
+
+
+class BackgroundOverrideRequest(StrictModel):
+    override_path: Optional[str] = None
 
 
 class FrontendErrorRequest(StrictModel):
@@ -202,6 +248,12 @@ def _error_response(exc):
     elif isinstance(exc, ApplicationBlocked):
         status = 423
         detail = public_details.get(str(exc), "当前条件不足，操作已阻止")
+        payload = {"detail": detail}
+        if getattr(exc, "error_stage", ""):
+            payload["error_stage"] = exc.error_stage
+        if getattr(exc, "error_category", ""):
+            payload["error_category"] = exc.error_category
+        return JSONResponse(payload, status_code=status)
     else:
         status = 400
         detail = "应用处理失败，请查看错误日志"
@@ -424,10 +476,107 @@ def create_app(service=None, workspace_root=None):
             project_id, shot_id, body.relative_path,
         ))
 
-    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/background/generate")
-    async def generate_shot_background(project_id: str, shot_id: str):
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/background/generate", status_code=202)
+    async def generate_shot_background(
+        project_id: str, shot_id: str,
+        body: GenerateShotBackgroundRequest = Body(default_factory=GenerateShotBackgroundRequest),
+    ):
+        deprecated = (
+            f"use /api/v1/projects/{project_id}/scene-groups/{{sg_id}}/backgrounds/generate"
+        )
+        svc = require_service()
+        try:
+            result = svc.submit_generate_background_job(
+                project_id, shot_id, en_prompt=body.en_prompt or None,
+            )
+        except ApplicationError as exc:
+            err = _error_response(exc)
+            err.headers["X-Deprecated"] = deprecated
+            return err
+        asyncio.ensure_future(run_in_threadpool(svc.run_generate_background_job, result["job_id"]))
+        resp = JSONResponse(content=result, status_code=202)
+        resp.headers["X-Async"] = "true"
+        resp.headers["X-Deprecated"] = deprecated
+        return resp
+
+    @app.post("/api/v1/projects/{project_id}/scene-groups/suggest")
+    async def suggest_scene_groups(project_id: str):
         return _result(await run_in_threadpool(
-            require_service().generate_shot_background, project_id, shot_id,
+            require_service().suggest_and_save_scene_groups, project_id,
+        ))
+
+    @app.get("/api/v1/projects/{project_id}/scene-groups")
+    async def get_scene_groups(project_id: str):
+        return _result(require_service().get_scene_groups(project_id))
+
+    @app.put("/api/v1/projects/{project_id}/scene-groups/{sg_id}")
+    async def update_scene_group(
+        project_id: str, sg_id: str, body: SceneGroupUpdateRequest,
+    ):
+        return _result(require_service().update_scene_group(
+            project_id, sg_id, name=body.name, shot_ids=body.shot_ids,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/scene-groups/merge")
+    async def merge_scene_groups(project_id: str, body: SceneGroupMergeRequest):
+        return _result(require_service().merge_scene_groups(
+            project_id, body.source_ids, body.target_name,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/scene-groups/{sg_id}/backgrounds/generate")
+    async def generate_scene_group_background(project_id: str, sg_id: str):
+        return _result(await run_in_threadpool(
+            require_service().generate_scene_group_background, project_id, sg_id,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/scene-groups/{sg_id}/backgrounds/{bg_id}/select")
+    async def select_background_master(project_id: str, sg_id: str, bg_id: str):
+        return _result(require_service().select_background_master(
+            project_id, sg_id, bg_id,
+        ))
+
+    # PRD-007B: scene planning routes
+    @app.get("/api/v1/projects/{project_id}/scene-planning")
+    async def get_scene_planning(project_id: str):
+        return _result(require_service().get_scene_planning(project_id))
+
+    @app.post("/api/v1/projects/{project_id}/scene-planning/suggest")
+    async def suggest_scene_planning(
+        project_id: str,
+        body: "ScenePlanningSuggestRequest" = Body(default_factory=lambda: ScenePlanningSuggestRequest()),
+    ):
+        return _result(require_service().suggest_scene_groups_llm(
+            project_id, body.system_prompt, body.task_prompt,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/scene-planning")
+    async def update_scene_planning(project_id: str, body: "ScenePlanningUpdateRequest"):
+        return _result(require_service().update_scene_planning(
+            project_id, body.model_dump(exclude_none=False),
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/scene-planning/approve")
+    async def approve_scene_planning(project_id: str):
+        return _result(require_service().approve_scene_planning(project_id))
+
+    @app.post("/api/v1/projects/{project_id}/groups/{group_id}/background/generate")
+    async def generate_group_background(project_id: str, group_id: str):
+        return _result(require_service().submit_generate_group_background_job(project_id, group_id))
+
+    @app.post("/api/v1/projects/{project_id}/groups/{group_id}/background/select")
+    async def select_group_background_master(
+        project_id: str, group_id: str, body: "SelectMasterRequest",
+    ):
+        return _result(require_service().select_background_master(
+            project_id, group_id, body.candidate_id,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/background-override")
+    async def set_shot_background_override(
+        project_id: str, shot_id: str, body: "BackgroundOverrideRequest",
+    ):
+        return _result(require_service().set_shot_background_override(
+            project_id, shot_id, body.override_path,
         ))
 
     @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes")
@@ -455,11 +604,20 @@ def create_app(service=None, workspace_root=None):
             except OSError:
                 pass
 
-    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes/generate")
-    async def generate_shot_keyframe(project_id: str, shot_id: str):
-        return _result(await run_in_threadpool(
-            require_service().generate_shot_keyframe, project_id, shot_id,
-        ))
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes/generate", status_code=202)
+    async def generate_shot_keyframe(
+        project_id: str, shot_id: str,
+        body: GenerateShotKeyframeRequest = Body(default_factory=GenerateShotKeyframeRequest),
+    ):
+        svc = require_service()
+        try:
+            result = svc.submit_generate_keyframe_job(
+                project_id, shot_id, en_prompt=body.en_prompt or None,
+            )
+        except ApplicationError as exc:
+            return _error_response(exc)
+        asyncio.ensure_future(run_in_threadpool(svc.run_generate_keyframe_job, result["job_id"]))
+        return JSONResponse(content=result, status_code=202)
 
     @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes/selection")
     async def select_shot_keyframe(
@@ -468,6 +626,37 @@ def create_app(service=None, workspace_root=None):
         return _result(require_service().select_shot_keyframe(
             project_id, shot_id, body.relative_path,
         ))
+
+    @app.delete("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes")
+    async def delete_shot_keyframe(project_id: str, shot_id: str, path: str):
+        return _result(require_service().delete_shot_keyframe(project_id, shot_id, path))
+
+    class ShotSkippedRequest(StrictModel):
+        skipped: bool
+
+    @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/skipped")
+    async def set_shot_skipped(project_id: str, shot_id: str, body: ShotSkippedRequest):
+        return _result(require_service().set_shot_skipped(project_id, shot_id, body.skipped))
+
+    @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/video/generate", status_code=202)
+    async def generate_shot_video(
+        project_id: str, shot_id: str, body: ShotVideoGenerateRequest,
+    ):
+        return _result(await run_in_threadpool(
+            require_service().generate_shot_video, project_id, shot_id, body.duration,
+        ))
+
+    @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/videos/selection")
+    async def select_shot_video(
+        project_id: str, shot_id: str, body: ShotVideoSelectionRequest,
+    ):
+        return _result(require_service().select_shot_video(
+            project_id, shot_id, body.path,
+        ))
+
+    @app.post("/api/v1/settings/video-provider/ping")
+    async def ping_video_provider():
+        return require_service().ping_video_provider()
 
     @app.get("/api/v1/projects/{project_id}/files")
     async def get_project_file(project_id: str, path: str):
@@ -557,6 +746,10 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/jobs/{job_id}")
     async def inspect_job(job_id: str):
+        return _result(tick_service().inspect_job(job_id))
+
+    @app.get("/api/v1/jobs/{job_id}/inspect")
+    async def inspect_job_alias(job_id: str):
         return _result(tick_service().inspect_job(job_id))
 
     @app.post("/api/v1/jobs/{job_id}/cancel")

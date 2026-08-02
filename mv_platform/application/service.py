@@ -42,7 +42,10 @@ class ApplicationNotFound(ApplicationError):
 
 
 class ApplicationBlocked(ApplicationError):
-    pass
+    def __init__(self, message: str, *, error_stage: str = "", error_category: str = ""):
+        super().__init__(message)
+        self.error_stage = error_stage
+        self.error_category = error_category
 
 
 def _immutable(value):
@@ -96,6 +99,45 @@ class JobInspection:
 
 
 _SLUG = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+_SG_ID_RE = re.compile(r"^SG\d{3,}$")
+_BG_ID_RE = re.compile(r"^BG\d{3,}$")
+
+
+@dataclass(frozen=True)
+class SceneGroup:
+    id: str
+    name: str
+    source_section_id: str
+    shot_ids: tuple
+    location: str = ""
+    time_of_day: str = ""
+    weather: str = ""
+    emotional_state: str = ""
+    narrative_world_state: str = ""
+    created_by: str = "system"
+    created_at: str = ""
+    updated_at: str = ""
+
+
+@dataclass(frozen=True)
+class BackgroundMaster:
+    id: str
+    scene_group_id: str
+    status: str
+    source: str
+    relative_path: str
+    prompt_zh: str = ""
+    prompt_en: str = ""
+    model: str = ""
+    request_id: str = ""
+    cost_yuan: float = 0.0
+    created_at: str = ""
+
+
+class _NoopErrorLogs:
+    """No-op error log store used when no real store is injected (tests, CLI)."""
+    def append(self, source, event):
+        pass
 
 
 class ApplicationService:
@@ -118,6 +160,7 @@ class ApplicationService:
         seedance_port=None,
         image_provider=None,
         workspace_pointer_path=None,
+        error_logs=None,
     ):
         self.settings = settings
         self.database = database
@@ -136,6 +179,7 @@ class ApplicationService:
             Path(workspace_pointer_path).expanduser().absolute()
             if workspace_pointer_path is not None else None
         )
+        self.error_logs = error_logs or _NoopErrorLogs()
         self._initialized = False
 
     def _reject_source_workspace(self):
@@ -299,17 +343,132 @@ class ApplicationService:
         value = self._read_structured_file(root / "creative" / "workflow-decisions.json")
         return value if isinstance(value, dict) else {}
 
+    def _scene_groups(self, root):
+        value = self._read_structured_file(root / "creative" / "scene-groups.json")
+        if not isinstance(value, dict) or not isinstance(value.get("scene_groups"), list):
+            return None
+        return value
+
+    def _write_scene_groups(self, root, value):
+        self._write_atomic_file(
+            root / "creative" / "scene-groups.json",
+            canonical_json(value), ".scene-groups-",
+        )
+
+    def _scene_planning(self, root):
+        path = root / "creative" / "scene-planning.json"
+        if not path.is_file():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            pass
+        return None
+
+    def _write_scene_planning(self, root, value):
+        path = root / "creative" / "scene-planning.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def _background_masters(self, root):
+        value = self._read_structured_file(root / "creative" / "background-masters.json")
+        if not isinstance(value, dict) or not isinstance(value.get("backgrounds"), list):
+            return {"version": 1, "backgrounds": []}
+        return value
+
+    def _write_background_masters(self, root, value):
+        self._write_atomic_file(
+            root / "creative" / "background-masters.json",
+            canonical_json(value), ".background-masters-",
+        )
+
     def _shot_references(self, root):
         value = self._read_structured_file(root / "creative" / "shot-references.json")
         if not isinstance(value, dict) or not isinstance(value.get("shots"), dict):
             return {"version": 1, "shots": {}}
         return value
 
+    @staticmethod
+    def _read_keyframe_entries(shot: dict) -> list:
+        result = []
+        for item in shot.get("keyframes", []):
+            if isinstance(item, str):
+                result.append({
+                    "path": item, "source": "legacy", "background_master_id": "",
+                    "character_ids": [], "prompt_zh": "", "prompt_en": "",
+                    "model": "", "request_id": "", "cost_yuan": 0.0, "created_at": "",
+                })
+            elif isinstance(item, dict) and item.get("path"):
+                result.append(item)
+        return result
+
     def _write_shot_references(self, root, value):
         self._write_atomic_file(
             root / "creative" / "shot-references.json",
             canonical_json(value), ".shot-references-",
         )
+
+    @staticmethod
+    def _parse_mp4_duration(video_bytes: bytes) -> float:
+        """Parse duration (seconds) from MP4 mvhd box; return 0.0 on failure."""
+        try:
+            i = 0
+            n = len(video_bytes)
+            while i + 8 <= n:
+                box_size = int.from_bytes(video_bytes[i:i+4], "big")
+                box_type = video_bytes[i+4:i+8]
+                if box_size < 8:
+                    break
+                if box_type == b"moov":
+                    # recurse into moov
+                    j = i + 8
+                    while j + 8 <= i + box_size:
+                        inner_size = int.from_bytes(video_bytes[j:j+4], "big")
+                        inner_type = video_bytes[j+4:j+8]
+                        if inner_size < 8:
+                            break
+                        if inner_type == b"mvhd":
+                            version = video_bytes[j+8]
+                            if version == 1 and j + 44 <= n:
+                                timescale = int.from_bytes(video_bytes[j+28:j+32], "big")
+                                duration = int.from_bytes(video_bytes[j+32:j+40], "big")
+                            else:
+                                if j + 28 > n:
+                                    return 0.0
+                                timescale = int.from_bytes(video_bytes[j+20:j+24], "big")
+                                duration = int.from_bytes(video_bytes[j+24:j+28], "big")
+                            if timescale == 0:
+                                return 0.0
+                            return round(duration / timescale, 3)
+                        j += inner_size
+                i += box_size
+        except Exception:
+            pass
+        return 0.0
+
+    @staticmethod
+    def _qc_video(video_bytes: bytes, duration_requested: int) -> "tuple[bool, dict]":
+        """QC-check a video blob; return (passed, info_dict)."""
+        issues = []
+        if len(video_bytes) < 8 or video_bytes[4:8] != b"ftyp":
+            issues.append("not_mp4")
+        size = len(video_bytes)
+        if size < 100_000:
+            issues.append("file_too_small")
+        if size > 200_000_000:
+            issues.append("file_too_large")
+        duration_actual = ApplicationService._parse_mp4_duration(video_bytes)
+        if duration_actual == 0.0:
+            issues.append("duration_parse_failed")
+        elif abs(duration_actual - duration_requested) > 2.0:
+            issues.append(f"duration_mismatch:{duration_actual:.1f}s_vs_{duration_requested}s")
+        return len(issues) == 0, {
+            "duration_actual": duration_actual,
+            "file_size_bytes": size,
+            "qc_issues": issues,
+        }
 
     def _image_generation_audit(self, root):
         value = self._read_structured_file(root / "creative" / "image-generation-audit.json")
@@ -613,7 +772,7 @@ class ApplicationService:
     def record_workflow_decision(self, project_id, stage_id, action, note=""):
         """Persist explicit user gates separately from automated test approvals."""
         self._require_initialized()
-        allowed_stages = {"story", "storyboard", "keyframes", "shots", "delivery"}
+        allowed_stages = {"story", "storyboard", "scenes", "keyframes", "shots", "delivery"}
         if stage_id not in allowed_stages or action not in {"approve", "request_revision"}:
             raise ApplicationConflict("workflow decision is invalid")
         if not isinstance(note, str) or len(note.encode("utf-8")) > 8000:
@@ -766,6 +925,7 @@ class ApplicationService:
             item for item in character_items if item["source_asset"] not in removed_paths
         ]
         character_index = {item["id"]: item for item in character_items}
+        bg_doc = self._background_masters(root)
         shots = []
         if isinstance(visual, dict):
             for shot in visual.get("shots", []):
@@ -779,16 +939,46 @@ class ApplicationService:
                 background_reference = shot_references.get("background", "")
                 if background_reference and not (root / background_reference).is_file():
                     background_reference = ""
+                # PRD-007B: fall back to background_master path if per-shot field is empty
+                if not background_reference:
+                    bg_master_id = shot_references.get("background_master_id", "")
+                    if bg_master_id and bg_doc:
+                        master_bg = next(
+                            (b for b in bg_doc.get("backgrounds", []) if b.get("id") == bg_master_id),
+                            None,
+                        )
+                        if master_bg:
+                            bg_path = master_bg.get("relative_path", "")
+                            if bg_path and (root / bg_path).is_file():
+                                background_reference = bg_path
+                keyframe_entries_raw = self._read_keyframe_entries(shot_references)
                 keyframe_candidates = [
-                    value for value in shot_references.get("keyframes", [])
-                    if isinstance(value, str) and (root / value).is_file()
-                    and not (root / value).is_symlink()
+                    e["path"] for e in keyframe_entries_raw
+                    if (root / e["path"]).is_file() and not (root / e["path"]).is_symlink()
                 ]
                 selected_keyframe = shot_references.get("selected_keyframe", "")
                 if selected_keyframe not in keyframe_candidates:
                     selected_keyframe = ""
+                keyframe_entries = [
+                    {
+                        "path": e["path"],
+                        "source": e.get("source", "legacy"),
+                        "background_master_id": e.get("background_master_id", ""),
+                        "character_ids": e.get("character_ids", []),
+                        "prompt_zh": e.get("prompt_zh", ""),
+                        "model": e.get("model", ""),
+                        "cost_yuan": e.get("cost_yuan", 0.0),
+                        "created_at": e.get("created_at", ""),
+                        "is_selected": e["path"] == selected_keyframe,
+                    }
+                    for e in keyframe_entries_raw
+                    if (root / e["path"]).is_file() and not (root / e["path"]).is_symlink()
+                ]
                 shots.append({
                     "id": shot.get("id", ""), "time": shot.get("time", []),
+                    "background_master_id": shot_references.get("background_master_id", ""),
+                    "scene_group_id": shot_references.get("scene_group_id", ""),
+                    "skipped": bool(shot_references.get("skipped", False)),
                     "section": shot.get("section", ""), "energy": shot.get("energy", 0),
                     "purpose": shot.get("purpose", ""), "lyric": shot.get("lyric", {}),
                     "composition": shot.get("composition", {}),
@@ -806,7 +996,22 @@ class ApplicationService:
                         "status": "reference_bound" if background_reference else "planned_for_generation",
                     },
                     "keyframes": keyframe_candidates,
+                    "keyframe_entries": keyframe_entries,
                     "selected_keyframe": selected_keyframe,
+                    "video_entries": [
+                        {
+                            "path": e["path"],
+                            "duration_requested": e.get("duration_requested", 0),
+                            "duration_actual": e.get("duration_actual", 0.0),
+                            "cost_yuan": e.get("cost_yuan", 0.0),
+                            "qc_passed": e.get("qc_passed", False),
+                            "is_selected": e["path"] == shot_references.get("selected_video", ""),
+                            "created_at": e.get("created_at", ""),
+                        }
+                        for e in shot_references.get("video_entries", [])
+                        if isinstance(e, dict) and e.get("path")
+                    ],
+                    "selected_video": shot_references.get("selected_video", ""),
                     "cost_yuan": cost_by_shot.get(shot.get("id", ""), 0),
                 })
 
@@ -878,10 +1083,41 @@ class ApplicationService:
             story_approved = False
             storyboard_approved = False
             keyframes_approved = False
-        selected_keyframe_count = sum(bool(item.get("selected_keyframe")) for item in shots)
-        all_keyframes_selected = bool(shots) and selected_keyframe_count == len(shots)
+        active_shots = [item for item in shots if not item.get("skipped")]
+        selected_keyframe_count = sum(bool(item.get("selected_keyframe")) for item in active_shots)
+        all_keyframes_selected = bool(active_shots) and selected_keyframe_count == len(active_shots)
         if not all_keyframes_selected:
             keyframes_approved = False
+
+        # PRD-002: scenes stage
+        if storyboard_approved and self._scene_groups(root) is None and shots:
+            self._migrate_to_scene_groups(root)
+        sg_doc = self._scene_groups(root)
+        # PRD-007B: scene planning stage
+        sp_data = self._scene_planning(root)
+        sp_status = sp_data.get("status", "draft") if sp_data else None
+        scene_planning_approved = bool(sp_status == "approved")
+        scenes_decision = decisions.get("scenes", {})
+        scenes_approved = scenes_decision.get("action") == "approve"
+        scene_groups_data = []
+        all_have_background = False
+        if sg_doc is not None:
+            bgs_by_sg = {}
+            for bg in bg_doc.get("backgrounds", []):
+                bgs_by_sg.setdefault(bg.get("scene_group_id", ""), []).append(bg)
+            for sg in sg_doc.get("scene_groups", []):
+                sg_entry = dict(sg)
+                sg_bgs = bgs_by_sg.get(sg.get("id", ""), [])
+                sg_entry["backgrounds"] = sg_bgs
+                has_selected = any(b.get("status") == "selected" for b in sg_bgs)
+                sg_entry["has_selected_background"] = has_selected
+                scene_groups_data.append(sg_entry)
+            all_have_background = bool(scene_groups_data) and all(
+                sg.get("has_selected_background") for sg in scene_groups_data
+            )
+        if not scenes_approved and not all_have_background:
+            keyframes_approved = False
+
         animatic_path = "outputs/animatic.mp4" if (root / "outputs/animatic.mp4").is_file() else ""
         final_paths = sorted(
             path.relative_to(root).as_posix() for path in (root / "outputs").glob("*.mp4")
@@ -935,22 +1171,44 @@ class ApplicationService:
                    "inputs_changed": inputs_changed},
                   ("relationship_map.draft_requested",), ("creative/story_framework.yaml",),
                   ("relationship_map.draft_requested",)),
-            stage("storyboard", "分镜工作台", "逐镜确认人物、背景、组合首帧、动作与转场", "approved" if storyboard_approved else ("revision" if storyboard_decision.get("action") == "request_revision" else ("awaiting_approval" if story_approved and shots else ("preview_only" if shots else "locked"))),
-                  storyboard_decision, bool(story_approved and shots), {"shots": shots,
+            stage("storyboard", "分镜工作台", "逐镜确认人物、场景组归属、动作与转场", "approved" if storyboard_approved else ("revision" if storyboard_decision.get("action") == "request_revision" else ("awaiting_approval" if story_approved and shots else ("preview_only" if shots else "locked"))),
+                  storyboard_decision, bool((story_approved and shots) or (inputs_changed and storyboard_decision.get("action") == "approve" and shots)), {"shots": shots,
                   "backgrounds": background_assets, "preview_only": not story_approved},
                   ("visual_score.creative_draft_requested", "visual_score.quality_review_requested",
                    "image.background.generate_requested"),
                   ("creative/visual_score.yaml", "creative/storyboard.md", animatic_path),
                   ("visual_score.creative_draft_requested", "visual_score.quality_review_requested",
                    "image.background.generate_requested")),
-            stage("keyframes", "关键帧选择", "确认人物与背景组合后的完整场景首帧", "approved" if keyframes_approved else ("locked" if not storyboard_approved else ("awaiting_approval" if all_keyframes_selected else "pending")),
-                  keyframes_decision, bool(storyboard_approved and all_keyframes_selected),
+            stage("scene_planning", "场景组规划", "LLM 建议分组、用户调整并锁定",
+                  "approved" if scene_planning_approved else (
+                      "locked" if not storyboard_approved else (
+                          "pending" if sp_data is None else "in_progress"
+                      )
+                  ),
+                  None, False,
+                  {"groups": sp_data.get("groups", []) if sp_data else [],
+                   "llm_suggestion_used": sp_data.get("llm_suggestion_used", False) if sp_data else False,
+                   "status": sp_status or "pending",
+                   "system_prompt": sp_data.get("system_prompt", "") if sp_data else "",
+                   "task_prompt": sp_data.get("task_prompt", "") if sp_data else ""}),
+            stage("scenes", "场景与背景", "确认场景分组和每组背景母版",
+                  "approved" if scenes_approved else (
+                      "locked" if not scene_planning_approved else (
+                          "awaiting_approval" if all_have_background else "pending"
+                      )
+                  ),
+                  scenes_decision, bool(scene_planning_approved and all_have_background),
+                  {"scene_groups": scene_groups_data, "all_have_background": all_have_background, "shots": shots},
+                  ("image.background.generate_requested",),
+                  cost_steps=("image.background.generate_requested",)),
+            stage("keyframes", "关键帧选择", "确认人物与背景组合后的完整场景首帧", "approved" if keyframes_approved else ("locked" if not scenes_approved else ("awaiting_approval" if all_keyframes_selected else "pending")),
+                  keyframes_decision, bool(scenes_approved and all_keyframes_selected),
                   {"shots": shots, "selected_count": selected_keyframe_count,
-                   "total_count": len(shots),
+                   "total_count": len(active_shots),
                    "reason": "请为每个分镜上传或生成完整场景首帧，并选择最终版本"},
                   ("image.keyframe.generate_requested",), cost_steps=("image.keyframe.generate_requested",)),
             stage("shots", "单镜制作", "逐镜生成、诊断、预览和返修", "locked" if not keyframes_approved else "pending",
-                  decisions.get("shots"), False, {"shot_count": len(shots), "generated_count": 0,
+                  decisions.get("shots"), False, {"shots": shots, "shot_count": len(shots), "generated_count": 0,
                   "reason": "关键帧确认后，逐镜视频制作才会开放"},
                   ("video.shot.generate_requested",), cost_steps=("video.shot.generate_requested",)),
             stage("composite", "合成验收", "检查字幕、声音、时长、画幅和连续性", "test_output" if final_paths else ("preview" if animatic_path else "locked"),
@@ -1023,7 +1281,39 @@ class ApplicationService:
                     and (self._job_root() / item.job_id / "creative" / "visual_score.yaml").is_file()
                 ),
             } for item in jobs],
+            "active_jobs": self._get_active_image_jobs(project_id),
         }
+
+    def _get_active_image_jobs(self, project_id: str) -> list:
+        """Return queued/running image-gen jobs for active_jobs workflow field."""
+        with self.database.connect() as db:
+            rows = db.execute(
+                "SELECT jobs.job_id, jobs.operation, jobs.input_refs, "
+                "job_status.runtime_state, job_status.updated_at "
+                "FROM jobs JOIN job_status ON job_status.job_id=jobs.job_id "
+                "WHERE jobs.project_id=? "
+                "AND jobs.operation IN ('generate_background', 'generate_keyframe') "
+                "AND job_status.runtime_state IN ('queued', 'running') "
+                "ORDER BY job_status.updated_at DESC",
+                (project_id,),
+            ).fetchall()
+        result = []
+        for row in rows:
+            job_id, operation, input_refs_str, state, updated_at = row
+            params = json.loads(input_refs_str)
+            shot_id = params[0] if params else ""
+            job_type = (
+                "generate_background" if operation == "generate_background"
+                else "generate_keyframe"
+            )
+            result.append({
+                "job_id": job_id,
+                "type": job_type,
+                "shot_id": shot_id,
+                "status": state,
+                "started_at": updated_at,
+            })
+        return result
 
     _IMPORT_EXTENSIONS = {
         "audio": {".aac", ".flac", ".m4a", ".mp3", ".ogg", ".wav"},
@@ -1222,11 +1512,64 @@ class ApplicationService:
         record = references["shots"].setdefault(shot_id, {})
         candidates = record.setdefault("keyframes", [])
         relative_text = relative.as_posix()
-        if relative_text not in candidates:
-            candidates.append(relative_text)
+        existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
+        entry = {
+            "path": relative_text,
+            "source": "uploaded",
+            "background_master_id": "",
+            "character_ids": [],
+            "prompt_zh": "", "prompt_en": "",
+            "model": "", "request_id": "",
+            "cost_yuan": 0.0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if relative_text not in existing_paths:
+            candidates.append(entry)
         if not record.get("selected_keyframe"):
             record["selected_keyframe"] = relative_text
         record["keyframes_updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._write_shot_references(root, references)
+        target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
+        self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
+        return self.get_project_workflow(project_id)
+
+    def set_shot_skipped(self, project_id, shot_id, skipped: bool):
+        """Mark or unmark a shot as skipped. Skipped shots are excluded from keyframe/video/composite."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        self._require_shot(root, shot_id)
+        references = self._shot_references(root)
+        record = references["shots"].setdefault(shot_id, {})
+        record["skipped"] = bool(skipped)
+        record["skipped_at"] = datetime.now(timezone.utc).isoformat() if skipped else ""
+        self._write_shot_references(root, references)
+        # Invalidate downstream decisions since active-shot set changed
+        target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
+        self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
+        return self.get_project_workflow(project_id)
+
+    def delete_shot_keyframe(self, project_id, shot_id, relative):
+        """Remove a keyframe candidate from a shot (does not delete the file)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        self._require_shot(root, shot_id)
+        references = self._shot_references(root)
+        record = references["shots"].get(shot_id, {})
+        candidates = record.get("keyframes", [])
+        filtered = [
+            e for e in candidates
+            if (e["path"] if isinstance(e, dict) else e) != relative
+        ]
+        if len(filtered) == len(candidates):
+            raise ApplicationNotFound(relative)
+        record["keyframes"] = filtered
+        entries = record.get("keyframe_entries", [])
+        record["keyframe_entries"] = [
+            e for e in entries
+            if not (isinstance(e, dict) and e.get("path") == relative)
+        ]
+        if record.get("selected_keyframe") == relative:
+            record["selected_keyframe"] = ""
         self._write_shot_references(root, references)
         target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
         self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
@@ -1238,7 +1581,11 @@ class ApplicationService:
         self._require_shot(root, shot_id)
         references = self._shot_references(root)
         record = references["shots"].get(shot_id, {})
-        if relative not in record.get("keyframes", []):
+        candidate_paths = [
+            e["path"] if isinstance(e, dict) else e
+            for e in record.get("keyframes", [])
+        ]
+        if relative not in candidate_paths:
             raise ApplicationConflict("keyframe candidate is invalid")
         candidate = root / Path(relative)
         if candidate.is_symlink() or not candidate.is_file():
@@ -1313,6 +1660,22 @@ class ApplicationService:
             },
         }
 
+    @staticmethod
+    def _classify_translation_error(exc):
+        from mvstudio.providers.semantic_openai import SemanticProviderError, SemanticResponseError
+        if isinstance(exc, SemanticResponseError):
+            fr = exc.finish_reason
+            if fr == "length":
+                return "truncated"
+            if fr == "content_filter":
+                return "content_filtered"
+            return "invalid_response"
+        if isinstance(exc, SemanticProviderError):
+            if "timed out" in str(exc).lower():
+                return "timeout"
+            return "http_error"
+        return "unknown"
+
     def _translate_image_prompt(self, project_id, event_type, context, request_id):
         from mv_platform.application.prompt_catalog import SYSTEM_PREFIX
         from mvstudio.director.drafting import ModelBudget, ModelResult, ModelTask
@@ -1332,6 +1695,12 @@ class ApplicationService:
         if not model:
             raise ApplicationBlocked("text model is not configured")
         provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+        provider_url = getattr(provider, "base_url", "") or ""
+        try:
+            from urllib.parse import urlparse
+            provider_host = urlparse(str(provider_url)).hostname or str(provider_url)
+        except Exception:
+            provider_host = ""
         task = ModelTask(
             event_type="prompt.translate_requested", model=model,
             budget=ModelBudget(max_input_bytes=65536, max_output_bytes=12000, max_tokens=2200),
@@ -1345,21 +1714,61 @@ class ApplicationService:
                 "do not invent identity, costume, lyrics, time, cast, or story facts."
             ),
         )
-        try:
-            result = provider.run(task)
-        except Exception as exc:
-            usage = (
-                getattr(exc, "input_tokens", 0), getattr(exc, "cache_read_tokens", 0),
-                getattr(exc, "output_tokens", 0),
-            )
-            if any(usage):
-                self.record_llm_cost(
-                    project_id, None, task.event_type, *usage,
-                    {"source_event": event_type, "shot_id": context["shot"]["id"],
-                     "model": model, "request_id": request_id,
-                     "outcome": "invalid_response"},
+
+        _RETRYABLE = {"timeout", "http_error"}
+
+        def _attempt():
+            try:
+                return provider.run(task)
+            except Exception as exc:
+                usage = (
+                    getattr(exc, "input_tokens", 0), getattr(exc, "cache_read_tokens", 0),
+                    getattr(exc, "output_tokens", 0),
                 )
-            raise ApplicationBlocked("image prompt translation failed") from exc
+                if any(usage):
+                    self.record_llm_cost(
+                        project_id, None, task.event_type, *usage,
+                        {"source_event": event_type, "shot_id": context["shot"]["id"],
+                         "model": model, "request_id": request_id, "outcome": "invalid_response"},
+                    )
+                return exc
+
+        raw = _attempt()
+        if isinstance(raw, Exception):
+            error_category = self._classify_translation_error(raw)
+            if error_category in _RETRYABLE:
+                self.error_logs.append("backend", {
+                    "event": "image_prompt_translation_retrying",
+                    "error_category": error_category,
+                    "error_message": str(raw)[:500],
+                    "model": model,
+                    "request_id": request_id,
+                    "shot_id": context["shot"]["id"],
+                })
+                raw = _attempt()
+
+        if isinstance(raw, Exception):
+            exc = raw
+            error_category = self._classify_translation_error(exc)
+            self.error_logs.append("backend", {
+                "event": "image_prompt_translation_failed",
+                "error_category": error_category,
+                "error_message": str(exc)[:500],
+                "finish_reason": getattr(exc, "finish_reason", ""),
+                "model": model,
+                "provider_base_url": provider_host,
+                "request_id": request_id,
+                "shot_id": context["shot"]["id"],
+                "available_input_tokens": getattr(exc, "input_tokens", 0),
+                "available_output_tokens": getattr(exc, "output_tokens", 0),
+            })
+            raise ApplicationBlocked(
+                "image prompt translation failed",
+                error_stage="translate_prompt",
+                error_category=error_category,
+            ) from exc
+
+        result = raw
         if not isinstance(result, ModelResult):
             raise ApplicationBlocked("image prompt translation returned an invalid result")
         english_prompt = result.output.get("english_prompt")
@@ -1399,7 +1808,7 @@ class ApplicationService:
         return paths[:8]
 
     def _generate_shot_image(self, project_id, shot_id, event_type, output_kind,
-                             include_background=False):
+                             include_background=False, en_prompt: "str | None" = None):
         self._require_initialized()
         _project, root = self._project_directory(project_id)
         context = self._shot_generation_context(root, shot_id)
@@ -1421,9 +1830,13 @@ class ApplicationService:
             ],
         }
         request_id = "image-" + uuid.uuid4().hex
-        prompt, translation = self._translate_image_prompt(
-            project_id, event_type, context, request_id,
-        )
+        if en_prompt:
+            prompt = en_prompt
+            translation = {"source_prompt_hash": "", "used": False, "usage": {}}
+        else:
+            prompt, translation = self._translate_image_prompt(
+                project_id, event_type, context, request_id,
+            )
         provider = self.image_provider
         if provider is None:
             from mvstudio.providers.image_openai import OpenAICompatibleImageProvider
@@ -1468,8 +1881,23 @@ class ApplicationService:
             invalidated = {"storyboard", "keyframes", "shots", "delivery"}
         else:
             candidates = record.setdefault("keyframes", [])
-            if relative_text not in candidates:
-                candidates.append(relative_text)
+            existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
+            if relative_text not in existing_paths:
+                prompts_catalog = self.get_project_prompts(project_id)
+                prompt_zh = prompts_catalog.get(event_type, "")
+                kf_entry = {
+                    "path": relative_text,
+                    "source": "generated",
+                    "background_master_id": references["shots"].get(shot_id, {}).get("background_master_id", ""),
+                    "character_ids": [c["id"] for c in context.get("characters", []) if isinstance(c, dict) and c.get("id")],
+                    "prompt_zh": prompt_zh,
+                    "prompt_en": prompt,
+                    "model": getattr(provider, "model", ""),
+                    "request_id": request_id,
+                    "cost_yuan": 0.5,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
+                candidates.append(kf_entry)
             record["selected_keyframe"] = relative_text
             record["keyframe_selected_at"] = datetime.now(timezone.utc).isoformat()
             invalidated = {"keyframes", "shots", "delivery"}
@@ -1492,22 +1920,983 @@ class ApplicationService:
         })
         return self.get_project_workflow(project_id)
 
-    def generate_shot_background(self, project_id, shot_id):
-        decisions = self._workflow_decisions(self._project_directory(project_id)[1])
+    # -----------------------------------------------------------------------
+    # PRD-002: Scene groups & background masters
+    # -----------------------------------------------------------------------
+
+    @staticmethod
+    def suggest_scene_groups(shots, story_sections):
+        groups = {}
+        for shot in shots:
+            if not isinstance(shot, dict):
+                continue
+            section_id = shot.get("section") or "_default"
+            groups.setdefault(section_id, []).append(shot.get("id", ""))
+        section_names = {
+            s["id"]: s.get("emotion", "")
+            for s in story_sections
+            if isinstance(s, dict) and s.get("id")
+        }
+        now = datetime.now(timezone.utc).isoformat()
+        result = []
+        for i, (section_id, shot_ids) in enumerate(groups.items()):
+            name = section_names.get(section_id, "") or f"场景{i + 1}"
+            result.append(SceneGroup(
+                id=f"SG{i + 1:03d}",
+                name=name,
+                source_section_id=section_id,
+                shot_ids=tuple(shot_ids),
+                created_by="system",
+                created_at=now,
+                updated_at=now,
+            ))
+        return result
+
+    def _migrate_to_scene_groups(self, root):
+        """One-time migration: build scene-groups.json from visual_score.yaml."""
+        visual = self._read_structured_file(root / "creative" / "visual_score.yaml")
+        if not isinstance(visual, dict):
+            return
+        shots = [s for s in visual.get("shots", []) if isinstance(s, dict)]
+        if not shots:
+            return
+        story = self._read_structured_file(root / "creative" / "story_framework.yaml")
+        story_sections = []
+        if isinstance(story, dict):
+            story_sections = [s for s in story.get("sections", []) if isinstance(s, dict)]
+
+        scene_groups = self.suggest_scene_groups(shots, story_sections)
+        sg_list = [
+            {
+                "id": sg.id, "name": sg.name, "location": sg.location,
+                "time_of_day": sg.time_of_day, "weather": sg.weather,
+                "emotional_state": sg.emotional_state,
+                "narrative_world_state": sg.narrative_world_state,
+                "source_section_id": sg.source_section_id,
+                "shot_ids": list(sg.shot_ids),
+                "created_by": sg.created_by,
+                "created_at": sg.created_at, "updated_at": sg.updated_at,
+            }
+            for sg in scene_groups
+        ]
+        shot_to_sg = {
+            sid: sg.id
+            for sg in scene_groups
+            for sid in sg.shot_ids
+        }
+
+        references = self._shot_references(root)
+        backgrounds = []
+        bg_counter = 0
+        shot_to_bg = {}
+        now = datetime.now(timezone.utc).isoformat()
+
+        for shot_id, shot_ref in references.get("shots", {}).items():
+            if not isinstance(shot_ref, dict):
+                continue
+            bg_path = shot_ref.get("background", "")
+            if not bg_path:
+                continue
+            sg_id = shot_to_sg.get(shot_id, "")
+            if not sg_id:
+                continue
+            existing_bg = next(
+                (b for b in backgrounds if b.get("relative_path") == bg_path and b.get("scene_group_id") == sg_id),
+                None,
+            )
+            if existing_bg is None:
+                bg_counter += 1
+                bg_id = f"BG{bg_counter:03d}"
+                backgrounds.append({
+                    "id": bg_id, "scene_group_id": sg_id,
+                    "status": "candidate", "source": "uploaded",
+                    "relative_path": bg_path,
+                    "prompt_zh": "", "prompt_en": "", "model": "",
+                    "request_id": "", "cost_yuan": 0.0, "created_at": now,
+                })
+                shot_to_bg[shot_id] = bg_id
+            else:
+                shot_to_bg[shot_id] = existing_bg["id"]
+
+        # Only one selected per scene group: the last one wins
+        sg_selected = {}
+        for shot_id, bg_id in shot_to_bg.items():
+            sg_id = shot_to_sg.get(shot_id, "")
+            if sg_id:
+                sg_selected[sg_id] = bg_id
+        for bg in backgrounds:
+            if bg["id"] in sg_selected.values() and sg_selected.get(bg["scene_group_id"]) == bg["id"]:
+                bg["status"] = "selected"
+
+        new_shots = {}
+        for shot_id, shot_ref in references.get("shots", {}).items():
+            entry = dict(shot_ref)
+            if shot_id in shot_to_bg:
+                entry.setdefault("background_master_id", shot_to_bg[shot_id])
+                entry.setdefault("background_variant", {
+                    "shot_size": "", "camera_angle": "",
+                    "lighting_note": "", "prop_note": "", "crop_note": "",
+                })
+            new_shots[shot_id] = entry
+
+        new_references = dict(references)
+        new_references["version"] = 2
+        new_references["shots"] = new_shots
+
+        now_ts = datetime.now(timezone.utc).isoformat()
+        sg_doc = {
+            "version": 1, "generated_by": "system_heuristic",
+            "generated_at": now_ts, "scene_groups": sg_list,
+        }
+        bg_doc = {"version": 1, "backgrounds": backgrounds}
+
+        try:
+            self._write_scene_groups(root, sg_doc)
+            self._write_background_masters(root, bg_doc)
+            self._write_shot_references(root, new_references)
+        except Exception:
+            logger.exception("scene_group_migration_failed")
+
+    def get_scene_groups(self, project_id):
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sg_doc = self._scene_groups(root)
+        if sg_doc is None:
+            return {"version": 1, "generated_by": "none",
+                    "generated_at": "", "scene_groups": []}
+        bg_doc = self._background_masters(root)
+        bgs_by_sg = {}
+        for bg in bg_doc.get("backgrounds", []):
+            bgs_by_sg.setdefault(bg.get("scene_group_id", ""), []).append(bg)
+        result = []
+        for sg in sg_doc.get("scene_groups", []):
+            sg_entry = dict(sg)
+            sg_entry["backgrounds"] = bgs_by_sg.get(sg.get("id", ""), [])
+            result.append(sg_entry)
+        return {
+            "version": sg_doc.get("version", 1),
+            "generated_by": sg_doc.get("generated_by", ""),
+            "generated_at": sg_doc.get("generated_at", ""),
+            "scene_groups": result,
+        }
+
+    def suggest_and_save_scene_groups(self, project_id):
+        """Run heuristic suggestion and write scene-groups.json; returns workflow."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("storyboard", {}).get("action") != "approve":
+            raise ApplicationBlocked("storyboard approval is required before suggesting scene groups")
+        visual = self._read_structured_file(root / "creative" / "visual_score.yaml")
+        if not isinstance(visual, dict):
+            raise ApplicationBlocked("visual_score.yaml is missing; run planning first")
+        shots = [s for s in visual.get("shots", []) if isinstance(s, dict)]
+        story = self._read_structured_file(root / "creative" / "story_framework.yaml")
+        story_sections = []
+        if isinstance(story, dict):
+            story_sections = [s for s in story.get("sections", []) if isinstance(s, dict)]
+        scene_groups = self.suggest_scene_groups(shots, story_sections)
+        sg_list = [
+            {
+                "id": sg.id, "name": sg.name, "location": sg.location,
+                "time_of_day": sg.time_of_day, "weather": sg.weather,
+                "emotional_state": sg.emotional_state,
+                "narrative_world_state": sg.narrative_world_state,
+                "source_section_id": sg.source_section_id,
+                "shot_ids": list(sg.shot_ids),
+                "created_by": sg.created_by,
+                "created_at": sg.created_at, "updated_at": sg.updated_at,
+            }
+            for sg in scene_groups
+        ]
+        now_ts = datetime.now(timezone.utc).isoformat()
+        sg_doc = {
+            "version": 1, "generated_by": "system_heuristic",
+            "generated_at": now_ts, "scene_groups": sg_list,
+        }
+        self._write_scene_groups(root, sg_doc)
+        return self.get_project_workflow(project_id)
+
+    def update_scene_group(self, project_id, sg_id, name=None, shot_ids=None):
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sg_doc = self._scene_groups(root)
+        if sg_doc is None:
+            raise ApplicationNotFound(sg_id)
+        groups = sg_doc.get("scene_groups", [])
+        target = next((g for g in groups if g.get("id") == sg_id), None)
+        if target is None:
+            raise ApplicationNotFound(sg_id)
+        if name is not None:
+            if not isinstance(name, str) or not name.strip() or len(name) > 40:
+                raise ApplicationConflict("scene group name is invalid")
+            target["name"] = name.strip()
+        if shot_ids is not None:
+            if not isinstance(shot_ids, list):
+                raise ApplicationConflict("shot_ids must be a list")
+            # Remove these shots from other groups first
+            for grp in groups:
+                if grp.get("id") != sg_id:
+                    grp["shot_ids"] = [s for s in grp.get("shot_ids", []) if s not in shot_ids]
+            target["shot_ids"] = shot_ids
+        target["updated_at"] = datetime.now(timezone.utc).isoformat()
+        sg_doc["scene_groups"] = groups
+        self._write_scene_groups(root, sg_doc)
+        return self.get_project_workflow(project_id)
+
+    def merge_scene_groups(self, project_id, source_ids, target_name):
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sg_doc = self._scene_groups(root)
+        if sg_doc is None:
+            raise ApplicationNotFound("scene groups")
+        if not isinstance(source_ids, list) or len(source_ids) < 2:
+            raise ApplicationConflict("merge requires at least two source_ids")
+        groups = sg_doc.get("scene_groups", [])
+        to_merge = [g for g in groups if g.get("id") in source_ids]
+        if len(to_merge) < 2:
+            raise ApplicationNotFound("one or more source scene groups not found")
+        merged_shots = []
+        for g in to_merge:
+            merged_shots.extend(g.get("shot_ids", []))
+        now = datetime.now(timezone.utc).isoformat()
+        new_id = to_merge[0]["id"]
+        merged_group = {
+            "id": new_id,
+            "name": (target_name or to_merge[0].get("name", "合并场景")).strip(),
+            "location": "", "time_of_day": "", "weather": "",
+            "emotional_state": "", "narrative_world_state": "",
+            "source_section_id": to_merge[0].get("source_section_id", ""),
+            "shot_ids": merged_shots,
+            "created_by": "user", "created_at": now, "updated_at": now,
+        }
+        remaining = [g for g in groups if g.get("id") not in source_ids]
+        remaining.insert(0, merged_group)
+        sg_doc["scene_groups"] = remaining
+        self._write_scene_groups(root, sg_doc)
+        return self.get_project_workflow(project_id)
+
+    def select_background_master(self, project_id, sg_id, bg_id):
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        bg_doc = self._background_masters(root)
+        backgrounds = bg_doc.get("backgrounds", [])
+        target = next((b for b in backgrounds if b.get("id") == bg_id), None)
+        if target is None:
+            raise ApplicationNotFound(bg_id)
+        if target.get("scene_group_id") != sg_id:
+            raise ApplicationConflict("background does not belong to this scene group")
+        for bg in backgrounds:
+            if bg.get("scene_group_id") == sg_id:
+                bg["status"] = "candidate"
+        target["status"] = "selected"
+        bg_doc["backgrounds"] = backgrounds
+        self._write_background_masters(root, bg_doc)
+        # Auto-update shots in this scene group (PRD-007B §4.6)
+        sg_doc = self._scene_groups(root)
+        shots_updated = []
+        if sg_doc is not None:
+            target_sg = next((g for g in sg_doc.get("scene_groups", []) if g.get("id") == sg_id), None)
+            if target_sg:
+                refs = self._shot_references(root)
+                for sid in target_sg.get("shot_ids", []):
+                    record = refs["shots"].setdefault(sid, {})
+                    record["background_master_id"] = bg_id
+                    shots_updated.append(sid)
+                self._write_shot_references(root, refs)
+        return {"group_id": sg_id, "master_id": bg_id, "shots_updated": shots_updated}
+
+    def generate_scene_group_background(self, project_id, sg_id):
+        """Generate a background image for a scene group (PRD-002 §6.1)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("storyboard", {}).get("action") != "approve":
+            raise ApplicationBlocked("storyboard approval is required before background generation")
+        sg_doc = self._scene_groups(root)
+        if sg_doc is None:
+            raise ApplicationBlocked(
+                "请先在场景与背景阶段建立场景组",
+                error_stage="precondition",
+            )
+        target_sg = next(
+            (g for g in sg_doc.get("scene_groups", []) if g.get("id") == sg_id),
+            None,
+        )
+        if target_sg is None:
+            raise ApplicationNotFound(sg_id)
+        shot_ids = target_sg.get("shot_ids", [])
+        if not shot_ids:
+            raise ApplicationBlocked(
+                "场景组内没有分镜，无法生成背景",
+                error_stage="precondition",
+            )
+        representative_shot_id = shot_ids[0]
+        workflow = self._generate_shot_image(
+            project_id, representative_shot_id,
+            "image.background.generate_requested", "backgrounds",
+        )
+        # Move the generated background into background-masters.json
+        references = self._shot_references(root)
+        new_bg_path = references["shots"].get(representative_shot_id, {}).get("background", "")
+        if new_bg_path:
+            bg_doc = self._background_masters(root)
+            existing_ids = [b.get("id", "") for b in bg_doc.get("backgrounds", [])]
+            counter = len(existing_ids) + 1
+            while f"BG{counter:03d}" in existing_ids:
+                counter += 1
+            bg_id = f"BG{counter:03d}"
+            now = datetime.now(timezone.utc).isoformat()
+            bg_doc.setdefault("backgrounds", []).append({
+                "id": bg_id, "scene_group_id": sg_id,
+                "status": "candidate", "source": "generated",
+                "relative_path": new_bg_path,
+                "prompt_zh": "", "prompt_en": "", "model": "",
+                "request_id": "", "cost_yuan": 0.5, "created_at": now,
+            })
+            self._write_background_masters(root, bg_doc)
+        return self.get_project_workflow(project_id)
+
+    _DEFAULT_SCENE_GROUP_SYSTEM_PROMPT = (
+        '你是一位专业的影视分镜分析师。\n'
+        '根据分镜描述，将镜头按“背景场景组”归类：同一地点、相近时间段、背景视觉高度相似的镜头归为一组。\n'
+        '每组给出一个简短名称（格式：地点-时段，如“书房-白天”）和一句背景描述提示词（中文，≤50字）。\n'
+        '输出 JSON 数组，每项包含 group_name, shots(镜头编号数组), prompt_zh。不要输出任何其他内容。'
+    )
+
+    def suggest_scene_groups_llm(self, project_id: str,
+                                  system_prompt: "str | None" = None,
+                                  task_prompt: "str | None" = None) -> dict:
+        """LLM-based scene group suggestion (PRD-007B §4.1)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("storyboard", {}).get("action") != "approve":
+            raise ApplicationBlocked("storyboard approval required before scene planning")
+        visual = self._read_structured_file(root / "creative" / "visual_score.yaml") or {}
+        all_shots = [s for s in (visual.get("shots", []) if isinstance(visual, dict) else []) if isinstance(s, dict)]
+        if not all_shots:
+            raise ApplicationBlocked("no shots found in visual score")
+        shots_json = json.dumps(
+            [{"id": s.get("id", ""), "purpose": s.get("purpose", ""), "section": s.get("section", "")} for s in all_shots],
+            ensure_ascii=False,
+        )
+        sys_p = system_prompt or self._DEFAULT_SCENE_GROUP_SYSTEM_PROMPT
+        task_p = task_prompt or (
+            f"以下是分镜列表，请按场景组归类：\n\n{shots_json}\n\n"
+            "要求：不遗漏任何镜头，每个镜头只能属于一个组。"
+        )
+        from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
+        from mvstudio.director.drafting import ModelBudget, ModelTask
+        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        if not model:
+            raise ApplicationBlocked("LLM not configured", error_stage="configuration")
+        try:
+            provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+        except Exception as exc:
+            raise ApplicationBlocked("LLM provider not configured", error_stage="configuration") from exc
+        schema = {"groups": [{"group_name": "str", "shots": ["str"], "prompt_zh": "str"}]}
+        payload = {"system_prompt": sys_p, "task_prompt": task_p, "shots": shots_json}
+        task = ModelTask(
+            event_type="scene_group.suggest_requested", model=model,
+            budget=ModelBudget(max_input_bytes=65536, max_output_bytes=32000, max_tokens=4000),
+            reason="Cluster storyboard shots into background scene groups.",
+            input_contract_hash=canonical_hash(payload),
+            output_schema_hash=canonical_hash(schema),
+            output_schema=schema, payload=payload,
+            instruction=sys_p + "\n\n" + task_p + "\n\nReturn a JSON object of the form {\"groups\": [{\"group_name\":\"...\",\"shots\":[\"S001\",...],\"prompt_zh\":\"...\"}]}",
+        )
+        try:
+            result = provider.run(task)
+        except Exception as exc:
+            raise ApplicationBlocked(f"LLM call failed: {exc}", error_stage="translate_prompt") from exc
+        output = getattr(result, "output", None) or {}
+        groups_raw = output.get("groups") if isinstance(output, dict) else None
+        if not isinstance(groups_raw, list):
+            raise ApplicationBlocked("LLM returned no valid groups")
+        all_shot_ids = {s.get("id", "") for s in all_shots}
+        assigned: set = set()
+        groups = []
+        now = datetime.now(timezone.utc).isoformat()
+        for i, g in enumerate(groups_raw):
+            gid = f"SG{i+1:03d}"
+            shot_ids = [s for s in (g.get("shots") or []) if s in all_shot_ids]
+            assigned.update(shot_ids)
+            groups.append({
+                "group_id": gid, "name": g.get("group_name", f"场景组{i+1}"),
+                "shots": shot_ids, "prompt_zh": g.get("prompt_zh", ""),
+                "notes": "LLM 建议", "locked": False,
+                "created_at": now, "updated_at": now,
+            })
+        uncategorized = list(all_shot_ids - assigned)
+        if uncategorized:
+            groups.append({
+                "group_id": f"SG{len(groups)+1:03d}", "name": "未分组",
+                "shots": sorted(uncategorized), "prompt_zh": "", "notes": "待分配",
+                "locked": False, "created_at": now, "updated_at": now,
+            })
+        sp_data = {
+            "version": 1, "status": "draft",
+            "groups": groups,
+            "llm_suggestion_used": True,
+            "system_prompt": sys_p, "task_prompt": task_p,
+            "generated_at": now,
+        }
+        self._write_scene_planning(root, sp_data)
+        return {"groups": groups, "system_prompt": sys_p, "task_prompt": task_p}
+
+    def get_scene_planning(self, project_id: str) -> dict:
+        """Return current scene planning data (PRD-007B §4.0)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sp = self._scene_planning(root)
+        if sp is None:
+            return {"status": "not_started", "groups": []}
+        return sp
+
+    def update_scene_planning(self, project_id: str, payload: dict) -> dict:
+        """Update scene group plan (PRD-007B §4.2)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sp = self._scene_planning(root) or {"version": 1, "status": "draft", "groups": [], "llm_suggestion_used": False}
+        action = payload.get("action")
+        now = datetime.now(timezone.utc).isoformat()
+        if action == "regenerate_suggestion":
+            return self.suggest_scene_groups_llm(
+                project_id,
+                system_prompt=payload.get("system_prompt"),
+                task_prompt=payload.get("task_prompt"),
+            )
+        elif action == "update_groups":
+            raw_groups = payload.get("groups", [])
+            groups = []
+            existing_ids = {g["group_id"] for g in sp.get("groups", []) if "group_id" in g}
+            counter = len(existing_ids) + 1
+            for g in raw_groups:
+                gid = g.get("group_id")
+                if not gid:
+                    while f"SG{counter:03d}" in existing_ids:
+                        counter += 1
+                    gid = f"SG{counter:03d}"
+                    existing_ids.add(gid)
+                    counter += 1
+                groups.append({
+                    "group_id": gid,
+                    "name": g.get("name") or g.get("group_name", "场景组"),
+                    "shots": g.get("shots", []),
+                    "prompt_zh": g.get("prompt_zh", ""),
+                    "notes": g.get("notes", ""),
+                    "locked": bool(g.get("locked", False)),
+                    "created_at": g.get("created_at", now),
+                    "updated_at": now,
+                })
+            sp["groups"] = groups
+            sp["status"] = "draft"
+            sp["updated_at"] = now
+            self._write_scene_planning(root, sp)
+            return {"groups": groups}
+        else:
+            raise ApplicationBlocked(f"unknown action: {action}")
+
+    def approve_scene_planning(self, project_id: str) -> dict:
+        """Approve scene planning and propagate to shots (PRD-007B §4.3)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sp = self._scene_planning(root)
+        if sp is None:
+            raise ApplicationBlocked("no scene planning data found; run suggest or update first")
+        visual = self._read_structured_file(root / "creative" / "visual_score.yaml") or {}
+        all_shot_ids = {s.get("id", "") for s in (visual.get("shots", []) if isinstance(visual, dict) else []) if isinstance(s, dict)}
+        groups = sp.get("groups", [])
+        assigned = {sid for g in groups for sid in g.get("shots", [])}
+        uncategorized = all_shot_ids - assigned
+        if uncategorized:
+            raise ApplicationBlocked(
+                f"uncategorized shots: {sorted(uncategorized)}",
+                error_stage="precondition",
+            )
+        refs = self._shot_references(root)
+        for g in groups:
+            gid = g["group_id"]
+            for sid in g.get("shots", []):
+                record = refs["shots"].setdefault(sid, {})
+                record["scene_group_id"] = gid
+                if "background_override" not in record:
+                    record["background_override"] = None
+        self._write_shot_references(root, refs)
+        now = datetime.now(timezone.utc).isoformat()
+        sg_doc = {
+            "version": 1, "generated_by": "scene_planning", "generated_at": now,
+            "scene_groups": [
+                {
+                    "id": g["group_id"], "name": g["name"],
+                    "source_section_id": "",
+                    "shot_ids": g["shots"],
+                    "location": "", "time_of_day": "", "weather": "",
+                    "emotional_state": "", "narrative_world_state": "",
+                    "created_by": "user", "created_at": g.get("created_at", now), "updated_at": now,
+                }
+                for g in groups
+            ],
+        }
+        self._write_scene_groups(root, sg_doc)
+        sp["status"] = "approved"
+        sp["approved_at"] = now
+        self._write_scene_planning(root, sp)
+        return {"status": "approved", "groups": len(groups), "shots_assigned": len(assigned)}
+
+    def submit_generate_group_background_job(self, project_id: str, group_id: str) -> dict:
+        """Submit 2 candidate background generation jobs for a scene group (PRD-007B §4.5)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        sp = self._scene_planning(root)
+        if sp is None or sp.get("status") != "approved":
+            raise ApplicationBlocked("scene_planning must be approved before group background generation")
+        sg_doc = self._scene_groups(root)
+        if sg_doc is None:
+            raise ApplicationBlocked("no scene groups found")
+        target_sg = next((g for g in sg_doc.get("scene_groups", []) if g.get("id") == group_id), None)
+        if target_sg is None:
+            raise ApplicationNotFound(group_id)
+        shot_ids = target_sg.get("shot_ids", [])
+        if not shot_ids:
+            raise ApplicationBlocked("scene group has no shots")
+        representative_shot_id = shot_ids[0]
+        job_ids = []
+        for _ in range(2):
+            result = self.submit_generate_background_job(project_id, representative_shot_id)
+            job_ids.append(result["job_id"])
+        return {"group_id": group_id, "job_ids": job_ids, "status": "queued"}
+
+    def set_shot_background_override(self, project_id: str, shot_id: str, override_path: "str | None") -> dict:
+        """Set or clear a per-shot background override (PRD-007B §4.7)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        refs = self._shot_references(root)
+        record = refs["shots"].setdefault(shot_id, {})
+        record["background_override"] = override_path
+        self._write_shot_references(root, refs)
+        return {
+            "shot_id": shot_id,
+            "background_master_id": record.get("background_master_id", ""),
+            "background_override": override_path,
+        }
+
+    def generate_shot_background(self, project_id, shot_id, en_prompt: "str | None" = None):
+        # DEPRECATED: use scene-group level generation
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        sg_doc = self._scene_groups(root)
+        if sg_doc is not None:
+            target_sg = next(
+                (
+                    g for g in sg_doc.get("scene_groups", [])
+                    if shot_id in g.get("shot_ids", [])
+                ),
+                None,
+            )
+            if target_sg is None:
+                raise ApplicationBlocked(
+                    "请先在场景与背景阶段建立场景组",
+                    error_stage="precondition",
+                )
+            return self.generate_scene_group_background(project_id, target_sg["id"])
         if decisions.get("story", {}).get("action") != "approve":
             raise ApplicationBlocked("story approval is required before background generation")
         return self._generate_shot_image(
             project_id, shot_id, "image.background.generate_requested", "backgrounds",
+            en_prompt=en_prompt,
         )
 
-    def generate_shot_keyframe(self, project_id, shot_id):
-        decisions = self._workflow_decisions(self._project_directory(project_id)[1])
-        if decisions.get("storyboard", {}).get("action") != "approve":
-            raise ApplicationBlocked("storyboard approval is required before keyframe generation")
+    def generate_shot_keyframe(self, project_id, shot_id, en_prompt: "str | None" = None):
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("scenes", {}).get("action") != "approve":
+            raise ApplicationBlocked(
+                "scenes approval is required before keyframe generation",
+                error_stage="precondition", error_category="precondition",
+            )
+        references = self._shot_references(root)
+        shot_record = references["shots"].get(shot_id, {})
+        if not shot_record.get("background_master_id"):
+            raise ApplicationBlocked(
+                "shot has no background master, please complete scenes stage first",
+                error_stage="precondition", error_category="precondition",
+            )
         return self._generate_shot_image(
             project_id, shot_id, "image.keyframe.generate_requested", "keyframes",
-            include_background=True,
+            include_background=True, en_prompt=en_prompt,
         )
+
+    def generate_shot_video(self, project_id: str, shot_id: str, duration: int = 5):
+        """Generate a video for a shot via the configured video provider (PRD-004)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("scenes", {}).get("action") != "approve":
+            raise ApplicationBlocked(
+                "scenes approval is required before video generation",
+                error_stage="precondition", error_category="precondition",
+            )
+        references = self._shot_references(root)
+        shot_ref = references["shots"].get(shot_id, {})
+        selected_kf = shot_ref.get("selected_keyframe", "")
+        if not selected_kf:
+            raise ApplicationBlocked(
+                "shot has no selected keyframe, please complete keyframes stage first",
+                error_stage="precondition", error_category="precondition",
+            )
+        kf_path = root / selected_kf
+        if not kf_path.exists():
+            raise ApplicationBlocked(
+                "selected keyframe file not found on disk",
+                error_stage="precondition", error_category="precondition",
+            )
+        if not os.environ.get("SEEDANCE_BASE_URL"):
+            raise ApplicationBlocked(
+                "Seedance provider not configured",
+                error_stage="configuration", error_category="configuration",
+            )
+        provider = getattr(self, "video_provider", None)
+        if provider is None:
+            try:
+                from mvstudio.providers.seedance import SeedancePort
+                provider = SeedancePort.from_env()
+            except Exception as exc:
+                raise ApplicationBlocked("video provider is not configured") from exc
+        task_id = "task-" + uuid.uuid4().hex[:12]
+        try:
+            from mvstudio.providers.seedance import SeedanceTask, SeedanceFrame
+            kf_bytes = kf_path.read_bytes()
+            import hashlib
+            kf_sha256 = "sha256:" + hashlib.sha256(kf_bytes).hexdigest()
+            visual = self._read_structured_file(root / "creative" / "visual_score.yaml") or {}
+            shot_data = next(
+                (s for s in (visual.get("shots", []) if isinstance(visual, dict) else []) if isinstance(s, dict) and s.get("id") == shot_id),
+                {},
+            )
+            shot_prompt = (
+                shot_data.get("primary_action")
+                or shot_data.get("purpose")
+                or shot_data.get("first_frame")
+                or f"Shot {shot_id} motion"
+            )
+            seedance_task = SeedanceTask(
+                shot_id=shot_id,
+                model=os.environ.get("SEEDANCE_MODEL", "doubao-seedance-2-0-260128"),
+                prompt=shot_prompt,
+                duration_seconds=int(duration),
+                first_frame=SeedanceFrame(content=kf_bytes, sha256=kf_sha256),
+                aspect_ratio="9:16",
+                resolution="720p",
+            )
+            result = provider.generate(seedance_task)
+            video_bytes = result.video_bytes
+        except Exception as exc:
+            raise ApplicationBlocked("video generation failed") from exc
+        qc_passed, qc_info = self._qc_video(video_bytes, duration)
+        relative = Path("assets/generated/videos") / (
+            shot_id + "-" + task_id[-10:] + ".mp4"
+        )
+        self._write_atomic_file(root / relative, video_bytes, ".generated-video-")
+        relative_text = relative.as_posix()
+        record = references["shots"].setdefault(shot_id, {})
+        entry = {
+            "path": relative_text,
+            "source_keyframe": selected_kf,
+            "duration_requested": duration,
+            "duration_actual": qc_info["duration_actual"],
+            "resolution": "720p",
+            "file_size_bytes": qc_info["file_size_bytes"],
+            "model": os.environ.get("SEEDANCE_MODEL", ""),
+            "task_id": task_id,
+            "cost_yuan": round(duration * 0.8, 2),
+            "qc_passed": qc_passed,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        record.setdefault("video_entries", []).append(entry)
+        if not record.get("selected_video"):
+            record["selected_video"] = relative_text
+        self._write_shot_references(root, references)
+        return self.get_project_workflow(project_id)
+
+    def select_shot_video(self, project_id: str, shot_id: str, path: str):
+        """Set selected_video for a shot (PRD-004)."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        references = self._shot_references(root)
+        record = references["shots"].get(shot_id, {})
+        candidate_paths = [
+            e["path"] for e in record.get("video_entries", [])
+            if isinstance(e, dict) and e.get("path")
+        ]
+        if path not in candidate_paths:
+            raise ApplicationConflict("video candidate is invalid")
+        record["selected_video"] = path
+        record["video_selected_at"] = datetime.now(timezone.utc).isoformat()
+        references["shots"][shot_id] = record
+        self._write_shot_references(root, references)
+        return self.get_project_workflow(project_id)
+
+    def ping_video_provider(self) -> dict:
+        """Test Seedance provider connectivity (PRD-004)."""
+        import time
+        base_url = os.environ.get("SEEDANCE_BASE_URL", "")
+        model = os.environ.get("SEEDANCE_MODEL", "seedance-2.0")
+        if not base_url:
+            return {"provider": "seedance", "reachable": False, "model": model,
+                    "latency_ms": 0, "error": "SEEDANCE_BASE_URL not configured"}
+        start = time.time()
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                base_url.rstrip("/") + "/health",
+                method="GET",
+            )
+            req.add_header("User-Agent", "mvstudio-ping/1")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                resp.read()
+            latency_ms = round((time.time() - start) * 1000)
+            return {"provider": "seedance", "reachable": True, "model": model,
+                    "latency_ms": latency_ms, "error": ""}
+        except Exception as exc:
+            latency_ms = round((time.time() - start) * 1000)
+            return {"provider": "seedance", "reachable": False, "model": model,
+                    "latency_ms": latency_ms, "error": str(exc)}
+
+    # -----------------------------------------------------------------------
+    # PRD-005: SSE streaming – mini-job infrastructure
+    # -----------------------------------------------------------------------
+
+    def _emit_mini_event(self, job_id: str, event_type: str, payload: dict):
+        """Append a progress/done/error SSE event for a mini image-gen job."""
+        now = datetime.now(timezone.utc).isoformat()
+        with self.database.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute(
+                "SELECT COALESCE(MAX(seq),0) FROM events WHERE job_id=?", (job_id,)
+            ).fetchone()
+            seq = row[0] + 1
+            db.execute(
+                "INSERT INTO events VALUES (?,?,?,?,?)",
+                (job_id, seq, event_type, now, json.dumps(payload, ensure_ascii=False)),
+            )
+            db.commit()
+
+    def _set_mini_job_state(self, job_id: str, state: str):
+        """Update runtime_state for a mini image-gen job."""
+        now = datetime.now(timezone.utc).isoformat()
+        with self.database.connect() as db:
+            db.execute(
+                "UPDATE job_status SET runtime_state=?, updated_at=? WHERE job_id=?",
+                (state, now, job_id),
+            )
+            db.commit()
+
+    @staticmethod
+    def _encode_en_prompt(en_prompt: str) -> str:
+        import base64
+        encoded = base64.urlsafe_b64encode(en_prompt.encode("utf-8")).decode("ascii").rstrip("=")
+        return "b64prompt:" + encoded
+
+    @staticmethod
+    def _decode_en_prompt(refs) -> "str | None":
+        import base64
+        for ref in refs:
+            if isinstance(ref, str) and ref.startswith("b64prompt:"):
+                padded = ref[10:] + "=="
+                try:
+                    return base64.urlsafe_b64decode(padded).decode("utf-8")
+                except Exception:
+                    return None
+        return None
+
+    def _translate_prompt(self, project_id: str, shot_id: str, event_type: str) -> str:
+        """Translate shot prompt to English (thin wrapper; monkeypatchable in tests)."""
+        _project, root = self._project_directory(project_id)
+        context = self._shot_generation_context(root, shot_id)
+        request_id = "translate-" + uuid.uuid4().hex[:12]
+        prompt, _translation = self._translate_image_prompt(
+            project_id, event_type, context, request_id,
+        )
+        return prompt
+
+    def submit_generate_background_job(self, project_id: str, shot_id: str, en_prompt: "str | None" = None) -> dict:
+        """Create an async background-generation job, return immediately with job_id."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        sg_doc = self._scene_groups(root)
+        if sg_doc is not None:
+            target_sg = next(
+                (g for g in sg_doc.get("scene_groups", []) if shot_id in g.get("shot_ids", [])),
+                None,
+            )
+            if target_sg is None:
+                raise ApplicationBlocked(
+                    "请先在场景与背景阶段建立场景组",
+                    error_stage="precondition",
+                )
+        elif decisions.get("story", {}).get("action") != "approve":
+            raise ApplicationBlocked(
+                "story approval is required before background generation",
+                error_stage="precondition",
+            )
+        now_s = datetime.now(timezone.utc).isoformat()
+        input_refs: tuple = (shot_id,)
+        if en_prompt:
+            input_refs = (shot_id, self._encode_en_prompt(en_prompt))
+        input_digest = "sha256:" + hashlib.sha256(
+            f"bg:{project_id}:{shot_id}:{now_s}".encode()
+        ).hexdigest()
+        result = self.submit_job(
+            project_id, "generate_background", input_digest,
+            input_refs=input_refs,
+            idempotency_key="imgbg-" + uuid.uuid4().hex,
+        )
+        return {"job_id": result.job_id, "status": "queued"}
+
+    def submit_generate_keyframe_job(self, project_id: str, shot_id: str, en_prompt: "str | None" = None) -> dict:
+        """Create an async keyframe-generation job, return immediately with job_id."""
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        decisions = self._workflow_decisions(root)
+        if decisions.get("scenes", {}).get("action") != "approve":
+            raise ApplicationBlocked(
+                "scenes approval is required before keyframe generation",
+                error_stage="precondition", error_category="precondition",
+            )
+        references = self._shot_references(root)
+        shot_record = references["shots"].get(shot_id, {})
+        if not shot_record.get("background_master_id"):
+            raise ApplicationBlocked(
+                "shot has no background master, please complete scenes stage first",
+                error_stage="precondition", error_category="precondition",
+            )
+        now_s = datetime.now(timezone.utc).isoformat()
+        input_refs: tuple = (shot_id,)
+        if en_prompt:
+            input_refs = (shot_id, self._encode_en_prompt(en_prompt))
+        input_digest = "sha256:" + hashlib.sha256(
+            f"kf:{project_id}:{shot_id}:{now_s}".encode()
+        ).hexdigest()
+        result = self.submit_job(
+            project_id, "generate_keyframe", input_digest,
+            input_refs=input_refs,
+            idempotency_key="imgkf-" + uuid.uuid4().hex,
+        )
+        return {"job_id": result.job_id, "status": "queued"}
+
+    def run_generate_background_job(self, job_id: str):
+        """Execute a queued background-generation job (called by API background task)."""
+        try:
+            spec = self.repository.get_job(job_id)
+        except RepositoryNotFound:
+            return
+        shot_id = spec.input_refs[0] if spec.input_refs else ""
+        en_prompt = self._decode_en_prompt(spec.input_refs)
+        self._execute_background_job(job_id, spec.project_id, shot_id, en_prompt=en_prompt)
+
+    def run_generate_keyframe_job(self, job_id: str):
+        """Execute a queued keyframe-generation job (called by API background task)."""
+        try:
+            spec = self.repository.get_job(job_id)
+        except RepositoryNotFound:
+            return
+        shot_id = spec.input_refs[0] if spec.input_refs else ""
+        en_prompt = self._decode_en_prompt(spec.input_refs)
+        self._execute_keyframe_job(job_id, spec.project_id, shot_id, en_prompt=en_prompt)
+
+    def _execute_background_job(self, job_id: str, project_id: str, shot_id: str, en_prompt: "str | None" = None):
+        self._set_mini_job_state(job_id, "running")
+        try:
+            if en_prompt:
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "generate_image", "pct": 40, "message": "正在调用图片模型...",
+                })
+            else:
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "translate_prompt", "pct": 10, "message": "正在翻译提示词...",
+                })
+                en_prompt = self._translate_prompt(
+                    project_id, shot_id, "image.background.generate_requested",
+                )
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "translate_prompt", "pct": 30,
+                    "message": "提示词翻译完成", "en_prompt": en_prompt,
+                })
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "generate_image", "pct": 40, "message": "正在调用图片模型...",
+                })
+            self.generate_shot_background(project_id, shot_id, en_prompt=en_prompt)
+            self._emit_mini_event(job_id, "done", {
+                "stage": "save_result", "pct": 100, "message": "已保存",
+            })
+            self._set_mini_job_state(job_id, "succeeded")
+        except Exception as exc:
+            err_stage = getattr(exc, "error_stage", "") or "generate_image"
+            err_cat = getattr(exc, "error_category", "") or "generation_failed"
+            self._emit_mini_event(job_id, "error", {
+                "stage": err_stage,
+                "error_category": err_cat,
+                "message": str(exc),
+            })
+            self._set_mini_job_state(job_id, "failed")
+
+    def _execute_keyframe_job(self, job_id: str, project_id: str, shot_id: str, en_prompt: "str | None" = None):
+        self._set_mini_job_state(job_id, "running")
+        try:
+            if en_prompt:
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "generate_image", "pct": 40, "message": "正在调用图片模型...",
+                })
+            else:
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "translate_prompt", "pct": 10, "message": "正在翻译提示词...",
+                })
+                en_prompt = self._translate_prompt(
+                    project_id, shot_id, "image.keyframe.generate_requested",
+                )
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "translate_prompt", "pct": 30,
+                    "message": "提示词翻译完成", "en_prompt": en_prompt,
+                })
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": "generate_image", "pct": 40, "message": "正在调用图片模型...",
+                })
+            self.generate_shot_keyframe(project_id, shot_id, en_prompt=en_prompt)
+            self._emit_mini_event(job_id, "done", {
+                "stage": "save_result", "pct": 100, "message": "已保存",
+            })
+            self._set_mini_job_state(job_id, "succeeded")
+        except Exception as exc:
+            err_stage = getattr(exc, "error_stage", "") or "generate_image"
+            err_cat = getattr(exc, "error_category", "") or "generation_failed"
+            self._emit_mini_event(job_id, "error", {
+                "stage": err_stage,
+                "error_category": err_cat,
+                "message": str(exc),
+            })
+            self._set_mini_job_state(job_id, "failed")
+
+    def _run_pending_jobs_sync(self):
+        """Execute all queued image-gen jobs synchronously (test helper)."""
+        with self.database.connect() as db:
+            rows = db.execute(
+                "SELECT jobs.job_id, jobs.project_id, jobs.operation, jobs.input_refs "
+                "FROM jobs JOIN job_status ON job_status.job_id=jobs.job_id "
+                "WHERE job_status.runtime_state='queued' "
+                "AND jobs.operation IN ('generate_background', 'generate_keyframe')"
+            ).fetchall()
+        for row in rows:
+            job_id, project_id, operation, input_refs_str = row
+            params = json.loads(input_refs_str)
+            shot_id = params[0] if params else ""
+            en_prompt = self._decode_en_prompt(params)
+            if operation == "generate_background":
+                self._execute_background_job(job_id, project_id, shot_id, en_prompt=en_prompt)
+            else:
+                self._execute_keyframe_job(job_id, project_id, shot_id, en_prompt=en_prompt)
 
     def _removed_project_assets(self, root):
         value = self._read_structured_file(root / "creative" / "removed-assets.json")

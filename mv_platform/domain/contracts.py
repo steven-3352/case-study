@@ -9,7 +9,8 @@ from .states import BusinessStage, RuntimeState
 
 _HASH = re.compile(r"^sha256:[0-9a-f]{64}$")
 _SLUG = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
-_OPS = {"analyze", "compile", "animatic", "generate", "render", "qc", "export"}
+_OPS = {"analyze", "compile", "animatic", "generate", "render", "qc", "export",
+        "generate_background", "generate_keyframe"}
 
 
 def _nonempty(value: str, label: str) -> str:

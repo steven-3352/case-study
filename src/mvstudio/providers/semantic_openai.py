@@ -151,7 +151,7 @@ class OpenAICompatibleSemanticPort:
                     if not raw_line:
                         break
                     received_bytes += len(raw_line)
-                    if received_bytes > task.budget.max_output_bytes * 8:
+                    if received_bytes > max(task.budget.max_output_bytes * 8, 4_000_000):
                         raise SemanticProviderError(
                             "semantic provider stream exceeds transport byte budget"
                         )
@@ -199,7 +199,6 @@ class OpenAICompatibleSemanticPort:
                         generated_bytes += len(content.encode("utf-8"))
                     if isinstance(reasoning, str):
                         reasoning_parts.append(reasoning)
-                        generated_bytes += len(reasoning.encode("utf-8"))
                     if generated_bytes > task.budget.max_output_bytes:
                         raise SemanticProviderError(
                             "semantic provider response exceeds byte budget"
