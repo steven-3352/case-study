@@ -152,8 +152,12 @@ class SeedancePort:
             raise SeedanceProviderError("Seedance duration is invalid")
         if not 4 <= task.duration_seconds <= 15:
             raise SeedanceProviderError("Seedance duration must be between 4 and 15 seconds")
-        if task.aspect_ratio != "9:16" or task.resolution != "720p":
-            raise SeedanceProviderError("Seedance first slice requires 9:16 at 720p")
+        _valid_ratios = {"9:16", "16:9"}
+        _valid_resolutions = {"480p", "720p", "1080p"}
+        if task.aspect_ratio not in _valid_ratios or task.resolution not in _valid_resolutions:
+            raise SeedanceProviderError(
+                f"Seedance unsupported aspect_ratio={task.aspect_ratio!r} or resolution={task.resolution!r}"
+            )
         if len(task.reference_frames) > 4:
             raise SeedanceProviderError("Seedance reference-frame count exceeds budget")
         first_type = task.first_frame.checked(self.max_frame_bytes)

@@ -1639,6 +1639,7 @@ class ApplicationService:
         return {
             "project": {
                 "title": brief.get("title", ""), "canvas": brief.get("canvas", "9:16"),
+                "resolution": brief.get("resolution", "720p"),
                 "creative_direction": brief.get("creative_direction", ""),
             },
             "shot": {
@@ -2616,6 +2617,9 @@ class ApplicationService:
             kf_bytes = kf_path.read_bytes()
             import hashlib
             kf_sha256 = "sha256:" + hashlib.sha256(kf_bytes).hexdigest()
+            brief = self._read_structured_file(root / "brief.json") or {}
+            proj_canvas = str(brief.get("canvas", "9:16"))
+            proj_resolution = str(brief.get("resolution", "720p"))
             visual = self._read_structured_file(root / "creative" / "visual_score.yaml") or {}
             shot_data = next(
                 (s for s in (visual.get("shots", []) if isinstance(visual, dict) else []) if isinstance(s, dict) and s.get("id") == shot_id),
@@ -2633,8 +2637,8 @@ class ApplicationService:
                 prompt=shot_prompt,
                 duration_seconds=int(duration),
                 first_frame=SeedanceFrame(content=kf_bytes, sha256=kf_sha256),
-                aspect_ratio="9:16",
-                resolution="720p",
+                aspect_ratio=proj_canvas,
+                resolution=proj_resolution,
             )
             result = provider.generate(seedance_task)
             video_bytes = result.video_bytes
@@ -2656,7 +2660,7 @@ class ApplicationService:
                 "source_keyframe": selected_kf,
                 "duration_requested": duration,
                 "duration_actual": qc_info["duration_actual"],
-                "resolution": "720p",
+                "resolution": proj_resolution,
                 "file_size_bytes": qc_info["file_size_bytes"],
                 "model": os.environ.get("SEEDANCE_MODEL", ""),
                 "task_id": task_id,
