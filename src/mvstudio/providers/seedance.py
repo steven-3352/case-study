@@ -184,8 +184,10 @@ class SeedancePort:
         try:
             with self._opener(request, timeout=self.timeout_seconds) as response:
                 raw = response.read(self.max_response_bytes + 1)
-        except (OSError, urllib.error.HTTPError, urllib.error.URLError) as exc:
-            raise SeedanceProviderError("Seedance provider request failed") from exc
+        except urllib.error.HTTPError as exc:
+            raise SeedanceProviderError(f"Seedance provider HTTP {exc.code}: {exc.reason}") from exc
+        except (OSError, urllib.error.URLError) as exc:
+            raise SeedanceProviderError(f"Seedance provider request failed: {exc}") from exc
         if len(raw) > self.max_response_bytes:
             raise SeedanceProviderError("Seedance provider response exceeds byte budget")
         try:

@@ -350,3 +350,40 @@ def test_generate_keyframe_writes_metadata_entry(tmp_path, monkeypatch):
     assert entry["cost_yuan"] == 0.5
     assert entry["model"] == "gpt-image-2-mock"
     assert entry["path"].startswith("assets/generated/keyframes/S001-")
+
+
+# ---------------------------------------------------------------------------
+# UT-026 (regression): scene-group shot has only background_master_id,
+# no per-shot ``background`` string. Keyframe generation must resolve the
+# background from the master (PRD-007B) instead of raising
+# "shot background is required before keyframe generation".
+# ---------------------------------------------------------------------------
+
+@pytest.mark.unit
+def test_generate_keyframe_resolves_background_from_master(tmp_path, monkeypatch):
+    service, project_id, root = _setup_project_with_scenes_approved(tmp_path, "sgbgfallback")
+
+    # Simulate the real scene-group flow: select_background_master records
+    # ONLY background_master_id on the shot, never the per-shot background.
+    _write_json(root / "creative" / "shot-references.json", {
+        "version": 2,
+        "shots": {
+            "S001": {"background_master_id": "BG001"},
+        },
+    })
+
+    service.image_provider = _MockImageProvider()
+
+    def _mock_translate(self_inner, project_id_inner, event_type, context, request_id):
+        return "test english prompt", {"source_prompt_hash": "sha256:" + "0" * 64}
+
+    monkeypatch.setattr(ApplicationService, "_translate_image_prompt", _mock_translate)
+
+    # Must not raise "shot background is required before keyframe generation".
+    service.generate_shot_keyframe(project_id, "S001")
+
+    refs = service._shot_references(root)
+    keyframes = refs["shots"]["S001"]["keyframes"]
+    assert len(keyframes) == 1
+    assert keyframes[0]["source"] == "generated"
+    assert keyframes[0]["path"].startswith("assets/generated/keyframes/S001-")

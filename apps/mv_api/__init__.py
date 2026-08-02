@@ -247,7 +247,7 @@ def _error_response(exc):
         detail = public_details.get(str(exc), "当前状态与本次操作冲突")
     elif isinstance(exc, ApplicationBlocked):
         status = 423
-        detail = public_details.get(str(exc), "当前条件不足，操作已阻止")
+        detail = public_details.get(str(exc)) or str(exc)
         payload = {"detail": detail}
         if getattr(exc, "error_stage", ""):
             payload["error_stage"] = exc.error_stage
@@ -309,7 +309,7 @@ def create_app(service=None, workspace_root=None):
     @app.exception_handler(ApplicationError)
     async def application_error(request: Request, exc: ApplicationError):
         response = _error_response(exc)
-        backend_event(request, exc, response)
+        backend_event(request, exc, response, include_traceback=isinstance(exc, ApplicationBlocked))
         return response
 
     @app.exception_handler(ValueError)

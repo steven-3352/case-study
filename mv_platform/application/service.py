@@ -6,6 +6,7 @@ import re
 import shutil
 import sqlite3
 import tempfile
+import threading
 import uuid
 import zipfile
 import xml.etree.ElementTree as ET
@@ -181,6 +182,10 @@ class ApplicationService:
         )
         self.error_logs = error_logs or _NoopErrorLogs()
         self._initialized = False
+        # Serializes read-modify-write cycles on shot-references.json so that a
+        # long-running image/video generation job cannot overwrite concurrent
+        # updates with a stale in-memory snapshot (lost-update race).
+        self._shot_references_lock = threading.RLock()
 
     def _reject_source_workspace(self):
         if self.source_root is None:
@@ -1508,29 +1513,30 @@ class ApplicationService:
             raise ApplicationBlocked("keyframe destination is unsafe")
         if not destination.exists():
             self._atomic_copy(source, destination)
-        references = self._shot_references(root)
-        record = references["shots"].setdefault(shot_id, {})
-        candidates = record.setdefault("keyframes", [])
         relative_text = relative.as_posix()
-        existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
-        entry = {
-            "path": relative_text,
-            "source": "uploaded",
-            "background_master_id": "",
-            "character_ids": [],
-            "prompt_zh": "", "prompt_en": "",
-            "model": "", "request_id": "",
-            "cost_yuan": 0.0,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        if relative_text not in existing_paths:
-            candidates.append(entry)
-        if not record.get("selected_keyframe"):
-            record["selected_keyframe"] = relative_text
-        record["keyframes_updated_at"] = datetime.now(timezone.utc).isoformat()
-        self._write_shot_references(root, references)
-        target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
-        self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].setdefault(shot_id, {})
+            candidates = record.setdefault("keyframes", [])
+            existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
+            entry = {
+                "path": relative_text,
+                "source": "uploaded",
+                "background_master_id": "",
+                "character_ids": [],
+                "prompt_zh": "", "prompt_en": "",
+                "model": "", "request_id": "",
+                "cost_yuan": 0.0,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            if relative_text not in existing_paths:
+                candidates.append(entry)
+            if not record.get("selected_keyframe"):
+                record["selected_keyframe"] = relative_text
+            record["keyframes_updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._write_shot_references(root, references)
+            target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
+            self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
         return self.get_project_workflow(project_id)
 
     def set_shot_skipped(self, project_id, shot_id, skipped: bool):
@@ -1538,12 +1544,12 @@ class ApplicationService:
         self._require_initialized()
         _project, root = self._project_directory(project_id)
         self._require_shot(root, shot_id)
-        references = self._shot_references(root)
-        record = references["shots"].setdefault(shot_id, {})
-        record["skipped"] = bool(skipped)
-        record["skipped_at"] = datetime.now(timezone.utc).isoformat() if skipped else ""
-        self._write_shot_references(root, references)
-        # Invalidate downstream decisions since active-shot set changed
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].setdefault(shot_id, {})
+            record["skipped"] = bool(skipped)
+            record["skipped_at"] = datetime.now(timezone.utc).isoformat() if skipped else ""
+            self._write_shot_references(root, references)
         target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
         self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
         return self.get_project_workflow(project_id)
@@ -1553,24 +1559,25 @@ class ApplicationService:
         self._require_initialized()
         _project, root = self._project_directory(project_id)
         self._require_shot(root, shot_id)
-        references = self._shot_references(root)
-        record = references["shots"].get(shot_id, {})
-        candidates = record.get("keyframes", [])
-        filtered = [
-            e for e in candidates
-            if (e["path"] if isinstance(e, dict) else e) != relative
-        ]
-        if len(filtered) == len(candidates):
-            raise ApplicationNotFound(relative)
-        record["keyframes"] = filtered
-        entries = record.get("keyframe_entries", [])
-        record["keyframe_entries"] = [
-            e for e in entries
-            if not (isinstance(e, dict) and e.get("path") == relative)
-        ]
-        if record.get("selected_keyframe") == relative:
-            record["selected_keyframe"] = ""
-        self._write_shot_references(root, references)
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].get(shot_id, {})
+            candidates = record.get("keyframes", [])
+            filtered = [
+                e for e in candidates
+                if (e["path"] if isinstance(e, dict) else e) != relative
+            ]
+            if len(filtered) == len(candidates):
+                raise ApplicationNotFound(relative)
+            record["keyframes"] = filtered
+            entries = record.get("keyframe_entries", [])
+            record["keyframe_entries"] = [
+                e for e in entries
+                if not (isinstance(e, dict) and e.get("path") == relative)
+            ]
+            if record.get("selected_keyframe") == relative:
+                record["selected_keyframe"] = ""
+            self._write_shot_references(root, references)
         target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
         self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
         return self.get_project_workflow(project_id)
@@ -1579,21 +1586,22 @@ class ApplicationService:
         self._require_initialized()
         _project, root = self._project_directory(project_id)
         self._require_shot(root, shot_id)
-        references = self._shot_references(root)
-        record = references["shots"].get(shot_id, {})
-        candidate_paths = [
-            e["path"] if isinstance(e, dict) else e
-            for e in record.get("keyframes", [])
-        ]
-        if relative not in candidate_paths:
-            raise ApplicationConflict("keyframe candidate is invalid")
         candidate = root / Path(relative)
         if candidate.is_symlink() or not candidate.is_file():
             raise ApplicationNotFound(relative)
         self._validate_reference_image(candidate, candidate.suffix.lower())
-        record["selected_keyframe"] = relative
-        record["keyframe_selected_at"] = datetime.now(timezone.utc).isoformat()
-        self._write_shot_references(root, references)
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].get(shot_id, {})
+            candidate_paths = [
+                e["path"] if isinstance(e, dict) else e
+                for e in record.get("keyframes", [])
+            ]
+            if relative not in candidate_paths:
+                raise ApplicationConflict("keyframe candidate is invalid")
+            record["selected_keyframe"] = relative
+            record["keyframe_selected_at"] = datetime.now(timezone.utc).isoformat()
+            self._write_shot_references(root, references)
         target, decisions = self._invalidate_decisions(root, {"keyframes", "shots", "delivery"})
         self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
         return self.get_project_workflow(project_id)
@@ -1807,6 +1815,35 @@ class ApplicationService:
             paths.append(candidate)
         return paths[:8]
 
+    def _resolve_shot_background(self, root, shot_id) -> str:
+        """Resolve a shot's background reference path.
+
+        Falls back to the scene-group background master when the per-shot
+        ``background`` field is empty (PRD-007B: ``select_background_master``
+        only records ``background_master_id`` on grouped shots, never the
+        per-shot ``background`` string). Mirrors the workflow view-model logic.
+        """
+        shot_ref = self._shot_references(root)["shots"].get(shot_id, {})
+        background = shot_ref.get("background", "")
+        if isinstance(background, str) and background and (root / background).is_file():
+            return background
+        bg_master_id = shot_ref.get("background_master_id", "")
+        if not bg_master_id:
+            return ""
+        master_bg = next(
+            (
+                b for b in self._background_masters(root).get("backgrounds", [])
+                if b.get("id") == bg_master_id
+            ),
+            None,
+        )
+        if master_bg is None:
+            return ""
+        bg_path = master_bg.get("relative_path", "")
+        if bg_path and (root / bg_path).is_file():
+            return bg_path
+        return ""
+
     def _generate_shot_image(self, project_id, shot_id, event_type, output_kind,
                              include_background=False, en_prompt: "str | None" = None):
         self._require_initialized()
@@ -1814,6 +1851,8 @@ class ApplicationService:
         context = self._shot_generation_context(root, shot_id)
         references = self._shot_references(root)
         background = references["shots"].get(shot_id, {}).get("background", "")
+        if include_background and not background:
+            background = self._resolve_shot_background(root, shot_id)
         if include_background and not background:
             raise ApplicationBlocked("shot background is required before keyframe generation")
         context["generation_contract"] = {
@@ -1874,36 +1913,43 @@ class ApplicationService:
                 raise
             raise ApplicationBlocked("image generation failed") from exc
         relative_text = relative.as_posix()
-        record = references["shots"].setdefault(shot_id, {})
-        if output_kind == "backgrounds":
-            record["background"] = relative_text
-            record["background_bound_at"] = datetime.now(timezone.utc).isoformat()
-            invalidated = {"storyboard", "keyframes", "shots", "delivery"}
-        else:
-            candidates = record.setdefault("keyframes", [])
-            existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
-            if relative_text not in existing_paths:
-                prompts_catalog = self.get_project_prompts(project_id)
-                prompt_zh = prompts_catalog.get(event_type, "")
-                kf_entry = {
-                    "path": relative_text,
-                    "source": "generated",
-                    "background_master_id": references["shots"].get(shot_id, {}).get("background_master_id", ""),
-                    "character_ids": [c["id"] for c in context.get("characters", []) if isinstance(c, dict) and c.get("id")],
-                    "prompt_zh": prompt_zh,
-                    "prompt_en": prompt,
-                    "model": getattr(provider, "model", ""),
-                    "request_id": request_id,
-                    "cost_yuan": 0.5,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                }
-                candidates.append(kf_entry)
-            record["selected_keyframe"] = relative_text
-            record["keyframe_selected_at"] = datetime.now(timezone.utc).isoformat()
-            invalidated = {"keyframes", "shots", "delivery"}
-        self._write_shot_references(root, references)
-        target, decisions = self._invalidate_decisions(root, invalidated)
-        self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
+        # Re-read shot-references from disk under the lock: the early snapshot
+        # read above is now stale (provider.generate can take minutes, during
+        # which other jobs may have registered their own keyframes). Merging
+        # into the fresh copy prevents a lost-update race that would erase
+        # concurrently-generated keyframes on the next write. (PRD-003 bug)
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].setdefault(shot_id, {})
+            if output_kind == "backgrounds":
+                record["background"] = relative_text
+                record["background_bound_at"] = datetime.now(timezone.utc).isoformat()
+                invalidated = {"storyboard", "keyframes", "shots", "delivery"}
+            else:
+                candidates = record.setdefault("keyframes", [])
+                existing_paths = [e["path"] if isinstance(e, dict) else e for e in candidates]
+                if relative_text not in existing_paths:
+                    prompts_catalog = self.get_project_prompts(project_id)
+                    prompt_zh = prompts_catalog.get(event_type, "")
+                    kf_entry = {
+                        "path": relative_text,
+                        "source": "generated",
+                        "background_master_id": record.get("background_master_id", ""),
+                        "character_ids": [c["id"] for c in context.get("characters", []) if isinstance(c, dict) and c.get("id")],
+                        "prompt_zh": prompt_zh,
+                        "prompt_en": prompt,
+                        "model": getattr(provider, "model", ""),
+                        "request_id": request_id,
+                        "cost_yuan": 0.5,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                    candidates.append(kf_entry)
+                record["selected_keyframe"] = relative_text
+                record["keyframe_selected_at"] = datetime.now(timezone.utc).isoformat()
+                invalidated = {"keyframes", "shots", "delivery"}
+            self._write_shot_references(root, references)
+            target, decisions = self._invalidate_decisions(root, invalidated)
+            self._write_atomic_file(target, canonical_json(decisions), ".workflow-decision-")
         self.record_image_cost(
             project_id, None, event_type,
             metadata={"shot_id": shot_id, "model": getattr(provider, "model", "gpt-image-2"),
@@ -2563,7 +2609,7 @@ class ApplicationService:
                 from mvstudio.providers.seedance import SeedancePort
                 provider = SeedancePort.from_env()
             except Exception as exc:
-                raise ApplicationBlocked("video provider is not configured") from exc
+                raise ApplicationBlocked(f"video provider is not configured: {exc}") from exc
         task_id = "task-" + uuid.uuid4().hex[:12]
         try:
             from mvstudio.providers.seedance import SeedanceTask, SeedanceFrame
@@ -2593,49 +2639,54 @@ class ApplicationService:
             result = provider.generate(seedance_task)
             video_bytes = result.video_bytes
         except Exception as exc:
-            raise ApplicationBlocked("video generation failed") from exc
+            raise ApplicationBlocked(f"video generation failed: {exc}") from exc
         qc_passed, qc_info = self._qc_video(video_bytes, duration)
         relative = Path("assets/generated/videos") / (
             shot_id + "-" + task_id[-10:] + ".mp4"
         )
         self._write_atomic_file(root / relative, video_bytes, ".generated-video-")
         relative_text = relative.as_posix()
-        record = references["shots"].setdefault(shot_id, {})
-        entry = {
-            "path": relative_text,
-            "source_keyframe": selected_kf,
-            "duration_requested": duration,
-            "duration_actual": qc_info["duration_actual"],
-            "resolution": "720p",
-            "file_size_bytes": qc_info["file_size_bytes"],
-            "model": os.environ.get("SEEDANCE_MODEL", ""),
-            "task_id": task_id,
-            "cost_yuan": round(duration * 0.8, 2),
-            "qc_passed": qc_passed,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        record.setdefault("video_entries", []).append(entry)
-        if not record.get("selected_video"):
-            record["selected_video"] = relative_text
-        self._write_shot_references(root, references)
+        # Re-read under the lock: the snapshot read before provider.generate is
+        # stale and would clobber concurrent keyframe/video registrations.
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].setdefault(shot_id, {})
+            entry = {
+                "path": relative_text,
+                "source_keyframe": selected_kf,
+                "duration_requested": duration,
+                "duration_actual": qc_info["duration_actual"],
+                "resolution": "720p",
+                "file_size_bytes": qc_info["file_size_bytes"],
+                "model": os.environ.get("SEEDANCE_MODEL", ""),
+                "task_id": task_id,
+                "cost_yuan": round(duration * 0.8, 2),
+                "qc_passed": qc_passed,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            record.setdefault("video_entries", []).append(entry)
+            if not record.get("selected_video"):
+                record["selected_video"] = relative_text
+            self._write_shot_references(root, references)
         return self.get_project_workflow(project_id)
 
     def select_shot_video(self, project_id: str, shot_id: str, path: str):
         """Set selected_video for a shot (PRD-004)."""
         self._require_initialized()
         _project, root = self._project_directory(project_id)
-        references = self._shot_references(root)
-        record = references["shots"].get(shot_id, {})
-        candidate_paths = [
-            e["path"] for e in record.get("video_entries", [])
-            if isinstance(e, dict) and e.get("path")
-        ]
-        if path not in candidate_paths:
-            raise ApplicationConflict("video candidate is invalid")
-        record["selected_video"] = path
-        record["video_selected_at"] = datetime.now(timezone.utc).isoformat()
-        references["shots"][shot_id] = record
-        self._write_shot_references(root, references)
+        with self._shot_references_lock:
+            references = self._shot_references(root)
+            record = references["shots"].get(shot_id, {})
+            candidate_paths = [
+                e["path"] for e in record.get("video_entries", [])
+                if isinstance(e, dict) and e.get("path")
+            ]
+            if path not in candidate_paths:
+                raise ApplicationConflict("video candidate is invalid")
+            record["selected_video"] = path
+            record["video_selected_at"] = datetime.now(timezone.utc).isoformat()
+            references["shots"][shot_id] = record
+            self._write_shot_references(root, references)
         return self.get_project_workflow(project_id)
 
     def ping_video_provider(self) -> dict:
