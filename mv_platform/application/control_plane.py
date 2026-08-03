@@ -109,16 +109,28 @@ def write_config(path, value):
         raise ControlPlaneError("runtime configuration path is unsafe")
     descriptor, temporary = tempfile.mkstemp(prefix=".settings-", dir=str(target.parent))
     try:
-        os.fchmod(descriptor, 0o600)
+        if hasattr(os, "fchmod"):  # Unix only; not available on Windows
+            os.fchmod(descriptor, 0o600)
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            descriptor = -1  # fdopen owns the fd now; prevent double-close in finally
             json.dump(value, handle, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary, target)
         os.chmod(target, 0o600)
     finally:
+        if descriptor != -1:
+            # fchmod or earlier step failed before fdopen could take ownership;
+            # close the fd explicitly so Windows allows the unlink below (WinError 32).
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
         if os.path.exists(temporary):
-            os.unlink(temporary)
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
 
 
 def apply_environment(config):
