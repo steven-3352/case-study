@@ -64,6 +64,18 @@ class CancelRequest(StrictModel):
     grace_seconds: float = 1.0
 
 
+class MaterializeRequest(StrictModel):
+    confirm_billing: bool = False
+
+
+class CharacterAnalyzeRequest(StrictModel):
+    messages: list = []
+
+
+class CharacterGenerateRequest(StrictModel):
+    characters: list = []
+
+
 class DeleteProjectRequest(StrictModel):
     confirmation_slug: str
 
@@ -755,6 +767,49 @@ def create_app(service=None, workspace_root=None):
     @app.post("/api/v1/jobs/{job_id}/cancel")
     async def cancel_job(job_id: str, body: CancelRequest):
         return _result(require_service().cancel_job(job_id, body.grace_seconds))
+
+    @app.post("/api/v1/jobs/{job_id}/materialize")
+    async def materialize_job(job_id: str, body: MaterializeRequest):
+        if not body.confirm_billing:
+            return JSONResponse({"error": "billing_confirmation_required"}, status_code=422)
+        svc = require_service()
+        job = svc.inspect_job(job_id)
+        project_id = job.job_spec.project_id
+        await svc._materialize_job(project_id, job_id, body.confirm_billing)
+        pending = await run_in_threadpool(svc.pending_materialization, project_id)
+        return {"status": "ok", "pending_materialization": _jsonable(pending)}
+
+    @app.post("/api/v1/projects/{project_id}/transcribe")
+    async def transcribe_project(project_id: str):
+        return _result(await run_in_threadpool(
+            require_service().transcribe_audio_for_project, project_id,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/generate-characters")
+    async def generate_project_characters(project_id: str):
+        return _result(await run_in_threadpool(
+            require_service().generate_characters_for_project, project_id,
+        ))
+
+    @app.get("/api/v1/projects/{project_id}/material-status")
+    async def get_material_status(project_id: str):
+        return _result(await run_in_threadpool(
+            require_service().get_material_status, project_id,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/fill/characters/analyze")
+    async def analyze_characters(project_id: str, body: CharacterAnalyzeRequest):
+        return _result(await run_in_threadpool(
+            require_service().analyze_characters_from_lyrics, project_id, body.messages,
+        ))
+
+    @app.post("/api/v1/projects/{project_id}/fill/characters/generate")
+    async def generate_character_portraits(project_id: str, body: CharacterGenerateRequest):
+        return _result(await run_in_threadpool(
+            require_service().generate_character_portraits_from_list,
+            project_id,
+            body.characters,
+        ))
 
     @app.get("/api/v1/jobs/{job_id}/artifacts")
     async def artifacts(job_id: str):

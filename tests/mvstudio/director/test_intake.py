@@ -97,6 +97,45 @@ def test_timed_intake_probes_without_altering_portrait(tmp_path):
     assert portrait.read_bytes() == original
 
 
+def test_audio_only_intake_produces_partial_manifest(tmp_path):
+    # Audio-first path (PRD-009 step-level self-healing): lyrics and characters
+    # are supplied later. validate_intake must accept lyrics=None + empty
+    # characters, and inspect_intake must emit a partial manifest without crashing.
+    _write_wave(tmp_path / "inputs/audio/song.wav")
+    value = {
+        "project_id": "project-a",
+        "audio": "inputs/audio/song.wav",
+        "lyrics": None,
+        "characters": [],
+    }
+    validated = validate_intake(value)
+    assert validated["lyrics"] is None
+    assert validated["characters"] == ()
+
+    manifest = inspect_intake(value, tmp_path)
+    assert manifest["status"] == "intake_validated"
+    assert manifest["audio"]["codec"] == "pcm_s16le"
+    assert manifest["lyrics"] is None
+    assert manifest["characters"] == []
+    # No lyrics sidecars should be written when lyrics are absent.
+    assert not (tmp_path / "intake/lyrics_timed.json").exists()
+    assert not (tmp_path / "intake/lyrics_plain.json").exists()
+
+
+def test_intake_still_rejects_wrong_directory_lyrics_when_present(tmp_path):
+    # Relaxing lyrics to optional must not weaken path validation when a lyrics
+    # value IS provided.
+    _write_wave(tmp_path / "inputs/audio/song.wav")
+    value = {
+        "project_id": "project-a",
+        "audio": "inputs/audio/song.wav",
+        "lyrics": "inputs/audio/song.lrc",
+        "characters": [],
+    }
+    with pytest.raises(IntakeContractError):
+        validate_intake(value)
+
+
 def test_xlsx_preserves_binding_cast_end_times_and_source_rows(tmp_path):
     value = _inputs(tmp_path)
     xlsx = tmp_path / "inputs/lyrics/director.xlsx"

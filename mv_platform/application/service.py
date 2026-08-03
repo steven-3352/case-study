@@ -49,6 +49,11 @@ class ApplicationBlocked(ApplicationError):
         self.error_category = error_category
 
 
+class MaterializeError(ApplicationError):
+    """Raised when automatic input materialization cannot proceed."""
+    pass
+
+
 def _immutable(value):
     if isinstance(value, Mapping):
         return MappingProxyType({key: _immutable(item) for key, item in value.items()})
@@ -144,6 +149,7 @@ class _NoopErrorLogs:
 class ApplicationService:
     _PROJECT_DIRECTORIES = (
         "inputs/audio", "inputs/lyrics", "inputs/characters", "inputs/backgrounds",
+        "inputs/materials",
         "creative", "assets/source", "assets/source/keyframes", "assets/generated", "outputs",
         ".mvstudio/jobs", ".mvstudio/work", ".mvstudio/logs",
     )
@@ -1153,17 +1159,19 @@ class ApplicationService:
                                 "removed_characters": removed_assets,
                                 "assets_changed": assets_changed,
                                 "inputs_changed": inputs_changed,
-                                "duplicate_groups": duplicate_groups},
+                                "duplicate_groups": duplicate_groups,
+                                "pending_materialization": self.pending_materialization(project_id)},
                   ("asset.curate_requested",), artifact_paths=()),
             stage("music", "音乐与歌词", "校准时间轴、段落、情绪和能量", "pending" if inputs_changed else ("completed" if music else ("pending" if intake else "locked")),
                   None, False, {"music_map": music or {}, "characters": character_items,
                                 "inputs_changed": inputs_changed,
+                                "has_lyrics": bool(intake and intake.get("lyrics")),
                                 "director_entries": (
                                     lyrics_timed.get("entries", [])
                                     if isinstance(lyrics_timed, dict) else []
                                 ),
                                 "director_contract": (
-                                    intake.get("lyrics", {}).get("director_contract")
+                                    (intake.get("lyrics") or {}).get("director_contract")
                                     if isinstance(intake, dict) else None
                                 )},
                   ("lyrics.semantic_segment.requested",),
@@ -1172,6 +1180,7 @@ class ApplicationService:
             stage("story", "故事框架", "确认人物关系、情绪推进、高潮与结尾", "approved" if story_approved else ("revision" if story_decision.get("action") == "request_revision" else ("awaiting_approval" if story else "locked")),
                   story_decision, bool(story and not structural_test and not assets_changed and not inputs_changed),
                   {"story": story or {}, "characters": character_items,
+                   "has_characters": bool(intake and intake.get("characters")),
                    "structural_test": structural_test, "assets_changed": assets_changed,
                    "inputs_changed": inputs_changed},
                   ("relationship_map.draft_requested",), ("creative/story_framework.yaml",),
@@ -1423,8 +1432,8 @@ class ApplicationService:
             (key for key, values in self._IMPORT_EXTENSIONS.items() if extension in values), None
         )
         if kind is None:
-            return {"ignored": True, "name": name}
-        if extension not in self._IMPORT_EXTENSIONS[kind]:
+            kind = "materials"
+        elif extension not in self._IMPORT_EXTENSIONS[kind]:
             raise ApplicationConflict("asset extension does not match its type")
         source = Path(source_path)
         if source.is_symlink() or not source.is_file():
@@ -1443,12 +1452,14 @@ class ApplicationService:
             raise ApplicationBlocked("asset destination is unsafe")
         if not destination.exists():
             self._atomic_copy(source, destination)
-        return {
+        result = {
             "ignored": False,
             "kind": kind,
+            "bucket": "inputs/" + kind,
             "relative_path": destination.relative_to(root).as_posix(),
             "name": name,
         }
+        return result
 
     def bind_shot_background(self, project_id, shot_id, relative):
         """Bind a project background reference to one planned shot."""
@@ -3481,6 +3492,479 @@ class ApplicationService:
         )
         return _immutable(payload)
 
+    # ------------------------------------------------------------------
+    # Audio-first auto-materialization (PRD-009 §4.4)
+    # ------------------------------------------------------------------
+
+    async def _run_lyrics_transcribe(self, project_id, job_id):
+        """Transcribe audio to LRC using the configured transcription provider.
+
+        Delegates to transcribe_audio_for_project which resolves provider
+        priority: LLM_* gateway first, WHISPER_* fallback, local Whisper last.
+        """
+        self.transcribe_audio_for_project(project_id)
+
+    async def _run_character_design(self, project_id, job_id, char_name):
+        """Generate one character portrait via the configured image provider.
+
+        char_name is the binding name (XLSX) or None (LRC/TXT auto-mode).
+        Delegates to generate_characters_for_project which resolves GPT_IMAGE_*.
+        The portrait is written to inputs/characters/<safe_name>.png.
+        """
+        import os as _os
+        _project, root = self._project_directory(project_id)
+        from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
+        try:
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+        except ImageProviderError as exc:
+            raise ApplicationBlocked(
+                "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
+            ) from exc
+        display = char_name if char_name else "角色"
+        prompt = (
+            f"简洁人物肖像，{display}，中国风写实风格，"
+            "干净白色背景，正面半身像，高质量插画，适合MV故事板"
+        )
+        try:
+            image_bytes = provider.generate(prompt, size="1024x1024")
+        except ImageProviderError as exc:
+            raise ApplicationConflict(f"portrait generation failed for {display}: {exc}") from exc
+        chars_dir = root / "inputs" / "characters"
+        chars_dir.mkdir(exist_ok=True)
+        safe_name = (char_name or "character").replace(" ", "_").replace("/", "_")
+        (chars_dir / f"{safe_name}.png").write_bytes(image_bytes)
+
+    def _extract_character_names_from_lyrics(self, project_root):
+        """Derive the set of character names to generate portraits for.
+
+        For XLSX director contracts, returns the binding name list with chorus
+        markers (``_CHORUS_MARKERS``) excluded, sorted for determinism.
+        For LRC / TXT lyrics, returns ``[None]`` so the executor auto-selects
+        1-3 names (PRD-009 §4.3.1 LRC path).
+        """
+        from mvstudio.director.intake import _CHORUS_MARKERS, parse_xlsx_director_sheet
+        lyrics_dir = project_root / "inputs" / "lyrics"
+        lyrics_files = [f for f in lyrics_dir.iterdir() if f.is_file()]
+        if not lyrics_files:
+            return [None]
+        lyrics_path = lyrics_files[0]
+        if lyrics_path.suffix.lower() != ".xlsx":
+            # LRC / TXT — no binding character names; executor decides.
+            return [None]
+        sheet = parse_xlsx_director_sheet(lyrics_path)
+        all_names: set = set()
+        for entry in sheet.get("timed_entries", []):
+            for name in entry.get("character_names", []):
+                all_names.add(name)
+        char_names = sorted(all_names - _CHORUS_MARKERS)
+        return char_names if char_names else [None]
+
+    def transcribe_audio_for_project(self, project_id):
+        """Transcribe the project audio to LRC using local Whisper (Faster Whisper).
+
+        Reads inputs/audio/<file>, transcribes with word timestamps, groups word
+        segments into LRC lines at natural pauses (>0.5 s silence) or every 12 words,
+        and writes the result to inputs/lyrics/transcript.lrc.
+
+        Provider resolution honours user configuration first: an injected
+        alignment_port wins, otherwise the already-configured OpenAI-compatible
+        gateway (WHISPER_* or shared LLM_*) is used for remote transcription, and
+        a local Whisper model (MVSTUDIO_WHISPER_MODEL) is only the last-resort
+        fallback when no gateway is configured.
+
+        Returns {"lrc_file": "inputs/lyrics/transcript.lrc", "line_count": int}.
+        Raises ApplicationConflict if != 1 audio file or hallucination risk detected.
+        Raises ApplicationBlocked if no transcription provider is configured.
+        """
+        self._require_initialized()
+        import os as _os
+        _project, root = self._project_directory(project_id)
+        audio_files = [f for f in (root / "inputs" / "audio").iterdir() if f.is_file()]
+        if len(audio_files) != 1:
+            raise ApplicationConflict(
+                "transcription requires exactly one audio file in inputs/audio/"
+            )
+        audio_path = audio_files[0]
+        from mvstudio.providers.alignment_faster_whisper import FasterWhisperAlignmentPort
+        from mvstudio.providers.transcription_openai import (
+            OpenAICompatibleTranscriptionPort,
+            TranscriptionProviderError,
+        )
+        from mvstudio.director.alignment import LyricAlignmentError
+        # User-config priority: an explicitly injected port wins; otherwise reuse
+        # the already-configured OpenAI-compatible gateway (shared LLM_* first,
+        # dedicated WHISPER_* as an override) for remote transcription; fall back
+        # to a local Whisper model only when no gateway is configured.
+        port = self.alignment_port
+        if port is None:
+            gateway = _os.environ.get("LLM_BASE_URL") or _os.environ.get("WHISPER_BASE_URL", "")
+            if gateway:
+                try:
+                    port = OpenAICompatibleTranscriptionPort.from_env(_os.environ)
+                except TranscriptionProviderError:
+                    port = None
+            if port is None:
+                try:
+                    port = FasterWhisperAlignmentPort.from_env()
+                except LyricAlignmentError as exc:
+                    raise ApplicationBlocked(
+                        "transcription not configured: configure the LLM gateway "
+                        "(LLM_BASE_URL/LLM_API_KEY) or a dedicated WHISPER_* gateway, "
+                        "or set MVSTUDIO_WHISPER_MODEL to a local model path"
+                    ) from exc
+        try:
+            result = port.transcribe(audio_path)
+        except (LyricAlignmentError, TranscriptionProviderError) as exc:
+            raise ApplicationConflict(f"transcription failed: {exc}") from exc
+        if result.hallucination_risk:
+            raise ApplicationConflict(
+                "transcription quality gate failed: word density too high — "
+                "check that MVSTUDIO_WHISPER_LANGUAGE matches the audio language"
+            )
+        # Group word-level segments into LRC lines at pauses (>0.5 s) or 12-word cap.
+        lrc_lines, current_words, current_start = [], [], None
+        segs = result.segments
+        for i, word in enumerate(segs):
+            if current_start is None:
+                current_start = word["start"]
+            current_words.append(word["text"])
+            is_last = i == len(segs) - 1
+            next_pause = ((segs[i + 1]["start"] - word["end"]) > 0.5) if not is_last else True
+            if next_pause or len(current_words) >= 12 or is_last:
+                text = "".join(current_words).strip()
+                if text:
+                    mm, ss = int(current_start // 60), current_start % 60
+                    lrc_lines.append(f"[{mm:02d}:{ss:05.2f}]{text}")
+                current_words, current_start = [], None
+        if not lrc_lines:
+            raise ApplicationConflict("transcription returned no speech segments")
+        lyrics_dir = root / "inputs" / "lyrics"
+        lyrics_dir.mkdir(exist_ok=True)
+        (lyrics_dir / "transcript.lrc").write_text("\n".join(lrc_lines), encoding="utf-8")
+        return {"lrc_file": "inputs/lyrics/transcript.lrc", "line_count": len(lrc_lines)}
+
+    def generate_characters_for_project(self, project_id):
+        """Generate character portraits via GPT-image-2, writing PNGs to inputs/characters/.
+
+        Derives character names from an XLSX director sheet in inputs/lyrics/ (if present);
+        falls back to a single generic portrait for LRC/TXT lyrics or when no lyrics exist.
+
+        Returns {"generated": [display_name, ...], "portrait_count": int}.
+        Raises ApplicationBlocked if the image provider is not configured.
+        Raises ApplicationConflict if a generation call fails.
+        """
+        self._require_initialized()
+        import os as _os
+        _project, root = self._project_directory(project_id)
+        from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
+        try:
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+        except ImageProviderError as exc:
+            raise ApplicationBlocked(
+                "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
+            ) from exc
+        char_names = self._extract_character_names_from_lyrics(root)
+        chars_dir = root / "inputs" / "characters"
+        chars_dir.mkdir(exist_ok=True)
+        generated = []
+        for name in char_names:
+            display = name if name else "角色"
+            prompt = (
+                f"简洁人物肖像，{display}，中国风写实风格，"
+                "干净白色背景，正面半身像，高质量插画，适合MV故事板"
+            )
+            try:
+                image_bytes = provider.generate(prompt, size="1024x1024")
+            except ImageProviderError as exc:
+                raise ApplicationConflict(
+                    f"portrait generation failed for {display}: {exc}"
+                ) from exc
+            safe_name = (name or "character").replace(" ", "_").replace("/", "_")
+            (chars_dir / f"{safe_name}.png").write_bytes(image_bytes)
+            generated.append(display)
+        return {"generated": generated, "portrait_count": len(generated)}
+
+    def get_material_status(self, project_id):
+        """Return per-bucket status for the intake material inspector.
+
+        Returns a dict with keys audio, lyrics, characters, ready_for_intake.
+        No side effects; purely reads disk state.
+        """
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+
+        def _files(kind):
+            bucket = root / "inputs" / kind
+            return [f for f in bucket.iterdir() if f.is_file()] if bucket.is_dir() else []
+
+        audio = _files("audio")
+        lyrics = _files("lyrics")
+        chars = _files("characters")
+        has_audio = len(audio) == 1
+        return {
+            "audio": {
+                "status": "ok" if has_audio else "missing",
+                "file": audio[0].name if has_audio else None,
+            },
+            "lyrics": {
+                "status": "ok" if lyrics else "missing",
+                "can_fill": has_audio,
+                "files": [f.name for f in lyrics],
+            },
+            "characters": {
+                "status": "ok" if chars else "missing",
+                "can_fill": bool(lyrics) or has_audio,
+                "count": len(chars),
+            },
+            "ready_for_intake": has_audio,
+        }
+
+    def analyze_characters_from_lyrics(self, project_id, messages):
+        """Multi-turn LLM character analysis from lyrics.
+
+        ``messages`` is a list of {"role": "user"|"assistant", "content": "..."}
+        representing the conversation so far (NOT including the system message).
+
+        Returns {"reply": str, "characters": [{"name": str, "description": str}, ...]}.
+        Raises ApplicationBlocked if the LLM gateway is not configured.
+        """
+        import json as _json
+        import os as _os
+        import urllib.request as _req
+
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+
+        # Read lyrics content for the system prompt
+        lyrics_text = ""
+        lyrics_dir = root / "inputs" / "lyrics"
+        if lyrics_dir.is_dir():
+            for lf in sorted(lyrics_dir.iterdir()):
+                if lf.is_file():
+                    try:
+                        lyrics_text = lf.read_text(encoding="utf-8", errors="replace")[:8000]
+                    except Exception:
+                        pass
+                    break
+
+        system_prompt = (
+            "你是一位音乐MV导演助手，专门分析歌词中的人物角色。\n"
+            "根据歌词内容，识别出需要在MV中出现的人物角色。\n"
+            "请在回答末尾输出一个JSON代码块，格式如下：\n"
+            "```json\n"
+            "{\"characters\": [{\"name\": \"人物名称\", \"description\": \"外貌特征和性格气质描述\"}]}\n"
+            "```\n\n"
+            "歌词内容如下：\n"
+            + (lyrics_text or "（暂无歌词，请根据歌曲标题或用户描述来分析）")
+        )
+
+        base_url = _os.environ.get("LLM_BASE_URL", "")
+        api_key = _os.environ.get("LLM_API_KEY", "")
+        model = _os.environ.get("LLM_MODEL", _os.environ.get("OPENAI_MODEL", "gpt-4o-mini"))
+
+        if not base_url or not api_key:
+            raise ApplicationBlocked(
+                "LLM gateway not configured: set LLM_BASE_URL and LLM_API_KEY"
+            )
+
+        base = base_url.rstrip("/")
+        endpoint = base + ("/chat/completions" if base.endswith("/v1") else "/v1/chat/completions")
+
+        all_messages = [{"role": "system", "content": system_prompt}] + (messages or [])
+
+        body = {
+            "model": model,
+            "messages": all_messages,
+            "temperature": 0.7,
+            "max_tokens": 2000,
+        }
+
+        request = _req.Request(
+            endpoint,
+            data=_json.dumps(body, separators=(",", ":")).encode("utf-8"),
+            headers={"Authorization": "Bearer " + api_key, "Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with _req.urlopen(request, timeout=60) as resp:
+                raw = resp.read(500_000)
+        except Exception as exc:
+            raise ApplicationBlocked(f"LLM character analysis request failed: {exc}") from exc
+
+        data = _json.loads(raw)
+        reply_text = data["choices"][0]["message"]["content"]
+
+        # Extract JSON characters block from reply
+        characters = []
+        try:
+            content = reply_text.strip()
+            # Find ```json ... ``` block
+            if "```json" in content:
+                start = content.index("```json") + 7
+                end = content.index("```", start)
+                json_str = content[start:end].strip()
+            elif "```" in content:
+                start = content.index("```") + 3
+                end = content.index("```", start)
+                json_str = content[start:end].strip()
+            else:
+                # Try to find raw JSON object
+                start = content.rfind("{")
+                end = content.rfind("}") + 1
+                json_str = content[start:end] if start >= 0 else ""
+            if json_str:
+                parsed = _json.loads(json_str)
+                characters = parsed.get("characters", [])
+        except Exception:
+            pass  # characters stays empty; reply_text still returned
+
+        return {"reply": reply_text, "characters": characters}
+
+    def generate_character_portraits_from_list(self, project_id, characters):
+        """Generate portraits for an explicit character list.
+
+        ``characters`` is a list of {"name": str, "description": str}.
+        Generates one portrait PNG per character via the configured image provider.
+
+        Returns {"portrait_count": int, "portraits": [{"name": str, "path": str}]}.
+        Raises ApplicationBlocked if the image provider is not configured.
+        Raises ApplicationConflict if a generation call fails.
+        """
+        import os as _os
+
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+        from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
+
+        try:
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+        except ImageProviderError as exc:
+            raise ApplicationBlocked(
+                "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
+            ) from exc
+
+        chars_dir = root / "inputs" / "characters"
+        chars_dir.mkdir(exist_ok=True)
+
+        portraits = []
+        for char in characters:
+            name = (char.get("name") or "角色").strip()
+            description = (char.get("description") or "").strip()
+            prompt = (
+                f"简洁人物肖像，{name}，"
+                + (f"{description}，" if description else "")
+                + "中国风写实风格，干净白色背景，正面半身像，高质量插画，适合MV故事板"
+            )
+            try:
+                image_bytes = provider.generate(prompt, size="1024x1024")
+            except ImageProviderError as exc:
+                raise ApplicationConflict(
+                    f"portrait generation failed for {name}: {exc}"
+                ) from exc
+            safe_name = name.replace(" ", "_").replace("/", "_")
+            dest = chars_dir / f"{safe_name}.png"
+            dest.write_bytes(image_bytes)
+            portraits.append({"name": name, "path": f"inputs/characters/{safe_name}.png"})
+
+        return {"portrait_count": len(portraits), "portraits": portraits}
+
+    async def _materialize_job(self, project_id, job_id, confirm_billing):
+        """Orchestrate the four-step auto-materialization (PRD-009 §4.4).
+
+        Steps (strict order):
+            a. Assert inputs/audio/ contains exactly one file; raise
+               MaterializeError("no_audio") otherwise.
+            b. If inputs/lyrics/ is empty, transcribe audio → LRC and record
+               cost with a deterministic step_id tied to the audio content hash.
+            c. If inputs/characters/ is empty, derive character names from the
+               lyrics file and design one portrait per non-chorus character,
+               recording cost per character with a deterministic step_id.
+            d. Call start_director_intake so the disk buckets (now populated)
+               are staged and submitted to the supervisor.
+
+        ``confirm_billing`` must be ``True``; any provider call is gated on this
+        flag per §4.5.  The method never calls add_job / update_job.
+        """
+        self._require_initialized()
+        if not confirm_billing:
+            raise MaterializeError("billing_confirmation_required")
+
+        _project, root = self._project_directory(project_id)
+        audio_dir = root / "inputs" / "audio"
+        lyrics_dir = root / "inputs" / "lyrics"
+        chars_dir = root / "inputs" / "characters"
+
+        # ---- step a: audio hard gate ----------------------------------------
+        audio_files = [f for f in audio_dir.iterdir() if f.is_file()]
+        if len(audio_files) != 1:
+            raise MaterializeError("no_audio")
+        audio_file = audio_files[0]
+        # Deterministic 10-char hex tied to audio content (§4.4.4 幂等键)
+        audio_hash10 = hashlib.sha256(audio_file.read_bytes()).hexdigest()[:10]
+
+        # ---- step b: transcribe lyrics if bucket is empty -------------------
+        lyrics_files = [f for f in lyrics_dir.iterdir() if f.is_file()]
+        if not lyrics_files:
+            step_id = "materialize:lyrics:" + audio_hash10
+            await self._run_lyrics_transcribe(project_id, job_id)
+            # Record after product is written; metadata must be deterministic.
+            self._record_cost(
+                project_id, job_id, step_id, "asr",
+                1, Decimal("0"), Decimal("0"),
+                metadata={},
+            )
+
+        # ---- step c: design characters if bucket is empty -------------------
+        char_files = [f for f in chars_dir.iterdir() if f.is_file()]
+        if not char_files:
+            char_names = self._extract_character_names_from_lyrics(root)
+            for char_name in char_names:
+                step_id = "materialize:character:" + (char_name if char_name else "auto")
+                await self._run_character_design(project_id, job_id, char_name)
+                # Record after product is written; metadata must be deterministic.
+                self._record_cost(
+                    project_id, job_id, step_id, "image",
+                    1, Decimal("0.5"), Decimal("0.5"),
+                    metadata={},
+                )
+
+        # ---- step d: intake (disk buckets are now complete) -----------------
+        self.start_director_intake(job_id)
+
+    def pending_materialization(self, project_id):
+        """Return the list of input kinds that are still absent from disk buckets.
+
+        Reads inputs/audio/, inputs/lyrics/, and inputs/characters/ and
+        returns each kind whose bucket does not yet satisfy the §2.1.1 gate:
+        - "audio"      — bucket does not contain exactly one file
+        - "lyrics"     — bucket is empty (zero files)
+        - "characters" — bucket is empty (zero files)
+
+        The frontend reads this field (§5.3) to render the soft-gate prompt and
+        the "Confirm billing and auto-complete" button.  The result is derived
+        purely from disk state; input_refs is never consulted.
+        """
+        self._require_initialized()
+        _project, root = self._project_directory(project_id)
+
+        def _bucket_files(name):
+            bucket = root / "inputs" / name
+            if not bucket.is_dir():
+                return []
+            return [f for f in bucket.iterdir() if f.is_file()]
+
+        audio_files = _bucket_files("audio")
+        lyrics_files = _bucket_files("lyrics")
+        char_files = _bucket_files("characters")
+        missing = []
+        if len(audio_files) != 1:
+            missing.append("audio")
+        if not lyrics_files:
+            missing.append("lyrics")
+        if not char_files:
+            missing.append("characters")
+        return missing
+
     def start_director_intake(self, job_id):
         self._require_initialized()
         if self.supervisor is None:
@@ -3493,18 +3977,19 @@ class ApplicationService:
             raise ApplicationNotFound(job_id) from exc
         if job.operation != "analyze" or status.runtime_state is not RuntimeState.QUEUED:
             raise ApplicationConflict("director intake requires a queued analyze job")
-        audio = [path for path in job.input_refs if path.startswith("inputs/audio/")]
-        lyrics = [path for path in job.input_refs if path.startswith("inputs/lyrics/")]
-        characters = [path for path in job.input_refs if path.startswith("inputs/characters/")]
-        if len(audio) != 1 or len(lyrics) != 1 or not characters:
-            raise ApplicationConflict("director intake requires one audio, one lyrics file and character images")
-        if len(audio) + len(lyrics) + len(characters) != len(job.input_refs):
-            raise ApplicationConflict("director intake contains unsupported input refs")
+        project_dir = self._project_root() / project.slug
+        audio_files = list((project_dir / "inputs" / "audio").glob("*"))
+        lyrics_files = list((project_dir / "inputs" / "lyrics").glob("*"))
+        char_files = list((project_dir / "inputs" / "characters").glob("*"))
+        if len(audio_files) != 1:
+            raise ApplicationConflict("director intake requires exactly one audio file in inputs/audio/")
+        # lyrics and characters are soft gates; orchestration layer handles completion
         staging = self._job_root() / job_id
         if staging.is_symlink():
             raise ApplicationBlocked("job staging path is a symlink")
         staging.mkdir(parents=True, exist_ok=True)
-        for relative in job.input_refs:
+        for disk_file in audio_files + lyrics_files + char_files:
+            relative = str(disk_file.relative_to(project_dir))
             source = self._safe_project_input(project, relative)
             current = staging
             for part in Path(relative).parts[:-1]:
@@ -3515,11 +4000,14 @@ class ApplicationService:
                 if current.is_symlink():
                     raise ApplicationBlocked("staged input path contains a symlink")
             self._atomic_copy(source, current / Path(relative).name)
+        audio_refs = [str(f.relative_to(project_dir)) for f in audio_files]
+        lyrics_refs = [str(f.relative_to(project_dir)) for f in lyrics_files]
+        chars_refs = [str(f.relative_to(project_dir)) for f in char_files]
         payload = {
             "project_id": project.project_id,
-            "audio": audio[0],
-            "lyrics": lyrics[0],
-            "characters": characters,
+            "audio": audio_refs[0],
+            "lyrics": lyrics_refs[0] if lyrics_refs else None,
+            "characters": chars_refs,
         }
         return self.supervisor.submit(job_id, "director_intake", payload)
 
@@ -3543,20 +4031,19 @@ class ApplicationService:
             raise ApplicationNotFound(job_id) from exc
         if job.operation != "animatic" or status.runtime_state is not RuntimeState.QUEUED:
             raise ApplicationConflict("director animatic test requires a queued animatic job")
-        audio = [path for path in job.input_refs if path.startswith("inputs/audio/")]
-        lyrics = [path for path in job.input_refs if path.startswith("inputs/lyrics/")]
-        characters = [path for path in job.input_refs if path.startswith("inputs/characters/")]
-        if len(audio) != 1 or len(lyrics) != 1 or not characters:
-            raise ApplicationConflict(
-                "director animatic test requires one audio, one timed lyrics file and character images"
-            )
-        if len(audio) + len(lyrics) + len(characters) != len(job.input_refs):
-            raise ApplicationConflict("director animatic test contains unsupported input refs")
+        project_dir = self._project_root() / project.slug
+        audio_files = list((project_dir / "inputs" / "audio").glob("*"))
+        lyrics_files = list((project_dir / "inputs" / "lyrics").glob("*"))
+        char_files = list((project_dir / "inputs" / "characters").glob("*"))
+        if len(audio_files) != 1:
+            raise ApplicationConflict("director animatic test requires exactly one audio file in inputs/audio/")
+        # lyrics and characters are soft gates; orchestration layer handles completion
         staging = self._job_root() / job_id
         if staging.is_symlink():
             raise ApplicationBlocked("job staging path is a symlink")
         staging.mkdir(parents=True, exist_ok=True)
-        for relative in job.input_refs:
+        for disk_file in audio_files + lyrics_files + char_files:
+            relative = str(disk_file.relative_to(project_dir))
             source = self._safe_project_input(project, relative)
             current = staging
             for part in Path(relative).parts[:-1]:
@@ -3567,6 +4054,9 @@ class ApplicationService:
                 if current.is_symlink():
                     raise ApplicationBlocked("staged input path contains a symlink")
             self._atomic_copy(source, current / Path(relative).name)
+        audio_refs = [str(f.relative_to(project_dir)) for f in audio_files]
+        lyrics_refs = [str(f.relative_to(project_dir)) for f in lyrics_files]
+        chars_refs = [str(f.relative_to(project_dir)) for f in char_files]
 
         from mvstudio.director.drafting import draft_maps
         from mvstudio.director.intake import inspect_intake
@@ -3574,9 +4064,9 @@ class ApplicationService:
         intake = inspect_intake(
             {
                 "project_id": project.project_id,
-                "audio": audio[0],
-                "lyrics": lyrics[0],
-                "characters": characters,
+                "audio": audio_refs[0],
+                "lyrics": lyrics_refs[0] if lyrics_refs else None,
+                "characters": chars_refs,
             },
             staging,
         )

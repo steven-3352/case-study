@@ -286,3 +286,83 @@ docs/design/WORKFLOW_EXECUTION_LOG.md
 ```
 
 这条链跑通后，现有包装引擎、Style Pack、背景、艺术字和 QA 才有稳定的导演上游。
+
+## 13. 续开发检查点 · 2026-07-28
+
+### 13.1 已确认的真实断点
+
+导演合同目前只接入了规范层，尚未接入执行层：
+
+```text
+现有工作流 / prd_pipeline
+        ↓  缺自动产出与门禁调用
+music_map.yaml + character_map.yaml + visual_score.yaml + asset_plan.yaml
+        ↓  缺导演编译器
+shots_*.yaml / build_shots()
+        ↓
+MV 引擎渲染
+```
+
+具体缺口：
+
+1. `.claude/workflows/prd_pipeline.js` 不认识导演合同，不会派发、校验或消费四份 YAML。
+2. `docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md` 当前从用户描述直接进入 `shots_a.yaml`，没有经过导演地图与视觉总谱。
+3. `pipeline/mv_engine/` 只消费 `shots_*.yaml`，不直接读取 `visual_score.yaml`。
+4. `validate_visual_score.py` 仍是独立手动命令，没有嵌入正式 workflow、animatic 或 render 入口。
+5. 当前没有 `visual_score.yaml → shots_*.yaml / build_shots()` 的适配层。
+
+因此当前状态应表述为：**导演合同的 schema、规则和独立校验已经完成；导演合同与现有工作流、渲染引擎之间的执行连接尚未完成。**
+
+### 13.2 下次开发顺序
+
+按以下顺序推进，先闭合最小链路，不先扩充风格包、背景或特效：
+
+1. 定义 `project.yaml` 输入合同与项目目录结构。
+2. 实现 `music_map.yaml` 生成器：音频时长、段落、乐句、三级卡点、能量曲线。
+3. 实现 `character_map.yaml` 生成器：人物功能、关系、出场预算、立绘资产引用。
+4. 实现导演编译器，生成 `visual_score.yaml` 与 `asset_plan.yaml`。
+5. 在编译链中强制运行 `validate_visual_score.py`；失败立即停止。
+6. 实现 `visual_score.yaml → shots_*.yaml / build_shots()` 适配层。
+7. 实现 540p 低清 Animatic：原始立绘、占位背景、歌词、基础切镜，不触发正式补图或高成本生成。
+8. 将上述链路接入 paperdoll 专用 CLI；随后再决定如何与通用 `prd_pipeline` 和新片 playbook 对接。
+
+### 13.3 P0 完成判据
+
+给定一首歌、歌词和至少两张人物立绘，单命令必须产出：
+
+```text
+project.yaml
+music_map.yaml
+character_map.yaml
+visual_score.yaml
+asset_plan.yaml
+shots_a.yaml
+animatic_540p.mp4
+```
+
+并满足：
+
+- `validate_visual_score.py` 返回 0。
+- 时间线无缺口、无重叠，卡点均落在合法镜头区间。
+- 多角色片包含首次介绍、关系镜、高潮群像和高潮后回收，不是角色轮播。
+- Animatic 可直接观看，能够判断人物分配、歌词对应、能量变化和切镜节奏。
+- 正式背景、补姿势、i2v、Style Pack 和最终渲染仍保持关闭，不作为 P0 完成条件。
+
+### 13.4 续开发边界
+
+- 不修改 `docs/RULES/`；若需调整新片 playbook，先单独形成变更提案。
+- 不直接修改 `pipeline/mv_engine/`；优先在 paperdoll 业务层实现适配器。确认需要引擎能力后再交 owner 审核。
+- 导演合同是上游事实源；`storyboard.md` 只作人类解释，冲突时以校验通过的 `visual_score.yaml` 为准。
+- 正式渲染入口必须再次校验导演合同，禁止只在生成阶段校验一次后绕过。
+
+### 13.5 Git 检查点
+
+记录时仓库基线：
+
+```text
+branch: main
+HEAD: 25f44b85c5b84cb74be89b01d87120056d214659
+subject: docs: 立绘音乐视频导演编排SOP
+```
+
+本节是该基线之后的续开发记录；恢复开发时先检查工作区与 `origin/main`，不得覆盖后来出现的用户改动。

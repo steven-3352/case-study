@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import unicodedata
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from mvstudio.director.alignment import (
@@ -19,6 +20,25 @@ def _normalized(value):
         for character in unicodedata.normalize("NFKC", value)
         if character.isalnum()
     )
+
+
+@dataclass
+class TranscribeResult:
+    """Result of a free-form Whisper transcription (no reference-lyrics comparison).
+
+    Attributes:
+        segments: Word-level dicts, each with keys ``text``, ``start``, ``end``,
+            and ``probability``.  Mirrors the internal word list produced by
+            ``FasterWhisperAlignmentPort.align``.
+        detected_language: BCP-47 language code reported by Whisper.
+        hallucination_risk: True when word density exceeds 8.0 words/second
+            (§4.2.1 quality gate), which strongly suggests the model hallucinated
+            text over a non-vocal or noisy segment.
+    """
+
+    segments: list  # list[dict]: {text, start, end, probability}
+    detected_language: str
+    hallucination_risk: bool = False
 
 
 class FasterWhisperAlignmentPort:
@@ -67,6 +87,77 @@ class FasterWhisperAlignmentPort:
             local_files_only=True,
         )
         return self._model_instance
+
+    def transcribe(self, audio_path, language="zh"):
+        """Free-form transcription without reference-lyrics comparison.
+
+        Calls ``faster_whisper`` model.transcribe() directly and returns the
+        word-level segments plus the language detected by Whisper.  Unlike
+        ``align()``, this method does **not** compare the transcript against any
+        reference lyrics, so it can be used as a stand-alone ASR step for the
+        ``lyrics_transcribe`` executor (PRD-009 §4.2).
+
+        Quality gate (§4.2.1): if the word density exceeds 8.0 words/second the
+        ``hallucination_risk`` flag is set True in the returned
+        :class:`TranscribeResult`.  Callers (e.g. the executor) must inspect
+        this flag and refuse to persist the transcript as an aligned product.
+
+        Args:
+            audio_path: Path to the audio file (str or :class:`~pathlib.Path`).
+            language: BCP-47 language tag forwarded to Whisper.  Defaults to
+                ``"zh"`` (Mandarin).  Pass ``None`` to enable Whisper's
+                automatic language detection; the detected language is always
+                recorded in the returned :class:`TranscribeResult` regardless.
+
+        Returns:
+            :class:`TranscribeResult` with ``segments``, ``detected_language``,
+            and ``hallucination_risk``.
+
+        Raises:
+            :class:`~mvstudio.director.alignment.LyricAlignmentError`: if the
+            underlying Whisper call fails for any reason.
+        """
+        effective_language = language if language is not None else self.language
+        try:
+            raw_segments, info = self._engine().transcribe(
+                str(audio_path),
+                language=effective_language,
+                word_timestamps=True,
+                vad_filter=True,
+                condition_on_previous_text=False,
+            )
+            segments = [
+                {
+                    "text": word.word,
+                    "start": float(word.start),
+                    "end": float(word.end),
+                    "probability": float(word.probability),
+                }
+                for segment in raw_segments
+                for word in (segment.words or [])
+                if word.start is not None and word.end is not None
+            ]
+        except LyricAlignmentError:
+            raise
+        except Exception as exc:
+            raise LyricAlignmentError("local Whisper transcription failed") from exc
+
+        detected_language = getattr(info, "language", effective_language or "") or ""
+
+        # §4.2.1 quality gate: word density > 8.0 words/second is a strong
+        # signal that Whisper hallucinated text (e.g. over an instrumental
+        # passage).  The executor must check this flag before writing a product.
+        duration_s = float(getattr(info, "duration", 0.0) or 0.0)
+        word_count = len(segments)
+        hallucination_risk = bool(
+            duration_s > 0.0 and word_count / duration_s > 8.0
+        )
+
+        return TranscribeResult(
+            segments=segments,
+            detected_language=detected_language,
+            hallucination_risk=hallucination_risk,
+        )
 
     def align(self, task):
         if not isinstance(task, AlignmentTask):

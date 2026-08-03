@@ -449,3 +449,98 @@
     大白话分镜与真实场景首帧，再进行一次 4-15 秒单镜生成；生成后必须执行
     i2v-video-diagnose 的逐镜内环，预览保持 pending_diagnosis，用户确认后才可进入合成。
 ```
+
+---
+
+## 2026-08-03 · PRD-009 · Audio-First Auto-Materialization 实施
+
+```yaml
+- run_id: prd009-audio-first-materialization-2026-08-03
+  date: 2026-08-03
+  stage: PRD-009 实施（Phase 0-4 + 修复补丁）
+  trigger: 音频优先自动补料——audio-only 导入放宽 + 歌词/角色自动补齐 + 计费确认路由
+  role_reasoning_reviewed:
+    - Phase-0 导入放宽实现者（import_project_asset 兜底桶 + _PROJECT_DIRECTORIES）
+    - Phase-1 lyrics_transcribe 执行器实现者（FasterWhisperAlignmentPort.transcribe + stub）
+    - Phase-2 character_design 执行器实现者（_extract_character_names_from_lyrics + _CHORUS_MARKERS 常量提取 + stub）
+    - Phase-3a service 层门改实现者（start_director_intake / _start_director_animatic_test 读磁盘桶）
+    - Phase-3b materialize 编排实现者（_materialize_job + /materialize API 路由 + pending_materialization）
+    - Phase-4 测试工程师（test_prd009_auto_materialization.py 10 用例）
+    - 汇总复核 + 各阶段独立验收者（Phase 0/1/2/3a/3b/4 独立 PASS/PARTIAL/FAIL 裁决）
+  what_was_built:
+    - Phase-0: import_project_asset 兜底 materials 桶完成（扩展名反查失败 → kind='materials'）；_PROJECT_DIRECTORIES 追加 inputs/materials
+    - Phase-1: FasterWhisperAlignmentPort.transcribe() 自由转写方法（hallucination_risk 质量门）；_run_lyrics_transcribe 为 stub
+    - Phase-2: _extract_character_names_from_lyrics（XLSX binding 取名 + _CHORUS_MARKERS 过滤 + sorted 确定性）；_CHORUS_MARKERS 常量提取到 intake.py 顶部；_run_character_design 为 stub
+    - Phase-3a: start_director_intake 改读磁盘桶（audio 硬门 + lyrics/chars 软门）；_start_director_animatic_test 同步改造；旧 input_refs 计数校验删除
+    - Phase-3b: _materialize_job 四步编排（billing gate → lyrics → chars → intake）；POST /api/v1/jobs/{id}/materialize 路由 + 两层 confirm_billing 门闸；pending_materialization 读桶状态方法
+    - Phase-4: test_prd009_auto_materialization.py（10 用例，后修复为全 10 passed）
+    - 修复补丁（主流程直接修）：①_split_character_names 混合行行为对齐 PRD §7.1(a3)（去掉 raise，返回包含合唱标记的列表）；② resource_type 'whisper'→'asr'、'image_gen'→'image'
+  gates_passed:
+    - AC2 无音频硬门两道门确认 PASS（MaterializeError('no_audio') + ApplicationConflict）
+    - AC3 materials 兜底桶（导入放宽）PASS
+    - AC4 /materialize 路由 + confirm_billing 双层门闸 PASS
+    - AC5 三件套齐全项目回归路径不变 PASS
+    - AC7 幂等探测（桶非空跳过 + INSERT OR IGNORE）PASS
+    - AC9 animatic 路径门改读磁盘桶 PASS
+    - AC12 blocker-1 门改读磁盘桶（:3501/:3553 计数校验已删）PASS
+    - AC14（常量提取部分）_CHORUS_MARKERS 单一事实源 PASS
+    - AC15（部分）step_id 确定性 + INSERT OR IGNORE PASS
+    - pytest 10 passed（修复后）
+  gates_partial_or_missing:
+    - AC1 PARTIAL：_run_lyrics_transcribe/_run_character_design 均为 stub，完整链路无法实际运行
+    - AC6 MISSING：provenance sidecar 机制未实现（inspect_intake 无 auto_transcribed/auto_generated 标记）
+    - AC8 PARTIAL：_extract_character_names_from_lyrics 正确，但 _run_character_design stub 导致落名三规则无法端到端验证
+    - AC10 MISSING：_materialize_job 无 try/except 清理逻辑（§4.4.2 事务性要求未落实）
+    - AC11 PARTIAL：provider 端 hallucination_risk 完成；超时/置信度/approximate 标记依赖未实现的 executor
+    - AC13 STUBBED：_run_character_design stub，落名三规则（stem==合约名+10hex、brief.characters 空）无法端到端验证
+    - AC15 PARTIAL：resource_type 已修复为 'asr'/'image'；job_id 复用幂等性待 E2E 验证
+  errors_found:
+    - role: Phase-1/2 执行器实现者
+      what_went_wrong: 两个执行器只写了 stub 骨架（raise NotImplementedError），核心业务逻辑（Whisper 调用链、质量门、超时控制、文件原子写入、角色图生成与落名）均未落地
+      root_cause: [flow]
+      root_cause_detail:
+        flow: Phase-1/2 的"执行器实现"步骤未完成即进入 Phase-3/4；编排层在验收时接受了 stub 作为"已实现"
+      should_have_done: >
+        Phase-1/2 验收标准应包含"调用真实 provider API 且有文件落盘"断言；stub 只能标 SCAFFOLDED 不能标 PASS；
+        编排者须在 Phase-3 开始前补充完整 executor 实现，或把 stub 路径单独列为 P1-todo 而非混入 DONE。
+    - role: Phase-3b materialize 编排实现者
+      what_went_wrong: ① resource_type 传值为 'whisper'/'image_gen'，与 PRD §4.4.4 规定的 'asr'/'image' 不符，导致计费幂等键与测试预期不一致；② _materialize_job 无失败回滚/清理逻辑（AC10 缺失）；③ provenance sidecar 未写入（AC6 缺失）
+      root_cause: [cognition, mechanism]
+      root_cause_detail:
+        cognition: 实现者未严格对照 §4.4.4 resource_type 约定，自选了 provider 内部名称而非规格名称
+        mechanism: 验收 checklist 未把 resource_type 枚举值列为独立校验项；测试 (b) 使用了正确值 'asr'，但编排层和测试层不一致直到汇总复核才被发现
+      should_have_done: >
+        验收 checklist 须含"枚举值逐条对照 PRD §4.4.4"；test_billing_deduplication 里的 resource_type 字符串应成为验收参考而非独立事实。
+    - role: Phase-2 实现者（混合合唱行为）
+      what_went_wrong: _split_character_names 对混合行（"林渊+合"）抛 IntakeContractError，而 PRD §7.1(a3) 规定应返回 ["林渊", "合"]；测试(a3) 设计为失败并注明与规格不符
+      root_cause: [cognition]
+      root_cause_detail:
+        cognition: 实现者把"合唱标记不应被生图"的业务规则误编码为"含合唱标记的混合行本身非法"，过度收紧了 _split_character_names 的契约
+      should_have_done: >
+        _split_character_names 只负责分词，不做业务过滤；"合唱角色不生图"应在下游 _extract_character_names_from_lyrics 的集合减法中处理（已正确实现）。两层分工须在 Phase-2 验收 checklist 中明确。
+    - role: workflow 编排者（StructuredOutput 模式错误）
+      what_went_wrong: Run1-Run3 多次对"工作量大"的实现型 agent 施加 schema（IMPL_SCHEMA），导致 agents_empty_result:2（Run3 Phase4 393 KB transcript 但 structured output 未调用）
+      root_cause: [mechanism]
+      root_cause_detail:
+        mechanism: workflow 脚本未区分"读写型 agent"与"只读裁决型 agent"的 schema 用法，把 IMPL_SCHEMA 泛施加到所有 agent
+      should_have_done: >
+        铁律：schema 只施加于只读/裁决型 agent（架构守门人、验收者）；实现型/测试型 agent 必须用文本自由返回。workflow 脚本须用注释显式标注每个 agent 的 schema 策略。
+    - role: Phase-3c frontend 实现者
+      what_went_wrong: agent a1af1a6d720f9a19e 三次返回 NULL，index.html/app.js 的 UI 变更（webkitdirectory、软门提示、provenance 标签、删除按钮）均未落地
+      root_cause: [mechanism]
+      root_cause_detail:
+        mechanism: frontend agent 持续失败但 workflow 未触发 fallback；前端变更最终未进入任何 run 的已验收交付物
+      should_have_done: >
+        前端 agent NULL 超过 2 次须在 workflow 脚本中 fallback 到"输出 diff patch 供主流程手动应用"；或由主流程在 workflow 退出后直接读取 PRD §5.3 要求手动实施。
+  fix_applied:
+    - src/mvstudio/director/intake.py:198-203 → 删除混合行 raise，改为直接 return names（对齐 PRD §7.1(a3)）
+    - mv_platform/application/service.py:3577 → resource_type 'whisper' → 'asr'
+    - mv_platform/application/service.py:3591 → resource_type 'image_gen' → 'image'
+    - 修复后：pytest test_prd009_auto_materialization.py 10 passed
+  carry_forward: >
+    ① schema 只给只读裁决型 agent，实现型 agent 全部文本返回——这是本轮最高频失败根因，下次开工 Phase 0 必读；
+    ② stub executor 不能标 PASS，验收 checklist 须有"文件落盘"断言；
+    ③ resource_type 等枚举值必须在验收 checklist 中逐条对照 PRD 规格；
+    ④ 前端 agent NULL ≥2 次须立即 fallback 为 patch 文件，不能让 UI 变更整批丢失；
+    ⑤ AC6（provenance sidecar）和 AC10（rollback 清理）是本轮遗留 P1 待办，下一个 PRD-009 续期任务须优先收尾。
+```

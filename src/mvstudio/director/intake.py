@@ -27,6 +27,7 @@ _ALLOWED_PREFIXES = {
     "characters": "inputs/characters/",
 }
 _XLSX_NS = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+_CHORUS_MARKERS = frozenset({"合"})
 
 
 def _canonical_bytes(value):
@@ -78,10 +79,11 @@ def validate_intake(value):
     if not isinstance(project_id, str) or not project_id:
         raise IntakeContractError("project_id must be non-empty text")
     audio = _project_path(value.get("audio"), "audio")
-    lyrics = _project_path(value.get("lyrics"), "lyrics")
+    lyrics_raw = value.get("lyrics")
+    lyrics = _project_path(lyrics_raw, "lyrics") if lyrics_raw is not None else None
     characters = value.get("characters")
-    if isinstance(characters, (str, bytes)) or not isinstance(characters, Sequence) or not characters:
-        raise IntakeContractError("characters must be a non-empty sequence")
+    if isinstance(characters, (str, bytes)) or not isinstance(characters, Sequence):
+        raise IntakeContractError("characters must be a sequence")
     normalized = tuple(_project_path(item, "characters") for item in characters)
     if len(set(normalized)) != len(normalized):
         raise IntakeContractError("character paths must be unique")
@@ -189,11 +191,14 @@ def _split_character_names(value):
     value = value.strip()
     if not value:
         raise IntakeContractError("lyrics spreadsheet character cannot be empty")
-    if value == "合":
-        return ["合"]
+    if value in _CHORUS_MARKERS:
+        return [value]
     names = [item.strip() for item in re.split(r"[+＋、,，/&]", value) if item.strip()]
     if not names:
         raise IntakeContractError("lyrics spreadsheet character is invalid")
+    # PRD §7.1 (a3): mixed cells like "林渊+合" split into ["林渊", "合"].
+    # Chorus markers are valid alongside individual names; upstream callers
+    # (_extract_character_names_from_lyrics) filter them out with _CHORUS_MARKERS.
     return names
 
 
@@ -324,16 +329,28 @@ def inspect_intake(value, staging):
         raise IntakeContractError("intake output directory cannot be a symlink")
     intake_directory.mkdir(parents=True, exist_ok=True)
     audio_path = _regular_file(root, value["audio"])
-    lyrics_path = _regular_file(root, value["lyrics"])
     audio_hash, audio_size = _digest(audio_path)
-    lyrics_hash, lyrics_size = _digest(lyrics_path)
     audio = _probe_audio(audio_path)
-    lyrics = _probe_lyrics(lyrics_path)
-    if any(
-        item["start_seconds"] > audio["duration_seconds"] + 0.05
-        for item in lyrics["timed_entries"]
-    ):
-        raise IntakeContractError("timed lyrics exceed audio duration")
+
+    lyrics_manifest = None
+    lyrics_data = None
+    lyrics_hash = None
+    if value["lyrics"] is not None:
+        lyrics_path = _regular_file(root, value["lyrics"])
+        lyrics_hash, lyrics_size = _digest(lyrics_path)
+        lyrics_data = _probe_lyrics(lyrics_path)
+        if any(
+            item["start_seconds"] > audio["duration_seconds"] + 0.05
+            for item in lyrics_data["timed_entries"]
+        ):
+            raise IntakeContractError("timed lyrics exceed audio duration")
+        lyrics_manifest = {
+            "path": value["lyrics"], "digest": lyrics_hash, "size_bytes": lyrics_size,
+            "kind": lyrics_data["kind"], "alignment_state": lyrics_data["alignment_state"],
+            "plain_line_count": lyrics_data["plain_line_count"],
+            "director_contract": lyrics_data.get("director_contract"),
+        }
+
     characters = []
     for relative in value["characters"]:
         path = _regular_file(root, relative)
@@ -344,24 +361,20 @@ def inspect_intake(value, staging):
         "project_id": value["project_id"],
         "status": "intake_validated",
         "audio": {"path": value["audio"], "digest": audio_hash, "size_bytes": audio_size, **audio},
-        "lyrics": {
-            "path": value["lyrics"], "digest": lyrics_hash, "size_bytes": lyrics_size,
-            "kind": lyrics["kind"], "alignment_state": lyrics["alignment_state"],
-            "plain_line_count": lyrics["plain_line_count"],
-            "director_contract": lyrics.get("director_contract"),
-        },
+        "lyrics": lyrics_manifest,
         "characters": characters,
     }
     _atomic_write(root / "intake/intake_manifest.json", _canonical_bytes(manifest))
-    if lyrics["timed_entries"]:
-        timed = {"version": 1, "source": value["lyrics"], "entries": lyrics["timed_entries"]}
-        _atomic_write(root / "intake/lyrics_timed.json", _canonical_bytes(timed))
-    elif lyrics["plain_lines"]:
-        plain = {
-            "version": 1,
-            "source": value["lyrics"],
-            "source_digest": lyrics_hash,
-            "lines": lyrics["plain_lines"],
-        }
-        _atomic_write(root / "intake/lyrics_plain.json", _canonical_bytes(plain))
+    if lyrics_data is not None:
+        if lyrics_data["timed_entries"]:
+            timed = {"version": 1, "source": value["lyrics"], "entries": lyrics_data["timed_entries"]}
+            _atomic_write(root / "intake/lyrics_timed.json", _canonical_bytes(timed))
+        elif lyrics_data["plain_lines"]:
+            plain = {
+                "version": 1,
+                "source": value["lyrics"],
+                "source_digest": lyrics_hash,
+                "lines": lyrics_data["plain_lines"],
+            }
+            _atomic_write(root / "intake/lyrics_plain.json", _canonical_bytes(plain))
     return manifest
