@@ -75,6 +75,8 @@ class OpenAICompatibleSemanticPort:
     def __init__(self, base_url, api_key, timeout_seconds=180):
         if not isinstance(base_url, str) or not isinstance(api_key, str) or not api_key:
             raise SemanticProviderError("semantic provider configuration is incomplete")
+        if not base_url:
+            raise SemanticProviderError("文本分析服务地址未配置：请在「系统配置 → 文本分析服务」填写以 https:// 开头的服务地址")
         parsed = urllib.parse.urlparse(base_url)
         loopback = parsed.hostname in {"127.0.0.1", "localhost", "::1"}
         if parsed.scheme not in ({"http", "https"} if loopback else {"https"}):

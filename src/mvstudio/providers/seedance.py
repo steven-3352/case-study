@@ -99,6 +99,8 @@ class SeedancePort:
         opener=None,
         sleeper=None,
     ):
+        if not base_url:
+            raise SeedanceProviderError("视频生成服务地址未配置：请在「系统配置 → 视频生成服务」填写以 https:// 开头的服务地址")
         parsed = _media_url(base_url, "Seedance provider", allow_query=False)
         if not isinstance(api_key, str) or not api_key:
             raise SeedanceProviderError("Seedance provider configuration is incomplete")

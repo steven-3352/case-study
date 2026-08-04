@@ -19,6 +19,8 @@ class OpenAICompatibleImageProvider:
                  client=None, downloader=None):
         if not isinstance(base_url, str) or not isinstance(api_key, str) or not api_key:
             raise ImageProviderError("image provider configuration is incomplete")
+        if not base_url:
+            raise ImageProviderError("画面生成服务地址未配置：请在「系统配置 → 画面生成服务」填写以 https:// 开头的服务地址")
         parsed = urlparse(base_url)
         loopback = parsed.hostname in {"127.0.0.1", "localhost", "::1"}
         if parsed.scheme not in ({"http", "https"} if loopback else {"https"}):
