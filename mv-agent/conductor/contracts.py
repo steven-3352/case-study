@@ -51,3 +51,7 @@ class StepSpec:
     outputs: List[str]               # 产物清单（供完成判定）
     approval: bool = True            # 是否需要用户拍板
     unit_kind: str = "step"         # 重跑单元粒度：step/shot/group/char
+    # ---- 执行透明化：跑前/跑后念给用户听 ----
+    tool_name: str = ""              # 执行脚本名（如 llm_analyze）
+    purpose: str = ""                # 本步用途（一句话）
+    outputs_desc: dict = field(default_factory=dict)  # {产物文件: 用途说明}

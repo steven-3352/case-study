@@ -85,7 +85,8 @@ class Conductor:
         )
         layout.append_log(
             self.root, spec.step_id,
-            f"tool ok={res.ok} outputs={len(res.outputs)} meta={res.meta}",
+            f"脚本 {spec.tool_name or spec.tool.__name__} · 用途：{spec.purpose} "
+            f"· ok={res.ok} · 产出 {len(res.outputs)} 个：{', '.join(res.outputs)}",
         )
 
         if not res.ok:

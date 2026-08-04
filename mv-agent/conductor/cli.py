@@ -23,6 +23,7 @@ sys.path.insert(0, str(_HERE.parent.parent))  # 项目根，让 mv_platform 可 
 from conductor.conductor import Conductor  # noqa: E402
 from conductor.contracts import AWAITING, DONE  # noqa: E402
 from conductor.pipeline import STEP_BY_ID, STEP_ORDER  # noqa: E402
+from conductor import render  # noqa: E402
 
 # 片子工作目录：mv-agent/projects/
 BASE = _HERE.parent / "projects"
@@ -59,14 +60,26 @@ def cmd_status(name: str, *_):
           f"· 计费确认={cost.get('confirmed')}")
 
 
+def _run_one(c: Conductor, spec) -> dict:
+    """跑一步并按统一格式渲染跑前/跑后提示。"""
+    print(render.before(spec))
+    res = c.run_step(spec)
+    if res.get("skipped"):
+        print(render.skipped(spec))
+    elif res.get("ok"):
+        print(render.after(spec, spec.outputs))
+    else:
+        print(f"❌ 失败：{res.get('error')}")
+    return res
+
+
 def cmd_next(name: str, *_):
     c = _c(name)
     spec = c.next_step()
     if not spec:
         print("🎉 没有可执行步骤（全 done 或在等拍板）")
         return
-    res = c.run_step(spec)
-    print(f"▶️  跑了 {spec.step_id}：{res}")
+    res = _run_one(c, spec)
     if res.get("status") == AWAITING:
         print(f"   ⏸️  等你拍板：ok {name} {spec.step_id}  /  reject {name} {spec.step_id} '意见'")
 
@@ -79,8 +92,7 @@ def cmd_run(name: str, *_):
         if not spec:
             print("🎉 到头了（全 done 或等拍板）")
             break
-        res = c.run_step(spec)
-        print(f"▶️  {spec.step_id}：{res.get('status', res)}")
+        res = _run_one(c, spec)
         if res.get("status") == AWAITING:
             print(f"   ⏸️  等拍板：ok {name} {spec.step_id} / reject {name} {spec.step_id} '意见'")
             break
