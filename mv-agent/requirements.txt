@@ -1,0 +1,12 @@
+# MV 导演助手 · Python 依赖
+# 安装：pip install -r requirements.txt
+
+# 核心依赖
+pyyaml>=6.0
+python-dotenv>=1.0
+
+# 可选：本地 Whisper（语音对齐回退）
+# faster-whisper>=1.2.1
+
+# 注意：本包依赖项目公共工具库 mv_platform
+# 运行前确保在项目根目录，让 Python 能找到 mv_platform 模块
