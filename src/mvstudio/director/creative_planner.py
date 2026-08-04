@@ -232,7 +232,9 @@ def draft_creative_score(
     upstream_audit,
     budget=None,
     prompt_overrides=None,
+    progress=None,
 ):
+    emit = progress if callable(progress) else (lambda *args, **kwargs: None)
     for label, value in (
         ("structural_score", structural_score),
         ("music_map", music_map),
@@ -263,6 +265,7 @@ def draft_creative_score(
             batch = structural_shots[offset:offset + _CREATIVE_BATCH_SIZE]
             batch_score = copy.deepcopy(structural_score)
             batch_score["shots"] = batch
+            emit("visual_draft", 50, "正在生成视觉分镜草稿…")
             response, call_audit = run_bounded_task(
                 port,
                 "visual_score.creative_draft_requested",
@@ -279,6 +282,7 @@ def draft_creative_score(
                 require_final_transition=offset + len(batch) == len(structural_shots),
             ))
             creative_audits.append(call_audit)
+        emit("visual_review", 70, "正在质检视觉分镜…")
         review_response, review_audit = run_bounded_task(
             port,
             "visual_score.quality_review_requested",

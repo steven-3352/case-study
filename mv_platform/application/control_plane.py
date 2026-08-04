@@ -12,7 +12,7 @@ class ControlPlaneError(ValueError):
 
 
 PROVIDER_FIELDS = {
-    "llm": ("base_url", "api_key", "model"),
+    "llm": ("base_url", "api_key", "model", "transcription_model"),
     "image": ("base_url", "api_key", "model"),
     "video": ("base_url", "api_key", "model"),
 }
@@ -20,6 +20,7 @@ PATH_FIELDS = ("ffmpeg_path", "ffprobe_path", "whisper_model_path")
 SECRET_FIELDS = {"llm.api_key", "image.api_key", "video.api_key"}
 ENV_MAP = {
     "llm.base_url": "LLM_BASE_URL", "llm.api_key": "LLM_API_KEY", "llm.model": "LLM_MODEL",
+    "llm.transcription_model": "WHISPER_MODEL",
     "image.base_url": "GPT_IMAGE_BASE_URL", "image.api_key": "GPT_IMAGE_API_KEY",
     "image.model": "GPT_IMAGE_MODEL",
     "video.base_url": "SEEDANCE_BASE_URL", "video.api_key": "SEEDANCE_API_KEY",
@@ -38,7 +39,7 @@ def default_runtime_config(workspace_root):
             "ffprobe_path": shutil.which("ffprobe") or "",
             "whisper_model_path": "",
         },
-        "llm": {"base_url": "", "api_key": "", "model": ""},
+        "llm": {"base_url": "", "api_key": "", "model": "", "transcription_model": ""},
         "image": {"base_url": "", "api_key": "", "model": "gpt-image-2"},
         "video": {"base_url": "", "api_key": "", "model": "doubao-seedance-2-0"},
     }

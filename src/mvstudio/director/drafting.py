@@ -497,7 +497,8 @@ def _relationship_map(response, characters, group_ids):
 
 
 def draft_maps(
-    intake, lyrics_timed, brief, port, staging, model, budget=None, prompt_overrides=None
+    intake, lyrics_timed, brief, port, staging, model, budget=None, prompt_overrides=None,
+    progress=None,
 ):
     if not isinstance(intake, Mapping) or intake.get("status") != "intake_validated":
         raise MapDraftError("validated intake manifest is required")
@@ -513,6 +514,7 @@ def draft_maps(
     characters = _characters(intake, brief)
     _bind_director_cast(lines, characters)
     budget = budget or ModelBudget()
+    emit = progress if callable(progress) else (lambda *args, **kwargs: None)
     staging_path = Path(staging)
     if staging_path.is_symlink():
         raise MapDraftError("map staging cannot be a symlink")
@@ -525,6 +527,7 @@ def draft_maps(
         analysis = analyze_audio(staging, dict(audio_manifest))
     except IntakeContractError as exc:
         raise MapDraftError(str(exc)) from exc
+    emit("semantic", 10, "正在按语义切分歌词段落…")
     semantic_response, semantic_audit = run_bounded_task(
         port,
         "lyrics.semantic_segment.requested",
@@ -535,6 +538,7 @@ def draft_maps(
         prompt_overrides,
     )
     groups = _semantic_groups(semantic_response, lines)
+    emit("relationship", 30, "正在分析人物关系与导演功能…")
     relationship_response, relationship_audit = run_bounded_task(
         port,
         "relationship_map.draft_requested",

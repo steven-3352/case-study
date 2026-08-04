@@ -749,8 +749,10 @@ def create_app(service=None, workspace_root=None):
         return _result(require_service().approve_director_artifacts(job_id))
 
     @app.post("/api/v1/jobs/{job_id}/director/publish")
-    async def publish_director_artifacts(job_id: str):
-        return _result(require_service().publish_director_artifacts(job_id))
+    async def publish_director_artifacts(job_id: str, preserve_edits: bool = False):
+        return _result(require_service().publish_director_artifacts(
+            job_id, supersede=preserve_edits, preserve_user_edits=preserve_edits
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/seedance/shot")
     async def start_seedance_shot(job_id: str):

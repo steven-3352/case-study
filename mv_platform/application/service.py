@@ -829,6 +829,14 @@ class ApplicationService:
         lyrics_timed = None
         intake_source_job = None
         intake_jobs = [item for item in successful if item.job_spec.operation == "analyze"]
+        # Queued analyze job: used by the frontend to unlock the auto-fill button even
+        # before intake runs (so manifest.audio being empty does not hide fill controls).
+        pending_analyze_jobs = [
+            item for item in jobs
+            if item.job_spec.operation == "analyze"
+            and item.status.runtime_state is RuntimeState.QUEUED
+        ]
+        pending_analyze_job = pending_analyze_jobs[0] if pending_analyze_jobs else None
         for item in intake_jobs + ([director] if director else []):
             if item is None:
                 continue
@@ -1160,7 +1168,10 @@ class ApplicationService:
                                 "assets_changed": assets_changed,
                                 "inputs_changed": inputs_changed,
                                 "duplicate_groups": duplicate_groups,
-                                "pending_materialization": self.pending_materialization(project_id)},
+                                "pending_materialization": self.pending_materialization(project_id),
+                                # Exposed so the frontend can show the auto-fill button even
+                                # when manifest.audio is still empty (intake not yet run).
+                                "analyze_job_id": pending_analyze_job.job_id if pending_analyze_job else None},
                   ("asset.curate_requested",), artifact_paths=()),
             stage("music", "音乐与歌词", "校准时间轴、段落、情绪和能量", "pending" if inputs_changed else ("completed" if music else ("pending" if intake else "locked")),
                   None, False, {"music_map": music or {}, "characters": character_items,
@@ -3591,31 +3602,56 @@ class ApplicationService:
             TranscriptionProviderError,
         )
         from mvstudio.director.alignment import LyricAlignmentError
-        # User-config priority: an explicitly injected port wins; otherwise reuse
-        # the already-configured OpenAI-compatible gateway (shared LLM_* first,
-        # dedicated WHISPER_* as an override) for remote transcription; fall back
-        # to a local Whisper model only when no gateway is configured.
-        port = self.alignment_port
-        if port is None:
+        # Provider chain: injected port (test/override) wins outright.  Otherwise
+        # a locally-configured FasterWhisper model takes priority — it is offline,
+        # free, and not subject to remote outages — and the remote gateway is only
+        # a fallback for when no local model is installed (or the local model
+        # itself fails to load).  Transient failures (network 5xx, model load
+        # errors) are caught per-provider and fall through to the next candidate;
+        # ApplicationBlocked is raised only when every provider is exhausted.
+        # LyricAlignmentError from a successful provider's transcribe() (data
+        # problem) aborts immediately — a different provider will not fix it.
+        providers = []
+        if self.alignment_port is not None:
+            providers.append(self.alignment_port)
+        else:
+            # 1. Local model first, when configured (MVSTUDIO_WHISPER_MODEL).
+            try:
+                providers.append(FasterWhisperAlignmentPort.from_env())
+            except LyricAlignmentError:
+                pass  # local model not configured — fall back to remote gateway
+            # 2. Remote gateway as fallback.
             gateway = _os.environ.get("LLM_BASE_URL") or _os.environ.get("WHISPER_BASE_URL", "")
             if gateway:
                 try:
-                    port = OpenAICompatibleTranscriptionPort.from_env(_os.environ)
+                    providers.append(OpenAICompatibleTranscriptionPort.from_env(_os.environ))
                 except TranscriptionProviderError:
-                    port = None
-            if port is None:
-                try:
-                    port = FasterWhisperAlignmentPort.from_env()
-                except LyricAlignmentError as exc:
-                    raise ApplicationBlocked(
-                        "transcription not configured: configure the LLM gateway "
-                        "(LLM_BASE_URL/LLM_API_KEY) or a dedicated WHISPER_* gateway, "
-                        "or set MVSTUDIO_WHISPER_MODEL to a local model path"
-                    ) from exc
-        try:
-            result = port.transcribe(audio_path)
-        except (LyricAlignmentError, TranscriptionProviderError) as exc:
-            raise ApplicationConflict(f"transcription failed: {exc}") from exc
+                    pass  # gateway URL/key invalid — skip
+        if not providers:
+            raise ApplicationBlocked(
+                "transcription not configured: configure the LLM gateway "
+                "(LLM_BASE_URL/LLM_API_KEY) or a dedicated WHISPER_* gateway, "
+                "or set MVSTUDIO_WHISPER_MODEL to a local model path"
+            )
+        result = None
+        last_exc: Exception | None = None
+        for port in providers:
+            try:
+                result = port.transcribe(audio_path)
+                last_exc = None
+                break
+            except (TranscriptionProviderError, LyricAlignmentError) as exc:
+                # Provider failed to produce a transcript: remote transport error
+                # (5xx, network timeout) or a local model-load/inference failure.
+                # Neither is a data problem the next provider would share, so fall
+                # through and try the next candidate in the chain.
+                last_exc = exc
+        if last_exc is not None:
+            raise ApplicationBlocked(
+                "转录服务暂时不可用：" + str(last_exc)
+                + "。请稍后重试；若持续失败，请在系统设置中检查转录网关"
+                "（LLM_ 或 WHISPER_）的地址与密钥。"
+            ) from last_exc
         if result.hallucination_risk:
             raise ApplicationConflict(
                 "transcription quality gate failed: word density too high — "
@@ -4152,9 +4188,21 @@ class ApplicationService:
 
             port = CostRecordingPort()
         prompt_overrides = self.get_project_prompts(project.project_id)
+
+        def emit_progress(stage, pct, message):
+            if offline:
+                return
+            try:
+                self._emit_mini_event(job_id, "progress", {
+                    "stage": stage, "pct": pct, "message": message,
+                })
+            except Exception:
+                pass
+
         drafted = draft_maps(
             intake, timed, brief, port, staging, model,
             prompt_overrides=prompt_overrides,
+            progress=emit_progress,
         )
         score = plan_structural_score(
             drafted["music_map"],
@@ -4185,6 +4233,7 @@ class ApplicationService:
                 staging,
                 drafted["model_audit"],
                 prompt_overrides=prompt_overrides,
+                progress=emit_progress,
             )
             score = creative["visual_score"]
             visual_score_mode = "creative_model_draft"
@@ -4438,7 +4487,7 @@ class ApplicationService:
                 continue
         return None
 
-    def publish_director_artifacts(self, job_id, supersede=False):
+    def publish_director_artifacts(self, job_id, supersede=False, preserve_user_edits=False):
         self._require_initialized()
         job, status, manifest, _manifest_path, staging = self._director_manifest(job_id, "approved")
         project = self.repository.get_project(job.project_id)
@@ -4461,6 +4510,9 @@ class ApplicationService:
         pending = []
         replacements = []
         superseded_job_ids = set()
+        # Paths skipped because they contain user edits that cannot be traced back to
+        # any previously verified publication.  Only populated when preserve_user_edits=True.
+        user_preserved_paths = []
         for artifact in manifest["artifacts"]:
             destination = store.validate_project_path(project.slug, artifact["path"])
             project_root = self._project_root() / project.slug
@@ -4480,6 +4532,11 @@ class ApplicationService:
                         project, artifact["path"], digest
                     )
                     if previous is None:
+                        if preserve_user_edits:
+                            # The file was edited by the user after the last known publish.
+                            # Keep the user's version intact instead of overwriting it.
+                            user_preserved_paths.append(artifact["path"])
+                            continue
                         raise ApplicationConflict(
                             "director publication would overwrite unverified existing content"
                         )
@@ -4513,15 +4570,20 @@ class ApplicationService:
             if rollback_failed:
                 raise ApplicationBlocked("director publication rollback failed") from exc
             raise ApplicationConflict("director publication failed without overwriting content") from exc
+        published_paths = [
+            artifact["path"] for artifact in manifest["artifacts"]
+            if artifact["path"] not in user_preserved_paths
+        ]
         receipt = {
             "version": 1,
             "project_id": job.project_id,
             "job_id": job_id,
             "manifest_hash": manifest_hash,
             "status": "published",
-            "paths": [artifact["path"] for artifact in manifest["artifacts"]],
+            "paths": published_paths,
             "supersedes_job_ids": sorted(superseded_job_ids),
             "published_at": datetime.now(timezone.utc).isoformat(),
+            **({"user_preserved_paths": user_preserved_paths} if user_preserved_paths else {}),
         }
         receipt_path = self._project_root() / project.slug / ".mvstudio/jobs" / job_id / "publication.json"
         self._write_atomic_file(receipt_path, canonical_json(receipt), ".publication-")
@@ -4601,12 +4663,20 @@ class ApplicationService:
 
     def run_director_plan(self, job_id):
         """Create and publish the editable planning draft without rendering a test film."""
+        def emit(event_type, payload):
+            try:
+                self._emit_mini_event(job_id, event_type, payload)
+            except Exception:
+                pass
+
         try:
             job = self.repository.get_job(job_id)
             draft = self.start_director_animatic_test(job_id)
             validation = self.approve_director_artifacts(job_id)
-            publication = self.publish_director_artifacts(job_id, supersede=True)
+            emit("progress", {"stage": "publish", "pct": 85, "message": "正在发布草稿…"})
+            publication = self.publish_director_artifacts(job_id, supersede=True, preserve_user_edits=True)
             self.localize_project_content(job.project_id)
+            emit("done", {"stage": "done", "pct": 100, "message": "分析完成"})
             return _immutable({
                 "status": "planning_draft_published",
                 "job_id": job_id,
@@ -4616,6 +4686,7 @@ class ApplicationService:
                 "user_facing_language": "zh-CN",
             })
         except Exception as exc:
+            emit("error", {"message": str(exc), "exception_type": type(exc).__name__})
             try:
                 job = self.repository.get_job(job_id)
                 project = self.repository.get_project(job.project_id)
@@ -4686,7 +4757,7 @@ class ApplicationService:
             privacy_consent_ref=source_job.privacy_consent_ref,
         )
         if resumed.status.runtime_state is RuntimeState.SUCCEEDED:
-            publication = self.publish_director_artifacts(resumed.job_id, supersede=True)
+            publication = self.publish_director_artifacts(resumed.job_id, supersede=True, preserve_user_edits=True)
             self.localize_project_content(project.project_id)
             return _immutable({
                 "status": "planning_draft_published",
@@ -4799,8 +4870,7 @@ class ApplicationService:
                 {"source_job_id": source_job_id, "checkpoint": "visual_score"},
             )
             validation = self.approve_director_artifacts(job_id)
-            publication = self.publish_director_artifacts(job_id, supersede=True)
-            self.localize_project_content(project.project_id)
+            publication = self.publish_director_artifacts(job_id, supersede=True, preserve_user_edits=True)
             return _immutable({
                 "status": "planning_draft_published",
                 "job_id": job_id,
