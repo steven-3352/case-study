@@ -4,11 +4,59 @@ import shutil
 import tempfile
 import urllib.parse
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 
 class ControlPlaneError(ValueError):
     pass
+
+
+# Local faster-whisper models are a shared *server resource* (a directory on
+# disk), not a per-user provider credential — so unlike api_key/base_url they
+# may carry a code-level default, exactly like ``shutil.which("ffmpeg")`` below.
+# This is NOT an os.environ / .env read: it only probes well-known install
+# directories for an already-downloaded model, so lyric alignment has a local
+# fallback when a user has not set ``paths.whisper_model_path`` and the remote
+# transcription gateway is unavailable.
+_WHISPER_MODEL_DIRS = (
+    Path.home() / ".local" / "share" / "mvstudio" / "models",
+    Path("/usr/local/share/mvstudio/models"),
+)
+# Prefer higher-accuracy variants when several are installed side by side.
+_WHISPER_SIZE_RANK = {
+    "large-v3": 0, "large-v2": 1, "large": 2,
+    "medium": 3, "small": 4, "base": 5, "tiny": 6,
+}
+
+
+def _whisper_rank(directory):
+    name = directory.name.lower()
+    for size, rank in _WHISPER_SIZE_RANK.items():
+        if size in name:
+            return rank
+    return len(_WHISPER_SIZE_RANK)
+
+
+@lru_cache(maxsize=1)
+def detect_local_whisper_model():
+    """Return the directory of an installed local faster-whisper model, or "".
+
+    Scans the well-known install roots for a subdirectory that actually holds a
+    ``model.bin`` weight file and returns the highest-accuracy match. Cached for
+    the process lifetime because the install set does not change at runtime.
+    """
+    candidates = []
+    for root in _WHISPER_MODEL_DIRS:
+        if not root.is_dir():
+            continue
+        for child in root.iterdir():
+            if child.is_dir() and (child / "model.bin").is_file():
+                candidates.append(child)
+    if not candidates:
+        return ""
+    candidates.sort(key=lambda item: (_whisper_rank(item), item.name))
+    return str(candidates[0])
 
 
 PROVIDER_FIELDS = {
@@ -148,6 +196,14 @@ def config_to_environ(config):
         value = config.get(section, {}).get(key, "")
         if value:
             environ[env_name] = value
+    # Local-whisper fallback: when the user has not configured a model path,
+    # use an already-installed local model so plain-lyric alignment still works
+    # (e.g. when the remote transcription gateway is down). Server-resource
+    # default only — never overrides a user's explicit choice.
+    if not environ.get("MVSTUDIO_WHISPER_MODEL"):
+        detected = detect_local_whisper_model()
+        if detected:
+            environ["MVSTUDIO_WHISPER_MODEL"] = detected
     return environ
 
 
@@ -188,6 +244,7 @@ def public_config(config):
     )
     result["paths"]["whisper_configured"] = bool(
         config.get("paths", {}).get("whisper_model_path")
+        or detect_local_whisper_model()
     )
     result["pricing"] = {
         "currency": "CNY", "image_per_item": 0.5, "video_per_second": 0.6,
