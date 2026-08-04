@@ -30,6 +30,10 @@ fi
 echo "📥 安装依赖..."
 pip install -r requirements.txt
 
+# 下载本地 Whisper medium 模型（歌词对齐，本地推理，不走远程 API）
+echo "🎙️  准备本地语音对齐模型 (faster-whisper medium)..."
+python download_whisper.py
+
 # 配置 .env
 if [ ! -f ".env" ]; then
     echo "📝 复制 .env.example → .env"

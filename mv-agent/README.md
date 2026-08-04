@@ -18,6 +18,13 @@ setup.bat
 bash setup.sh
 ```
 
+安装脚本会自动做三件事：装 Python 依赖、**下载本地语音对齐模型（faster-whisper medium，约 1.5GB）**、生成 `.env`。
+medium 模型下到 `~/.local/share/mvstudio/models/`（三平台一致），运行时自动发现，无需手动配置。
+
+> 首次下载较慢；国内网络可先设镜像再跑 setup：
+> `export HF_ENDPOINT=https://hf-mirror.com`（Windows：`set HF_ENDPOINT=...`）
+> 单独补下模型：`python download_whisper.py`
+
 ### 2. 配置 API Key
 
 编辑 `.env` 文件，填入你的 API Key：

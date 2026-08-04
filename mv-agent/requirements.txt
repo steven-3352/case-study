@@ -5,8 +5,13 @@
 pyyaml>=6.0
 python-dotenv>=1.0
 
-# 可选：本地 Whisper（语音对齐回退）
-# faster-whisper>=1.2.1
+# 本地语音对齐（歌词时间码）— 不走远程 API，全部本地推理
+# faster-whisper 会自动带上 ctranslate2 / tokenizers / onnxruntime / huggingface_hub
+# 三平台（Windows / macOS / Linux）均有官方 wheel，CPU 即可跑
+faster-whisper>=1.2.1,<2
+
+# 模型权重不在 pip 里 —— 由 setup.sh / setup.bat 调 download_whisper.py 下载 medium 版
+# 若手动装：python download_whisper.py
 
 # 注意：本包依赖项目公共工具库 mv_platform
 # 运行前确保在项目根目录，让 Python 能找到 mv_platform 模块
