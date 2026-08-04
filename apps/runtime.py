@@ -57,7 +57,8 @@ def workspace_pointer_path(environ=None):
     return base / "workspace.json"
 
 
-def build_service(workspace_root=None, settings=None, with_supervisor=True):
+def build_service(workspace_root=None, settings=None, with_supervisor=True,
+                  pointer_path=None, read_process_env=True):
     root = Path(workspace_root).expanduser().absolute() if workspace_root else default_workspace_root()
     configured = settings if isinstance(settings, Settings) else Settings.from_mapping(settings or {})
     database = Database(root / configured.db_path)
@@ -65,13 +66,17 @@ def build_service(workspace_root=None, settings=None, with_supervisor=True):
     if with_supervisor:
         from mv_platform.supervisor import JobSupervisor
         supervisor = JobSupervisor(database, root / configured.data_root / "jobs", configured.max_active_jobs)
+    # In multi-user mode the registry passes a per-user pointer path so a user
+    # cannot repoint a shared workspace; default keeps single-user behaviour.
+    pointer = pointer_path if pointer_path is not None else workspace_pointer_path()
     service = ApplicationService(
         configured,
         database,
         supervisor=supervisor,
         workspace_root=root,
         source_root=SOURCE_ROOT,
-        workspace_pointer_path=workspace_pointer_path(),
+        workspace_pointer_path=pointer,
+        read_process_env=read_process_env,
     )
     service.initialize()
     return service

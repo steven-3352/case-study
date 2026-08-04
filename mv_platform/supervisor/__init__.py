@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import queue
+import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -99,6 +100,15 @@ class JobSupervisor:
         self._context = multiprocessing.get_context("spawn")
         self._workers = {}
         self._terminal = set()
+        # In the multi-user server a background driver thread ticks every
+        # resident supervisor every 0.5s while request threadpool workers may
+        # concurrently submit/cancel/tick the SAME user's supervisor. This lock
+        # serializes all mutation of _workers/_terminal so the two threads can
+        # never race (dict-changed-size, double-del KeyError). It is per-user
+        # (one supervisor per user) so cross-tenant concurrency is preserved.
+        # RLock, not Lock: cancel()/wait() call tick(), submit() calls
+        # _snapshot() — the guarded methods re-enter each other.
+        self._lock = threading.RLock()
         self.staging_root.mkdir(parents=True, exist_ok=True)
 
     def _staging_path(self, job_id):
@@ -137,50 +147,52 @@ class JobSupervisor:
         self.repository.append_event(event)
 
     def _snapshot(self, job_id):
-        status = self._status(job_id)
-        worker = self._workers.get(job_id)
-        return SupervisorSnapshot(job_id, status.runtime_state, status, worker["process"].pid if worker else None,
-                                  bool(worker and worker["process"].is_alive()), str(worker["staging"]) if worker else str(self.staging_root / job_id))
+        with self._lock:
+            status = self._status(job_id)
+            worker = self._workers.get(job_id)
+            return SupervisorSnapshot(job_id, status.runtime_state, status, worker["process"].pid if worker else None,
+                                      bool(worker and worker["process"].is_alive()), str(worker["staging"]) if worker else str(self.staging_root / job_id))
 
     def submit(self, job_id, executor="fake", executor_input=None):
-        staging = self._staging_path(job_id)
-        validate, _run = _executor(executor)
-        try:
-            status = self._status(job_id)
-            self.repository.get_job(job_id)
-        except RepositoryNotFound as exc:
-            raise SupervisorError("unknown job") from exc
-        if job_id in self._workers or status.runtime_state == RuntimeState.RUNNING:
-            raise JobAlreadyActive(job_id)
-        if status.runtime_state != RuntimeState.QUEUED:
-            raise SupervisorError("terminal or non-queued job")
-        try:
-            executor_input = validate(executor_input)
-        except ValueError as exc:
-            raise InvalidExecutorInput(str(exc)) from exc
-        if len(self._workers) >= self.max_active_jobs:
-            raise SupervisorError("maximum active jobs reached")
-        staging.mkdir(parents=True, exist_ok=True)
-        messages = self._context.Queue()
-        cancelled = self._context.Event()
-        process = self._context.Process(
-            target=_worker,
-            args=(executor_input, str(staging), cancelled, messages),
-            kwargs={"executor": executor},
-        )
-        process.start()
-        self._workers[job_id] = {"process": process, "messages": messages, "cancelled": cancelled, "staging": staging}
-        try:
-            self.repository.set_status(status.transition(RuntimeState.RUNNING, self._now()))
-            self._event(job_id, "job.started", {"pid": process.pid})
-        except Exception:
-            cancelled.set()
-            if process.is_alive():
-                process.terminate()
-            process.join(timeout=1)
-            del self._workers[job_id]
-            raise
-        return self._snapshot(job_id)
+        with self._lock:
+            staging = self._staging_path(job_id)
+            validate, _run = _executor(executor)
+            try:
+                status = self._status(job_id)
+                self.repository.get_job(job_id)
+            except RepositoryNotFound as exc:
+                raise SupervisorError("unknown job") from exc
+            if job_id in self._workers or status.runtime_state == RuntimeState.RUNNING:
+                raise JobAlreadyActive(job_id)
+            if status.runtime_state != RuntimeState.QUEUED:
+                raise SupervisorError("terminal or non-queued job")
+            try:
+                executor_input = validate(executor_input)
+            except ValueError as exc:
+                raise InvalidExecutorInput(str(exc)) from exc
+            if len(self._workers) >= self.max_active_jobs:
+                raise SupervisorError("maximum active jobs reached")
+            staging.mkdir(parents=True, exist_ok=True)
+            messages = self._context.Queue()
+            cancelled = self._context.Event()
+            process = self._context.Process(
+                target=_worker,
+                args=(executor_input, str(staging), cancelled, messages),
+                kwargs={"executor": executor},
+            )
+            process.start()
+            self._workers[job_id] = {"process": process, "messages": messages, "cancelled": cancelled, "staging": staging}
+            try:
+                self.repository.set_status(status.transition(RuntimeState.RUNNING, self._now()))
+                self._event(job_id, "job.started", {"pid": process.pid})
+            except Exception:
+                cancelled.set()
+                if process.is_alive():
+                    process.terminate()
+                process.join(timeout=1)
+                del self._workers[job_id]
+                raise
+            return self._snapshot(job_id)
 
     def _finish(self, job_id, state, error_code=None, event_type=None):
         if job_id in self._terminal:
@@ -194,91 +206,96 @@ class JobSupervisor:
         self._terminal.add(job_id)
 
     def tick(self):
-        for job_id, worker in list(self._workers.items()):
-            terminal = False
-            while True:
-                try:
-                    message = worker["messages"].get_nowait()
-                except queue.Empty:
-                    break
-                if not isinstance(message, dict) or message.get("kind") not in {"progress", "succeeded", "failed", "cancelled"}:
-                    self._finish(job_id, RuntimeState.FAILED, "malformed_message")
-                    terminal = True
-                    continue
-                kind = message["kind"]
-                if kind == "progress":
-                    if not terminal and job_id not in self._terminal:
-                        self._event(job_id, "job.progress", {"step": message.get("step"), "steps": message.get("steps")})
-                elif not terminal and job_id not in self._terminal:
-                    state = {"succeeded": RuntimeState.SUCCEEDED, "failed": RuntimeState.FAILED, "cancelled": RuntimeState.CANCELLED}[kind]
-                    self._finish(job_id, state, message.get("error_code"), "job." + kind)
-                    terminal = True
-            if not worker["process"].is_alive():
-                if job_id not in self._terminal:
-                    if worker.get("cancel_requested"):
-                        self._finish(job_id, RuntimeState.CANCELLED, "cancelled", "job.cancelled")
-                    else:
-                        self._finish(job_id, RuntimeState.FAILED, "worker_exit")
-                worker["process"].join()
-                del self._workers[job_id]
-        return None
+        with self._lock:
+            for job_id, worker in list(self._workers.items()):
+                terminal = False
+                while True:
+                    try:
+                        message = worker["messages"].get_nowait()
+                    except queue.Empty:
+                        break
+                    if not isinstance(message, dict) or message.get("kind") not in {"progress", "succeeded", "failed", "cancelled"}:
+                        self._finish(job_id, RuntimeState.FAILED, "malformed_message")
+                        terminal = True
+                        continue
+                    kind = message["kind"]
+                    if kind == "progress":
+                        if not terminal and job_id not in self._terminal:
+                            self._event(job_id, "job.progress", {"step": message.get("step"), "steps": message.get("steps")})
+                    elif not terminal and job_id not in self._terminal:
+                        state = {"succeeded": RuntimeState.SUCCEEDED, "failed": RuntimeState.FAILED, "cancelled": RuntimeState.CANCELLED}[kind]
+                        self._finish(job_id, state, message.get("error_code"), "job." + kind)
+                        terminal = True
+                if not worker["process"].is_alive():
+                    if job_id not in self._terminal:
+                        if worker.get("cancel_requested"):
+                            self._finish(job_id, RuntimeState.CANCELLED, "cancelled", "job.cancelled")
+                        else:
+                            self._finish(job_id, RuntimeState.FAILED, "worker_exit")
+                    worker["process"].join()
+                    del self._workers[job_id]
+            return None
 
     def wait(self, job_id, timeout):
-        deadline = time.monotonic() + timeout
-        while True:
-            self.tick()
-            snapshot = self._snapshot(job_id)
-            if snapshot.terminal:
-                worker = self._workers.get(job_id)
-                if worker:
-                    worker["process"].join(timeout=0.2)
-                    self.tick()
-                return self._snapshot(job_id)
-            if time.monotonic() >= deadline:
-                raise TimeoutError(job_id)
-            time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
+        with self._lock:
+            deadline = time.monotonic() + timeout
+            while True:
+                self.tick()
+                snapshot = self._snapshot(job_id)
+                if snapshot.terminal:
+                    worker = self._workers.get(job_id)
+                    if worker:
+                        worker["process"].join(timeout=0.2)
+                        self.tick()
+                    return self._snapshot(job_id)
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(job_id)
+                time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
 
     def cancel(self, job_id, grace_seconds):
-        worker = self._workers.get(job_id)
-        if not worker:
-            status = self._status(job_id)
-            if status.runtime_state == RuntimeState.CANCELLED:
-                return self._snapshot(job_id)
-            raise SupervisorError("job is not active")
-        worker["cancel_requested"] = True
-        worker["cancelled"].set()
-        deadline = time.monotonic() + max(0.0, grace_seconds)
-        while time.monotonic() < deadline and worker["process"].is_alive():
-            self.tick()
-            time.sleep(0.005)
-        if worker["process"].is_alive():
-            worker["process"].terminate()
-            worker["process"].join(timeout=1)
+        with self._lock:
+            worker = self._workers.get(job_id)
+            if not worker:
+                status = self._status(job_id)
+                if status.runtime_state == RuntimeState.CANCELLED:
+                    return self._snapshot(job_id)
+                raise SupervisorError("job is not active")
+            worker["cancel_requested"] = True
+            worker["cancelled"].set()
+            deadline = time.monotonic() + max(0.0, grace_seconds)
+            while time.monotonic() < deadline and worker["process"].is_alive():
+                self.tick()
+                time.sleep(0.005)
             if worker["process"].is_alive():
-                worker["process"].kill()
+                worker["process"].terminate()
                 worker["process"].join(timeout=1)
-        self.tick()
-        if job_id not in self._terminal:
-            self._finish(job_id, RuntimeState.CANCELLED, "cancelled", "job.cancelled")
-        self.tick()
-        return self._snapshot(job_id)
+                if worker["process"].is_alive():
+                    worker["process"].kill()
+                    worker["process"].join(timeout=1)
+            self.tick()
+            if job_id not in self._terminal:
+                self._finish(job_id, RuntimeState.CANCELLED, "cancelled", "job.cancelled")
+            self.tick()
+            return self._snapshot(job_id)
 
     def snapshot(self, job_id):
         return self._snapshot(job_id)
 
     def recover(self):
-        with self.database.connect() as db:
-            ids = [row[0] for row in db.execute("SELECT job_id FROM job_status WHERE runtime_state=?", (RuntimeState.RUNNING.value,))]
-        for job_id in ids:
-            if job_id not in self._workers:
-                status = self._status(job_id)
-                self.repository.set_status(JobStatus(job_id, RuntimeState.QUEUED, status.business_stage,
-                                                     status.attempt, self._now()))
-                self._event(job_id, "job.recovered")
+        with self._lock:
+            with self.database.connect() as db:
+                ids = [row[0] for row in db.execute("SELECT job_id FROM job_status WHERE runtime_state=?", (RuntimeState.RUNNING.value,))]
+            for job_id in ids:
+                if job_id not in self._workers:
+                    status = self._status(job_id)
+                    self.repository.set_status(JobStatus(job_id, RuntimeState.QUEUED, status.business_stage,
+                                                         status.attempt, self._now()))
+                    self._event(job_id, "job.recovered")
 
     def shutdown(self):
-        for job_id in list(self._workers):
-            self.cancel(job_id, 0.05)
+        with self._lock:
+            for job_id in list(self._workers):
+                self.cancel(job_id, 0.05)
 
 
 __all__ = ["JobSupervisor", "SupervisorError", "JobAlreadyActive", "UnknownExecutor", "SupervisorSnapshot"]

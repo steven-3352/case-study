@@ -22,14 +22,29 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
+from contextvars import ContextVar
+
 from mv_platform.application.service import (
     ApplicationBlocked, ApplicationConflict, ApplicationError, ApplicationNotFound,
 )
 from mv_platform.application.error_logs import ErrorLogStore
-from apps.runtime import build_service, load_runtime_environment
+from apps.runtime import build_service, load_runtime_environment, default_workspace_root
+from apps.mv_api.auth import AuthStore, RegistrationError, LoginError
+from apps.mv_api.registry import UserServiceRegistry
 
 
 logger = logging.getLogger(__name__)
+
+# Per-request user context, set by the auth middleware in multi-user mode.
+# require_service()/tick_service()/record_error() resolve from these so the
+# ~66 existing call sites need no change.
+_current_service: ContextVar = ContextVar("current_service", default=None)
+_current_error_logs: ContextVar = ContextVar("current_error_logs", default=None)
+_current_user_id: ContextVar = ContextVar("current_user_id", default=None)
+
+# Session cookie name + attributes. httponly + samesite=lax; not "secure" so it
+# works over plain-HTTP IP access (nginx terminates on port 80, no TLS yet).
+_SESSION_COOKIE = "mv_session"
 
 
 class StrictModel(BaseModel):
@@ -40,6 +55,17 @@ class ProjectRequest(StrictModel):
     slug: str
     brief: Mapping[str, Any]
     project_id: Optional[str] = None
+
+
+class RegisterRequest(StrictModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=1024)
+    invite_code: str = Field(default="", max_length=128)
+
+
+class LoginRequest(StrictModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class JobRequest(StrictModel):
@@ -272,16 +298,60 @@ def _error_response(exc):
     return JSONResponse({"detail": detail}, status_code=status)
 
 
+def _start_supervisor_driver(app, interval=0.5):
+    """Background asyncio task that advances every resident user's supervisor.
+
+    A JobSupervisor only progresses when polled (``tick``). In single-user mode
+    the SSE/workflow endpoints tick on demand, but with many independent users a
+    job must keep advancing even when its owner is not actively streaming. This
+    driver ticks all resident supervisors on a fixed cadence; ticks run in a
+    threadpool so blocking work never stalls the event loop.
+    """
+    async def _run():
+        while True:
+            await asyncio.sleep(interval)
+            registry = app.state.registry
+            if registry is None:
+                continue
+            try:
+                await run_in_threadpool(registry.tick_all)
+            except Exception:  # pragma: no cover - driver must never die
+                logger.exception("supervisor driver tick failed")
+
+    task = asyncio.ensure_future(_run())
+    app.state.supervisor_driver = task
+    return task
+
+
 def create_app(service=None, workspace_root=None):
     owned = service is None
+    # Multi-user mode is enabled only on a bare server launch: no injected
+    # service AND no explicit workspace_root. Tests either pass service=...
+    # (single-user) or workspace_root=... (legacy "build one shared service"
+    # path) — both stay in single-user mode with auth disabled and behave
+    # exactly as before.
+    multi_user = service is None and workspace_root is None
     app = FastAPI()
     app.state.service = service
     app.state.error_logs = None
+    app.state.auth = None
+    app.state.registry = None
+    app.state.multi_user = multi_user
     web_root = Path(__file__).with_name("static")
     app.mount("/assets", StaticFiles(directory=web_root), name="web-assets")
 
     @app.on_event("startup")
     async def startup():
+        if multi_user:
+            # Server mode: no shared service. Each user gets an isolated service
+            # built on demand by the registry; credentials come only from that
+            # user's own saved settings (never a shared .env).
+            base = default_workspace_root() if workspace_root is None else Path(workspace_root)
+            app.state.auth = AuthStore(Path(base) / "auth.sqlite3")
+            app.state.registry = UserServiceRegistry(base, build=build_service)
+            _start_supervisor_driver(app)
+            return
+        # Single-user / test mode: one shared service (legacy behaviour).
         if app.state.service is None:
             load_runtime_environment()
             app.state.service = build_service(workspace_root)
@@ -293,11 +363,17 @@ def create_app(service=None, workspace_root=None):
 
     @app.on_event("shutdown")
     async def shutdown():
+        driver = getattr(app.state, "supervisor_driver", None)
+        if driver is not None:
+            driver.cancel()
+        if app.state.registry is not None:
+            app.state.registry.shutdown_all()
         if owned and app.state.service is not None:
             app.state.service.shutdown()
 
     def record_error(source, event):
-        store = app.state.error_logs
+        # In multi-user mode use the current user's error log; else the shared one.
+        store = _current_error_logs.get() if multi_user else app.state.error_logs
         if store is None:
             return
         try:
@@ -344,6 +420,13 @@ def create_app(service=None, workspace_root=None):
         return response
 
     def require_service():
+        if multi_user:
+            current = _current_service.get()
+            if current is None:
+                # Middleware only sets this for authenticated requests, so an
+                # unset service here means the request was not authenticated.
+                raise HTTPException(status_code=401, detail="authentication required")
+            return current
         if app.state.service is None:
             raise HTTPException(status_code=503, detail="service unavailable")
         return app.state.service
@@ -363,12 +446,121 @@ def create_app(service=None, workspace_root=None):
             [sys.executable, "-m", "uvicorn", *sys.argv[1:]],
         )
 
+    # Paths reachable without a session: health probes, the SPA shell + its
+    # static assets (so the login screen can load), and the auth endpoints
+    # themselves. Everything else requires a valid session in multi-user mode.
+    _PUBLIC_EXACT = {"/", "/healthz", "/readyz", "/favicon.ico",
+                     "/api/v1/auth/register", "/api/v1/auth/login",
+                     "/api/v1/auth/logout", "/api/v1/auth/me"}
+
+    def _is_public_path(path: str) -> bool:
+        if path in _PUBLIC_EXACT:
+            return True
+        return path.startswith("/assets/")
+
+    if multi_user:
+        @app.middleware("http")
+        async def auth_middleware(request: Request, call_next):
+            path = request.url.path
+            auth = app.state.auth
+            registry = app.state.registry
+            if auth is None or registry is None:
+                return JSONResponse({"detail": "service starting"}, status_code=503)
+
+            token = request.cookies.get(_SESSION_COOKIE)
+            user_id = auth.verify_session(token) if token else None
+
+            if user_id is None:
+                # No valid session. Public paths (login screen, auth API) pass
+                # through unauthenticated; everything else is rejected.
+                if _is_public_path(path):
+                    return await call_next(request)
+                return JSONResponse({"detail": "authentication required"}, status_code=401)
+
+            # Authenticated: resolve this user's isolated service and expose it
+            # to the handlers via contextvars, then always reset afterwards.
+            try:
+                entry = await run_in_threadpool(registry.get, user_id)
+            except Exception:
+                logger.exception("failed to resolve service for user %s", user_id)
+                return JSONResponse({"detail": "service unavailable"}, status_code=503)
+            tok_s = _current_service.set(entry.service)
+            tok_e = _current_error_logs.set(entry.error_logs)
+            tok_u = _current_user_id.set(user_id)
+            try:
+                return await call_next(request)
+            finally:
+                _current_service.reset(tok_s)
+                _current_error_logs.reset(tok_e)
+                _current_user_id.reset(tok_u)
+
+    def _set_session_cookie(response, token):
+        response.set_cookie(
+            _SESSION_COOKIE, token, httponly=True, samesite="lax",
+            max_age=30 * 24 * 3600, path="/",
+        )
+
+    @app.post("/api/v1/auth/register")
+    async def auth_register(body: RegisterRequest):
+        if not multi_user or app.state.auth is None:
+            raise HTTPException(status_code=404, detail="registration is not enabled")
+        try:
+            user_id = await run_in_threadpool(
+                app.state.auth.register, body.username, body.password, body.invite_code,
+            )
+        except RegistrationError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        token = await run_in_threadpool(app.state.auth.create_session, user_id)
+        response = JSONResponse({"username": body.username})
+        _set_session_cookie(response, token)
+        return response
+
+    @app.post("/api/v1/auth/login")
+    async def auth_login(body: LoginRequest):
+        if not multi_user or app.state.auth is None:
+            raise HTTPException(status_code=404, detail="login is not enabled")
+        try:
+            user_id = await run_in_threadpool(
+                app.state.auth.authenticate, body.username, body.password,
+            )
+        except LoginError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+        token = await run_in_threadpool(app.state.auth.create_session, user_id)
+        response = JSONResponse({"username": body.username})
+        _set_session_cookie(response, token)
+        return response
+
+    @app.post("/api/v1/auth/logout", status_code=204)
+    async def auth_logout(request: Request):
+        if multi_user and app.state.auth is not None:
+            token = request.cookies.get(_SESSION_COOKIE)
+            if token:
+                await run_in_threadpool(app.state.auth.revoke_session, token)
+        response = Response(status_code=204)
+        response.delete_cookie(_SESSION_COOKIE, path="/")
+        return response
+
+    @app.get("/api/v1/auth/me")
+    async def auth_me(request: Request):
+        if not multi_user or app.state.auth is None:
+            return {"authenticated": False, "multi_user": False}
+        token = request.cookies.get(_SESSION_COOKIE)
+        user_id = app.state.auth.verify_session(token) if token else None
+        if user_id is None:
+            return {"authenticated": False, "multi_user": True}
+        username = await run_in_threadpool(app.state.auth.get_username, user_id)
+        return {"authenticated": True, "multi_user": True, "username": username}
+
     @app.get("/healthz")
     async def healthz():
         return {"status": "alive"}
 
     @app.get("/readyz")
     async def readyz():
+        if multi_user:
+            if app.state.auth is None or app.state.registry is None:
+                return JSONResponse({"status": "unready"}, status_code=503)
+            return {"status": "ready"}
         if app.state.service is None:
             return JSONResponse({"status": "unready"}, status_code=503)
         return {"status": "ready"}
@@ -379,6 +571,7 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/projects")
     async def list_projects():
+        projects = await run_in_threadpool(require_service().list_projects)
         return [
             {
                 "project_id": project.project_id,
@@ -386,18 +579,19 @@ def create_app(service=None, workspace_root=None):
                 "brief_sha256": project.brief_sha256,
                 "created_at": project.created_at.isoformat(),
             }
-            for project in require_service().list_projects()
+            for project in projects
         ]
 
     @app.get("/api/v1/settings")
     async def get_settings():
-        return _result(require_service().get_runtime_configuration())
+        return _result(await run_in_threadpool(require_service().get_runtime_configuration))
 
     @app.get("/api/v1/logs")
     async def get_error_log_paths():
-        if app.state.error_logs is None:
+        store = _current_error_logs.get() if multi_user else app.state.error_logs
+        if store is None:
             raise HTTPException(status_code=503, detail="error logs unavailable")
-        return app.state.error_logs.paths()
+        return store.paths()
 
     @app.post("/api/v1/logs/frontend", status_code=204)
     async def record_frontend_error(body: FrontendErrorRequest):
@@ -406,35 +600,52 @@ def create_app(service=None, workspace_root=None):
 
     @app.post("/api/v1/system/restart")
     async def restart_system():
-        current = tick_service()
-        for project in current.list_projects():
-            if any(
-                job.status.runtime_state.value in {"queued", "running"}
-                for job in current.list_project_jobs(project.project_id)
-            ):
-                raise ApplicationBlocked("running jobs must finish before restart")
+        require_service()
+
+        def _check():
+            current = tick_service()
+            for project in current.list_projects():
+                if any(
+                    job.status.runtime_state.value in {"queued", "running"}
+                    for job in current.list_project_jobs(project.project_id)
+                ):
+                    raise ApplicationBlocked("running jobs must finish before restart")
+            return current
+
+        current = await run_in_threadpool(_check)
         threading.Thread(target=restart_process, args=(current,), daemon=True).start()
         return {"status": "restarting"}
 
     @app.put("/api/v1/settings")
     async def update_settings(body: RuntimeSettingsRequest):
-        return _result(require_service().update_runtime_configuration(body.model_dump(by_alias=True)))
+        return _result(await run_in_threadpool(
+            require_service().update_runtime_configuration, body.model_dump(by_alias=True),
+        ))
 
     @app.post("/api/v1/projects")
     async def create_project(body: ProjectRequest):
-        return _result(require_service().create_project(body.slug, body.brief, body.project_id))
+        return _result(await run_in_threadpool(
+            require_service().create_project, body.slug, body.brief, body.project_id,
+        ))
 
     @app.delete("/api/v1/projects/{project_id}")
     async def delete_project(project_id: str, body: DeleteProjectRequest):
-        return _result(tick_service().delete_project(project_id, body.confirmation_slug))
+        require_service()  # resolve on the loop so 401/503 map correctly
+        return _result(await run_in_threadpool(
+            lambda: tick_service().delete_project(project_id, body.confirmation_slug),
+        ))
 
     @app.get("/api/v1/projects/{project_id}/prompts")
     async def get_project_prompts(project_id: str):
-        return {"prompts": _result(require_service().get_project_prompts(project_id))}
+        return {"prompts": _result(await run_in_threadpool(
+            require_service().get_project_prompts, project_id,
+        ))}
 
     @app.put("/api/v1/projects/{project_id}/prompts")
     async def update_project_prompts(project_id: str, body: PromptSettingsRequest):
-        return {"prompts": _result(require_service().update_project_prompts(project_id, body.prompts))}
+        return {"prompts": _result(await run_in_threadpool(
+            require_service().update_project_prompts, project_id, body.prompts,
+        ))}
 
     @app.post("/api/v1/projects/{project_id}/display-content/localize")
     async def localize_project_content(project_id: str):
@@ -450,17 +661,23 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/projects/{project_id}/costs")
     async def get_project_costs(project_id: str):
-        return _result(require_service().get_project_costs(project_id))
+        return _result(await run_in_threadpool(
+            require_service().get_project_costs, project_id,
+        ))
 
     @app.get("/api/v1/projects/{project_id}/workflow")
     async def get_project_workflow(project_id: str):
-        return _result(tick_service().get_project_workflow(project_id))
+        require_service()
+        return _result(await run_in_threadpool(
+            lambda: tick_service().get_project_workflow(project_id),
+        ))
 
     @app.post("/api/v1/projects/{project_id}/workflow/{stage_id}/decision")
     async def record_workflow_decision(
         project_id: str, stage_id: str, body: WorkflowDecisionRequest,
     ):
-        return _result(require_service().record_workflow_decision(
+        return _result(await run_in_threadpool(
+            require_service().record_workflow_decision,
             project_id, stage_id, body.action, body.note,
         ))
 
@@ -468,7 +685,8 @@ def create_app(service=None, workspace_root=None):
     async def remove_project_character_asset(
         project_id: str, body: CharacterAssetRemoveRequest,
     ):
-        return _result(require_service().remove_project_character_asset(
+        return _result(await run_in_threadpool(
+            require_service().remove_project_character_asset,
             project_id, body.relative_path, body.confirmation_name,
         ))
 
@@ -476,7 +694,8 @@ def create_app(service=None, workspace_root=None):
     async def restore_project_character_asset(
         project_id: str, body: CharacterAssetRestoreRequest,
     ):
-        return _result(require_service().restore_project_character_asset(
+        return _result(await run_in_threadpool(
+            require_service().restore_project_character_asset,
             project_id, body.relative_path,
         ))
 
@@ -484,7 +703,8 @@ def create_app(service=None, workspace_root=None):
     async def bind_shot_background(
         project_id: str, shot_id: str, body: ShotBackgroundRequest,
     ):
-        return _result(require_service().bind_shot_background(
+        return _result(await run_in_threadpool(
+            require_service().bind_shot_background,
             project_id, shot_id, body.relative_path,
         ))
 
@@ -498,7 +718,8 @@ def create_app(service=None, workspace_root=None):
         )
         svc = require_service()
         try:
-            result = svc.submit_generate_background_job(
+            result = await run_in_threadpool(
+                svc.submit_generate_background_job,
                 project_id, shot_id, en_prompt=body.en_prompt or None,
             )
         except ApplicationError as exc:
@@ -519,19 +740,23 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/projects/{project_id}/scene-groups")
     async def get_scene_groups(project_id: str):
-        return _result(require_service().get_scene_groups(project_id))
+        return _result(await run_in_threadpool(
+            require_service().get_scene_groups, project_id,
+        ))
 
     @app.put("/api/v1/projects/{project_id}/scene-groups/{sg_id}")
     async def update_scene_group(
         project_id: str, sg_id: str, body: SceneGroupUpdateRequest,
     ):
-        return _result(require_service().update_scene_group(
+        return _result(await run_in_threadpool(
+            require_service().update_scene_group,
             project_id, sg_id, name=body.name, shot_ids=body.shot_ids,
         ))
 
     @app.post("/api/v1/projects/{project_id}/scene-groups/merge")
     async def merge_scene_groups(project_id: str, body: SceneGroupMergeRequest):
-        return _result(require_service().merge_scene_groups(
+        return _result(await run_in_threadpool(
+            require_service().merge_scene_groups,
             project_id, body.source_ids, body.target_name,
         ))
 
@@ -543,43 +768,53 @@ def create_app(service=None, workspace_root=None):
 
     @app.put("/api/v1/projects/{project_id}/scene-groups/{sg_id}/backgrounds/{bg_id}/select")
     async def select_background_master(project_id: str, sg_id: str, bg_id: str):
-        return _result(require_service().select_background_master(
+        return _result(await run_in_threadpool(
+            require_service().select_background_master,
             project_id, sg_id, bg_id,
         ))
 
     # PRD-007B: scene planning routes
     @app.get("/api/v1/projects/{project_id}/scene-planning")
     async def get_scene_planning(project_id: str):
-        return _result(require_service().get_scene_planning(project_id))
+        return _result(await run_in_threadpool(
+            require_service().get_scene_planning, project_id,
+        ))
 
     @app.post("/api/v1/projects/{project_id}/scene-planning/suggest")
     async def suggest_scene_planning(
         project_id: str,
         body: "ScenePlanningSuggestRequest" = Body(default_factory=lambda: ScenePlanningSuggestRequest()),
     ):
-        return _result(require_service().suggest_scene_groups_llm(
+        return _result(await run_in_threadpool(
+            require_service().suggest_scene_groups_llm,
             project_id, body.system_prompt, body.task_prompt,
         ))
 
     @app.put("/api/v1/projects/{project_id}/scene-planning")
     async def update_scene_planning(project_id: str, body: "ScenePlanningUpdateRequest"):
-        return _result(require_service().update_scene_planning(
+        return _result(await run_in_threadpool(
+            require_service().update_scene_planning,
             project_id, body.model_dump(exclude_none=False),
         ))
 
     @app.post("/api/v1/projects/{project_id}/scene-planning/approve")
     async def approve_scene_planning(project_id: str):
-        return _result(require_service().approve_scene_planning(project_id))
+        return _result(await run_in_threadpool(
+            require_service().approve_scene_planning, project_id,
+        ))
 
     @app.post("/api/v1/projects/{project_id}/groups/{group_id}/background/generate")
     async def generate_group_background(project_id: str, group_id: str):
-        return _result(require_service().submit_generate_group_background_job(project_id, group_id))
+        return _result(await run_in_threadpool(
+            require_service().submit_generate_group_background_job, project_id, group_id,
+        ))
 
     @app.post("/api/v1/projects/{project_id}/groups/{group_id}/background/select")
     async def select_group_background_master(
         project_id: str, group_id: str, body: "SelectMasterRequest",
     ):
-        return _result(require_service().select_background_master(
+        return _result(await run_in_threadpool(
+            require_service().select_background_master,
             project_id, group_id, body.candidate_id,
         ))
 
@@ -587,7 +822,8 @@ def create_app(service=None, workspace_root=None):
     async def set_shot_background_override(
         project_id: str, shot_id: str, body: "BackgroundOverrideRequest",
     ):
-        return _result(require_service().set_shot_background_override(
+        return _result(await run_in_threadpool(
+            require_service().set_shot_background_override,
             project_id, shot_id, body.override_path,
         ))
 
@@ -607,7 +843,8 @@ def create_app(service=None, workspace_root=None):
                     temporary.write(chunk)
             if size == 0:
                 raise ApplicationConflict("keyframe upload is empty")
-            return _result(require_service().import_shot_keyframe(
+            return _result(await run_in_threadpool(
+                require_service().import_shot_keyframe,
                 project_id, shot_id, temporary_path, filename,
             ))
         finally:
@@ -623,7 +860,8 @@ def create_app(service=None, workspace_root=None):
     ):
         svc = require_service()
         try:
-            result = svc.submit_generate_keyframe_job(
+            result = await run_in_threadpool(
+                svc.submit_generate_keyframe_job,
                 project_id, shot_id, en_prompt=body.en_prompt or None,
             )
         except ApplicationError as exc:
@@ -635,20 +873,25 @@ def create_app(service=None, workspace_root=None):
     async def select_shot_keyframe(
         project_id: str, shot_id: str, body: ShotKeyframeSelectionRequest,
     ):
-        return _result(require_service().select_shot_keyframe(
+        return _result(await run_in_threadpool(
+            require_service().select_shot_keyframe,
             project_id, shot_id, body.relative_path,
         ))
 
     @app.delete("/api/v1/projects/{project_id}/shots/{shot_id}/keyframes")
     async def delete_shot_keyframe(project_id: str, shot_id: str, path: str):
-        return _result(require_service().delete_shot_keyframe(project_id, shot_id, path))
+        return _result(await run_in_threadpool(
+            require_service().delete_shot_keyframe, project_id, shot_id, path,
+        ))
 
     class ShotSkippedRequest(StrictModel):
         skipped: bool
 
     @app.put("/api/v1/projects/{project_id}/shots/{shot_id}/skipped")
     async def set_shot_skipped(project_id: str, shot_id: str, body: ShotSkippedRequest):
-        return _result(require_service().set_shot_skipped(project_id, shot_id, body.skipped))
+        return _result(await run_in_threadpool(
+            require_service().set_shot_skipped, project_id, shot_id, body.skipped,
+        ))
 
     @app.post("/api/v1/projects/{project_id}/shots/{shot_id}/video/generate", status_code=202)
     async def generate_shot_video(
@@ -662,22 +905,26 @@ def create_app(service=None, workspace_root=None):
     async def select_shot_video(
         project_id: str, shot_id: str, body: ShotVideoSelectionRequest,
     ):
-        return _result(require_service().select_shot_video(
+        return _result(await run_in_threadpool(
+            require_service().select_shot_video,
             project_id, shot_id, body.path,
         ))
 
     @app.post("/api/v1/settings/video-provider/ping")
     async def ping_video_provider():
-        return require_service().ping_video_provider()
+        return await run_in_threadpool(require_service().ping_video_provider)
 
     @app.get("/api/v1/projects/{project_id}/files")
     async def get_project_file(project_id: str, path: str):
-        return FileResponse(require_service().get_project_file(project_id, path))
+        resolved = await run_in_threadpool(require_service().get_project_file, project_id, path)
+        return FileResponse(resolved)
 
     @app.post("/api/v1/projects/{project_id}/jobs")
     async def submit_job(project_id: str, body: JobRequest):
         values = body.model_dump()
-        return _result(require_service().submit_job(project_id, **values))
+        return _result(await run_in_threadpool(
+            require_service().submit_job, project_id, **values,
+        ))
 
     @app.post("/api/v1/projects/{project_id}/assets")
     async def import_project_asset(
@@ -697,10 +944,12 @@ def create_app(service=None, workspace_root=None):
                 raise ApplicationConflict("asset upload is empty")
             current = require_service()
             if kind:
-                return _result(current.import_project_asset(
+                return _result(await run_in_threadpool(
+                    current.import_project_asset,
                     project_id, temporary_path, filename, kind_hint=kind,
                 ))
-            return _result(current.import_project_asset(
+            return _result(await run_in_threadpool(
+                current.import_project_asset,
                 project_id, temporary_path, filename,
             ))
         finally:
@@ -711,23 +960,33 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/projects/{project_id}/jobs")
     async def list_project_jobs(project_id: str):
-        return [_result(job) for job in tick_service().list_project_jobs(project_id)]
+        require_service()
+        jobs = await run_in_threadpool(lambda: tick_service().list_project_jobs(project_id))
+        return [_result(job) for job in jobs]
 
     @app.post("/api/v1/jobs/{job_id}/start")
     async def start_job(job_id: str, body: StartRequest):
-        return _result(require_service().start_job(job_id, body.executor, body.executor_input))
+        return _result(await run_in_threadpool(
+            require_service().start_job, job_id, body.executor, body.executor_input,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/director/intake")
     async def start_director_intake(job_id: str):
-        return _result(require_service().start_director_intake(job_id))
+        return _result(await run_in_threadpool(
+            require_service().start_director_intake, job_id,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/director/animatic-test")
     async def start_director_animatic_test(job_id: str):
-        return _result(require_service().start_director_animatic_test(job_id))
+        return _result(await run_in_threadpool(
+            require_service().start_director_animatic_test, job_id,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/director/animatic-offline-test")
     async def start_director_animatic_offline_test(job_id: str):
-        return _result(require_service().start_director_animatic_offline_test(job_id))
+        return _result(await run_in_threadpool(
+            require_service().start_director_animatic_offline_test, job_id,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/director/mvp-test")
     async def run_director_mvp_test(job_id: str):
@@ -746,36 +1005,45 @@ def create_app(service=None, workspace_root=None):
 
     @app.post("/api/v1/jobs/{job_id}/director/approve")
     async def approve_director_artifacts(job_id: str):
-        return _result(require_service().approve_director_artifacts(job_id))
+        return _result(await run_in_threadpool(
+            require_service().approve_director_artifacts, job_id,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/director/publish")
     async def publish_director_artifacts(job_id: str, preserve_edits: bool = False):
-        return _result(require_service().publish_director_artifacts(
-            job_id, supersede=preserve_edits, preserve_user_edits=preserve_edits
+        return _result(await run_in_threadpool(
+            require_service().publish_director_artifacts,
+            job_id, supersede=preserve_edits, preserve_user_edits=preserve_edits,
         ))
 
     @app.post("/api/v1/jobs/{job_id}/seedance/shot")
     async def start_seedance_shot(job_id: str):
-        return _result(require_service().start_seedance_shot(job_id))
+        return _result(await run_in_threadpool(
+            require_service().start_seedance_shot, job_id,
+        ))
 
     @app.get("/api/v1/jobs/{job_id}")
     async def inspect_job(job_id: str):
-        return _result(tick_service().inspect_job(job_id))
+        require_service()
+        return _result(await run_in_threadpool(lambda: tick_service().inspect_job(job_id)))
 
     @app.get("/api/v1/jobs/{job_id}/inspect")
     async def inspect_job_alias(job_id: str):
-        return _result(tick_service().inspect_job(job_id))
+        require_service()
+        return _result(await run_in_threadpool(lambda: tick_service().inspect_job(job_id)))
 
     @app.post("/api/v1/jobs/{job_id}/cancel")
     async def cancel_job(job_id: str, body: CancelRequest):
-        return _result(require_service().cancel_job(job_id, body.grace_seconds))
+        return _result(await run_in_threadpool(
+            require_service().cancel_job, job_id, body.grace_seconds,
+        ))
 
     @app.post("/api/v1/jobs/{job_id}/materialize")
     async def materialize_job(job_id: str, body: MaterializeRequest):
         if not body.confirm_billing:
             return JSONResponse({"error": "billing_confirmation_required"}, status_code=422)
         svc = require_service()
-        job = svc.inspect_job(job_id)
+        job = await run_in_threadpool(svc.inspect_job, job_id)
         project_id = job.job_spec.project_id
         await svc._materialize_job(project_id, job_id, body.confirm_billing)
         pending = await run_in_threadpool(svc.pending_materialization, project_id)
@@ -815,7 +1083,7 @@ def create_app(service=None, workspace_root=None):
 
     @app.get("/api/v1/jobs/{job_id}/artifacts")
     async def artifacts(job_id: str):
-        return _result(require_service().list_artifacts(job_id))
+        return _result(await run_in_threadpool(require_service().list_artifacts, job_id))
 
     @app.get("/api/v1/jobs/{job_id}/events")
     async def events(job_id: str, request: Request, follow: bool = False):
@@ -826,15 +1094,15 @@ def create_app(service=None, workspace_root=None):
             raise HTTPException(status_code=400, detail="invalid Last-Event-ID") from exc
         if after < 0:
             raise HTTPException(status_code=400, detail="invalid Last-Event-ID")
-        service_for_events.list_events(job_id, after)
+        await run_in_threadpool(service_for_events.list_events, job_id, after)
 
         async def stream():
             cursor = after
             last_heartbeat = time.monotonic()
             while True:
                 if service_for_events.supervisor is not None:
-                    service_for_events.supervisor.tick()
-                batch = service_for_events.list_events(job_id, cursor)
+                    await run_in_threadpool(service_for_events.supervisor.tick)
+                batch = await run_in_threadpool(service_for_events.list_events, job_id, cursor)
                 for event in batch:
                     payload = {"id": event.seq, "event": event.event_type,
                                "data": json.dumps(_jsonable(event.payload), sort_keys=True, separators=(",", ":"))}
@@ -842,7 +1110,7 @@ def create_app(service=None, workspace_root=None):
                     cursor = event.seq
                 if not follow:
                     return
-                inspection = service_for_events.inspect_job(job_id)
+                inspection = await run_in_threadpool(service_for_events.inspect_job, job_id)
                 terminal = inspection.status.runtime_state.value in {"succeeded", "failed", "blocked", "cancelled"}
                 if terminal:
                     return

@@ -43,10 +43,9 @@ def default_runtime_config(workspace_root):
         "image": {"base_url": "", "api_key": "", "model": "gpt-image-2"},
         "video": {"base_url": "", "api_key": "", "model": "doubao-seedance-2-0"},
     }
-    for dotted, env_name in ENV_MAP.items():
-        section, key = dotted.split(".", 1)
-        if os.environ.get(env_name):
-            value[section][key] = os.environ[env_name]
+    # NOTE: provider credentials are intentionally NOT seeded from os.environ.
+    # In the multi-user server each account supplies its own keys through the
+    # settings page; there is no shared/public key and no local .env fallback.
     return value
 
 
@@ -132,6 +131,24 @@ def write_config(path, value):
                 os.unlink(temporary)
             except OSError:
                 pass
+
+
+def config_to_environ(config):
+    """Project a runtime config into a provider environ mapping.
+
+    This is the multi-user replacement for :func:`apply_environment`: instead of
+    mutating the process-global ``os.environ`` (which collides across concurrent
+    users), it returns a fresh dict that a single user's provider factories read
+    via their ``from_env(environ=...)`` seam. Only the keys in ENV_MAP that have
+    a value are present — nothing leaks in from the real environment.
+    """
+    environ = {}
+    for dotted, env_name in ENV_MAP.items():
+        section, key = dotted.split(".", 1)
+        value = config.get(section, {}).get(key, "")
+        if value:
+            environ[env_name] = value
+    return environ
 
 
 def apply_environment(config):

@@ -48,3 +48,9 @@ assets/fonts/*.ttf
 assets/fonts/*.otf
 assets/fonts/*.ttc
 .cache/
+
+# 多租户鉴权库 — 运行期产物，绝不入库（含用户密码 scrypt 哈希 / 会话 token）
+auth.sqlite3
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal

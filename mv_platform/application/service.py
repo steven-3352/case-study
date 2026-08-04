@@ -25,7 +25,7 @@ from mv_platform.domain.states import BusinessStage, RuntimeState
 from mv_platform.infrastructure.repositories import Repository, RepositoryConflict, RepositoryNotFound
 from mv_platform.infrastructure.artifacts import ArtifactStore, UnsafePathError
 from mv_platform.application.control_plane import (
-    ControlPlaneError, apply_environment, merge_runtime_config, public_config,
+    ControlPlaneError, config_to_environ, merge_runtime_config, public_config,
     read_config, write_config,
 )
 
@@ -168,6 +168,7 @@ class ApplicationService:
         image_provider=None,
         workspace_pointer_path=None,
         error_logs=None,
+        read_process_env=True,
     ):
         self.settings = settings
         self.database = database
@@ -192,6 +193,55 @@ class ApplicationService:
         # long-running image/video generation job cannot overwrite concurrent
         # updates with a stale in-memory snapshot (lost-update race).
         self._shot_references_lock = threading.RLock()
+        # Per-user provider credentials. Replaces the process-global os.environ:
+        # each service instance holds its own account's keys, cached from the
+        # workspace settings file and refreshed whenever the config is saved.
+        self._provider_env_cache = None
+        self._provider_env_lock = threading.RLock()
+        # Multi-user server mode passes read_process_env=False: provider
+        # credentials then come ONLY from this user's saved settings, never the
+        # process os.environ / a shared .env. Legacy single-user (and the test
+        # suite) keep the historical behaviour of overlaying config on top of
+        # os.environ so shell-exported keys and monkeypatch.setenv still work.
+        self._read_process_env = read_process_env
+
+    def _build_provider_env(self, config):
+        """Project ``config`` into a provider environ mapping for this service.
+
+        In legacy mode the result is layered on top of a snapshot of the real
+        os.environ; in multi-user mode it is config-only (nothing leaks in).
+        """
+        environ = dict(os.environ) if self._read_process_env else {}
+        environ.update(config_to_environ(config))
+        return environ
+
+    def _provider_env(self):
+        """Return this user's provider environ mapping.
+
+        Multi-user mode: built once from the user's saved settings and cached
+        (never the real os.environ); invalidated on save. Legacy single-user
+        mode: read live from the current os.environ each call, so shell-exported
+        keys and test monkeypatch.setenv take effect without a rebuild — exactly
+        the pre-multi-user behaviour.
+        """
+        if self._read_process_env:
+            try:
+                config = read_config(self._settings_path(), self.workspace_root)
+            except ControlPlaneError:
+                config = {}
+            return self._build_provider_env(config)
+        with self._provider_env_lock:
+            if self._provider_env_cache is None:
+                try:
+                    config = read_config(self._settings_path(), self.workspace_root)
+                except ControlPlaneError:
+                    config = {}
+                self._provider_env_cache = self._build_provider_env(config)
+            return dict(self._provider_env_cache)
+
+    def _invalidate_provider_env(self):
+        with self._provider_env_lock:
+            self._provider_env_cache = None
 
     def _reject_source_workspace(self):
         if self.source_root is None:
@@ -233,7 +283,10 @@ class ApplicationService:
             if path.is_symlink() or path.resolve() != path:
                 raise ApplicationBlocked("configured root is unsafe")
         try:
-            apply_environment(read_config(self._settings_path(), self.workspace_root))
+            # Validate the saved config and prime this user's provider env cache.
+            # Do NOT touch os.environ — credentials stay scoped to this service.
+            config = read_config(self._settings_path(), self.workspace_root)
+            self._provider_env_cache = self._build_provider_env(config)
         except ControlPlaneError as exc:
             raise ApplicationBlocked(str(exc)) from exc
         self._initialized = True
@@ -266,7 +319,10 @@ class ApplicationService:
                 if update.get(section, {}).get("api_key") == "":
                     merged[section]["api_key"] = current[section]["api_key"]
             write_config(self._settings_path(), merged)
-            apply_environment(merged)
+            # Refresh this user's cached provider env from the just-saved config
+            # instead of mutating global process state.
+            with self._provider_env_lock:
+                self._provider_env_cache = self._build_provider_env(merged)
             result = public_config(merged)
             result["saved_configuration"] = True
             self._add_workspace_transition(result)
@@ -626,8 +682,9 @@ class ApplicationService:
         from mvstudio.director.drafting import ModelBudget, ModelResult, ModelTask
         from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
 
-        provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
-        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        _env = self._provider_env()
+        provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env(_env)
+        model = self.semantic_model or _env.get("LLM_MODEL", "")
         if not isinstance(model, str) or not model.strip():
             raise ApplicationBlocked("text model is not configured")
         schema = {"translations": [{"field_id": "text", "translated_text": "text"}]}
@@ -1722,10 +1779,11 @@ class ApplicationService:
             "chinese_task_prompt": task_text,
             "director_context": context,
         }
-        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        _env = self._provider_env()
+        model = self.semantic_model or _env.get("LLM_MODEL", "")
         if not model:
             raise ApplicationBlocked("text model is not configured")
-        provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+        provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env(_env)
         provider_url = getattr(provider, "base_url", "") or ""
         try:
             from urllib.parse import urlparse
@@ -1903,7 +1961,7 @@ class ApplicationService:
         if provider is None:
             from mvstudio.providers.image_openai import OpenAICompatibleImageProvider
             try:
-                provider = OpenAICompatibleImageProvider.from_env(os.environ)
+                provider = OpenAICompatibleImageProvider.from_env(self._provider_env())
             except Exception as exc:
                 raise ApplicationBlocked("image provider is not configured") from exc
         source_paths = self._image_reference_paths(
@@ -2357,11 +2415,12 @@ class ApplicationService:
         )
         from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
         from mvstudio.director.drafting import ModelBudget, ModelTask
-        model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+        _env = self._provider_env()
+        model = self.semantic_model or _env.get("LLM_MODEL", "")
         if not model:
             raise ApplicationBlocked("LLM not configured", error_stage="configuration")
         try:
-            provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
+            provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env(_env)
         except Exception as exc:
             raise ApplicationBlocked("LLM provider not configured", error_stage="configuration") from exc
         schema = {"groups": [{"group_name": "str", "shots": ["str"], "prompt_zh": "str"}]}
@@ -2621,7 +2680,8 @@ class ApplicationService:
                 "selected keyframe file not found on disk",
                 error_stage="precondition", error_category="precondition",
             )
-        if not os.environ.get("SEEDANCE_BASE_URL"):
+        _env = self._provider_env()
+        if not _env.get("SEEDANCE_BASE_URL"):
             raise ApplicationBlocked(
                 "Seedance provider not configured",
                 error_stage="configuration", error_category="configuration",
@@ -2630,7 +2690,7 @@ class ApplicationService:
         if provider is None:
             try:
                 from mvstudio.providers.seedance import SeedancePort
-                provider = SeedancePort.from_env()
+                provider = SeedancePort.from_env(_env)
             except Exception as exc:
                 raise ApplicationBlocked(f"video provider is not configured: {exc}") from exc
         task_id = "task-" + uuid.uuid4().hex[:12]
@@ -2655,7 +2715,7 @@ class ApplicationService:
             )
             seedance_task = SeedanceTask(
                 shot_id=shot_id,
-                model=os.environ.get("SEEDANCE_MODEL", "doubao-seedance-2-0-260128"),
+                model=_env.get("SEEDANCE_MODEL", "doubao-seedance-2-0-260128"),
                 prompt=shot_prompt,
                 duration_seconds=int(duration),
                 first_frame=SeedanceFrame(content=kf_bytes, sha256=kf_sha256),
@@ -2684,7 +2744,7 @@ class ApplicationService:
                 "duration_actual": qc_info["duration_actual"],
                 "resolution": proj_resolution,
                 "file_size_bytes": qc_info["file_size_bytes"],
-                "model": os.environ.get("SEEDANCE_MODEL", ""),
+                "model": _env.get("SEEDANCE_MODEL", ""),
                 "task_id": task_id,
                 "cost_yuan": round(duration * 0.8, 2),
                 "qc_passed": qc_passed,
@@ -2718,8 +2778,9 @@ class ApplicationService:
     def ping_video_provider(self) -> dict:
         """Test Seedance provider connectivity (PRD-004)."""
         import time
-        base_url = os.environ.get("SEEDANCE_BASE_URL", "")
-        model = os.environ.get("SEEDANCE_MODEL", "seedance-2.0")
+        _env = self._provider_env()
+        base_url = _env.get("SEEDANCE_BASE_URL", "")
+        model = _env.get("SEEDANCE_MODEL", "seedance-2.0")
         if not base_url:
             return {"provider": "seedance", "reachable": False, "model": model,
                     "latency_ms": 0, "error": "SEEDANCE_BASE_URL not configured"}
@@ -3397,7 +3458,7 @@ class ApplicationService:
         )
 
         try:
-            port = self.seedance_port or SeedancePort.from_env()
+            port = self.seedance_port or SeedancePort.from_env(self._provider_env())
         except SeedanceProviderError as exc:
             raise ApplicationBlocked("Seedance provider configuration is invalid") from exc
         self._claim_seedance_request(staging, approved.contract_sha256)
@@ -3522,11 +3583,10 @@ class ApplicationService:
         Delegates to generate_characters_for_project which resolves GPT_IMAGE_*.
         The portrait is written to inputs/characters/<safe_name>.png.
         """
-        import os as _os
         _project, root = self._project_directory(project_id)
         from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
         try:
-            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(self._provider_env())
         except ImageProviderError as exc:
             raise ApplicationBlocked(
                 "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
@@ -3588,7 +3648,7 @@ class ApplicationService:
         Raises ApplicationBlocked if no transcription provider is configured.
         """
         self._require_initialized()
-        import os as _os
+        _env = self._provider_env()
         _project, root = self._project_directory(project_id)
         audio_files = [f for f in (root / "inputs" / "audio").iterdir() if f.is_file()]
         if len(audio_files) != 1:
@@ -3617,14 +3677,14 @@ class ApplicationService:
         else:
             # 1. Local model first, when configured (MVSTUDIO_WHISPER_MODEL).
             try:
-                providers.append(FasterWhisperAlignmentPort.from_env())
+                providers.append(FasterWhisperAlignmentPort.from_env(_env))
             except LyricAlignmentError:
                 pass  # local model not configured — fall back to remote gateway
             # 2. Remote gateway as fallback.
-            gateway = _os.environ.get("LLM_BASE_URL") or _os.environ.get("WHISPER_BASE_URL", "")
+            gateway = _env.get("LLM_BASE_URL") or _env.get("WHISPER_BASE_URL", "")
             if gateway:
                 try:
-                    providers.append(OpenAICompatibleTranscriptionPort.from_env(_os.environ))
+                    providers.append(OpenAICompatibleTranscriptionPort.from_env(_env))
                 except TranscriptionProviderError:
                     pass  # gateway URL/key invalid — skip
         if not providers:
@@ -3690,11 +3750,10 @@ class ApplicationService:
         Raises ApplicationConflict if a generation call fails.
         """
         self._require_initialized()
-        import os as _os
         _project, root = self._project_directory(project_id)
         from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
         try:
-            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(self._provider_env())
         except ImageProviderError as exc:
             raise ApplicationBlocked(
                 "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
@@ -3765,10 +3824,10 @@ class ApplicationService:
         Raises ApplicationBlocked if the LLM gateway is not configured.
         """
         import json as _json
-        import os as _os
         import urllib.request as _req
 
         self._require_initialized()
+        _env = self._provider_env()
         _project, root = self._project_directory(project_id)
 
         # Read lyrics content for the system prompt
@@ -3794,9 +3853,9 @@ class ApplicationService:
             + (lyrics_text or "（暂无歌词，请根据歌曲标题或用户描述来分析）")
         )
 
-        base_url = _os.environ.get("LLM_BASE_URL", "")
-        api_key = _os.environ.get("LLM_API_KEY", "")
-        model = _os.environ.get("LLM_MODEL", _os.environ.get("OPENAI_MODEL", "gpt-4o-mini"))
+        base_url = _env.get("LLM_BASE_URL", "")
+        api_key = _env.get("LLM_API_KEY", "")
+        model = _env.get("LLM_MODEL", _env.get("OPENAI_MODEL", "gpt-4o-mini"))
 
         if not base_url or not api_key:
             raise ApplicationBlocked(
@@ -3866,14 +3925,12 @@ class ApplicationService:
         Raises ApplicationBlocked if the image provider is not configured.
         Raises ApplicationConflict if a generation call fails.
         """
-        import os as _os
-
         self._require_initialized()
         _project, root = self._project_directory(project_id)
         from mvstudio.providers.image_openai import OpenAICompatibleImageProvider, ImageProviderError
 
         try:
-            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(_os.environ)
+            provider = self.image_provider or OpenAICompatibleImageProvider.from_env(self._provider_env())
         except ImageProviderError as exc:
             raise ApplicationBlocked(
                 "image provider not configured: set GPT_IMAGE_API_KEY and GPT_IMAGE_BASE_URL"
@@ -4113,7 +4170,7 @@ class ApplicationService:
             from mvstudio.providers.alignment_faster_whisper import FasterWhisperAlignmentPort
 
             try:
-                alignment_port = self.alignment_port or FasterWhisperAlignmentPort.from_env()
+                alignment_port = self.alignment_port or FasterWhisperAlignmentPort.from_env(self._provider_env())
                 intake, timed = align_plain_lyrics(intake, staging, alignment_port)
             except LyricAlignmentError as exc:
                 raise ApplicationBlocked(str(exc)) from exc
@@ -4137,8 +4194,9 @@ class ApplicationService:
         else:
             from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
 
-            port = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
-            model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+            _env = self._provider_env()
+            port = self.semantic_port or OpenAICompatibleSemanticPort.from_env(_env)
+            model = self.semantic_model or _env.get("LLM_MODEL", "")
             service = self
             provider = port
             invocation_counts = {}
@@ -4799,8 +4857,9 @@ class ApplicationService:
             from mvstudio.director.creative_planner import draft_creative_score
             from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
 
-            provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env()
-            model = self.semantic_model or os.environ.get("LLM_MODEL", "")
+            _env = self._provider_env()
+            provider = self.semantic_port or OpenAICompatibleSemanticPort.from_env(_env)
+            model = self.semantic_model or _env.get("LLM_MODEL", "")
             service = self
             invocation_counts = {}
 
