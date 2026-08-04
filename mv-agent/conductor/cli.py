@@ -60,14 +60,14 @@ def cmd_status(name: str, *_):
           f"· 计费确认={cost.get('confirmed')}")
 
 
-def _run_one(c: Conductor, spec) -> dict:
+def _run_one(c: Conductor, name: str, spec) -> dict:
     """跑一步并按统一格式渲染跑前/跑后提示。"""
     print(render.before(spec))
     res = c.run_step(spec)
     if res.get("skipped"):
         print(render.skipped(spec))
     elif res.get("ok"):
-        print(render.after(spec, spec.outputs))
+        print(render.after(spec, spec.outputs, project=name))
     else:
         print(f"❌ 失败：{res.get('error')}")
     return res
@@ -79,7 +79,7 @@ def cmd_next(name: str, *_):
     if not spec:
         print("🎉 没有可执行步骤（全 done 或在等拍板）")
         return
-    res = _run_one(c, spec)
+    res = _run_one(c, name, spec)
     if res.get("status") == AWAITING:
         print(f"   ⏸️  等你拍板：ok {name} {spec.step_id}  /  reject {name} {spec.step_id} '意见'")
 
@@ -92,7 +92,7 @@ def cmd_run(name: str, *_):
         if not spec:
             print("🎉 到头了（全 done 或等拍板）")
             break
-        res = _run_one(c, spec)
+        res = _run_one(c, name, spec)
         if res.get("status") == AWAITING:
             print(f"   ⏸️  等拍板：ok {name} {spec.step_id} / reject {name} {spec.step_id} '意见'")
             break

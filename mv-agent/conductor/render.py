@@ -20,13 +20,23 @@ def before(spec: StepSpec) -> str:
     )
 
 
-def after(spec: StepSpec, outputs: list[str]) -> str:
-    """跑完之后：产出了哪些文件、各自什么用途。"""
+def after(spec: StepSpec, outputs: list[str], project: str = "<片名>") -> str:
+    """跑完之后：产出了哪些文件、各自什么用途。
+
+    若本步用到提示词，追加一段「怎么改、怎么重跑」的标注，
+    让用户知道创意内容从哪个文件调、改完如何生效。
+    """
     lines = [f"✅ 完成 · 产出 {len(outputs)} 个文件"]
     width = max((len(o) for o in outputs), default=0)
     for name in outputs:
         desc = spec.outputs_desc.get(name, "")
         lines.append(f"  {name:<{width}}  {desc}")
+
+    if spec.prompts:
+        lines.append(f"📝 想调这步的提示词？编辑 projects/{project}/prompts/ 下：")
+        lines.append("   " + " · ".join(spec.prompts))
+        lines.append(f'   改完重跑：reject {project} {spec.step_id} "调整提示词" → run {project}')
+
     return "\n".join(lines)
 
 

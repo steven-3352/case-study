@@ -42,9 +42,18 @@ ls .env 2>/dev/null || echo "缺 .env"  # 检查配置
   character_map.yaml    人物关系与导演功能
 ```
 
+**用到提示词的步骤**（01/02/03/04），跑完还会自动多出一段标注，务必转述给用户：
+```
+📝 想调这步的提示词？编辑 projects/<片名>/prompts/ 下：
+   analysis.director.md · analysis.lyrics_segment.md · analysis.character.md
+   改完重跑：reject <片名> 01_analysis "调整提示词" → run <片名>
+```
+这样用户就知道创意内容从哪个文件调、改完怎么生效。没用提示词的步骤（00/05）不显示这段。
+
 CLI 的 `run` / `next` 已经按这个格式打印了——你**直接把 CLI 的输出转述给用户即可**，
-不要自己另编一套措辞。每步的用途与产物说明是声明式数据，写在 `conductor/pipeline.py`
-的 `purpose` / `outputs_desc` 里，改文案去那里改，别在对话里临时编。
+不要自己另编一套措辞。每步的用途、产物说明、提示词标注都是声明式数据，写在
+`conductor/pipeline.py` 的 `purpose` / `outputs_desc` / `prompts` 里，改文案去那里改，
+别在对话里临时编。
 
 ---
 
