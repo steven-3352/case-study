@@ -280,7 +280,7 @@ python3 pipeline/gate_check_motion.py \
     > 「我在 `mv_engine/atoms/paper.py` 里发现一个 bug（描述）。这是引擎层文件，我不能直接改。你要不要我起草一个 PR 让 owner 审核？」
 - ❌ **修改 `docs/RULES/` 下任何规则**
 - ❌ **修改 `pipeline/mv_engine/atoms/lock.json`**（原子锁）
-- ❌ **直接 `git push origin main`**（会被 GitHub 拒绝）
+- ✅ **`git push origin main`**（2026-08-04 起:main 分支保护已撤、PR 通道已关,直连 main 是当前唯一合并路径;仅在 owner 明确要求时推送)
 
 ### 需要新原子时的行为
 

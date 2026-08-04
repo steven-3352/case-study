@@ -91,7 +91,7 @@ docs/RULES/memory/README.md               memory 分类索引
 - 只在 `pipeline/voice_room/<片名>/` 下读写文件
 - 不改 `pipeline/mv_engine/` 任何文件(要新原子 → 起草 PR 给 owner)
 - 不改 `docs/RULES/` 任何规则
-- 不直接 `git push origin main`(会被 GitHub 拒绝)
+- `git push origin main`:2026-08-04 起 main 分支保护已撤、PR 通道已关,直连 main 是当前唯一合并路径;仅在 owner 明确要求时推送
 
 ---
 
