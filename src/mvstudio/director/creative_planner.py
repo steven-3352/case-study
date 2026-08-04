@@ -260,12 +260,22 @@ def draft_creative_score(
     decisions = []
     creative_audits = []
     translation_cache = {}
+    total_shots = len(structural_shots)
     try:
         for offset in range(0, len(structural_shots), _CREATIVE_BATCH_SIZE):
             batch = structural_shots[offset:offset + _CREATIVE_BATCH_SIZE]
             batch_score = copy.deepcopy(structural_score)
             batch_score["shots"] = batch
-            emit("visual_draft", 50, "正在生成视觉分镜草稿…")
+            # Draft runs one LLM call per shot, so emit incremental progress
+            # across the 40→68 band (semantic=10, relationship=30 precede us;
+            # visual_review=70 follows). Otherwise the bar sits frozen at a
+            # single value for the whole minutes-long draft loop.
+            done = offset
+            pct = 40 + int(28 * done / total_shots) if total_shots else 40
+            emit(
+                "visual_draft", pct,
+                f"正在生成视觉分镜草稿…({done}/{total_shots})",
+            )
             response, call_audit = run_bounded_task(
                 port,
                 "visual_score.creative_draft_requested",
