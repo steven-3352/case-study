@@ -29,6 +29,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from artstyle import ArtTextStyle, get_style  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 
 # —— 画布/机器级默认（片无关，可被 PVConfig 覆盖）——
@@ -602,6 +605,7 @@ class Shot:
     lyric: dict | None = None  # 逐句歌词美术字：{"singer","text","chars":[[字,时点],...]}
     singer: str = ""         # 演唱者标签（右上小字，如"轩珩"/"合"）
     bg: str = ""             # 覆盖背景图路径（留空=用默认 bg0）
+    art_style: str = "金墨朱砂"  # 艺术字样式名（查 artstyle.STYLES；默认=现有硬编码风格，行为不变）
 
 
 def active_shot(shots, t):
@@ -615,24 +619,43 @@ def active_shot(shots, t):
 SEAL_RED = (176, 42, 34)   # 朱砂印泥（真实红，非霓虹；hue≈5°不触蓝紫门）
 
 
-def _seal(canvas, cx, cy, size, char, alpha=235):
-    """国风朱砂印章：圆角红方 + 反白艺术字。"""
+def _seal(canvas, cx, cy, size, char, alpha=235, style: ArtTextStyle | None = None):
+    """国风朱砂印章：圆角红方 + 反白艺术字。
+    style=None 时用现有 SEAL_RED/FONT_TITLE（向后兼容）；传 style 则用其
+    seal_color 和解析出的标题字体。"""
+    seal_color = style.seal_color if style is not None else SEAL_RED
+    title_font = style.resolved_title_font() if style is not None else FONT_TITLE
     ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(ov)
     d.rounded_rectangle([cx - size / 2, cy - size / 2, cx + size / 2, cy + size / 2],
-                        radius=int(size * 0.16), fill=(*SEAL_RED, int(alpha)))
-    f = ImageFont.truetype(FONT_TITLE, int(size * 0.60))
+                        radius=int(size * 0.16), fill=(*seal_color, int(alpha)))
+    f = ImageFont.truetype(title_font, int(size * 0.60))
     w = d.textlength(char, font=f)
     d.text((cx - w / 2, cy - size * 0.37), char, font=f, fill=(255, 246, 234, int(alpha)))
     canvas.alpha_composite(ov)
 
 
-def _title_char(canvas, ch, cx, y, size, alpha, ink=INK, outline=GOLD, ow=3,
-                angle=0.0, glow=0.0):
+_UNSET = object()  # 哨兵：区分"调用点没传 ink/outline" 与 "显式传了同默认值同"，供 style 覆盖判断
+
+
+def _title_char(canvas, ch, cx, y, size, alpha, ink=_UNSET, outline=_UNSET, ow=3,
+                angle=0.0, glow=0.0, style: ArtTextStyle | None = None):
     """单个艺术字：金色多向描边双钩 + 墨填 + 可选倾斜(飘逸)+ 金辉光晕(大胆/想象力)。
     angle≠0 → 单字微旋（书法飞白感，非整块刚体）；glow>0 → 字底暖金放射光晕。
-    仅绘制文字层（R1 不管文字），(cx,y) 为该字左上锚点，旋转绕字心避免位移漂。"""
-    font = ImageFont.truetype(FONT_TITLE, size)
+    仅绘制文字层（R1 不管文字），(cx,y) 为该字左上锚点，旋转绕字心避免位移漂。
+    style=None 或调用点显式传了 ink/outline 时沿用现有 INK/GOLD/FONT_TITLE（向后兼容，
+    行为不变）；传了 style 且未显式传 ink/outline 时改用 style 的值与其解析出的标题字体。"""
+    if style is not None:
+        ink = style.ink if ink is _UNSET else ink
+        outline = style.outline if outline is _UNSET else outline
+        title_font = style.resolved_title_font()
+        glow_color = style.outline   # 金辉光晕色随样式走
+    else:
+        ink = INK if ink is _UNSET else ink
+        outline = GOLD if outline is _UNSET else outline
+        title_font = FONT_TITLE
+        glow_color = GOLD            # 与原硬编码一致：光晕恒用 GOLD 常量，不随 outline 参数变
+    font = ImageFont.truetype(title_font, size)
     # 字层独立小画布：便于绕字心旋转，避免全屏旋转开销
     pad = max(ow * 3, int(size * 0.35)) + 8
     cell = Image.new("RGBA", (size + pad * 2, size + pad * 2), (0, 0, 0, 0))
@@ -640,7 +663,7 @@ def _title_char(canvas, ch, cx, y, size, alpha, ink=INK, outline=GOLD, ow=3,
     ax, ay = pad, pad
     if glow > 0.01:                       # 金辉光晕：字形外扩高斯 → 暖金背光
         gl = Image.new("RGBA", cell.size, (0, 0, 0, 0))
-        ImageDraw.Draw(gl).text((ax, ay), ch, font=font, fill=(*GOLD, int(alpha)))
+        ImageDraw.Draw(gl).text((ax, ay), ch, font=font, fill=(*glow_color, int(alpha)))
         gl = gl.filter(ImageFilter.GaussianBlur(int(size * 0.13)))
         gl.putalpha(gl.getchannel("A").point(lambda v: int(v * glow)))
         cell.alpha_composite(gl)
@@ -657,6 +680,7 @@ def _title_char(canvas, ch, cx, y, size, alpha, ink=INK, outline=GOLD, ow=3,
 
 def kinetic_text(canvas, shot, t):
     lt = t - shot.t0
+    style = get_style(shot.art_style)
 
     # —— 开场大标题：逐字"飞白弹入"（更大·带旋转甩入·落位后持续漂浮 + 金辉呼吸）——
     if shot.title_mode == "opening":
@@ -680,10 +704,10 @@ def kinetic_text(canvas, shot, t):
             glow = 0.35 + 0.35 * math.sin(e * 2.0 + i)
             _title_char(canvas, ch, x0 + i * (size + gap) + dx,
                         y - dy + fy, size, int(255 * k),
-                        angle=spin + drift, glow=glow * settle)
+                        angle=spin + drift, glow=glow * settle, style=style)
         if t > 1.8:
             k = clamp((t - 1.8) / 0.5)
-            f2 = ImageFont.truetype(FONT_LABEL, 34)
+            f2 = ImageFont.truetype(FONT_LABEL, 34)  # 副题固定用 FONT_LABEL（与 style 无关，保持不变）
             ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
             d = ImageDraw.Draw(ov)
             sub = "语 音 厅 · 群 星"
@@ -691,10 +715,10 @@ def kinetic_text(canvas, shot, t):
             sy = y + size + 40
             # 副题左右描边（更立体）+ 展开金线
             for ox, oy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
-                d.text(((W - w) / 2 + ox, sy + oy), sub, font=f2, fill=(*INK, int(150 * k)))
-            d.text(((W - w) / 2, sy), sub, font=f2, fill=(*GOLD, int(220 * k)))
+                d.text(((W - w) / 2 + ox, sy + oy), sub, font=f2, fill=(*style.ink, int(150 * k)))
+            d.text(((W - w) / 2, sy), sub, font=f2, fill=(*style.outline, int(220 * k)))
             lw = (total * 0.5) * k
-            d.rectangle([W / 2 - lw, sy - 18, W / 2 + lw, sy - 14], fill=(*GOLD, int(200 * k)))
+            d.rectangle([W / 2 - lw, sy - 18, W / 2 + lw, sy - 14], fill=(*style.outline, int(200 * k)))
             canvas.alpha_composite(ov)
         return
 
@@ -711,23 +735,23 @@ def kinetic_text(canvas, shot, t):
             fy = math.sin(lt * 0.9 + i * 0.6) * 4 * ki        # 定版后极缓漂浮
             _title_char(canvas, ch, x0 + i * (size + gap),
                         y - int((1 - ki) * 52) + fy, size, int(255 * ki),
-                        ow=int(4 + gi * 3), glow=gi * ki)
+                        ow=int(4 + gi * 3), glow=gi * ki, style=style)
         k = ease_out(clamp(lt / 0.7))
         a = int(255 * k)
         ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(ov)
         ly = y + size + 40
-        d.rectangle([W / 2 - total / 2 * k, ly, W / 2 + total / 2 * k, ly + 7], fill=(*GOLD, a))
+        d.rectangle([W / 2 - total / 2 * k, ly, W / 2 + total / 2 * k, ly + 7], fill=(*style.outline, a))
         f2 = ImageFont.truetype(FONT_LABEL, 40)
         sub = "愿 得 长 相 见"
         w = d.textlength(sub, font=f2)
         for ox, oy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
-            d.text(((W - w) / 2 + ox, ly + 30 + oy), sub, font=f2, fill=(*INK, int(160 * k)))
-        d.text(((W - w) / 2, ly + 30), sub, font=f2, fill=(*GOLD, int(230 * k)))
+            d.text(((W - w) / 2 + ox, ly + 30 + oy), sub, font=f2, fill=(*style.ink, int(160 * k)))
+        d.text(((W - w) / 2, ly + 30), sub, font=f2, fill=(*style.outline, int(230 * k)))
         canvas.alpha_composite(ov)
         if lt > 0.5:
-            _seal(canvas, W / 2 - total / 2 - 84, y + 88, 118, "明", int(235 * clamp((lt - 0.5) / 0.4)))
-            _seal(canvas, W / 2 + total / 2 + 84, y + 88, 118, "月", int(235 * clamp((lt - 0.7) / 0.4)))
+            _seal(canvas, W / 2 - total / 2 - 84, y + 88, 118, "明", int(235 * clamp((lt - 0.5) / 0.4)), style=style)
+            _seal(canvas, W / 2 + total / 2 + 84, y + 88, 118, "月", int(235 * clamp((lt - 0.7) / 0.4)), style=style)
         return
 
     # —— 个人展示名牌：竖排艺术字名 + 词牌 + 朱砂印（国风）——
@@ -741,56 +765,62 @@ def kinetic_text(canvas, shot, t):
         by = 150
         ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(ov)
-        d.rectangle([bx - 24, by - 10, bx - 13, by + (size + 6) * len(chars)], fill=(*GOLD, a))
+        d.rectangle([bx - 24, by - 10, bx - 13, by + (size + 6) * len(chars)], fill=(*style.outline, a))
         canvas.alpha_composite(ov)
         for i, ch in enumerate(chars):
             _title_char(canvas, ch, bx, by + i * (size + 6), size, a,
-                        ink=INK, outline=WARM_WHITE, ow=2)
+                        ink=style.ink, outline=style.warm_white, ow=2, style=style)
         if shot.epithet:
-            fe = ImageFont.truetype(FONT_TITLE, 36)
+            fe = ImageFont.truetype(style.resolved_title_font(), 36)
             ov2 = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
             d2 = ImageDraw.Draw(ov2)
             ex = bx - 66 + int((1 - k) * 40)
             for j, ec in enumerate(shot.epithet):
                 for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                    d2.text((ex + ox, by + 8 + j * 44 + oy), ec, font=fe, fill=(*INK, int(a * 0.7)))
-                d2.text((ex, by + 8 + j * 44), ec, font=fe, fill=(*WARM_WHITE, a))
+                    d2.text((ex + ox, by + 8 + j * 44 + oy), ec, font=fe, fill=(*style.ink, int(a * 0.7)))
+                d2.text((ex, by + 8 + j * 44), ec, font=fe, fill=(*style.warm_white, a))
             canvas.alpha_composite(ov2)
         if lt > 0.3:
             sy = by + (size + 6) * len(chars) + 60
-            _seal(canvas, bx + 2, sy, 74, chars[0], int(235 * clamp((lt - 0.3) / 0.35)))
+            _seal(canvas, bx + 2, sy, 74, chars[0], int(235 * clamp((lt - 0.3) / 0.35)), style=style)
         return
 
     # —— 普通竖排词牌 ——
     if shot.text:
         chars = shot.text
-        font = ImageFont.truetype(FONT_TITLE, 86)
+        font = ImageFont.truetype(style.resolved_title_font(), 86)
         k = back_out(lt / 0.3)
         a = int(235 * clamp(lt / 0.2))
         dx = int((1 - k) * 70)
         ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(ov)
         bx, by = W - 220 + dx, 130
-        d.rectangle([bx - 26, by - 8, bx - 15, by + 100 * len(chars)], fill=(*GOLD, a))
+        d.rectangle([bx - 26, by - 8, bx - 15, by + 100 * len(chars)], fill=(*style.outline, a))
         for i, ch in enumerate(chars):
             for ox, oy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
-                d.text((bx + ox, by + i * 100 + oy), ch, font=font, fill=(*WARM_WHITE, a))
-            d.text((bx, by + i * 100), ch, font=font, fill=(*INK, a))
+                d.text((bx + ox, by + i * 100 + oy), ch, font=font, fill=(*style.warm_white, a))
+            d.text((bx, by + i * 100), ch, font=font, fill=(*style.ink, a))
         canvas.alpha_composite(ov)
 
 
 # —— 逐句歌词美术字（卡拉OK点亮 · 每字随演唱真时点亮起 = 真卡点）——
-def _lyric_char(canvas, ch, cx, y, size, ink, outline, ow, alpha, angle=0.0, glow=0.0):
+def _lyric_char(canvas, ch, cx, y, size, ink, outline, ow, alpha, angle=0.0, glow=0.0,
+                style: ArtTextStyle | None = None):
     """底部歌词单字：飘逸行草 + 金多向描边双钩 + 墨填。点亮瞬间可带微旋(angle)+金辉(glow)。
-    (cx,y) 为左上锚点；旋转绕字心（对称 pad）避免位移漂。"""
-    font = ImageFont.truetype(FONT_LYRIC, size)
+    (cx,y) 为左上锚点；旋转绕字心（对称 pad）避免位移漂。
+    style=None 时字体用现有 FONT_LYRIC、光晕色用现有 GOLD（向后兼容）；传 style 则
+    字体从 style.lyric_fonts 解析，光晕色随 style.outline 走。ink/outline/ow 仍由
+    调用点显式传入（歌词原语一直是显式传色，不像 _title_char 有默认值需覆盖）。"""
+    lyric_font = style.resolved_lyric_font() if style is not None else FONT_LYRIC
+    glow_color = style.outline if style is not None else GOLD
+    font = ImageFont.truetype(lyric_font, size)
     pad = max(ow * 3, int(size * 0.4)) + 6
     cell = Image.new("RGBA", (size + pad * 2, size + pad * 2), (0, 0, 0, 0))
     dc = ImageDraw.Draw(cell)
     ax = ay = pad
     if glow > 0.01:
         gl = Image.new("RGBA", cell.size, (0, 0, 0, 0))
-        ImageDraw.Draw(gl).text((ax, ay), ch, font=font, fill=(*GOLD, alpha))
+        ImageDraw.Draw(gl).text((ax, ay), ch, font=font, fill=(*glow_color, alpha))
         gl = gl.filter(ImageFilter.GaussianBlur(int(size * 0.16)))
         gl.putalpha(gl.getchannel("A").point(lambda v: int(v * glow)))
         cell.alpha_composite(gl)
@@ -810,6 +840,7 @@ def lyric_karaoke(canvas, shot, t):
     ly = shot.lyric
     if not ly:
         return
+    style = get_style(shot.art_style)
     # 淡入淡出按"整句显示窗口"（跨多镜连续，不在镜界闪烁）
     d0 = ly.get("disp0", shot.t0)
     d1 = ly.get("disp1", shot.t1)
@@ -820,7 +851,7 @@ def lyric_karaoke(canvas, shot, t):
     size, gap, space_extra = 76, 22, 54   # 行草笔画细、需更大字号+更宽字距透气
     chars = ly["chars"]
     # 布局宽度（空格=乐句留白）
-    font = ImageFont.truetype(FONT_LYRIC, size)
+    font = ImageFont.truetype(style.resolved_lyric_font(), size)
     d0 = ImageDraw.Draw(canvas)
     widths = []
     for ch, _ct in chars:
@@ -853,27 +884,27 @@ def lyric_karaoke(canvas, shot, t):
             ow = 3 + int(pop * 4)
             dy = int(pop * -14)               # 更明显弹起
             spin = pop * (7 if idx_c % 2 else -7)  # 点亮甩一下（飘逸）
-            _lyric_char(canvas, ch, x, base_y + dy, size, INK, GOLD, ow, a,
-                        angle=spin, glow=pop * 0.6)
+            _lyric_char(canvas, ch, x, base_y + dy, size, style.ink, style.outline, ow, a,
+                        angle=spin, glow=pop * 0.6, style=style)
             if pop > 0.05:                    # 点亮金辉描边
-                _lyric_char(canvas, ch, x, base_y + dy, size, GOLD, GOLD, ow + 2,
-                            int(160 * pop * fade), angle=spin)
+                _lyric_char(canvas, ch, x, base_y + dy, size, style.outline, style.outline, ow + 2,
+                            int(160 * pop * fade), angle=spin, style=style)
         else:                                 # 未唱：幽微预览（可见全句，不抢眼）
             _lyric_char(canvas, ch, x, base_y, size, (150, 120, 92),
-                        (90, 66, 44), 2, int(70 * fade))
+                        (90, 66, 44), 2, int(70 * fade), style=style)
         idx_c += 1
         x += w
 
     # 演唱者标签（左下角小金牌 · 国风）
     if shot.singer:
-        f2 = ImageFont.truetype(FONT_TITLE, 40)
+        f2 = ImageFont.truetype(style.resolved_title_font(), 40)
         tag = f"· {shot.singer} ·"
         tw = int(d0.textlength(tag, font=f2))
         ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(ov)
         tx, ty = 70, base_y - 96
         d.rounded_rectangle([tx - 18, ty - 8, tx + tw + 18, ty + 54],
-                            radius=10, fill=(*SEAL_RED, int(210 * fade)))
+                            radius=10, fill=(*style.seal_color, int(210 * fade)))
         d.text((tx, ty), tag, font=f2, fill=(255, 246, 234, int(240 * fade)))
         canvas.alpha_composite(ov)
 
