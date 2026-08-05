@@ -606,6 +606,8 @@ class Shot:
     singer: str = ""         # 演唱者标签（右上小字，如"轩珩"/"合"）
     bg: str = ""             # 覆盖背景图路径（留空=用默认 bg0）
     art_style: str = "金墨朱砂"  # 艺术字样式名（查 artstyle.STYLES；默认=现有硬编码风格，行为不变）
+    subtitle: str = ""       # 大标题副题（title_mode 用；留空=引擎内默认，行为不变）
+    seal: str = ""           # 结尾双印字（title_mode="ending" 用；留空=默认"明月"，行为不变）
 
 
 def active_shot(shots, t):
@@ -710,7 +712,7 @@ def kinetic_text(canvas, shot, t):
             f2 = ImageFont.truetype(FONT_LABEL, 34)  # 副题固定用 FONT_LABEL（与 style 无关，保持不变）
             ov = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
             d = ImageDraw.Draw(ov)
-            sub = "语 音 厅 · 群 星"
+            sub = shot.subtitle or "语 音 厅 · 群 星"
             w = d.textlength(sub, font=f2)
             sy = y + size + 40
             # 副题左右描边（更立体）+ 展开金线
@@ -743,15 +745,18 @@ def kinetic_text(canvas, shot, t):
         ly = y + size + 40
         d.rectangle([W / 2 - total / 2 * k, ly, W / 2 + total / 2 * k, ly + 7], fill=(*style.outline, a))
         f2 = ImageFont.truetype(FONT_LABEL, 40)
-        sub = "愿 得 长 相 见"
+        sub = shot.subtitle or "愿 得 长 相 见"
         w = d.textlength(sub, font=f2)
         for ox, oy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
             d.text(((W - w) / 2 + ox, ly + 30 + oy), sub, font=f2, fill=(*style.ink, int(160 * k)))
         d.text(((W - w) / 2, ly + 30), sub, font=f2, fill=(*style.outline, int(230 * k)))
         canvas.alpha_composite(ov)
         if lt > 0.5:
-            _seal(canvas, W / 2 - total / 2 - 84, y + 88, 118, "明", int(235 * clamp((lt - 0.5) / 0.4)), style=style)
-            _seal(canvas, W / 2 + total / 2 + 84, y + 88, 118, "月", int(235 * clamp((lt - 0.7) / 0.4)), style=style)
+            seal_chars = shot.seal or "明月"
+            s0 = seal_chars[0] if len(seal_chars) > 0 else "明"
+            s1 = seal_chars[1] if len(seal_chars) > 1 else s0
+            _seal(canvas, W / 2 - total / 2 - 84, y + 88, 118, s0, int(235 * clamp((lt - 0.5) / 0.4)), style=style)
+            _seal(canvas, W / 2 + total / 2 + 84, y + 88, 118, s1, int(235 * clamp((lt - 0.7) / 0.4)), style=style)
         return
 
     # —— 个人展示名牌：竖排艺术字名 + 词牌 + 朱砂印（国风）——

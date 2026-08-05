@@ -141,10 +141,26 @@ def llm_analyze(inputs, out_dir, params, prompt_file=None) -> ToolResult:
            f"**使用提示词**：{getattr(prompt_file, 'name', str(prompt_file))}\n\n"
            f"**提示词预览**：\n```\n{sys_prompt[:200]}...\n```\n")
 
+    # title_card.yaml —— 美术字/标题卡数据契约（05_delivery 消费，桥接 paperdoll 引擎）
+    # M2 由 LLM 从歌名/意图/歌词里提炼；M1 给出结构占位（字段齐 → 下游可空跑）
+    _write(out_dir, "title_card.yaml",
+           "# 标题卡 / 美术字数据契约\n"
+           "# 05_delivery 的 compose() 读它 → 交给 paperdoll 引擎渲染大标题艺术字。\n"
+           "# art_style 查 pipeline/voice_room/artstyle/STYLES；留空字段=引擎内默认（行为不变）。\n"
+           "version: 1\n"
+           "art_style: 金墨朱砂        # 艺术字样式名（见 artstyle 库）\n"
+           "opening:\n"
+           "  title: \"\"              # 开场大标题（如片名；空=不渲染开场卡）\n"
+           "  subtitle: \"\"           # 副题（空=引擎默认「语 音 厅 · 群 星」）\n"
+           "ending:\n"
+           "  title: \"\"              # 结尾大标题（空=不渲染结尾卡）\n"
+           "  subtitle: \"\"           # 副题（空=引擎默认「愿 得 长 相 见」）\n"
+           "  seal: \"\"              # 双印字，两字（空=引擎默认「明月」）\n")
+
     return ToolResult(
         ok=True,
         outputs=["beats.json", "lyrics_semantic.json", "music_map.yaml",
-                 "character_map.yaml", "story.md"],
+                 "character_map.yaml", "story.md", "title_card.yaml"],
         meta={"step": "01_analysis", "mv_platform": _MV_PLATFORM_OK,
               "prompt_key": "lyrics.semantic_segment.requested"},
     )
@@ -227,15 +243,46 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     )
 
 
+def _find_title_card(inputs) -> Optional[Path]:
+    """在暂存的上游产物里找 title_card.yaml（01_analysis 产）。"""
+    for base in (inputs or []):
+        for p in Path(base).rglob("title_card.yaml"):
+            return p
+    return None
+
+
 def compose(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     """05_delivery — 合成 + 字幕 + 美术字 + 剪辑。
 
-    M2 接入：调用 ffmpeg 合成所有片段 + 嵌字幕。
+    桥接：读 01_analysis 产的 title_card.yaml → titlecard.build_title_cards()
+          → 得到 paperdoll 引擎可直接构造 Shot 的大标题艺术字 spec，落 title_cards.json。
+    M2 接入：ffmpeg 拼接所有片段 + 嵌字幕，并把 title_cards.json 交 paperdoll 引擎
+             渲染成大标题艺术字叠加层。
     路径工具：_load_provider_config()["paths"]["ffmpeg_path"]
     """
+    import json
+
     out_dir = Path(out_dir)
     cfg = _load_provider_config()
     ffmpeg = cfg.get("paths", {}).get("ffmpeg_path", "") or "ffmpeg"
+
+    # —— 桥接 paperdoll 引擎：title_card.yaml → title-card spec ——
+    from .titlecard import build_title_cards
+    tc_path = _find_title_card(inputs)
+    cards: list = []
+    tc_note = "未找到 title_card.yaml（01_analysis 未产？）→ 无大标题艺术字"
+    if tc_path is not None:
+        try:
+            cards = build_title_cards(tc_path)
+            tc_note = (f"读 {tc_path.name} → {len(cards)} 张标题卡"
+                       if cards else
+                       f"读 {tc_path.name} → 无 title 字段，跳过大标题（引擎默认行为）")
+        except Exception as e:  # 契约坏了不炸整步，结构化记进报告
+            tc_note = f"解析 title_card.yaml 失败：{e}"
+
+    _write(out_dir, "title_cards.json",
+           json.dumps({"_note": "paperdoll 引擎大标题艺术字 spec（Shot 字段子集）",
+                       "cards": cards}, ensure_ascii=False, indent=2) + "\n")
 
     _write(out_dir, "final.mp4",
            f"# 占位（M2 由 ffmpeg 合成）\n# ffmpeg 路径：{ffmpeg}\n")
@@ -243,11 +290,14 @@ def compose(inputs, out_dir, params, prompt_file=None) -> ToolResult:
            "[Script Info]\nTitle: MV 字幕占位\n\n[Events]\n")
     _write(out_dir, "delivery_report.md",
            "# 交付报告\n\n> M2 接入后由合成工具填充。\n\n"
-           f"- ffmpeg: `{ffmpeg}`\n- 状态：占位\n")
+           f"- ffmpeg: `{ffmpeg}`\n"
+           f"- 大标题艺术字桥接：{tc_note}\n"
+           f"- title_cards.json：{len(cards)} 张卡（交 paperdoll 引擎渲染）\n"
+           "- 状态：占位（M2 接 ffmpeg + paperdoll 叠加层）\n")
 
     return ToolResult(
         ok=True,
-        outputs=["final.mp4", "subtitle.ass", "delivery_report.md"],
+        outputs=["final.mp4", "subtitle.ass", "title_cards.json", "delivery_report.md"],
         meta={"step": "05_delivery", "mv_platform": _MV_PLATFORM_OK,
-              "ffmpeg": ffmpeg},
+              "ffmpeg": ffmpeg, "title_cards": len(cards)},
     )
