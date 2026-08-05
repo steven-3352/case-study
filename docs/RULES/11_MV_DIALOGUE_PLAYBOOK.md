@@ -8,6 +8,39 @@
 
 ---
 
+## 路线分流（进任何阶段前先分派）
+
+本仓库有**两套出片引擎**，触发词相同、目录/命令完全不同。识别到「做片」意图后，AI **第一步不是进阶段，而是分派到正确的一条线**——走错线会把用户带进跑不通的流程。
+
+### 一句话判据
+
+问用户（或从已有物料推断）**两件事**：主体是不是真人照片 / 要不要调生成模型出画面。
+
+| 判据 | → 线 G · 生成式 | → 线 P · 程序化 |
+|------|----------------|----------------|
+| 主体 | 真人照片 / 写实人物图 | 矢量·纸娃娃·美术风，无写实照片 |
+| 画面来源 | 调图像+i2v 模型生成（花钱） | 本地逐帧渲染（零模型成本） |
+| 运镜控制 | 交模型 + 求解 | 逐帧精确手控 cam 参数 |
+| 典型诉求 | 「拿我这几张人物照做支 MV」 | 「明月天涯那种扫描仪美术风卡点」 |
+
+拿不准就直接问用户这两件事，别猜。
+
+### 线 G · 生成式（默认 · 维护中 · 能跑）
+
+- **引擎**：`mv-agent/conductor`（六步：`00_intake → 01_analysis → 02_storyboard → 03_keyframes → 04_shots → 05_delivery`）
+- **驱动**：`run <片名>`，每步产物落 `mv-agent/projects/<片名>/<step>/`，每步 `approval=True` 逐步拍板
+- **核心逻辑**已收敛进 `src/mvstudio`（歌词读取+容错对齐见 memory `project_lyrics-shared-core-convergence`），对话端 / web 端共用同一套
+- 本剧本下方 A–F **不适用于线 G**——线 G 用 conductor 自己的六步，不走求解器/帧渲
+
+### 线 P · 程序化 paperdoll（本剧本 A–F 描述的就是这条）
+
+- **引擎**：paperdoll 纸娃娃 + 相机求解器 + 帧缓存渲染。往下的 A→F 全程针对线 P
+- **参考实现**：`pipeline/voice_room/mingyue/`（`shots_a.yaml` + `palette.py`）
+
+> ⚠️ **勘误（已知未修）**：本剧本正文里的 `python3 -m mv_engine.tools.render_cached` / `solve_shots` 命令入口**当前不存在**——`pipeline/mv_engine/` 下只有 `__init__.py`。真实渲染脚本在 `pipeline/voice_room/*.py`（`mingyue_render.py` / `paperdoll_engine.py` / `mingyue_atoms.py`）。跑线 P 前先确认实际入口，别照抄命令。修正命令路径属 `docs/RULES/` 改动，需 owner 拍板。
+
+---
+
 ## 剧本总纲
 
 新用户做一支 MV 分成 **6 个阶段 + 1 个循环**：
@@ -372,10 +405,15 @@ AI: 好。原始产物在 .cache/mv_engine/goodbye_out/，视频在 ~/goodbye_a.
 ## 快速参考卡（AI 对话时随时查）
 
 ```
-6 阶段:   A → B → C → D → E → F → (Iterate)
-不跳阶段, 每阶段完必让用户确认
+先分流:   线 G 生成式(默认) = mv-agent/conductor 六步 00→05 · run <片名>
+          线 P 程序化      = 本卡下方 A→F(paperdoll + 求解器 + 帧渲)
+          判据: 真人照片+调模型 → G ; 美术风+本地渲 → P ; 拿不准就问
 
-引擎位置:  pipeline/mv_engine/         ← 只读
+线 P · 6 阶段:  A → B → C → D → E → F → (Iterate)
+不跳阶段, 每阶段完必让用户确认
+⚠ 正文 mv_engine.tools.* 命令入口当前不存在, 真实脚本在 voice_room/*.py
+
+引擎位置:  pipeline/mv_engine/         ← 只读(当前近乎空)
 用户位置:  pipeline/voice_room/<片名>/  ← 读写
 
 核心命令:

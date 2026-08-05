@@ -85,7 +85,7 @@ docs/RULES/memory/README.md               memory 分类索引
 
 **识别关键词**:「做一支 MV」「新做一个片子」「卡点视频」「音乐动画」「短片」「做个视频」
 
-命中任一,**立即读 `docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md` 全文,按 6 阶段(A→B→C→D→E→F)主导对话**——不要等用户问下一步做什么。
+命中任一,**立即读 `docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md` 全文,先按其「路线分流」判定走线 G(生成式 · conductor 六步 00→05 · 默认)还是线 P(程序化 paperdoll · A→F),再主导对话**——不要等用户问下一步做什么。
 
 **边界铁规**(playbook §边界铁规):
 - 只在 `pipeline/voice_room/<片名>/` 下读写文件
