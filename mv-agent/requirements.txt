@@ -5,6 +5,9 @@
 pyyaml>=6.0
 python-dotenv>=1.0
 
+# .xlsx 歌词读取走共享核心 src/mvstudio/director/intake（zipfile+ElementTree，
+# 零额外依赖）——不再需要 openpyxl。
+
 # 本地语音对齐（歌词时间码）— 不走远程 API，全部本地推理
 # faster-whisper 会自动带上 ctranslate2 / tokenizers / onnxruntime / huggingface_hub
 # 三平台（Windows / macOS / Linux）均有官方 wheel，CPU 即可跑

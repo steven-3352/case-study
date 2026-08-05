@@ -1,81 +1,28 @@
-"""工具层 — 调用 mv_platform 公共工具库的实际实现。
+"""工具层 — 六步真实实现，复用 src/mvstudio 的 provider（只读，不改引擎）。
 
-调用链：conductor → tools.py → mv_platform.*
+调用链：conductor → tools.py → mvstudio.providers.* / director.drafting
 
 每个工具签名统一：
     run(inputs, out_dir, params, prompt_file=None) -> ToolResult
+失败一律结构化返回 ok=False + error（控制器路由到 reject，不炸状态机）。
 
-M1：占位产物 + 真实提示词加载（从 mv_platform.prompt_catalog）
-M2：逐个替换为真实 API 调用（LLM / 图像 / 视频）
+本地/免费步：00_intake（ffprobe+whisper）、05_delivery（ffmpeg+PIL）
+付费步：01_analysis（LLM）、02_storyboard（LLM）、03_keyframes（图像）、04_shots（Seedance）
+小样验证：环境变量 MV_MAX_SHOTS=2 限制镜头数（省钱）。
 """
 from __future__ import annotations
 
-import os
-import sys
+import json
+import shutil
 from pathlib import Path
 from typing import Optional
 
-# ── 加载 .env（mv-agent/.env）
-try:
-    from dotenv import load_dotenv
-    _env_file = Path(__file__).resolve().parent.parent / ".env"
-    load_dotenv(_env_file, override=False)
-except ImportError:
-    pass  # python-dotenv 可选；用户可在 shell 里直接 export
+import yaml
 
-# ── 复用项目公共工具库 mv_platform
-# 把项目根目录（mv-agent 的上两级）加入路径，让 mv_platform 可以 import
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
-
-try:
-    from mv_platform.application.prompt_catalog import (
-        DEFAULT_SYSTEM_PROMPTS,
-        DEFAULT_PROMPTS,
-    )
-    from mv_platform.application.control_plane import (
-        ENV_MAP,
-        detect_local_whisper_model,
-    )
-    _MV_PLATFORM_OK = True
-except ImportError:
-    # 独立运行（mv_platform 不在路径）时回退到空字典
-    DEFAULT_SYSTEM_PROMPTS = {}
-    DEFAULT_PROMPTS = {}
-    ENV_MAP = {}
-    _MV_PLATFORM_OK = False
-
+from . import media
 from .contracts import ToolResult
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# 配置辅助
-# ──────────────────────────────────────────────────────────────────────────────
-
-def _load_provider_config() -> dict:
-    """从环境变量读取 provider 配置，变量名遵循 mv_platform.control_plane.ENV_MAP。"""
-    cfg: dict = {}
-    for dotted, env_key in ENV_MAP.items():
-        section, key = dotted.split(".", 1)
-        val = os.environ.get(env_key, "")
-        if val:
-            cfg.setdefault(section, {})[key] = val
-    return cfg
-
-
-def _get_system_prompt(catalog_key: str, prompt_file: Optional[Path] = None) -> str:
-    """提示词读取策略：
-      1. 用户提供的 prompt_file（可覆盖）
-      2. mv_platform.prompt_catalog 里的默认值
-      3. 占位文字
-    """
-    if prompt_file and Path(prompt_file).is_file():
-        return Path(prompt_file).read_text(encoding="utf-8").strip()
-    txt = DEFAULT_SYSTEM_PROMPTS.get(catalog_key, "")
-    if txt:
-        return txt
-    return f"# 提示词占位 [{catalog_key}]\n请在 prompts/ 目录下添加对应文件。"
+_MV_OK = media._MV_PLATFORM_OK
 
 
 def _write(out_dir: Path, name: str, body: str) -> str:
@@ -85,219 +32,607 @@ def _write(out_dir: Path, name: str, body: str) -> str:
     return name
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 六步工具实现（M1 占位 · M2 接真实 API）
-# ──────────────────────────────────────────────────────────────────────────────
-
-def intake_validate(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """00_intake — 物料进来 + 校验。
-
-    M2 接入：调用 mv_platform 物料校验 + faster-whisper 对齐。
-    """
-    out_dir = Path(out_dir)
-    file_list = [str(f) for f in (inputs or [])]
-
-    _write(out_dir, "manifest.yaml",
-           "# 物料清单（M2 由校验工具填充）\nversion: 1\nfiles:\n" +
-           "".join(f"  - {f}\n" for f in file_list))
-
-    _write(out_dir, "validation_report.md",
-           "# 物料校验报告\n\n"
-           "> M2 接入后由校验工具自动填充。\n\n"
-           "## 检查项\n- [ ] 音频文件格式\n- [ ] 歌词时间码\n"
-           "- [ ] 人物图片分辨率\n- [ ] 创作意图文本\n")
-
-    _write(out_dir, "intent.md",
-           "# 创作意图\n\n> 待用户填写 / LLM 提炼。\n")
-
-    return ToolResult(
-        ok=True,
-        outputs=["manifest.yaml", "validation_report.md", "intent.md"],
-        meta={"step": "00_intake", "mv_platform": _MV_PLATFORM_OK},
-    )
+def _load_yaml(path: Path) -> dict:
+    try:
+        data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
 
 
-def llm_analyze(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """01_analysis — LLM 分析 → 导演规划 + 故事框架。
-
-    M2 接入：
-      - DEFAULT_SYSTEM_PROMPTS["lyrics.semantic_segment.requested"] → 歌词分段
-      - DEFAULT_SYSTEM_PROMPTS["relationship_map.draft_requested"]  → 人物关系
-      - _load_provider_config() 取 LLM API key / model
-    """
-    out_dir = Path(out_dir)
-    sys_prompt = _get_system_prompt("lyrics.semantic_segment.requested", prompt_file)
-
-    _write(out_dir, "beats.json",
-           '{\n  "_note": "M2 由 LLM 填充",\n  "segments": []\n}\n')
-    _write(out_dir, "lyrics_semantic.json",
-           '{\n  "_note": "M2 由 LLM 填充",\n  "lines": []\n}\n')
-    _write(out_dir, "music_map.yaml",
-           "# 音乐结构地图（M2 填充）\ntotal_duration: 0\nsections: []\n")
-    _write(out_dir, "character_map.yaml",
-           "# 人物关系地图（M2 填充）\ncharacters: []\n")
-    _write(out_dir, "story.md",
-           "# 故事框架\n\n> M2 接入后由 LLM 生成。\n\n"
-           f"**使用提示词**：{getattr(prompt_file, 'name', str(prompt_file))}\n\n"
-           f"**提示词预览**：\n```\n{sys_prompt[:200]}...\n```\n")
-
-    # title_card.yaml —— 美术字/标题卡数据契约（05_delivery 消费，桥接 paperdoll 引擎）
-    # M2 由 LLM 从歌名/意图/歌词里提炼；M1 给出结构占位（字段齐 → 下游可空跑）
-    _write(out_dir, "title_card.yaml",
-           "# 标题卡 / 美术字数据契约\n"
-           "# 05_delivery 的 compose() 读它 → 交给 paperdoll 引擎渲染大标题艺术字。\n"
-           "# art_style 查 pipeline/voice_room/artstyle/STYLES；留空字段=引擎内默认（行为不变）。\n"
-           "version: 1\n"
-           "art_style: 金墨朱砂        # 艺术字样式名（见 artstyle 库）\n"
-           "opening:\n"
-           "  title: \"\"              # 开场大标题（如片名；空=不渲染开场卡）\n"
-           "  subtitle: \"\"           # 副题（空=引擎默认「语 音 厅 · 群 星」）\n"
-           "ending:\n"
-           "  title: \"\"              # 结尾大标题（空=不渲染结尾卡）\n"
-           "  subtitle: \"\"           # 副题（空=引擎默认「愿 得 长 相 见」）\n"
-           "  seal: \"\"              # 双印字，两字（空=引擎默认「明月」）\n")
-
-    return ToolResult(
-        ok=True,
-        outputs=["beats.json", "lyrics_semantic.json", "music_map.yaml",
-                 "character_map.yaml", "story.md", "title_card.yaml"],
-        meta={"step": "01_analysis", "mv_platform": _MV_PLATFORM_OK,
-              "prompt_key": "lyrics.semantic_segment.requested"},
-    )
-
-
-def llm_storyboard(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """02_storyboard — 故事框架 → 分镜脚本 + 背景规划。
-
-    M2 接入：
-      - DEFAULT_SYSTEM_PROMPTS["visual_score.creative_draft_requested"] → 创意分镜
-      - DEFAULT_SYSTEM_PROMPTS["visual_score.quality_review_requested"] → 质量审查
-    """
-    out_dir = Path(out_dir)
-    sys_prompt = _get_system_prompt("visual_score.creative_draft_requested", prompt_file)
-
-    _write(out_dir, "shots.yaml",
-           "# 分镜列表（M2 由 LLM 填充）\nshots:\n"
-           "  - id: SH001\n    duration: 5\n    description: 占位镜头\n")
-    _write(out_dir, "storyboard.md",
-           "# 分镜脚本\n\n> M2 接入后由 LLM 生成。\n\n"
-           f"**提示词预览**：\n```\n{sys_prompt[:200]}...\n```\n")
-    _write(out_dir, "scene_groups.yaml",
-           "# 场景组（M2 填充）\ngroups: []\n")
-
-    return ToolResult(
-        ok=True,
-        outputs=["shots.yaml", "storyboard.md", "scene_groups.yaml"],
-        meta={"step": "02_storyboard", "mv_platform": _MV_PLATFORM_OK},
-    )
-
-
-def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """03_keyframes — 首帧图（背景 + 人物合成）。
-
-    M2 接入：
-      - DEFAULT_SYSTEM_PROMPTS["image.background.generate_requested"] → 背景
-      - DEFAULT_SYSTEM_PROMPTS["image.keyframe.generate_requested"]   → 首帧
-      - _load_provider_config()["image"] 取图像 API
-    """
-    out_dir = Path(out_dir)
-    cfg = _load_provider_config()
-    image_cfg = cfg.get("image", {})
-
-    _write(out_dir, "keyframes_index.yaml",
-           "# 关键帧索引（M2 由图像生成工具填充）\n"
-           f"# 当前配置：model={image_cfg.get('model', '未配置')}\n"
-           "keyframes: []\n")
-
-    return ToolResult(
-        ok=True,
-        outputs=["keyframes_index.yaml"],
-        meta={"step": "03_keyframes", "mv_platform": _MV_PLATFORM_OK,
-              "image_model": image_cfg.get("model", "")},
-    )
-
-
-def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """04_shots — 逐镜视频（Seedance i2v）。
-
-    M2 接入：
-      - DEFAULT_SYSTEM_PROMPTS["video.shot.generate_requested"] → 视频提示词
-      - _load_provider_config()["video"] 取 Seedance API（SEEDANCE_API_KEY）
-      - 规格锁定：9:16 / 720p（同 mv_platform 服务端）
-    """
-    out_dir = Path(out_dir)
-    cfg = _load_provider_config()
-    video_cfg = cfg.get("video", {})
-
-    _write(out_dir, "shots_index.yaml",
-           "# 视频片段索引（M2 由 Seedance i2v 填充）\n"
-           f"# 当前配置：model={video_cfg.get('model', '未配置')}\n"
-           "# 规格：9:16 / 720p（固定）\n"
-           "shots: []\n")
-
-    return ToolResult(
-        ok=True,
-        outputs=["shots_index.yaml"],
-        meta={"step": "04_shots", "mv_platform": _MV_PLATFORM_OK,
-              "video_model": video_cfg.get("model", "")},
-    )
-
-
-def _find_title_card(inputs) -> Optional[Path]:
-    """在暂存的上游产物里找 title_card.yaml（01_analysis 产）。"""
+def _find(inputs, filename: str) -> Optional[Path]:
+    """在 _input 暂存树里找某个产物文件（返回第一个）。"""
     for base in (inputs or []):
-        for p in Path(base).rglob("title_card.yaml"):
+        for p in Path(base).rglob(filename):
             return p
     return None
 
 
-def compose(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """05_delivery — 合成 + 字幕 + 美术字 + 剪辑。
+_REQUEST_TEMPLATE = """\
+# 物料清单 — 填好路径后重跑：run <片名>
+# 路径可用绝对路径；含空格请加引号。
+audio: ""                       # 音乐文件 wav/mp3/aac/m4a/flac
+lyrics: ""                      # 歌词文件：
+                                #   .lrc  — 自带时间轴，直接用（最准）
+                                #   .txt  — 一行一句，whisper 出时间轴（容错对齐）
+                                #   .xlsx — 表格，whisper 出时间轴（容错对齐）
+                                #   留空  — 纯 whisper 听音频猜词+时间（唱歌易错字）
+lyrics_column: ""               # 仅 .xlsx：歌词在哪列（列字母如 "B" 或表头名）；留空自动挑
+intent: ""                      # 一句话创作意图：这首歌想表达什么
+characters:                     # 人物图（至少 1 个）
+  - path: ""
+    name: ""                    # 角色名（留空则用文件名）
+"""
 
-    桥接：读 01_analysis 产的 title_card.yaml → titlecard.build_title_cards()
-          → 得到 paperdoll 引擎可直接构造 Shot 的大标题艺术字 spec，落 title_cards.json。
-    M2 接入：ffmpeg 拼接所有片段 + 嵌字幕，并把 title_cards.json 交 paperdoll 引擎
-             渲染成大标题艺术字叠加层。
-    路径工具：_load_provider_config()["paths"]["ffmpeg_path"]
+
+def intake_validate(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """00_intake — 收物料 + 校验 + 产歌词时间码。
+
+    读 00_intake/request.yaml（首跑自动生成模板并要求用户填）。
+    校验音频/人物图存在，ffprobe 取时长，whisper/.lrc 产 lyrics_timed.json。
     """
-    import json
+    out_dir = Path(out_dir)
+    req_path = out_dir / "request.yaml"
+    if not req_path.is_file() or not (_load_yaml(req_path).get("audio") or "").strip():
+        _write(out_dir, "request.yaml", _REQUEST_TEMPLATE)
+        return ToolResult(ok=False, error=media.err(
+            "need_materials",
+            "请先填物料清单。已在 00_intake/request.yaml 生成模板。",
+            "填好 audio / lyrics / intent / characters 后重跑：run <片名>",
+        ))
+
+    req = _load_yaml(req_path)
+    audio = Path(str(req.get("audio", "")).strip()).expanduser()
+    if not audio.is_file() or audio.suffix.lower() not in media.AUDIO_EXT:
+        return ToolResult(ok=False, error=media.err(
+            "bad_audio", f"音乐文件找不到或格式不支持：{audio}",
+            f"支持 {', '.join(sorted(media.AUDIO_EXT))}"))
+
+    chars = []
+    for i, c in enumerate(req.get("characters") or [], 1):
+        cp = Path(str((c or {}).get("path", "")).strip()).expanduser()
+        if not cp.is_file() or cp.suffix.lower() not in media.IMAGE_EXT:
+            return ToolResult(ok=False, error=media.err(
+                "bad_character", f"人物图找不到或格式不支持：{cp}",
+                f"支持 {', '.join(sorted(media.IMAGE_EXT))}"))
+        chars.append({"path": str(cp), "name": str((c or {}).get("name") or cp.stem)})
+    if not chars:
+        return ToolResult(ok=False, error=media.err(
+            "no_character", "至少需要 1 个人物图。", "在 request.yaml 的 characters 下补 path"))
+
+    try:
+        duration = media.audio_duration_seconds(audio)
+    except RuntimeError as exc:
+        return ToolResult(ok=False, error=media.err("probe_failed", str(exc), "确认 ffprobe 已安装"))
+
+    # —— 歌词时间码 ——
+    #   .lrc            → 自带时间轴，直接解析（最准）
+    #   .txt / .xlsx    → 文字权威 + whisper 时间轴（容错对齐）
+    #   留空 / 其它失败  → whisper 自由转录兜底（唱歌易错字）
+    lyrics_src = str(req.get("lyrics", "")).strip()
+    lyrics_col = str(req.get("lyrics_column", "")).strip() or None
+    method, entries = "none", []
+    try:
+        suffix = Path(lyrics_src).expanduser().suffix.lower() if lyrics_src else ""
+        if suffix == ".lrc":
+            entries = media.parse_lrc(Path(lyrics_src).expanduser().read_text(encoding="utf-8"))
+            method = "lrc"
+        elif suffix in (".txt", ".xlsx", ".xls"):
+            lines = media.read_lyrics_lines(Path(lyrics_src), lyrics_col)
+            entries = media.align_lyrics_to_audio(lines, audio, duration)
+            method = f"align({suffix.lstrip('.')})"
+        if not entries:
+            entries = media.whisper_timed_lyrics(audio, duration)
+            method = "whisper"
+    except Exception as exc:
+        return ToolResult(ok=False, error=media.err(
+            "lyrics_timing_failed", f"歌词时间码生成失败：{exc}",
+            "改用 .lrc/.txt/.xlsx；或确认 faster-whisper 与本地模型已装"))
+    if not entries:
+        return ToolResult(ok=False, error=media.err(
+            "no_lyrics", "没能得到任何歌词时间码。", "提供 .lrc/.txt/.xlsx 或可转录的音频"))
+
+    _write(out_dir, "lyrics_timed.json", json.dumps(
+        {"version": 1, "entries": entries}, ensure_ascii=False, indent=2) + "\n")
+
+    manifest = {
+        "version": 1, "status": "intake_validated",
+        "audio": {"path": str(audio), "digest": media.sha256_file(audio),
+                  "duration_seconds": round(duration, 3)},
+        "lyrics": {"source": lyrics_src or "(whisper)", "timed": "lyrics_timed.json",
+                   "method": method, "lines": len(entries)},
+        "intent": str(req.get("intent", "")).strip(),
+        "characters": chars,
+    }
+    _write(out_dir, "manifest.yaml", yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False))
+    _write(out_dir, "intent.md", f"# 创作意图\n\n{manifest['intent'] or '（未填写）'}\n")
+
+    mm, ss = divmod(int(duration), 60)
+    _write(out_dir, "validation_report.md",
+           "# 物料校验报告\n\n"
+           f"- 音乐：`{audio.name}`（{mm}分{ss:02d}秒）✅\n"
+           f"- 歌词：{len(entries)} 行时间码（来源：{method}）✅\n"
+           f"- 人物：{'、'.join(c['name'] for c in chars)}（{len(chars)} 个）✅\n"
+           f"- 意图：{manifest['intent'] or '（未填）'}\n")
+
+    return ToolResult(ok=True,
+                      outputs=["manifest.yaml", "validation_report.md", "intent.md", "lyrics_timed.json"],
+                      meta={"step": "00_intake", "duration": round(duration, 1),
+                            "lyric_lines": len(entries), "method": method})
+
+
+def _semantic_port():
+    from mvstudio.providers.semantic_openai import OpenAICompatibleSemanticPort
+    return OpenAICompatibleSemanticPort.from_env()
+
+
+def _llm_model() -> str:
+    import os
+    return os.environ.get("LLM_MODEL", "").strip() or "gpt-4-turbo"
+
+
+def llm_analyze(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """01_analysis — 复用 director.drafting.draft_maps。
+
+    产 beats/lyrics_semantic/music_map/character_map（draft_maps），
+    再合成 story.md（人可读）与 title_card.yaml（标题卡契约）。
+    """
+    import tempfile
+    out_dir = Path(out_dir)
+    manifest_path = _find(inputs, "manifest.yaml")
+    timed_path = _find(inputs, "lyrics_timed.json")
+    if not manifest_path or not timed_path:
+        return ToolResult(ok=False, error=media.err(
+            "missing_intake", "找不到上游 00_intake 的产物。", "先跑通 00_intake 并批准"))
+
+    manifest = _load_yaml(manifest_path)
+    audio_info = manifest.get("audio", {})
+    src_audio = Path(audio_info.get("path", ""))
+    if not src_audio.is_file():
+        return ToolResult(ok=False, error=media.err(
+            "audio_moved", f"音频文件已不在原路径：{src_audio}", "重跑 00_intake 或恢复文件"))
+    timed = json.loads(Path(timed_path).read_text(encoding="utf-8"))
+
+    # draft_maps 要求音频落在 <staging>/inputs/audio/，且 manifest 路径以 inputs/audio/ 开头
+    staging = Path(tempfile.mkdtemp(prefix="mvmaps-", dir=str(out_dir)))
+    audio_rel = f"inputs/audio/{src_audio.name}"
+    dst_audio = staging / audio_rel
+    dst_audio.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_audio, dst_audio)
+
+    intake = {
+        "status": "intake_validated",
+        "audio": {"path": audio_rel, "digest": media.sha256_file(dst_audio),
+                  "duration_seconds": audio_info.get("duration_seconds")},
+        "characters": [{"path": c["path"]} for c in manifest.get("characters", [])],
+    }
+    brief = {"intent": manifest.get("intent", ""),
+             "characters": [{"name": c["name"]} for c in manifest.get("characters", [])]}
+
+    try:
+        port = _semantic_port()
+    except Exception as exc:
+        shutil.rmtree(staging, ignore_errors=True)
+        return ToolResult(ok=False, error=media.err(
+            "llm_config", f"文本分析服务未配置：{exc}",
+            "在 mv-agent/.env 填 LLM_BASE_URL / LLM_API_KEY"))
+
+    try:
+        from mvstudio.director.drafting import draft_maps
+        result = draft_maps(intake, timed, brief, port, str(staging), _llm_model())
+    except Exception as exc:
+        shutil.rmtree(staging, ignore_errors=True)
+        return ToolResult(ok=False, error=media.err(
+            "analysis_failed", f"LLM 分析失败：{exc}",
+            "检查 LLM 服务地址/额度，或改歌词时间码后重跑"))
+
+    # draft_maps 写到 <staging>/creative/，搬到本步产物目录
+    creative = staging / "creative"
+    for name in ("beats.json", "lyrics_semantic.json", "music_map.yaml", "character_map.yaml"):
+        src = creative / name
+        if src.is_file():
+            shutil.copy2(src, out_dir / name)
+    shutil.rmtree(staging, ignore_errors=True)
+
+    outs = _synthesize_story_and_title(out_dir, manifest, result)
+
+    return ToolResult(ok=True,
+                      outputs=["beats.json", "lyrics_semantic.json", "music_map.yaml",
+                               "character_map.yaml", "story.md", "title_card.yaml"],
+                      meta={"step": "01_analysis", "bpm": result.get("beats", {}).get("bpm_candidate"),
+                            "sections": len(result.get("music_map", {}).get("sections", [])),
+                            "characters": len(result.get("character_map", {}).get("characters", []))})
+
+
+def _synthesize_story_and_title(out_dir: Path, manifest: dict, result: dict) -> None:
+    """由 music_map / character_map / 意图合成人可读 story.md + title_card.yaml 契约。"""
+    mm = result.get("music_map", {})
+    cm = result.get("character_map", {})
+    sections = mm.get("sections", [])
+    chars = cm.get("characters", [])
+    intent = manifest.get("intent", "") or "（未填意图）"
+
+    lines = ["# 故事框架\n", f"**创作意图**：{intent}\n",
+             f"**音乐**：约 {int(mm.get('duration', 0))} 秒 · BPM {mm.get('bpm', '?')} "
+             f"· {len(sections)} 个段落\n", "\n## 段落走向\n"]
+    for s in sections:
+        t0, t1 = s.get("time", [0, 0])
+        lines.append(f"- **{s.get('id')}**（{t0:.0f}–{t1:.0f}s · {s.get('music_role','')}）："
+                     f"{s.get('emotion','')}\n")
+    lines.append("\n## 人物\n")
+    for c in chars:
+        lines.append(f"- **{c.get('name', c.get('id'))}**：{c.get('director_function','')}\n")
+    _write(out_dir, "story.md", "".join(lines))
+
+    # 标题卡契约：片名/意图 → 开场大标题；结尾用意图收束（用户可后改）
+    title = (manifest.get("intent", "") or "").strip()[:8] or "无题"
+    tc = {
+        "version": 1, "art_style": "金墨朱砂",
+        "opening": {"title": title, "subtitle": ""},
+        "ending": {"title": "", "subtitle": "", "seal": ""},
+    }
+    _write(out_dir, "title_card.yaml", yaml.safe_dump(tc, allow_unicode=True, sort_keys=False))
+
+
+def llm_storyboard(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """02_storyboard — 按 music_map 段落逐镜出分镜（LLM 创意 + 段落时长）。
+
+    镜头数 = 段落数（受 MV_MAX_SHOTS 上限约束）。每镜时长取该段时长（clamp 4~15s）。
+    LLM 产创意（primary_action/first_frame），本步组装成 shots.yaml。
+    """
+    from mvstudio.director.drafting import run_bounded_task, ModelBudget
 
     out_dir = Path(out_dir)
-    cfg = _load_provider_config()
-    ffmpeg = cfg.get("paths", {}).get("ffmpeg_path", "") or "ffmpeg"
+    mm = _load_yaml(_find(inputs, "music_map.yaml") or Path("/nonexistent"))
+    cm = _load_yaml(_find(inputs, "character_map.yaml") or Path("/nonexistent"))
+    sections = mm.get("sections", [])
+    if not sections:
+        return ToolResult(ok=False, error=media.err(
+            "no_sections", "上游 music_map 没有段落。", "先跑通 01_analysis 并批准"))
 
-    # —— 桥接 paperdoll 引擎：title_card.yaml → title-card spec ——
-    from .titlecard import build_title_cards
-    tc_path = _find_title_card(inputs)
-    cards: list = []
-    tc_note = "未找到 title_card.yaml（01_analysis 未产？）→ 无大标题艺术字"
-    if tc_path is not None:
+    cap = media.max_shots()
+    if cap:
+        sections = sections[:cap]
+
+    payload = {
+        "duration_seconds": mm.get("duration"),
+        "characters": [{"id": c.get("id"), "name": c.get("name"),
+                        "director_function": c.get("director_function", "")}
+                       for c in cm.get("characters", [])],
+        "sections": [{"id": s.get("id"), "seconds": round(s.get("time", [0, 0])[1] - s.get("time", [0, 0])[0], 1),
+                      "music_role": s.get("music_role", ""), "emotion": s.get("emotion", "")}
+                     for s in sections],
+    }
+    try:
+        port = _semantic_port()
+        resp, audit = run_bounded_task(
+            port, "visual_score.creative_draft_requested", payload,
+            _llm_model(), ModelBudget(),
+            "Draft one cinematic shot per music section; keep each field one drawable sentence.")
+    except Exception as exc:
+        return ToolResult(ok=False, error=media.err(
+            "storyboard_failed", f"分镜生成失败：{exc}",
+            "检查 LLM 服务/额度；或改 prompts 后重跑"))
+
+    drafts = resp.get("shots", []) if isinstance(resp, dict) else []
+    shots = _assemble_shots(sections, drafts)
+    _write(out_dir, "shots.yaml", yaml.safe_dump({"shots": shots}, allow_unicode=True, sort_keys=False))
+    _write(out_dir, "scene_groups.yaml", yaml.safe_dump(
+        {"groups": [{"id": s["id"], "shots": [s["id"]]} for s in shots]},
+        allow_unicode=True, sort_keys=False))
+
+    md = ["# 分镜脚本\n", f"\n共 {len(shots)} 个镜头"
+          + (f"（小样上限 MV_MAX_SHOTS={cap}）" if cap else "") + "：\n\n",
+          "| # | 时长 | 画面 | 动作 |\n|---|---|---|---|\n"]
+    for s in shots:
+        md.append(f"| {s['id']} | {s['duration']}s | {s['first_frame']} | {s['primary_action']} |\n")
+    _write(out_dir, "storyboard.md", "".join(md))
+
+    return ToolResult(ok=True, outputs=["shots.yaml", "storyboard.md", "scene_groups.yaml"],
+                      meta={"step": "02_storyboard", "shots": len(shots), "capped": bool(cap)})
+
+
+def _assemble_shots(sections: list, drafts: list) -> list:
+    """段落 + LLM 创意 → shots：id/duration/first_frame/primary_action/image_prompt/video_prompt。"""
+    def clamp(x):
+        return max(4, min(15, int(round(x))))
+    by_id = {d.get("id"): d for d in drafts if isinstance(d, dict)}
+    shots = []
+    for i, s in enumerate(sections, 1):
+        t0, t1 = s.get("time", [0, 0])
+        d = by_id.get(s.get("id")) or (drafts[i - 1] if i - 1 < len(drafts) else {})
+        first_frame = (d.get("first_frame") or s.get("emotion") or "cinematic still").strip()
+        action = (d.get("primary_action") or "subtle motion").strip()
+        arrangement = (d.get("arrangement") or "").strip()
+        shots.append({
+            "id": f"SH{i:03d}",
+            "section_id": s.get("id"),
+            "duration": clamp((t1 - t0) or 5),
+            "first_frame": first_frame,
+            "primary_action": action,
+            "image_prompt": (first_frame + ("，" + arrangement if arrangement else "")).strip("，"),
+            "video_prompt": action,
+        })
+    return shots
+
+
+def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """03_keyframes — 逐镜首帧图（gpt-image，人物图作参考，9:16）。"""
+    out_dir = Path(out_dir)
+    shots = _load_yaml(_find(inputs, "shots.yaml") or Path("/nonexistent")).get("shots", [])
+    if not shots:
+        return ToolResult(ok=False, error=media.err(
+            "no_shots", "上游没有 shots.yaml。", "先跑通 02_storyboard 并批准"))
+    manifest = _load_yaml(_find(inputs, "manifest.yaml") or Path("/nonexistent"))
+    refs = [c["path"] for c in manifest.get("characters", []) if Path(c["path"]).is_file()]
+
+    try:
+        from mvstudio.providers.image_openai import OpenAICompatibleImageProvider
+        provider = OpenAICompatibleImageProvider.from_env(__import__("os").environ)
+    except Exception as exc:
+        return ToolResult(ok=False, error=media.err(
+            "image_config", f"画面生成服务未配置：{exc}",
+            "在 mv-agent/.env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY"))
+
+    index, made, done, first_err = [], [], 0, None
+    for s in shots:
+        name = f"{s['id']}_keyframe.png"
         try:
-            cards = build_title_cards(tc_path)
-            tc_note = (f"读 {tc_path.name} → {len(cards)} 张标题卡"
-                       if cards else
-                       f"读 {tc_path.name} → 无 title 字段，跳过大标题（引擎默认行为）")
-        except Exception as e:  # 契约坏了不炸整步，结构化记进报告
-            tc_note = f"解析 title_card.yaml 失败：{e}"
+            data = provider.generate(s["image_prompt"], references=refs, size="1024x1536")
+            (out_dir / name).write_bytes(data)
+            index.append({"id": s["id"], "keyframe": name, "duration": s["duration"],
+                          "video_prompt": s["video_prompt"], "digest": media.sha256_bytes(data)})
+            made.append(name)
+            done += 1
+        except Exception as exc:
+            first_err = first_err or f"{s['id']}: {exc}"
 
-    _write(out_dir, "title_cards.json",
-           json.dumps({"_note": "paperdoll 引擎大标题艺术字 spec（Shot 字段子集）",
-                       "cards": cards}, ensure_ascii=False, indent=2) + "\n")
+    if done == 0:
+        return ToolResult(ok=False, error=media.err(
+            "keyframe_failed", f"首帧图全部失败：{first_err}", "检查图像服务地址/额度"))
 
-    _write(out_dir, "final.mp4",
-           f"# 占位（M2 由 ffmpeg 合成）\n# ffmpeg 路径：{ffmpeg}\n")
-    _write(out_dir, "subtitle.ass",
-           "[Script Info]\nTitle: MV 字幕占位\n\n[Events]\n")
+    _write(out_dir, "keyframes_index.yaml", yaml.safe_dump(
+        {"keyframes": index}, allow_unicode=True, sort_keys=False))
+    meta = {"step": "03_keyframes", "generated": done, "total": len(shots)}
+    if first_err:
+        meta["partial_error"] = first_err
+    return ToolResult(ok=True, outputs=["keyframes_index.yaml", *made], meta=meta)
+
+
+def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """04_shots — 逐镜 i2v（Seedance，首帧图 → 视频，9:16/720p）。"""
+    import os
+    out_dir = Path(out_dir)
+    idx_path = _find(inputs, "keyframes_index.yaml")
+    keyframes = _load_yaml(idx_path or Path("/nonexistent")).get("keyframes", [])
+    if not keyframes or not idx_path:
+        return ToolResult(ok=False, error=media.err(
+            "no_keyframes", "上游没有关键帧。", "先跑通 03_keyframes 并批准"))
+    kf_dir = idx_path.parent
+
+    try:
+        from mvstudio.providers.seedance import SeedancePort, SeedanceTask, SeedanceFrame
+        provider = SeedancePort.from_env()
+    except Exception as exc:
+        return ToolResult(ok=False, error=media.err(
+            "video_config", f"视频生成服务未配置：{exc}",
+            "在 mv-agent/.env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"))
+    model = os.environ.get("SEEDANCE_MODEL", "").strip() or "doubao-seedance-2-0"
+
+    index, made, done, first_err = [], [], 0, None
+    for kf in keyframes:
+        kf_path = kf_dir / kf["keyframe"]
+        out_name = f"{kf['id']}.mp4"
+        if not kf_path.is_file():
+            first_err = first_err or f"{kf['id']}: 首帧图缺失"
+            continue
+        try:
+            data = kf_path.read_bytes()
+            task = SeedanceTask(
+                shot_id=kf["id"], model=model,
+                prompt=kf.get("video_prompt") or "cinematic subtle motion",
+                duration_seconds=int(kf.get("duration", 5)),
+                first_frame=SeedanceFrame(content=data, sha256=media.sha256_bytes(data)),
+                aspect_ratio="9:16", resolution="720p")
+            result = provider.generate(task)
+            (out_dir / out_name).write_bytes(result.video_bytes)
+            index.append({"id": kf["id"], "video": out_name,
+                          "duration": int(kf.get("duration", 5)),
+                          "video_sha256": result.video_sha256})
+            made.append(out_name)
+            done += 1
+        except Exception as exc:
+            first_err = first_err or f"{kf['id']}: {exc}"
+
+    if done == 0:
+        return ToolResult(ok=False, error=media.err(
+            "video_failed", f"视频全部失败：{first_err}", "检查 Seedance 服务地址/额度/模型名"))
+
+    _write(out_dir, "shots_index.yaml", yaml.safe_dump(
+        {"shots": index}, allow_unicode=True, sort_keys=False))
+    meta = {"step": "04_shots", "generated": done, "total": len(keyframes)}
+    if first_err:
+        meta["partial_error"] = first_err
+    return ToolResult(ok=True, outputs=["shots_index.yaml", *made], meta=meta)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 05_delivery — 合成（本地 ffmpeg + PIL 标题卡 + .ass 字幕）
+# ──────────────────────────────────────────────────────────────────────────────
+
+_OPEN_SEC = 3   # 片头标题卡时长
+_END_SEC = 3    # 片尾标题卡时长
+
+_ASS_HEAD = """[Script Info]
+ScriptType: v4.00+
+PlayResX: 720
+PlayResY: 1280
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Outline, Shadow, Alignment, MarginL, MarginR, MarginV
+Style: Default,Noto Serif CJK SC,52,&H00F6E6FF,&H00224AD4,&H64000000,1,3,1,2,40,40,90
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+
+
+def _ass_ts(seconds: float) -> str:
+    seconds = max(0.0, seconds)
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = seconds % 60
+    return f"{h}:{m:02d}:{s:05.2f}"
+
+
+def _build_ass(entries: list, offset: float, total: float) -> str:
+    lines = [_ASS_HEAD]
+    for i, e in enumerate(entries):
+        start = float(e["start_seconds"]) + offset
+        end = (float(entries[i + 1]["start_seconds"]) + offset) if i + 1 < len(entries) \
+            else min(start + 4.0, total)
+        end = max(end, start + 0.5)
+        text = str(e.get("text", "")).replace("\n", " ").strip()
+        if text:
+            lines.append(f"Dialogue: 0,{_ass_ts(start)},{_ass_ts(end)},Default,,0,0,0,,{text}")
+    return "\n".join(lines) + "\n"
+
+
+def _run(cmd: list, cwd=None) -> tuple[bool, str]:
+    import subprocess
+    try:
+        r = subprocess.run(cmd, capture_output=True, cwd=cwd, timeout=1800)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return False, str(exc)
+    if r.returncode != 0:
+        return False, r.stderr.decode("utf-8", "replace")[-500:]
+    return True, ""
+
+
+def _normalize(src: Path, dst: Path, ff: str, seconds: Optional[float]) -> bool:
+    """把一段（PNG 卡或 mp4 镜头）归一成 720x1280/30fps/h264 无音轨 mp4，便于 concat。"""
+    scale = "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1"
+    if src.suffix.lower() == ".png":
+        cmd = [ff, "-y", "-loop", "1", "-i", str(src), "-t", str(seconds or _OPEN_SEC),
+               "-vf", scale + ",fps=30", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", str(dst)]
+    else:
+        cmd = [ff, "-y", "-i", str(src), "-vf", scale + ",fps=30",
+               "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", str(dst)]
+    ok, _ = _run(cmd)
+    return ok and dst.is_file()
+
+
+def compose(inputs, out_dir, params, prompt_file=None) -> ToolResult:
+    """05_delivery — 拼接标题卡+镜头，铺音乐，烧 .ass 字幕，出成片。"""
+    import tempfile
+    from .titlecard import build_title_cards
+    from . import cards
+
+    out_dir = Path(out_dir)
+    ff = media.ffmpeg_bin()
+
+    shots_idx = _load_yaml(_find(inputs, "shots_index.yaml") or Path("/nonexistent")).get("shots", [])
+    si_path = _find(inputs, "shots_index.yaml")
+    if not shots_idx or not si_path:
+        return ToolResult(ok=False, error=media.err(
+            "no_videos", "上游没有视频片段。", "先跑通 04_shots 并批准"))
+    shot_dir = si_path.parent
+
+    manifest = _load_yaml(_find(inputs, "manifest.yaml") or Path("/nonexistent"))
+    audio = Path(manifest.get("audio", {}).get("path", ""))
+    timed_path = _find(inputs, "lyrics_timed.json")
+    entries = (json.loads(timed_path.read_text(encoding="utf-8")).get("entries", [])
+               if timed_path else [])
+
+    # —— 标题卡 spec → PNG ——
+    tc_path = _find(inputs, "title_card.yaml")
+    specs = []
+    if tc_path:
+        try:
+            specs = build_title_cards(tc_path)
+        except Exception:
+            specs = []
+    _write(out_dir, "title_cards.json", json.dumps(
+        {"cards": specs}, ensure_ascii=False, indent=2) + "\n")
+    opening = next((s for s in specs if s.get("title_mode") == "opening"), None)
+    ending = next((s for s in specs if s.get("title_mode") == "ending"), None)
+
+    work = Path(tempfile.mkdtemp(prefix="compose-", dir=str(out_dir)))
+    segments, open_used = [], 0.0
+    if opening:
+        png = cards.render_card(opening, work / "open.png")
+        seg = work / "seg_open.mp4"
+        if _normalize(png, seg, ff, _OPEN_SEC):
+            segments.append(seg)
+            open_used = _OPEN_SEC
+    for s in shots_idx:
+        src = shot_dir / s["video"]
+        seg = work / f"seg_{s['id']}.mp4"
+        if src.is_file() and _normalize(src, seg, ff, None):
+            segments.append(seg)
+    if ending:
+        png = cards.render_card(ending, work / "end.png")
+        seg = work / "seg_end.mp4"
+        if _normalize(png, seg, ff, _END_SEC):
+            segments.append(seg)
+
+    if not segments:
+        shutil.rmtree(work, ignore_errors=True)
+        return ToolResult(ok=False, error=media.err(
+            "normalize_failed", "所有片段归一化失败。", "确认 ffmpeg 可用、镜头 mp4 有效"))
+
+    # —— concat（无音轨视频体）——
+    listf = work / "concat.txt"
+    listf.write_text("".join(f"file '{p.name}'\n" for p in segments), encoding="utf-8")
+    body = work / "body.mp4"
+    ok, msg = _run([ff, "-y", "-f", "concat", "-safe", "0", "-i", "concat.txt",
+                    "-c", "copy", str(body)], cwd=str(work))
+    if not ok or not body.is_file():
+        shutil.rmtree(work, ignore_errors=True)
+        return ToolResult(ok=False, error=media.err("concat_failed", f"拼接失败：{msg}", "检查 ffmpeg"))
+
+    # —— 字幕 .ass（时间轴整体后移片头卡时长）——
+    duration = float(manifest.get("audio", {}).get("duration_seconds", 0) or 0)
+    _write(out_dir, "subtitle.ass", _build_ass(entries, open_used, open_used + duration + _END_SEC))
+
+    # —— 终混：视频体 + 音乐（延迟片头卡时长）+ 烧字幕 ——
+    # 视频体长度定成片长度：音乐比视频短则留静音尾（片尾卡照显），
+    # 比视频长则截到视频尾（不用 -shortest，避免音乐截掉片尾卡）。
+    try:
+        body_dur = media.audio_duration_seconds(body)
+    except RuntimeError:
+        body_dur = 0.0
+    final = out_dir / "final.mp4"
+    have_audio = audio.is_file()
+    vf = "subtitles=subtitle.ass" if entries else None
+    cmd = [ff, "-y", "-i", str(body)]
+    if have_audio:
+        cmd += ["-itsoffset", str(open_used), "-i", str(audio)]
+    if vf:
+        cmd += ["-vf", vf]
+    cmd += ["-map", "0:v:0"]
+    if have_audio:
+        cmd += ["-map", "1:a:0", "-c:a", "aac", "-b:a", "192k"]
+    if body_dur > 0:
+        cmd += ["-t", f"{body_dur:.3f}"]
+    cmd += ["-c:v", "libx264", "-pix_fmt", "yuv420p", str(final.name)]
+    ok, msg = _run(cmd, cwd=str(out_dir))
+    shutil.rmtree(work, ignore_errors=True)
+    if not ok or not final.is_file():
+        return ToolResult(ok=False, error=media.err("mux_failed", f"终混失败：{msg}", "检查 ffmpeg/字幕字体"))
+
+    n_shots = len(shots_idx)
     _write(out_dir, "delivery_report.md",
-           "# 交付报告\n\n> M2 接入后由合成工具填充。\n\n"
-           f"- ffmpeg: `{ffmpeg}`\n"
-           f"- 大标题艺术字桥接：{tc_note}\n"
-           f"- title_cards.json：{len(cards)} 张卡（交 paperdoll 引擎渲染）\n"
-           "- 状态：占位（M2 接 ffmpeg + paperdoll 叠加层）\n")
+           "# 交付报告\n\n"
+           f"- 成片：`final.mp4`（9:16 / 720p）\n"
+           f"- 镜头：{n_shots} 段" + (" + 片头卡" if opening else "")
+           + (" + 片尾卡" if ending else "") + "\n"
+           f"- 字幕：{len(entries)} 行（subtitle.ass，已烧入）\n"
+           f"- 音乐：{'已铺（延迟片头卡时长对齐镜头）' if have_audio else '缺音频'}\n"
+           f"- 标题卡：{len(specs)} 张（PIL 渲染，金墨朱砂色板）\n")
 
-    return ToolResult(
-        ok=True,
-        outputs=["final.mp4", "subtitle.ass", "title_cards.json", "delivery_report.md"],
-        meta={"step": "05_delivery", "mv_platform": _MV_PLATFORM_OK,
-              "ffmpeg": ffmpeg, "title_cards": len(cards)},
-    )
+    return ToolResult(ok=True,
+                      outputs=["final.mp4", "subtitle.ass", "title_cards.json", "delivery_report.md"],
+                      meta={"step": "05_delivery", "shots": n_shots, "cards": len(specs),
+                            "subtitle_lines": len(entries)})

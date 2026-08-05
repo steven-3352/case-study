@@ -76,3 +76,37 @@ def test_local_whisper_requires_explicit_model_configuration(tmp_path):
         FasterWhisperAlignmentPort.from_env(
             {"MVSTUDIO_WHISPER_MODEL": str(tmp_path / "missing")}
         )
+
+
+def test_tolerant_port_maps_lyrics_despite_transcript_drift(tmp_path):
+    # strict rejects, tolerant maps supplied lyrics onto Whisper word timing
+    engine = FixtureWhisper([
+        (" totally", 0.1, 0.4, 0.9),
+        (" different", 0.5, 0.9, 0.8),
+        (" words", 1.0, 1.4, 0.7),
+    ])
+    strict = FasterWhisperAlignmentPort("fixture", model_instance=engine)
+    with pytest.raises(LyricAlignmentError, match="exactly cover"):
+        strict.align(_task(tmp_path))
+
+    tolerant = FasterWhisperAlignmentPort("fixture", model_instance=engine, tolerant=True)
+    result = tolerant.align(_task(tmp_path))
+    assert [entry["text"] for entry in result.entries] == ["First line", "Second line"]
+    assert [entry["source_line"] for entry in result.entries] == [1, 2]
+    starts = [entry["start_seconds"] for entry in result.entries]
+    assert starts[0] < starts[1] < 2.0
+    assert result.evidence["mode"] == "proportional_char_mapping"
+    assert result.evidence["words"][0]["start"] == 0.1
+
+
+def test_tolerant_flag_flows_through_from_env(tmp_path):
+    model_dir = tmp_path / "model"
+    model_dir.mkdir()
+    port = FasterWhisperAlignmentPort.from_env(
+        {"MVSTUDIO_WHISPER_MODEL": str(model_dir)}, tolerant=True
+    )
+    assert port.tolerant is True
+    strict_default = FasterWhisperAlignmentPort.from_env(
+        {"MVSTUDIO_WHISPER_MODEL": str(model_dir)}
+    )
+    assert strict_default.tolerant is False

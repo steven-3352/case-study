@@ -7,6 +7,7 @@ import json
 import math
 import os
 import tempfile
+import unicodedata
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +16,99 @@ from typing import Protocol
 
 class LyricAlignmentError(ValueError):
     pass
+
+
+def normalize_token(value):
+    """Casefolded, punctuation-free NFKC token used to align transcript↔lyrics.
+
+    Single definition shared by the strict provider path and the tolerant
+    proportional mapper so both count characters identically (CJK included —
+    ``str.isalnum`` is True for CJK ideographs).
+    """
+    return "".join(
+        character.casefold()
+        for character in unicodedata.normalize("NFKC", value or "")
+        if character.isalnum()
+    )
+
+
+def proportional_entries(words, lines, duration):
+    """Tolerant lyric→time mapping: supplied ``lines`` are authoritative, Whisper
+    word timestamps supply timing only.
+
+    Unlike the strict provider gate (transcript must exactly cover the lyrics —
+    impossible for sung audio), this maps each line's cumulative normalized-char
+    ratio onto the transcript's char→time sequence. Transcript and lyric char
+    counts need not match. Falls back to an even spread when Whisper returns no
+    words (instrumental/silence). Output satisfies ``_validated_entries``: one
+    entry per line, strictly-advancing starts inside ``[0, duration)``, text and
+    ``source_line`` preserved, confidence in ``[0, 1]``.
+
+    Args:
+        words: list of ``{text, start, end, probability}`` (probability optional).
+        lines: list of ``{text, source_line}`` — the authoritative lyric lines.
+        duration: audio duration in seconds (> 0).
+
+    Returns:
+        list of ``{text, source_line, start_seconds, confidence}``.
+    """
+    duration = float(duration)
+    if duration <= 0:
+        raise LyricAlignmentError("proportional alignment duration must be positive")
+    prepared = [
+        {"text": line["text"], "source_line": line["source_line"], "norm": normalize_token(line["text"])}
+        for line in lines
+    ]
+    line_lengths = [max(len(item["norm"]), 1) for item in prepared]
+    total_chars = sum(line_lengths)
+
+    char_times = []
+    char_probs = []
+    for word in words:
+        span = len(normalize_token(word.get("text", "")))
+        if span <= 0:
+            continue
+        start = float(word["start"])
+        prob = word.get("probability")
+        prob = float(prob) if isinstance(prob, (int, float)) else 0.5
+        char_times.extend([start] * span)
+        char_probs.extend([prob] * span)
+
+    raw = []
+    if char_times:
+        n_time = len(char_times)
+        cumulative = 0
+        for item, length in zip(prepared, line_lengths):
+            position = int(round(cumulative / total_chars * (n_time - 1)))
+            position = min(position, n_time - 1)
+            raw.append((item, char_times[position], char_probs[position]))
+            cumulative += length
+    else:
+        step = duration / len(prepared)
+        for index, item in enumerate(prepared):
+            raw.append((item, index * step, 0.0))
+
+    # Enforce strictly-increasing starts inside [0, duration). ``epsilon`` shrinks
+    # with the line count so ``count`` entries always fit: a per-entry ceiling
+    # ``duration - (count - i) * epsilon`` reserves room for the entries that
+    # follow, so even lines that all map to the same late timestamp spread out
+    # cleanly instead of marching past the end.
+    count = len(raw)
+    epsilon = min(0.05, duration / (count + 1))
+    entries = []
+    previous = -epsilon
+    for index, (item, start, prob) in enumerate(raw):
+        ceiling = duration - (count - index) * epsilon
+        start = min(max(float(start), previous + epsilon), ceiling)
+        confidence = max(0.0, min(1.0, float(prob)))
+        entries.append({
+            "text": item["text"],
+            "source_line": item["source_line"],
+            "start_seconds": round(start, 6),
+            "confidence": round(confidence, 6),
+        })
+        previous = start
+    return entries
 
 
 @dataclass(frozen=True)

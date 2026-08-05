@@ -3,23 +3,16 @@
 from __future__ import annotations
 
 import os
-import unicodedata
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from mvstudio.director.alignment import (
     AlignmentResult,
     AlignmentTask,
     LyricAlignmentError,
+    normalize_token as _normalized,
+    proportional_entries,
 )
-
-
-def _normalized(value):
-    return "".join(
-        character.casefold()
-        for character in unicodedata.normalize("NFKC", value)
-        if character.isalnum()
-    )
 
 
 @dataclass
@@ -44,7 +37,7 @@ class TranscribeResult:
 class FasterWhisperAlignmentPort:
     provider = "faster-whisper-local"
 
-    def __init__(self, model, device="cpu", compute_type="int8", language=None, model_instance=None):
+    def __init__(self, model, device="cpu", compute_type="int8", language=None, model_instance=None, tolerant=False):
         if not isinstance(model, str) or not model.strip():
             raise LyricAlignmentError("local Whisper model path is required")
         self.model = model.strip()
@@ -52,9 +45,14 @@ class FasterWhisperAlignmentPort:
         self.compute_type = compute_type
         self.language = language or None
         self._model_instance = model_instance
+        # tolerant=True: supplied lyrics are authoritative, Whisper supplies
+        # timing only (proportional char mapping). Required for sung audio, where
+        # the transcript never exactly covers the lyrics. tolerant=False keeps the
+        # strict "transcript must exactly cover" gate (§4 evidence contract).
+        self.tolerant = bool(tolerant)
 
     @classmethod
-    def from_env(cls, environ=None):
+    def from_env(cls, environ=None, tolerant=False):
         env = os.environ if environ is None else environ
         model = env.get("MVSTUDIO_WHISPER_MODEL", "")
         if not model:
@@ -69,6 +67,7 @@ class FasterWhisperAlignmentPort:
             device=env.get("MVSTUDIO_WHISPER_DEVICE", "cpu"),
             compute_type=env.get("MVSTUDIO_WHISPER_COMPUTE_TYPE", "int8"),
             language=env.get("MVSTUDIO_WHISPER_LANGUAGE") or None,
+            tolerant=tolerant,
         )
 
     def _engine(self):
@@ -187,6 +186,23 @@ class FasterWhisperAlignmentPort:
             raise LyricAlignmentError("local Whisper transcription failed") from exc
         if not words:
             raise LyricAlignmentError("local Whisper returned no word timestamp evidence")
+        if self.tolerant:
+            # Sung-audio path: lyrics authoritative, Whisper words supply timing
+            # via proportional char mapping. No exact-cover gate (impossible for
+            # singing). Same evidence payload — the words remain the proof.
+            entries = proportional_entries(words, list(task.lines), task.duration_seconds)
+            evidence = {
+                "audio_digest": task.audio_digest,
+                "model": self.model,
+                "mode": "proportional_char_mapping",
+                "words": words,
+            }
+            return AlignmentResult(
+                entries=tuple(entries),
+                provider=self.provider,
+                model=self.model,
+                evidence=evidence,
+            )
         transcript = "".join(_normalized(item["text"]) for item in words)
         expected = "".join(_normalized(item["text"]) for item in task.lines)
         if not expected or transcript != expected:

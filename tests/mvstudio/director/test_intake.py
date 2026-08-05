@@ -7,7 +7,7 @@ from PIL import Image
 
 from mvstudio.director.intake import (
     IntakeContractError, inspect_intake, parse_lrc, parse_xlsx_director_sheet,
-    validate_intake,
+    read_plain_lyric_lines, validate_intake,
 )
 
 
@@ -211,3 +211,97 @@ def test_intake_rejects_symlink_staging_root(tmp_path):
     linked.symlink_to(real, target_is_directory=True)
     with pytest.raises(IntakeContractError, match="staging directory cannot be a symlink"):
         inspect_intake(value, linked)
+
+
+def _write_plain_lyric_xlsx(path, rows):
+    """Build a minimal .xlsx with the given rows (list of column-value lists)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    strings = []
+    for row in rows:
+        for value in row:
+            if value not in strings:
+                strings.append(value)
+    shared = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        + "".join(f"<si><t>{value}</t></si>" for value in strings) + "</sst>"
+    )
+    workbook = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        '<sheets><sheet name="Sheet1" sheetId="1"/></sheets></workbook>'
+    )
+    cells = []
+    for r_index, row in enumerate(rows, 1):
+        parts = []
+        for c_index, value in enumerate(row):
+            column = chr(ord("A") + c_index)
+            parts.append(f'<c r="{column}{r_index}" t="s"><v>{strings.index(value)}</v></c>')
+        cells.append(f'<row r="{r_index}">' + "".join(parts) + "</row>")
+    sheet = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+        + "".join(cells) + "</sheetData></worksheet>"
+    )
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("xl/sharedStrings.xml", shared)
+        archive.writestr("xl/workbook.xml", workbook)
+        archive.writestr("xl/worksheets/sheet1.xml", sheet)
+
+
+def test_read_plain_lyric_lines_txt_splits_and_strips(tmp_path):
+    source = tmp_path / "lyrics.txt"
+    source.write_text("  第一句  \n\n第二句\n第三句  \n", encoding="utf-8-sig")
+    assert read_plain_lyric_lines(source) == ["第一句", "第二句", "第三句"]
+
+
+def test_read_plain_lyric_lines_txt_rejects_empty(tmp_path):
+    source = tmp_path / "empty.txt"
+    source.write_text("\n  \n", encoding="utf-8")
+    with pytest.raises(IntakeContractError, match="lyrics cannot be empty"):
+        read_plain_lyric_lines(source)
+
+
+def test_read_plain_lyric_lines_xlsx_auto_picks_highest_cjk_column(tmp_path):
+    source = tmp_path / "lyrics.xlsx"
+    # column A = timecodes (low CJK), column B = lyrics (high CJK)
+    _write_plain_lyric_xlsx(source, [
+        ["00:01", "月亮升起来了"],
+        ["00:05", "照在小河上"],
+        ["00:09", "我们一起走"],
+    ])
+    assert read_plain_lyric_lines(source) == ["月亮升起来了", "照在小河上", "我们一起走"]
+
+
+def test_read_plain_lyric_lines_xlsx_explicit_column_letter(tmp_path):
+    source = tmp_path / "lyrics.xlsx"
+    _write_plain_lyric_xlsx(source, [
+        ["月亮升起来了", "00:01"],
+        ["照在小河上", "00:05"],
+    ])
+    assert read_plain_lyric_lines(source, "A") == ["月亮升起来了", "照在小河上"]
+
+
+def test_read_plain_lyric_lines_xlsx_header_name_and_header_strip(tmp_path):
+    source = tmp_path / "lyrics.xlsx"
+    _write_plain_lyric_xlsx(source, [
+        ["序号", "歌词"],
+        ["1", "月亮升起来了"],
+        ["2", "照在小河上"],
+    ])
+    # by header name, and the "歌词" header row is dropped
+    assert read_plain_lyric_lines(source, "歌词") == ["月亮升起来了", "照在小河上"]
+
+
+def test_read_plain_lyric_lines_xlsx_missing_named_column(tmp_path):
+    source = tmp_path / "lyrics.xlsx"
+    _write_plain_lyric_xlsx(source, [["歌词"], ["某句"]])
+    with pytest.raises(IntakeContractError, match="no column named"):
+        read_plain_lyric_lines(source, "不存在的列")
+
+
+def test_read_plain_lyric_lines_rejects_unsupported_suffix(tmp_path):
+    source = tmp_path / "lyrics.doc"
+    source.write_text("x", encoding="utf-8")
+    with pytest.raises(IntakeContractError, match="must be a .txt or .xlsx"):
+        read_plain_lyric_lines(source)

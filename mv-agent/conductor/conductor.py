@@ -96,7 +96,8 @@ class Conductor:
         h = self._hash_outputs(spec)
         nxt = AWAITING if spec.approval else DONE
         self.state.set_status(spec.step_id, nxt, hash=h)
-        return {"ok": True, "step": spec.step_id, "status": nxt, "hash": h}
+        return {"ok": True, "step": spec.step_id, "status": nxt, "hash": h,
+                "outputs": list(res.outputs)}
 
     # ---- 用户拍板：过 ----
     def approve(self, sid: str) -> dict:

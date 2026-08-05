@@ -273,6 +273,111 @@ def parse_xlsx_director_sheet(path):
     }
 
 
+def _column_letters_to_index(letters):
+    index = 0
+    for char in letters.upper():
+        index = index * 26 + (ord(char) - ord("A") + 1)
+    return index - 1
+
+
+def _xlsx_grid(path):
+    """Read the first sheet as a dense row-major grid of stripped cell strings.
+
+    Reuses the same zipfile/ElementTree machinery as ``parse_xlsx_director_sheet``
+    (no openpyxl dependency). Returns ``list[list[str]]``, ragged rows padded to
+    the widest column so callers can index by column position.
+    """
+    try:
+        with zipfile.ZipFile(path) as archive:
+            infos = archive.infolist()
+            if len(infos) > 200 or any(item.file_size > 20 * 1024 * 1024 for item in infos):
+                raise IntakeContractError("lyrics spreadsheet is too large")
+            shared = _xlsx_shared_strings(archive)
+            sheet_root = ET.fromstring(archive.read("xl/worksheets/sheet1.xml"))
+    except (KeyError, OSError, zipfile.BadZipFile, ET.ParseError) as exc:
+        raise IntakeContractError("lyrics spreadsheet is invalid") from exc
+    rows = []
+    width = 0
+    for row in sheet_root.findall(".//x:sheetData/x:row", _XLSX_NS):
+        cells = {}
+        for cell in row.findall("x:c", _XLSX_NS):
+            reference = cell.get("r", "")
+            letters = "".join(char for char in reference if char.isalpha())
+            if letters:
+                cells[_column_letters_to_index(letters)] = _xlsx_cell_value(cell, shared)
+        if cells:
+            width = max(width, max(cells) + 1)
+            rows.append(cells)
+    grid = [[cells.get(index, "") for index in range(width)] for cells in rows]
+    return [row for row in grid if any(cell.strip() for cell in row)]
+
+
+def read_plain_lyric_lines(path, column=None):
+    """Read a plain-lyric source (.txt / .xlsx) into one authoritative line per row.
+
+    Shared reader for frontends whose lyrics are untimed text (not a director
+    timing sheet): supplied text is authoritative, timing comes later from
+    tolerant alignment. ``.txt`` splits on newlines. ``.xlsx`` takes ``column``
+    (a letter like ``"B"`` or a header name); when unspecified, auto-picks the
+    column with the highest CJK-character ratio. A leading ``歌词/词/lyrics`` cell
+    is dropped as a header.
+
+    Raises:
+        IntakeContractError: unsupported suffix, missing named column, or no
+        lyric content in the selected column.
+    """
+    path = Path(path)
+    suffix = path.suffix.lower()
+    if suffix == ".txt":
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError as exc:
+            raise IntakeContractError("lyrics must be UTF-8 text") from exc
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if not lines:
+            raise IntakeContractError("lyrics cannot be empty")
+        return lines
+    if suffix != ".xlsx":
+        raise IntakeContractError("plain lyrics must be a .txt or .xlsx file")
+
+    grid = _xlsx_grid(path)
+    if not grid:
+        raise IntakeContractError("lyrics spreadsheet is empty")
+    width = max(len(row) for row in grid)
+
+    col_index = None
+    if column:
+        column = str(column).strip()
+        if re.fullmatch(r"[A-Za-z]{1,2}", column):  # column letter (ASCII only)
+            col_index = _column_letters_to_index(column)
+        else:  # header name in the first row
+            for position, value in enumerate(grid[0]):
+                if value.strip() == column:
+                    col_index = position
+                    break
+            if col_index is None:
+                raise IntakeContractError("lyrics spreadsheet has no column named " + column)
+    if col_index is None:  # auto-pick the highest-CJK-ratio column
+        best, best_score = 0, -1.0
+        for position in range(width):
+            cells = [row[position] for row in grid if position < len(row) and row[position].strip()]
+            if not cells:
+                continue
+            cjk = sum(len(re.findall(r"[一-鿿]", cell)) for cell in cells)
+            total = sum(len(cell) for cell in cells) or 1
+            score = cjk / total
+            if score > best_score:
+                best, best_score = position, score
+        col_index = best
+
+    lines = [row[col_index].strip() for row in grid if col_index < len(row) and row[col_index].strip()]
+    if lines and re.fullmatch(r"歌词|lyrics?|词", lines[0], re.I):
+        lines = lines[1:]
+    if not lines:
+        raise IntakeContractError("selected lyrics column has no lyric content")
+    return lines
+
+
 def _probe_lyrics(path):
     if path.suffix.lower() == ".xlsx":
         return parse_xlsx_director_sheet(path)

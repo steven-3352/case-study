@@ -4170,7 +4170,12 @@ class ApplicationService:
             from mvstudio.providers.alignment_faster_whisper import FasterWhisperAlignmentPort
 
             try:
-                alignment_port = self.alignment_port or FasterWhisperAlignmentPort.from_env(self._provider_env())
+                # tolerant=True: sung lyrics never transcribe exactly, so supplied
+                # lyrics stay authoritative and Whisper supplies timing only (shared
+                # proportional mapper). An injected alignment_port (tests) wins.
+                alignment_port = self.alignment_port or FasterWhisperAlignmentPort.from_env(
+                    self._provider_env(), tolerant=True
+                )
                 intake, timed = align_plain_lyrics(intake, staging, alignment_port)
             except LyricAlignmentError as exc:
                 raise ApplicationBlocked(str(exc)) from exc

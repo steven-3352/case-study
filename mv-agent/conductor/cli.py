@@ -67,7 +67,7 @@ def _run_one(c: Conductor, name: str, spec) -> dict:
     if res.get("skipped"):
         print(render.skipped(spec))
     elif res.get("ok"):
-        print(render.after(spec, spec.outputs, project=name))
+        print(render.after(spec, res.get("outputs") or spec.outputs, project=name))
     else:
         print(f"❌ 失败：{res.get('error')}")
     return res
@@ -85,7 +85,7 @@ def cmd_next(name: str, *_):
 
 
 def cmd_run(name: str, *_):
-    """一路跑到第一个需要拍板处停下。"""
+    """一路跑到第一个需要拍板处 / 失败处停下。"""
     c = _c(name)
     while True:
         spec = c.next_step()
@@ -93,6 +93,10 @@ def cmd_run(name: str, *_):
             print("🎉 到头了（全 done 或等拍板）")
             break
         res = _run_one(c, name, spec)
+        if not res.get("ok") and not res.get("skipped"):
+            # 工具失败：已置 rejected，若不停会被 next_step 反复重选 → 死循环
+            print(f"   ⛔ 步骤 {spec.step_id} 失败，已停下。修好上面提示的问题后重跑：run {name}")
+            break
         if res.get("status") == AWAITING:
             print(f"   ⏸️  等拍板：ok {name} {spec.step_id} / reject {name} {spec.step_id} '意见'")
             break

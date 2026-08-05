@@ -75,6 +75,7 @@
 - [feedback_zoompan-visible-motion.md](pipeline/feedback_zoompan-visible-motion.md) — zoompan 动画幅度过小像 PPT
 - [feedback_gpt-image-model-fallback.md](pipeline/feedback_gpt-image-model-fallback.md) — gpt-image 多参考图 503 根因
 - [gpt-image-2-api.md](pipeline/gpt-image-2-api.md) — GPT-image-2 API 配置
+- [project_lyrics-shared-core-convergence.md](pipeline/project_lyrics-shared-core-convergence.md) — 多端共享一套核心逻辑;歌词读取+容错对齐已收敛进 src/mvstudio,禁止再造平行实现
 
 ### shortfilm/ · 副线短片专用(40 岁夫妻回忆)
 - [project_shortfilm-memory-piece.md](shortfilm/project_shortfilm-memory-piece.md) — 40 岁夫妻回忆短片定型

@@ -6,6 +6,8 @@ from mvstudio.director.alignment import (
     AlignmentResult,
     LyricAlignmentError,
     align_plain_lyrics,
+    normalize_token,
+    proportional_entries,
 )
 from mvstudio.director.intake import inspect_intake
 from tests.mvstudio.director.test_intake import _inputs
@@ -101,3 +103,59 @@ def test_alignment_rejects_replaced_intake_directory_before_provider_call(tmp_pa
     with pytest.raises(LyricAlignmentError, match="intake directory"):
         align_plain_lyrics(intake, tmp_path, port)
     assert port.tasks == []
+
+
+def test_normalize_token_keeps_cjk_and_drops_punctuation():
+    assert normalize_token(" 月亮，升起! ") == "月亮升起"
+    assert normalize_token("Hello, World.") == "helloworld"
+
+
+def test_proportional_entries_maps_lines_without_exact_transcript():
+    # transcript ("la la la la") deliberately does NOT match the lyrics
+    words = [
+        {"text": "la", "start": 0.1, "end": 0.4, "probability": 0.9},
+        {"text": "la", "start": 0.5, "end": 0.9, "probability": 0.8},
+        {"text": "la", "start": 1.0, "end": 1.4, "probability": 0.7},
+        {"text": "la", "start": 1.5, "end": 1.9, "probability": 0.6},
+    ]
+    lines = [
+        {"text": "第一句歌词", "source_line": 1},
+        {"text": "第二句歌词呀", "source_line": 2},
+    ]
+    entries = proportional_entries(words, lines, duration=2.0)
+    assert [entry["text"] for entry in entries] == ["第一句歌词", "第二句歌词呀"]
+    assert [entry["source_line"] for entry in entries] == [1, 2]
+    starts = [entry["start_seconds"] for entry in entries]
+    assert starts[0] < starts[1] < 2.0
+    assert all(0.0 <= entry["confidence"] <= 1.0 for entry in entries)
+
+
+def test_proportional_entries_even_spread_when_no_words():
+    lines = [
+        {"text": "第一句", "source_line": 1},
+        {"text": "第二句", "source_line": 2},
+        {"text": "第三句", "source_line": 3},
+    ]
+    entries = proportional_entries([], lines, duration=6.0)
+    starts = [entry["start_seconds"] for entry in entries]
+    assert starts == sorted(starts)
+    assert starts[0] < starts[1] < starts[2] < 6.0
+    assert [entry["text"] for entry in entries] == ["第一句", "第二句", "第三句"]
+
+
+def test_proportional_entries_forces_strictly_increasing_within_duration():
+    # all words at the very end -> mapper must still spread strictly increasing
+    words = [{"text": "la", "start": 1.95, "end": 1.99, "probability": 0.5}]
+    lines = [
+        {"text": "a", "source_line": 1},
+        {"text": "b", "source_line": 2},
+        {"text": "c", "source_line": 3},
+    ]
+    entries = proportional_entries(words, lines, duration=2.0)
+    starts = [entry["start_seconds"] for entry in entries]
+    assert starts[0] < starts[1] < starts[2] < 2.0
+
+
+def test_proportional_entries_rejects_nonpositive_duration():
+    with pytest.raises(LyricAlignmentError, match="duration must be positive"):
+        proportional_entries([], [{"text": "x", "source_line": 1}], duration=0.0)

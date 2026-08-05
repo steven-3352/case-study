@@ -17,15 +17,16 @@ STEPS: list[StepSpec] = [
         input_from=[],
         prompts=[],
         tool=tools.intake_validate,
-        outputs=["manifest.yaml", "validation_report.md", "intent.md"],
+        outputs=["manifest.yaml", "validation_report.md", "intent.md", "lyrics_timed.json"],
         approval=True,
         unit_kind="step",
         tool_name="intake_validate",
         purpose="收下用户素材并校验格式，确认音乐/歌词/人物/意图齐全可用",
         outputs_desc={
-            "manifest.yaml":        "物料清单（每个文件的路径与类型）",
+            "manifest.yaml":        "物料清单（音乐/歌词/人物路径 + 时长 + 摘要）",
             "validation_report.md": "校验报告（哪些通过、哪些要补）",
             "intent.md":            "创作意图（用户想表达什么）",
+            "lyrics_timed.json":    "歌词时间码（.lrc 解析 / txt·xlsx 容错对齐 / whisper 兜底）",
         },
     ),
     StepSpec(
