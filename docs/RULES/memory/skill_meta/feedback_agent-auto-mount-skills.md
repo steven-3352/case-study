@@ -9,6 +9,8 @@ metadata:
 
 **规则:** 在 case-study 项目里,agent 面对任何请求时,**skill 挂什么、什么时候挂,由 agent 自主判断**——从用户的自然语言请求推断场景,自动挂载对应 skill 组合,不要让用户说"用 X skill / 挂 X"。用户只描述**内容/意图/问题**,agent 负责翻译成 skill 组合。
 
+> ⚠️ **唯一例外 · `paperdoll-mv-packaging`(线 P 程序化引擎)不吃自动挂载**:做片默认走线 G(`mv-agent/conductor`),只有用户**显式点名** paperdoll 才挂、才进线 P。「纸片人 / 卡点 / 立绘 / 国乙 / 语音厅 MV」等关键词**不再自动触发** paperdoll,也不适用下方第 4 条「场景不确定倾向多挂」。原因:两线触发词重叠,自挂会把线 G 在制片误带进跑不通的线 P。权威见 `06_SKILL_TRIGGERS.md §paperdoll 的自动挂载例外` 与 `11_MV_DIALOGUE_PLAYBOOK.md §路线分流`。
+
 **Why:** 2026-07-20 用户明确指出——上轮我给示例时写 "你可以说'挂 higgsfield-soul'"这类,把 skill 挂载责任推回用户,违背了 [[feedback_autonomous-data-driven]] 铁律(用户只出内容/反馈数据,agent 自己拍板)。skill 触发本来就是 Claude Code 按 description 匹配 + agent 主动加载的机制,不该退化为"用户手动点单"。
 
 **How to apply:**

@@ -21,7 +21,15 @@
 | **任何内容制作**(选题 / 立项 / 前期规划 / 15 步流程) | `.agents/skills/tonbirds-content-engine/SKILL.md` | 本项目内容引擎核心 SOP · 覆盖 15 步全流程 |
 | **生成一段视频** / i2v / t2v / **grok-imagine** / **Seedance** / **Kling** / **Runway** / **Luma** / **Wan** / **HunyuanVideo** / **Veo** / 分镜出现 `motion prompt` / `video prompt` 字段 / 调用 `pipeline/gen_video_frames.py` / `pipeline/p011_seedance_i2v/gen_video.py` / 任何 `gen_*_motion.py` | `.agents/skills/i2v-video-prompt/SKILL.md`(**项目铁律**) | 按形态挂 `video-form-{X}` + 需要时挂 `higgsfield-{X}`;详见 `04_CONTENT_CONSTRAINTS.md §15` |
 | **视频生成完效果不满意** / 幻觉 / 伪影 / 角色崩 / 动作不自然 / AI 味重 / 相机运动看不出 / palette gate fail / **"这段不对/重生/改一下/为什么这么僵"** | `.agents/skills/i2v-video-diagnose/SKILL.md` | 7 类归因 + 4 步动作 + 3 次上限 · 3 次救不活升级换路线 · 详见 `04_CONTENT_CONSTRAINTS.md §16` |
-| **语音厅 MV** / **纸片人** / **卡点 MV** / **立绘 PV** / **国乙**(国风乙女) / **现代国乙** / **男团宣传** / **CG 混剪** / **角色 PV** / **纸片人立绘** / 输入是"立绘 + 音频 + 歌词"的场景 | `.agents/skills/paperdoll-mv-packaging/SKILL.md` | 确定性 motion-graphics 包装层(非 i2v prompt 层)· 灵魂三件套 + 7 级视觉强度 + 5 层包装 + 12 背景生成器 + 14 风格库 + 艺术字层 · 详见 memory `reference_paperdoll-mv-packaging-skill` |
+| ⚠️ **仅用户显式点名时挂**(例外:不走关键词自动触发) `paperdoll-mv-packaging` / 明确说"用纸片人程序化包装那套""走 paperdoll" | `.agents/skills/paperdoll-mv-packaging/SKILL.md` | 确定性 motion-graphics 包装层(非 i2v prompt 层)· 灵魂三件套 + 7 级视觉强度 + 5 层包装 + 12 背景生成器 + 14 风格库 + 艺术字层 · 详见 memory `reference_paperdoll-mv-packaging-skill`。**见下方 §paperdoll 的自动挂载例外** |
+
+### paperdoll 的自动挂载例外(覆盖「agent 自己判断挂 skill」总原则)
+
+- **总原则**:agent 按关键词自动挂 skill、用户不点单(见 `feedback_agent-auto-mount-skills`)。
+- **本条是唯一例外**:`paperdoll-mv-packaging`(线 P 程序化引擎)**不吃关键词自动触发**。「语音厅 / 纸片人 / 卡点 MV / 立绘 PV / 国乙 / 男团宣传 / 立绘+音频+歌词」这些词**只走默认线 G(mv-agent/conductor)**,不再自动挂 paperdoll。
+- **只有用户显式点名** `paperdoll-mv-packaging`(或明说「走 paperdoll / 用纸片人程序化那套」)才挂载、才进线 P。
+- 为什么设例外:两条线触发词高度重叠,自动挂载会把线 G 在制片(如 `mv-agent/projects/*` 已建骨架的项目)误带进线 P,跑不通。分流权收归用户,详见 `11_MV_DIALOGUE_PLAYBOOK.md §路线分流`。
+- agent 觉得某片更适合 paperdoll:**只建议、不自挂**——「这片美术风更适合 paperdoll 那套,要走你说一声」。
 
 ---
 
@@ -117,14 +125,14 @@ Higgsfield 子 skill 若涉及 **cyberpunk / cool-blue / dark-canvas** 一律以
 
 | 场景 | 组合 |
 |---|---|
-| 语音厅《明月天涯》纸片人 MV | `paperdoll-mv-packaging` **(主)** · 出图段可挂 `higgsfield-image-shots` / `ai-image-prompts-skill` |
+| 语音厅《明月天涯》纸片人 MV(**且用户已显式点名 paperdoll**) | `paperdoll-mv-packaging` **(主)** · 出图段可挂 `higgsfield-image-shots` / `ai-image-prompts-skill`。未点名则默认走线 G(mv-agent) |
 | 抖音短视频用 i2v 生成一段电影感开头 | `i2v-video-prompt`(主)+ `video-form-cinematic` + `higgsfield-camera`(细节) |
 | 生成一段音乐 MV | `i2v-video-prompt` + `video-form-music-video` + `higgsfield-vibe-motion` |
 | 电商带货 15s 短视频 | `i2v-video-prompt` + `video-form-ecommerce-ad` + `video-form-social-hook`(前 3s 钩子) |
 | 落地页做长滚动交互作品集 | `gsap-scrolltrigger` + `gsap-timeline` + `gsap-performance` |
 | Next.js 页面加动效 | `gsap-react` + `gsap-core` + `gsap-timeline` |
 | 视频生成完了效果差要修 | `i2v-video-diagnose`(主 · 只改 1-2 变量)+ 再挂对应 `video-form-{X}` 补 prompt |
-| 立绘卡点 MV 里某段想插入 i2v 生成的相机推进 | `paperdoll-mv-packaging`(主)**+ 短段落里挂** `i2v-video-prompt` + `video-form-cinematic`(混用,不是完全替换) |
+| 立绘卡点 MV 里某段想插入 i2v 生成的相机推进(**前提:已在走 paperdoll 线**) | `paperdoll-mv-packaging`(主)**+ 短段落里挂** `i2v-video-prompt` + `video-form-cinematic`(混用,不是完全替换) |
 
 ---
 

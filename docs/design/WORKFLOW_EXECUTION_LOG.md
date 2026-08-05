@@ -544,3 +544,43 @@
     ④ 前端 agent NULL ≥2 次须立即 fallback 为 patch 文件，不能让 UI 变更整批丢失；
     ⑤ AC6（provenance sidecar）和 AC10（rollback 清理）是本轮遗留 P1 待办，下一个 PRD-009 续期任务须优先收尾。
 ```
+
+---
+
+## 2026-08-05 · mygirl MV · Codex 执行期越界重判路线分流
+
+```yaml
+- run_id: mygirl-route-lock-2026-08-05
+  date: 2026-08-05
+  project_id: mygirl（mv-agent 线 G 生成式在制片）
+  stage: 线 G conductor 六步执行中（卡在 02_storyboard awaiting_approval）
+  production_tier: standard
+  role_reasoning_reviewed:
+    - Codex 执行期自述（"仓库已有 mygirl 骨架，适合从状态机继续；命中纸片人/歌词 MV 场景，先加载 paperdoll-mv-packaging，再走 mv-agent CLI"）
+  errors_found:
+    - role: Codex 执行者（mv-agent WORKFLOW.md 契约执行）
+      what_went_wrong: >
+        对一个已建骨架、已在线 G 状态机跑到 02 的在制项目，执行期又做了一次路线分流判断，
+        并按关键词命中「纸片人/歌词 MV」自动加载了线 P 的 paperdoll-mv-packaging skill——
+        把线 G 在制片套了线 P 的方法，属类别错误。正确动作只需 status → 读 storyboard.md 转述 → 等拍板。
+      root_cause: [flow, mechanism]
+      root_cause_detail:
+        flow: >
+          分流本应是开工前（playbook）一次性拍板、且对已有 state.json 的在制项目根本不该重判；
+          Codex 却在执行期重新分流，违反 WORKFLOW.md「Codex 只做流程控制/结果校验/合理建议」的职责边界。
+        mechanism: >
+          规则本身在两处主动诱导执行期分流——① 11_PLAYBOOK 路线分流给了「判据表 + 拿不准就问」，等于授权每次都判一次；
+          ② 06_SKILL_TRIGGERS 把 paperdoll 挂在「纸片人/卡点/立绘+音频+歌词」关键词自动触发上，mygirl 物料正好蹭中。
+          两线触发词高度重叠 + paperdoll 走自动挂载 = 在制线 G 片被误带进线 P。
+      should_have_done: >
+        执行期遇到已有 state.json 的项目，直接照 mv-agent/WORKFLOW.md 状态机往下，零分流判断；
+        agent 若认为某片更适合线 P，只能一句话建议、由用户显式点名，绝不自切、自挂 paperdoll。
+  fix_applied:
+    - docs/RULES/11_MV_DIALOGUE_PLAYBOOK.md §路线分流 → 从「判据表+拿不准就问」改为「默认锁死线 G + 显式例外走线 P」；新增「在制项目(有 state.json)禁止重判」铁规；速查卡同步改口径
+    - docs/RULES/06_SKILL_TRIGGERS.md 第 24 行 → paperdoll 从关键词自动触发改为「仅用户显式点名时挂」；新增 §paperdoll 的自动挂载例外；组合矩阵两行补「已显式点名/已在走 paperdoll 线」前提
+    - docs/RULES/memory/skill_meta/feedback_agent-auto-mount-skills.md → 在「agent 自动挂载」总原则顶部加 paperdoll 唯一例外指针，并声明不适用「场景不确定倾向多挂」
+  carry_forward: >
+    ① 做片默认唯一自动线 = 线 G（mv-agent/conductor）；只有用户显式点名 paperdoll-mv-packaging 才走线 P，任何模型不得凭关键词/物料自行分流；
+    ② 已有 mv-agent/projects/<片名>/state.json 的在制项目，执行期禁止再做分流判断或加载 paperdoll，直接照 WORKFLOW.md 状态机推进；
+    ③ paperdoll 是「agent 自动挂载 skill」总原则的唯一反例——它不吃关键词自动触发、不适用「不确定就多挂」，下次读到 feedback_agent-auto-mount-skills 须连带这条例外一起读。
+```
