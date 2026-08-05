@@ -13,8 +13,11 @@ from .state import State, sha256_file
 
 
 class Conductor:
-    def __init__(self, base: Path, name: str):
-        self.root = layout.project_root(base, name)
+    def __init__(self, base: Path, name: str, root: Path | None = None):
+        # root 显式给出时(新项目 = 用户物料目录)直接用;否则退回 base/name。
+        # 见 docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1(物料锚定)。
+        self.name = name
+        self.root = Path(root) if root is not None else layout.project_root(base, name)
         self.prompts_dir = self.root / "prompts"
         self.state = State(self.root)
 
@@ -37,7 +40,7 @@ class Conductor:
                             f"# {name}\n(提示词占位 · 在此写中文)\n",
                             encoding="utf-8",
                         )
-        self.state.init(self.root.name, STEP_ORDER, tier)
+        self.state.init(self.name, STEP_ORDER, tier)
 
     # ---- 完成判定：产物齐即算可完成 ----
     def _outputs_ready(self, spec: StepSpec) -> bool:

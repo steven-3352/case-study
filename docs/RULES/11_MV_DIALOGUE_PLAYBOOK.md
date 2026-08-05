@@ -314,6 +314,12 @@ python3 pipeline/gate_check_motion.py \
     > 「我在 `mv_engine/atoms/paper.py` 里发现一个 bug（描述）。这是引擎层文件，我不能直接改。你要不要我起草一个 PR 让 owner 审核？」
 - ❌ **修改 `docs/RULES/` 下任何规则**
 - ❌ **修改 `pipeline/mv_engine/atoms/lock.json`**（原子锁）
+- ❌ **把片子的任何产物写到 `/tmp`、系统级临时目录或仓库根散落**
+  - `/tmp` 只容许引擎单次运行的自清 scratch;审批锚点 / 可复现资产落 `/tmp` = 一重启就丢
+  - 权威规则见 `08_ASSETS_LIFECYCLE.md §3.0`(系统 ≠ 用户数据)
+- 📍 **落盘位置分新旧(owner 2026-08-05 拍板 · 见 `08_ASSETS_LIFECYCLE.md §3.0.1`)**
+  - **老项目**(`pipeline/voice_room/青衣`、`mingyue` 等既有片):维持现状,原地读写,不迁。
+  - **新项目**:用户项目目录 = **用户原始物料所在目录**。开工先定位物料,骨架和产物落物料目录,**不再往 `pipeline/voice_room/<片名>/` 里建**。
 - ✅ **`git push origin main`**（2026-08-04 起:main 分支保护已撤、PR 通道已关,直连 main 是当前唯一合并路径;仅在 owner 明确要求时推送)
 
 ### 需要新原子时的行为

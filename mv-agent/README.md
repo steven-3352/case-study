@@ -40,6 +40,24 @@ SEEDANCE_API_KEY=你的 Seedance Key
 
 ---
 
+## 给 Codex 的一句话（直接复制）
+
+> ⚠️ 一律用仓库 venv：`/home/ubuntu/case-study/.venv/bin/python -m conductor.cli`（系统 python 缺 numpy 会静默失败）。LLM 步骤可能要 2~3 分钟，别设短超时。
+
+**继续之前的项目：**
+```
+用 mv-agent 继续做项目 <片名>：进 mv-agent/，先 status <片名> 看进度，再 run <片名> 跑到下一个拍板点。
+```
+
+**新项目初始化：**
+```
+用 mv-agent 新做一支 MV，片名 <片名>，物料在 <物料目录>：进 mv-agent/，先 init <片名> <物料目录>（项目根=物料目录，必填），再 run <片名>。
+```
+
+> 新项目的骨架和产物建在**物料目录**，不进工具仓库；`init` 会把「片名→物料目录」记入 `projects/_registry.json`，之后按片名操作即可。约定见 `docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1`。
+
+---
+
 ## 六步流程
 
 | 步骤 | 做什么 | 你需要做什么 |
@@ -78,8 +96,8 @@ mv-agent/
 ## 手动运行（不用 Codex 时）
 
 ```bash
-# 初始化新片
-python -m conductor.cli init 我的MV
+# 初始化新片（项目根 = 物料目录，必填）
+python -m conductor.cli init 我的MV /path/to/物料目录
 
 # 查看进度
 python -m conductor.cli status 我的MV

@@ -20,7 +20,7 @@
 
 | 命令 | 作用 | 何时用 |
 |------|------|--------|
-| `python -m conductor.cli init <name>` | 建骨架 + prompts + state.json | 新片第一步 |
+| `python -m conductor.cli init <name> <项目根>` | 建骨架 + prompts + state.json 于**物料目录**(项目根必填) | 新片第一步 |
 | `python -m conductor.cli status <name>` | 打印六步状态 + 花费 | 任何时候查进度 |
 | `python -m conductor.cli run <name>` | 一路跑到**下一个等拍板处 / 失败处**停 | 主驱动命令 |
 | `python -m conductor.cli next <name>` | 只跑**下一个可执行步骤** | 单步调试 |
@@ -77,7 +77,8 @@ which ffmpeg ffprobe                               # 05_delivery / 00_intake 需
 
 ## 3 · 每步契约(跑前念白 / 输入 / 命令 / 产物用途 / 校验 / 建议)
 
-> 通用:每步产物落 `projects/<name>/<step>/`;上游产物自动拷进 `<step>/_input/`;日志在 `<step>/_meta/log.md`。产物**齐全即视为完成**(控制器按文件是否存在判定),失败则 `<step>` 落 `rejected` 且 `error={code,message,hint}`。
+> 通用:每步产物落 `<项目根>/<step>/`;上游产物自动拷进 `<step>/_input/`;日志在 `<step>/_meta/log.md`。产物**齐全即视为完成**(控制器按文件是否存在判定),失败则 `<step>` 落 `rejected` 且 `error={code,message,hint}`。
+> 📍 **项目根约定(owner 2026-08-05 · 见 `docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1`)**:凡 `init` 都是新项目,`<项目根>` = **用户原始物料所在目录**,**必填**。`init <片名> <项目根>` 把骨架/产物建在物料目录,并把「片名→项目根」记入 `projects/_registry.json`;缺参数直接报错,绝不落回 `mv-agent/projects/`。之后 `status/run/ok/reject <片名>` 按片名走注册表,用法不变。
 > **念白格式**:CLI 的 `run`/`next` 已自动打印"跑前(脚本+用途)/跑后(产物+用途)/提示词标注",**直接转述,别另编**。下面每步的「跑前念白/产物用途」就是这些数据,列出便于你转述。
 
 ### 00_intake · 脚本 `intake_validate` — 收物料 + 校验 + 歌词时间码(本地免费)

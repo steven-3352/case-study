@@ -1,7 +1,7 @@
 """CLI 驱动（mv-agent 版）。
 
 用法：
-  python -m conductor.cli init   <片名>
+  python -m conductor.cli init   <片名> <项目根>   项目根 = 用户物料所在目录（必填）
   python -m conductor.cli status <片名>
   python -m conductor.cli next   <片名>       跑下一个可执行步骤
   python -m conductor.cli run    <片名>       一路跑到需要拍板处
@@ -9,9 +9,15 @@
   python -m conductor.cli reject <片名> <step> [意见]
 
 对话外壳（Codex / 本地 Web）最终就是把这些动作翻译成"下一步/过/打回"。
+
+项目根约定（owner 2026-08-05 · docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1）：
+  新项目的项目根 = 用户原始物料所在目录，骨架/产物落在那里，不进工具仓库。
+  init 必须显式给项目根，缺参数直接报错，绝不落回 mv-agent/projects/。
+  init 时把「片名 → 项目根」记入 _registry.json，之后按片名操作即可。
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -25,18 +31,60 @@ from conductor.contracts import AWAITING, DONE  # noqa: E402
 from conductor.pipeline import STEP_BY_ID, STEP_ORDER  # noqa: E402
 from conductor import render  # noqa: E402
 
-# 片子工作目录：mv-agent/projects/
-BASE = _HERE.parent / "projects"
+# 注册表：片名 → 项目根（物料目录）。工具指针元数据，非用户数据。
+_REGISTRY = _HERE.parent / "projects" / "_registry.json"
+
+
+def _load_registry() -> dict:
+    if _REGISTRY.is_file():
+        try:
+            return json.loads(_REGISTRY.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return {}
+
+
+def _save_registry(reg: dict) -> None:
+    _REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+    _REGISTRY.write_text(
+        json.dumps(reg, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _root_of(name: str) -> Path:
+    """按片名查项目根；查不到直接报错（新约定下无仓库回退）。"""
+    reg = _load_registry()
+    entry = reg.get(name)
+    if not entry:
+        raise SystemExit(
+            f"❌ 未登记的项目「{name}」。\n"
+            f"   新项目请先：init {name} <项目根>（项目根 = 你的物料目录）。\n"
+            f"   已建项目请确认片名拼写，或查 {_REGISTRY}。"
+        )
+    return Path(entry)
 
 
 def _c(name: str) -> Conductor:
-    return Conductor(BASE, name)
+    return Conductor(None, name, root=_root_of(name))
 
 
-def cmd_init(name: str, *_):
-    c = _c(name)
+def cmd_init(name: str, *rest):
+    if not rest or not str(rest[0]).strip():
+        raise SystemExit(
+            f"❌ 新项目必须指定项目根：init {name} <项目根>\n"
+            f"   项目根 = 你的原始物料所在目录（音乐/歌词/人物图）。\n"
+            f"   骨架和产物会建在那里，不会进工具仓库。\n"
+            f"   见 docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1。"
+        )
+    root = Path(str(rest[0]).strip()).expanduser().resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    c = Conductor(None, name, root=root)
     c.init_project()
-    print(f"✅ 初始化 {name}：骨架 + prompts + state.json 已建")
+    reg = _load_registry()
+    reg[name] = str(root)
+    _save_registry(reg)
+    print(f"✅ 初始化 {name}：骨架 + prompts + state.json 已建于 {root}")
+    print(f"   已登记片名 → 项目根（{_REGISTRY.name}）")
     cmd_status(name)
 
 

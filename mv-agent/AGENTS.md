@@ -77,9 +77,9 @@ CLI 的 `run` / `next` 已经按这个格式打印了——你**直接把 CLI �
 ls -la <用户给的路径>
 ```
 
-确认齐了，初始化项目：
+确认齐了，初始化项目（项目根 = 用户物料目录，必填 · 见 `docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1`）：
 ```bash
-python -m conductor.cli init <片名>
+python -m conductor.cli init <片名> <项目根>
 ```
 
 然后给用户看素材清单：
@@ -213,7 +213,7 @@ python -m conductor.cli run <片名>
 | "不对"/"改改"/"这个不行"/"重来" | 先追问"哪里不对？"，然后 `reject` 并记录反馈 |
 | "第 3 个镜头不对" | `python -m conductor.cli reject <片名> <步骤> "SH003: 用户反馈"` |
 | "进度怎么样"/"到哪了" | `python -m conductor.cli status <片名>` |
-| "从头来过" | 确认后 `python -m conductor.cli init <片名>` |
+| "从头来过" | 确认后 `python -m conductor.cli init <片名> <项目根>`（项目根 = 物料目录，必填） |
 
 ---
 
@@ -243,7 +243,7 @@ python -m conductor.cli run <片名>
 ## 命令速查
 
 ```bash
-python -m conductor.cli init   <片名>          # 初始化新片
+python -m conductor.cli init   <片名> <项目根> # 初始化新片(项目根=物料目录,必填)
 python -m conductor.cli status <片名>          # 查看进度
 python -m conductor.cli run    <片名>          # 跑到下一个等待点
 python -m conductor.cli ok     <片名> <步骤>   # 批准
