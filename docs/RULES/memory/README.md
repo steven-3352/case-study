@@ -78,6 +78,7 @@
 - [project_lyrics-shared-core-convergence.md](pipeline/project_lyrics-shared-core-convergence.md) — 多端共享一套核心逻辑;歌词读取+容错对齐已收敛进 src/mvstudio,禁止再造平行实现
 - [project_mv-two-line-dispatch.md](pipeline/project_mv-two-line-dispatch.md) — 做片触发后先分派两套引擎(生成式 conductor / 程序化 paperdoll),别硬走 A→F
 - [project_mv-agent-workflow-contract.md](pipeline/project_mv-agent-workflow-contract.md) — mv-agent 线 G 执行照 WORKFLOW.md 契约,别通读 conductor 源码烧 token
+- [project_mv-storyboard-full-coverage.md](pipeline/project_mv-storyboard-full-coverage.md) — 02 分镜必须铺满整首歌;段落按能量切成多个 4~15s 子镜,别一段一镜 15s 硬截
 
 ### shortfilm/ · 副线短片专用(40 岁夫妻回忆)
 - [project_shortfilm-memory-piece.md](shortfilm/project_shortfilm-memory-piece.md) — 40 岁夫妻回忆短片定型

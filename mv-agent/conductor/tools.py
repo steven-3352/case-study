@@ -275,10 +275,12 @@ def _synthesize_story_and_title(out_dir: Path, manifest: dict, result: dict) -> 
 
 
 def llm_storyboard(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """02_storyboard — 按 music_map 段落逐镜出分镜（LLM 创意 + 段落时长）。
+    """02_storyboard — 按 music_map 段落逐镜出分镜（LLM 创意 + 段落平铺）。
 
-    镜头数 = 段落数（受 MV_MAX_SHOTS 上限约束）。每镜时长取该段时长（clamp 4~15s）。
-    LLM 产创意（primary_action/first_frame），本步组装成 shots.yaml。
+    覆盖铁律：分镜必须铺满整首歌 —— 每个段落按其真实时长切成多镜，镜头总长≈歌曲时长，
+    绝不出现「镜头总长 < 歌曲时长」。单镜时长受 Seedance 硬限 4~15s；镜头数由段落能量
+    自适应（高能量段落切得更碎、更快切）。LLM 按每段所需镜头数产出对应条数的不同创意，
+    同段各镜围绕该段歌词/情绪递进、不同义重复。
     """
     from mvstudio.director.drafting import run_bounded_task, ModelBudget
 
@@ -290,69 +292,138 @@ def llm_storyboard(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         return ToolResult(ok=False, error=media.err(
             "no_sections", "上游 music_map 没有段落。", "先跑通 01_analysis 并批准"))
 
+    # 平铺规划：每段 → 一串 4~15s 的子镜时长，铺满该段真实时长（覆盖铁律）。
+    plan = _plan_shots(sections)  # [(section, [dur,dur,...]), ...]
+
+    # MV_MAX_SHOTS：小样上限，按「镜头总数」截断规划（而非按段落数），仍保证被保留段落铺满。
     cap = media.max_shots()
     if cap:
-        sections = sections[:cap]
+        plan = _cap_plan(plan, cap)
 
     payload = {
         "duration_seconds": mm.get("duration"),
         "characters": [{"id": c.get("id"), "name": c.get("name"),
                         "director_function": c.get("director_function", "")}
                        for c in cm.get("characters", [])],
-        "sections": [{"id": s.get("id"), "seconds": round(s.get("time", [0, 0])[1] - s.get("time", [0, 0])[0], 1),
-                      "music_role": s.get("music_role", ""), "emotion": s.get("emotion", "")}
-                     for s in sections],
+        "sections": [{"id": s.get("id"),
+                      "seconds": round(s.get("time", [0, 0])[1] - s.get("time", [0, 0])[0], 1),
+                      "music_role": s.get("music_role", ""), "emotion": s.get("emotion", ""),
+                      "energy": s.get("energy", 3), "shots_needed": len(durs)}
+                     for s, durs in plan],
     }
     try:
         port = _semantic_port()
         resp, audit = run_bounded_task(
             port, "visual_score.creative_draft_requested", payload,
             _llm_model(), ModelBudget(),
-            "Draft one cinematic shot per music section; keep each field one drawable sentence.")
+            "Cover the whole song: for each section produce exactly `shots_needed` consecutive "
+            "shots that advance its lyric/emotion without repeating. Set each shot id to "
+            "\"{section_id}#{n}\" (n starting at 1). Keep every field one drawable sentence.")
     except Exception as exc:
         return ToolResult(ok=False, error=media.err(
             "storyboard_failed", f"分镜生成失败：{exc}",
             "检查 LLM 服务/额度；或改 prompts 后重跑"))
 
     drafts = resp.get("shots", []) if isinstance(resp, dict) else []
-    shots = _assemble_shots(sections, drafts)
+    shots = _assemble_shots(plan, drafts)
     _write(out_dir, "shots.yaml", yaml.safe_dump({"shots": shots}, allow_unicode=True, sort_keys=False))
+    # scene_groups：同段的多个子镜归到一个组（下游按段落聚合仍成立）。
+    groups: dict = {}
+    for sh in shots:
+        groups.setdefault(sh["section_id"], []).append(sh["id"])
     _write(out_dir, "scene_groups.yaml", yaml.safe_dump(
-        {"groups": [{"id": s["id"], "shots": [s["id"]]} for s in shots]},
+        {"groups": [{"id": sid, "shots": ids} for sid, ids in groups.items()]},
         allow_unicode=True, sort_keys=False))
 
-    md = ["# 分镜脚本\n", f"\n共 {len(shots)} 个镜头"
+    covered = sum(s["duration"] for s in shots)
+    song = round(float(mm.get("duration") or 0), 1)
+    md = ["# 分镜脚本\n",
+          f"\n共 {len(shots)} 个镜头，覆盖 {covered}s / 歌曲 {song}s"
           + (f"（小样上限 MV_MAX_SHOTS={cap}）" if cap else "") + "：\n\n",
-          "| # | 时长 | 画面 | 动作 |\n|---|---|---|---|\n"]
+          "| # | 段落 | 时长 | 画面 | 动作 |\n|---|---|---|---|---|\n"]
     for s in shots:
-        md.append(f"| {s['id']} | {s['duration']}s | {s['first_frame']} | {s['primary_action']} |\n")
+        md.append(f"| {s['id']} | {s['section_id']} | {s['duration']}s | "
+                  f"{s['first_frame']} | {s['primary_action']} |\n")
     _write(out_dir, "storyboard.md", "".join(md))
 
     return ToolResult(ok=True, outputs=["shots.yaml", "storyboard.md", "scene_groups.yaml"],
-                      meta={"step": "02_storyboard", "shots": len(shots), "capped": bool(cap)})
+                      meta={"step": "02_storyboard", "shots": len(shots),
+                            "covered_seconds": covered, "song_seconds": song, "capped": bool(cap)})
 
 
-def _assemble_shots(sections: list, drafts: list) -> list:
-    """段落 + LLM 创意 → shots：id/duration/first_frame/primary_action/image_prompt/video_prompt。"""
-    def clamp(x):
-        return max(4, min(15, int(round(x))))
-    by_id = {d.get("id"): d for d in drafts if isinstance(d, dict)}
-    shots = []
-    for i, s in enumerate(sections, 1):
+# 段落能量(1~5) → 目标单镜时长(s)：能量越高切得越碎、切换越快。
+_ENERGY_TARGET = {1: 12, 2: 11, 3: 9, 4: 7, 5: 6}
+_CLIP_MIN, _CLIP_MAX = 4, 15  # Seedance 硬限：单镜必须落在 [4,15]s
+
+
+def _split_durations(length: float, target: int) -> list:
+    """把一个 length 秒的段落切成若干 4~15s 的整数时长，总和≈length，铺满该段。"""
+    total = max(_CLIP_MIN, int(round(length)))
+    k = max(1, round(total / target))
+    while total / k > _CLIP_MAX:      # 单镜会超 15s → 多切
+        k += 1
+    while k > 1 and total / k < _CLIP_MIN:  # 单镜会不足 4s → 少切
+        k -= 1
+    base, rem = divmod(total, k)
+    durs = [base + (1 if i < rem else 0) for i in range(k)]
+    return [max(_CLIP_MIN, min(_CLIP_MAX, d)) for d in durs]
+
+
+def _plan_shots(sections: list) -> list:
+    """每段 → (section, [子镜时长...])，按能量自适应镜头数，铺满整段。"""
+    plan = []
+    for s in sections:
         t0, t1 = s.get("time", [0, 0])
-        d = by_id.get(s.get("id")) or (drafts[i - 1] if i - 1 < len(drafts) else {})
-        first_frame = (d.get("first_frame") or s.get("emotion") or "cinematic still").strip()
-        action = (d.get("primary_action") or "subtle motion").strip()
-        arrangement = (d.get("arrangement") or "").strip()
-        shots.append({
-            "id": f"SH{i:03d}",
-            "section_id": s.get("id"),
-            "duration": clamp((t1 - t0) or 5),
-            "first_frame": first_frame,
-            "primary_action": action,
-            "image_prompt": (first_frame + ("，" + arrangement if arrangement else "")).strip("，"),
-            "video_prompt": action,
-        })
+        length = (t1 - t0) or 5
+        target = _ENERGY_TARGET.get(int(s.get("energy", 3)), 9)
+        plan.append((s, _split_durations(length, target)))
+    return plan
+
+
+def _cap_plan(plan: list, cap: int) -> list:
+    """按镜头总数上限截断规划（小样用），保留的段落仍整段铺满。"""
+    out, used = [], 0
+    for s, durs in plan:
+        if used >= cap:
+            break
+        take = durs[: max(1, cap - used)]
+        out.append((s, take))
+        used += len(take)
+    return out
+
+
+def _assemble_shots(plan: list, drafts: list) -> list:
+    """规划 + LLM 创意 → shots。同段多镜用 "{section_id}#n" 归组匹配 draft；
+    LLM 少给时复用该段最后一条创意，缺失时回落到段落 emotion —— 覆盖始终由规划保证。"""
+    # 按段落前缀归组 LLM 创意（id 形如 "chorus1#2"）；不合规的按顺序兜底。
+    by_section: dict = {}
+    loose = []
+    for d in drafts:
+        if not isinstance(d, dict):
+            continue
+        did = str(d.get("id", ""))
+        sid = did.split("#", 1)[0] if "#" in did else ""
+        (by_section.setdefault(sid, []) if sid else loose).append(d)
+
+    shots, n = [], 0
+    for s, durs in plan:
+        sid = s.get("id")
+        pool = by_section.get(sid) or loose
+        for j, dur in enumerate(durs):
+            n += 1
+            d = pool[j] if j < len(pool) else (pool[-1] if pool else {})
+            first_frame = (d.get("first_frame") or s.get("emotion") or "cinematic still").strip()
+            action = (d.get("primary_action") or "subtle motion").strip()
+            arrangement = (d.get("arrangement") or "").strip()
+            shots.append({
+                "id": f"SH{n:03d}",
+                "section_id": sid,
+                "duration": int(dur),
+                "first_frame": first_frame,
+                "primary_action": action,
+                "image_prompt": (first_frame + ("，" + arrangement if arrangement else "")).strip("，"),
+                "video_prompt": action,
+            })
     return shots
 
 
