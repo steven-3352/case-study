@@ -1,0 +1,16 @@
+# ad-agent · Python 依赖
+# 安装：pip install -r requirements.txt
+
+# 核心
+pyyaml>=6.0
+python-dotenv>=1.0
+Pillow>=10.0          # 展示帧保真合成（产品原图 paste 到 AI 背景）
+
+# 图像生成 provider（复用 src/mvstudio）
+openai>=1.0
+requests>=2.28
+
+# 注意：本包依赖项目公共库 mv_platform / mvstudio（项目根 src/）
+# 运行前确保在 ad-agent/ 下跑，Python 路径会自动指向项目根。
+# 视频生成（04 的 i2v 镜）走 Seedance provider，无额外 pip 依赖。
+# ffmpeg / ffprobe 需系统安装（03/04/05 用）。
