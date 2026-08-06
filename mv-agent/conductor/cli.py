@@ -5,10 +5,15 @@
   python -m conductor.cli status <片名>
   python -m conductor.cli next   <片名>       跑下一个可执行步骤
   python -m conductor.cli run    <片名>       一路跑到需要拍板处
+  python -m conductor.cli shot   <片名> <step> <镜号...>   逐镜/子集生成（仅 03/04）
   python -m conductor.cli ok     <片名> <step>
   python -m conductor.cli reject <片名> <step> [意见]
 
 对话外壳（Codex / 本地 Web）最终就是把这些动作翻译成"下一步/过/打回"。
+
+逐镜生成（shot）：03_keyframes / 04_shots 支持只生成点名的镜头，结果增量合并进索引，
+不影响其余镜。镜号写法：SH003 · 3 · 3-6 · SH003-SH006 · 逗号列表 · all(全部) · missing(还缺的)。
+省钱按需逐张出图/出片，不必一次烧满整批。
 
 项目根约定（owner 2026-08-05 · docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1）：
   新项目的项目根 = 用户原始物料所在目录，骨架/产物落在那里，不进工具仓库。
@@ -18,8 +23,11 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
+
+import yaml
 
 # 允许 `python conductor/cli.py` 直接跑（无需 `python -m`）
 _HERE = Path(__file__).resolve().parent
@@ -161,11 +169,126 @@ def cmd_reject(name: str, step: str, *fb: str):
     cmd_status(name)
 
 
+# —— 逐镜生成（shot）：03/04 才支持子集生成 ——
+# 每步「全集从哪读、已完成从哪读」的映射，用于展开 all/missing 等关键词。
+_SHOT_STEPS = {
+    "03_keyframes": {"all_file": ("02_storyboard", "shots.yaml",         "shots"),
+                     "done_file": ("03_keyframes",  "keyframes_index.yaml", "keyframes"),
+                     "noun": "首帧图"},
+    "04_shots":     {"all_file": ("03_keyframes",  "keyframes_index.yaml", "shots"),
+                     "done_file": ("04_shots",      "shots_index.yaml",     "shots"),
+                     "noun": "视频片段"},
+}
+
+
+def _ids_from_yaml(path: Path, key: str) -> list[str]:
+    """读某个索引/清单 yaml 里的镜号列表（文件不存在 → 空）。"""
+    if not path.is_file():
+        return []
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return []
+    items = data.get(key, []) if isinstance(data, dict) else []
+    return [str(x["id"]) for x in items if isinstance(x, dict) and x.get("id")]
+
+
+def _norm_id(tok: str) -> str:
+    """把 '3' / 'sh3' / 'SH003' 统一成 'SH003'；非数字原样大写返回。"""
+    tok = tok.strip().upper()
+    m = re.fullmatch(r"(?:SH)?0*(\d+)", tok)
+    return f"SH{int(m.group(1)):03d}" if m else tok
+
+
+def _expand_targets(tokens: list[str], all_ids: list[str], done_ids: set[str]) -> list[str]:
+    """把用户给的镜号 token 展开成有序去重的镜号列表。
+    支持：SH003 · 3 · 3-6 / SH003-SH006（区间）· 逗号/中文逗号分隔 · all · missing/rest。"""
+    order = {sid: i for i, sid in enumerate(all_ids)}
+    picked: set[str] = set()
+    for raw in tokens:
+        for tok in re.split(r"[,，\s]+", raw.strip()):
+            if not tok:
+                continue
+            low = tok.lower()
+            if low in ("all", "全部", "整批"):
+                picked.update(all_ids)
+            elif low in ("missing", "rest", "remaining", "剩下", "还缺", "缺"):
+                picked.update(sid for sid in all_ids if sid not in done_ids)
+            elif "-" in tok and not tok.startswith("-"):
+                a, _, b = tok.partition("-")
+                ia, ib = order.get(_norm_id(a)), order.get(_norm_id(b))
+                if ia is not None and ib is not None:
+                    lo, hi = sorted((ia, ib))
+                    picked.update(all_ids[lo:hi + 1])
+            else:
+                picked.add(_norm_id(tok))
+    return sorted(picked, key=lambda s: order.get(s, 10**9))
+
+
+def cmd_shot(name: str, step: str = "", *tokens: str):
+    if step not in _SHOT_STEPS:
+        raise SystemExit(
+            f"❌ shot 只支持逐镜生成的步骤：{' / '.join(_SHOT_STEPS)}\n"
+            f"   用法：shot {name} 03_keyframes SH003   （或 3 / 3-6 / all / missing）")
+    if not tokens:
+        raise SystemExit(
+            f"❌ 请指定镜号：shot {name} {step} <镜号...>\n"
+            f"   例：shot {name} {step} 3   ·   3-6   ·   SH003,SH007   ·   missing   ·   all")
+
+    c = _c(name)
+    spec = STEP_BY_ID[step]
+    c.state.load()
+    # 上游没批准就别烧钱
+    not_ready = [u for u in spec.input_from if not c.state.is_done(u)]
+    if not_ready:
+        raise SystemExit(
+            f"❌ 上游还没批准：{', '.join(not_ready)}。\n"
+            f"   先 ok 掉上游再逐镜生成（否则拿不到 {STEP_BY_ID[step].title} 的输入）。")
+
+    cfg = _SHOT_STEPS[step]
+    all_ids = _ids_from_yaml(c.root / Path(*cfg["all_file"][:2]), cfg["all_file"][2])
+    done_ids = set(_ids_from_yaml(c.root / Path(*cfg["done_file"][:2]), cfg["done_file"][2]))
+    if not all_ids:
+        raise SystemExit(
+            f"❌ 找不到镜头清单（{'/'.join(cfg['all_file'][:2])}）。先跑通并批准上游。")
+
+    only = _expand_targets(list(tokens), all_ids, done_ids)
+    if not only:
+        raise SystemExit(
+            "❌ 没解析出任何镜号。检查写法（SH003 / 3 / 3-6 / all / missing），"
+            f"或该步已全部生成（共 {len(all_ids)} 镜，已出 {len(done_ids)} 镜）。")
+
+    print(render.before(spec))
+    print(f"  🎯 本次只生成 {len(only)} 镜：{', '.join(only)}")
+    res = c.run_step(spec, only=only)
+    if not res.get("ok"):
+        print(f"❌ 失败：{res.get('error')}")
+        return
+    print(render.after(spec, res.get("outputs") or spec.outputs, project=name))
+
+    meta = res.get("meta") or {}
+    total, indexed = meta.get("total", len(all_ids)), meta.get("indexed", 0)
+    missing = meta.get("missing") or []
+    print(f"  📊 {cfg['noun']}：本次出 {meta.get('generated', 0)} 张 · "
+          f"累计 {indexed}/{total} 镜已完成")
+    if meta.get("partial_error"):
+        print(f"  ⚠️  有镜生成失败：{meta['partial_error']}（reject 报镜号可重试）")
+    if meta.get("not_found"):
+        print(f"  ⚠️  这些镜号不存在，已忽略：{', '.join(meta['not_found'])}")
+    if missing:
+        head = ", ".join(missing[:8]) + (" …" if len(missing) > 8 else "")
+        print(f"  ⏳ 还缺 {len(missing)} 镜：{head}")
+        print(f"     继续出下一张：shot {name} {step} <镜号>   ·   一次补齐：shot {name} {step} missing")
+    else:
+        print(f"  ✅ {total} 镜全部生成完毕，满意就批准：ok {name} {step}")
+
+
 _CMDS = {
     "init":   cmd_init,
     "status": cmd_status,
     "next":   cmd_next,
     "run":    cmd_run,
+    "shot":   cmd_shot,
     "ok":     cmd_ok,
     "reject": cmd_reject,
 }

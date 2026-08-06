@@ -49,17 +49,25 @@ class OpenAICompatibleImageProvider:
             environ.get("GPT_IMAGE_MODEL", "gpt-image-2"),
         )
 
-    def generate(self, prompt, references=(), size="1024x1536"):
+    def generate(self, prompt, references=(), size="1024x1536",
+                 quality=None, output_format=None):
+        extra = {}
+        if quality:
+            extra["quality"] = quality
+        if output_format:
+            extra["output_format"] = output_format
         handles = []
         try:
             if references:
                 handles = [Path(path).open("rb") for path in references]
                 result = self.client.images.edit(
                     model=self.model, image=handles, prompt=prompt, size=size, n=1,
+                    **extra,
                 )
             else:
                 result = self.client.images.generate(
                     model=self.model, prompt=prompt, size=size, n=1,
+                    **extra,
                 )
         except Exception as exc:
             raise ImageProviderError("image provider request failed") from exc

@@ -24,10 +24,17 @@
 | `python -m conductor.cli status <name>` | 打印六步状态 + 花费 | 任何时候查进度 |
 | `python -m conductor.cli run <name>` | 一路跑到**下一个等拍板处 / 失败处**停 | 主驱动命令 |
 | `python -m conductor.cli next <name>` | 只跑**下一个可执行步骤** | 单步调试 |
+| `python -m conductor.cli shot <name> <step> <镜号...>` | **逐镜/子集生成**(仅 `03_keyframes`/`04_shots`),结果增量合并进索引,不动其余镜 | 按需出单张图/单段片,省钱不烧整批 |
 | `python -m conductor.cli ok <name> <step>` | 批准某步(awaiting→done) | 用户说"过" |
 | `python -m conductor.cli reject <name> <step> "意见"` | 打回(重跑本步 + 下游级联回 pending) | 用户说"改" |
 
 `<step>` ∈ `00_intake 01_analysis 02_storyboard 03_keyframes 04_shots 05_delivery`
+
+**`shot` 镜号写法**(仅 `03_keyframes` / `04_shots`,上游须已 `done`):
+`SH003` · `3` · `3-6` / `SH003-SH006`(区间)· `SH003,SH007`(逗号列表)· `all`(全部)· `missing`(还缺的)。
+- 结果**增量合并**进本步索引(`keyframes_index.yaml` / `shots_index.yaml`),不覆盖其余镜;索引按分镜原顺序重排。
+- `shot` **不推进状态机**:本步仍停在 `pending`/`awaiting_approval`,出满意后照常 `ok <name> <step>` 才算批准。全部失败才落 `rejected`,部分失败仍成功(看 `meta.partial_error` 报的镜号)。
+- 典型用法:先 `shot <name> 03_keyframes 3` 试一张看风格,满意再 `shot <name> 03_keyframes missing` 补齐,最后 `ok`。省钱不必一次烧满整批。
 
 ---
 
@@ -122,7 +129,7 @@ which ffmpeg ffprobe                               # 05_delivery / 00_intake 需
 
 - **跑前念白**:"这步用 `gen_keyframe`:拿你的人物图当参考,给每个镜头画一张竖版首帧图(9:16)。逐张生成,按镜头数量花图像费。"
 - **输入**(自 02+00):`shots.yaml` + `manifest.yaml`(取人物图作参考)
-- **命令**:`ok <name> 02_storyboard` → `run <name>`
+- **命令**:`ok <name> 02_storyboard` → `run <name>`(整批出图)· 或 `shot <name> 03_keyframes <镜号...>`(逐镜/子集出图,省钱按需)
 - **产物用途**:`keyframes_index.yaml`(首帧图索引:每镜 `id`/`keyframe`(png 名)/`duration`/`video_prompt`/`digest`)+ `SH###_keyframe.png`(每镜一张 · 9:16 · 1024x1536)
 - **Codex 校验**:`run` 停在 `03_keyframes` awaiting → 成功;从 CLI 输出/`meta` 读"生成 X/总 Y"。指向 `projects/<name>/03_keyframes/` 让用户看图。**不逐张打开图判断质量**(那是用户的事)。
 - **合理建议**:X<Y(部分失败,`meta.partial_error`)→ 明说"有 N 张没出来,要重试就 reject 报镜号";让用户"哪张不满意报镜号我重做"。
@@ -132,7 +139,7 @@ which ffmpeg ffprobe                               # 05_delivery / 00_intake 需
 
 - **跑前念白(必说慢)**:"这步用 `gen_video`:把每张首帧图交给 Seedance 跑成视频片段(9:16/720p)。这步最慢,N 个片段大概要 X~X 分钟,你先忙别的。"
 - **输入**(自 03):`keyframes_index.yaml` + 同目录 png
-- **命令**:`ok <name> 03_keyframes` → `run <name>`
+- **命令**:`ok <name> 03_keyframes` → `run <name>`(整批出片)· 或 `shot <name> 04_shots <镜号...>`(逐镜/子集出片,最慢最贵更该按需)
 - **产物用途**:`shots_index.yaml`(视频片段索引:每镜 `id`/`video`(mp4 名)/`duration`/`video_sha256`)+ `SH###.mp4`(每镜一段 · Seedance · 9:16/720p/该镜 duration 秒)
 - **Codex 校验**:`run` 停在 `04_shots` awaiting → 成功;从 `meta` 读"生成 X/总 Y";逐镜报 `SH###.mp4`+时长。**不播放视频判断内容**。
 - **合理建议**:X<Y(部分失败)→ 明说哪几镜没出、可 reject 重试;让用户"有问题的报镜号"。

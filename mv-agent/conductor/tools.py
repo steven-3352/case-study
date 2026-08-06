@@ -427,13 +427,42 @@ def _assemble_shots(plan: list, drafts: list) -> list:
     return shots
 
 
+def _select_targets(shots: list, only) -> tuple[list, list]:
+    """按 only(镜号集合/None) 过滤要处理的镜头。
+    返回 (命中的镜头列表, 点名了但 shots 里不存在的镜号)。only=None → 全部。"""
+    if not only:
+        return list(shots), []
+    want = {str(x).upper() for x in only}
+    have = {str(s.get("id", "")).upper() for s in shots}
+    picked = [s for s in shots if str(s.get("id", "")).upper() in want]
+    not_found = sorted(want - have)
+    return picked, not_found
+
+
+def _rebuild_index(shots: list, by_id: dict, key: str) -> list:
+    """按 shots 原顺序重排索引条目，只保留已生成(在 by_id 里)的镜。"""
+    return [by_id[s["id"]] for s in shots if s["id"] in by_id]
+
+
 def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """03_keyframes — 逐镜首帧图（gpt-image，人物图作参考，9:16）。"""
+    """03_keyframes — 逐镜首帧图（gpt-image，人物图作参考，9:16）。
+
+    支持单镜/子集生成:params["only"] 给镜号集合时只画那几张,并把结果**增量合并**进
+    已有 keyframes_index.yaml(不覆盖其余镜)。only 为空 → 全量。
+    """
     out_dir = Path(out_dir)
+    only = (params or {}).get("only")
     shots = _load_yaml(_find(inputs, "shots.yaml") or Path("/nonexistent")).get("shots", [])
     if not shots:
         return ToolResult(ok=False, error=media.err(
             "no_shots", "上游没有 shots.yaml。", "先跑通 02_storyboard 并批准"))
+
+    targets, not_found = _select_targets(shots, only)
+    if only and not targets:
+        return ToolResult(ok=False, error=media.err(
+            "shot_not_found", f"点名的镜号在分镜里不存在：{', '.join(not_found)}",
+            f"有效镜号：{shots[0]['id']}~{shots[-1]['id']}(共 {len(shots)} 镜)"))
+
     manifest = _load_yaml(_find(inputs, "manifest.yaml") or Path("/nonexistent"))
     refs = [c["path"] for c in manifest.get("characters", []) if Path(c["path"]).is_file()]
 
@@ -445,41 +474,64 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "image_config", f"画面生成服务未配置：{exc}",
             "在 mv-agent/.env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY"))
 
-    index, made, done, first_err = [], [], 0, None
-    for s in shots:
+    # 增量：先读入已有索引（单镜生成时保留其余镜）。
+    by_id = {e["id"]: e for e in _load_yaml(out_dir / "keyframes_index.yaml").get("keyframes", [])
+             if isinstance(e, dict) and e.get("id")}
+    import os
+    quality = os.environ.get("GPT_IMAGE_QUALITY", "high").strip() or None
+    output_format = os.environ.get("GPT_IMAGE_OUTPUT_FORMAT", "png").strip() or None
+    made, done, first_err = [], 0, None
+    for s in targets:
         name = f"{s['id']}_keyframe.png"
         try:
-            data = provider.generate(s["image_prompt"], references=refs, size="1024x1536")
+            data = provider.generate(s["image_prompt"], references=refs, size="1024x1536",
+                                     quality=quality, output_format=output_format)
             (out_dir / name).write_bytes(data)
-            index.append({"id": s["id"], "keyframe": name, "duration": s["duration"],
-                          "video_prompt": s["video_prompt"], "digest": media.sha256_bytes(data)})
+            by_id[s["id"]] = {"id": s["id"], "keyframe": name, "duration": s["duration"],
+                              "video_prompt": s["video_prompt"], "digest": media.sha256_bytes(data)}
             made.append(name)
             done += 1
         except Exception as exc:
             first_err = first_err or f"{s['id']}: {exc}"
 
-    if done == 0:
+    if done == 0 and not by_id:
         return ToolResult(ok=False, error=media.err(
             "keyframe_failed", f"首帧图全部失败：{first_err}", "检查图像服务地址/额度"))
 
+    index = _rebuild_index(shots, by_id, "keyframe")
     _write(out_dir, "keyframes_index.yaml", yaml.safe_dump(
         {"keyframes": index}, allow_unicode=True, sort_keys=False))
-    meta = {"step": "03_keyframes", "generated": done, "total": len(shots)}
+    missing = [s["id"] for s in shots if s["id"] not in by_id]
+    meta = {"step": "03_keyframes", "generated": done, "requested": len(targets),
+            "indexed": len(index), "total": len(shots), "missing": missing}
     if first_err:
         meta["partial_error"] = first_err
+    if not_found:
+        meta["not_found"] = not_found
     return ToolResult(ok=True, outputs=["keyframes_index.yaml", *made], meta=meta)
 
 
 def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """04_shots — 逐镜 i2v（Seedance，首帧图 → 视频，9:16/720p）。"""
+    """04_shots — 逐镜 i2v（Seedance，首帧图 → 视频，9:16/720p）。
+
+    支持单镜/子集生成:params["only"] 给镜号集合时只跑那几段,结果**增量合并**进
+    已有 shots_index.yaml。only 为空 → 全量。
+    """
     import os
     out_dir = Path(out_dir)
+    only = (params or {}).get("only")
     idx_path = _find(inputs, "keyframes_index.yaml")
     keyframes = _load_yaml(idx_path or Path("/nonexistent")).get("keyframes", [])
     if not keyframes or not idx_path:
         return ToolResult(ok=False, error=media.err(
             "no_keyframes", "上游没有关键帧。", "先跑通 03_keyframes 并批准"))
     kf_dir = idx_path.parent
+
+    targets, not_found = _select_targets(keyframes, only)
+    if only and not targets:
+        return ToolResult(ok=False, error=media.err(
+            "shot_not_found", f"点名的镜号在关键帧里不存在：{', '.join(not_found)}",
+            f"有效镜号：{keyframes[0]['id']}~{keyframes[-1]['id']}(共 {len(keyframes)} 镜)"))
 
     try:
         from mvstudio.providers.seedance import SeedancePort, SeedanceTask, SeedanceFrame
@@ -490,8 +542,11 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "在 mv-agent/.env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"))
     model = os.environ.get("SEEDANCE_MODEL", "").strip() or "doubao-seedance-2-0"
 
-    index, made, done, first_err = [], [], 0, None
-    for kf in keyframes:
+    # 增量：先读入已有索引（单镜生成时保留其余镜）。
+    by_id = {e["id"]: e for e in _load_yaml(out_dir / "shots_index.yaml").get("shots", [])
+             if isinstance(e, dict) and e.get("id")}
+    made, done, first_err = [], 0, None
+    for kf in targets:
         kf_path = kf_dir / kf["keyframe"]
         out_name = f"{kf['id']}.mp4"
         if not kf_path.is_file():
@@ -507,23 +562,28 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
                 aspect_ratio="9:16", resolution="720p")
             result = provider.generate(task)
             (out_dir / out_name).write_bytes(result.video_bytes)
-            index.append({"id": kf["id"], "video": out_name,
-                          "duration": int(kf.get("duration", 5)),
-                          "video_sha256": result.video_sha256})
+            by_id[kf["id"]] = {"id": kf["id"], "video": out_name,
+                               "duration": int(kf.get("duration", 5)),
+                               "video_sha256": result.video_sha256}
             made.append(out_name)
             done += 1
         except Exception as exc:
             first_err = first_err or f"{kf['id']}: {exc}"
 
-    if done == 0:
+    if done == 0 and not by_id:
         return ToolResult(ok=False, error=media.err(
             "video_failed", f"视频全部失败：{first_err}", "检查 Seedance 服务地址/额度/模型名"))
 
+    index = _rebuild_index(keyframes, by_id, "video")
     _write(out_dir, "shots_index.yaml", yaml.safe_dump(
         {"shots": index}, allow_unicode=True, sort_keys=False))
-    meta = {"step": "04_shots", "generated": done, "total": len(keyframes)}
+    missing = [kf["id"] for kf in keyframes if kf["id"] not in by_id]
+    meta = {"step": "04_shots", "generated": done, "requested": len(targets),
+            "indexed": len(index), "total": len(keyframes), "missing": missing}
     if first_err:
         meta["partial_error"] = first_err
+    if not_found:
+        meta["not_found"] = not_found
     return ToolResult(ok=True, outputs=["shots_index.yaml", *made], meta=meta)
 
 

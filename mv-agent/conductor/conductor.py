@@ -68,10 +68,13 @@ class Conductor:
         return None
 
     # ---- 跑一步（幂等）----
-    def run_step(self, spec: StepSpec) -> dict:
+    def run_step(self, spec: StepSpec, only: list[str] | None = None) -> dict:
+        """跑一步。only 给镜号列表时只处理那几镜（单镜/子集生成），
+        并跳过幂等短路——单镜生成总是要真跑工具，不能被"已 done"挡住。"""
         self.state.load()
-        # 幂等跳过：产物齐 + 状态已 done + hash 未变
-        if self._outputs_ready(spec) and self.state.step(spec.step_id).get("status") == DONE:
+        # 幂等跳过：产物齐 + 状态已 done + hash 未变（only 模式不短路）
+        if not only and self._outputs_ready(spec) \
+                and self.state.step(spec.step_id).get("status") == DONE:
             return {"skipped": True, "step": spec.step_id}
 
         self.state.set_status(spec.step_id, RUNNING)
@@ -80,27 +83,31 @@ class Conductor:
         layout.copy_prompt_used(self.root, spec.step_id, self.prompts_dir, spec.prompts)
 
         prompt_file = (self.prompts_dir / spec.prompts[0]) if spec.prompts else None
+        params = {"outputs": spec.outputs, "step_id": spec.step_id}
+        if only:
+            params["only"] = list(only)
         res = spec.tool(
             inputs=[sub["input"]],
             out_dir=sub["step"],
-            params={"outputs": spec.outputs, "step_id": spec.step_id},
+            params=params,
             prompt_file=prompt_file,
         )
+        scope = f"（仅 {', '.join(only)}）" if only else ""
         layout.append_log(
             self.root, spec.step_id,
-            f"脚本 {spec.tool_name or spec.tool.__name__} · 用途：{spec.purpose} "
+            f"脚本 {spec.tool_name or spec.tool.__name__} · 用途：{spec.purpose}{scope} "
             f"· ok={res.ok} · 产出 {len(res.outputs)} 个：{', '.join(res.outputs)}",
         )
 
         if not res.ok:
             self.state.set_status(spec.step_id, REJECTED, error=res.error)
-            return {"ok": False, "step": spec.step_id, "error": res.error}
+            return {"ok": False, "step": spec.step_id, "error": res.error, "meta": res.meta}
 
         h = self._hash_outputs(spec)
         nxt = AWAITING if spec.approval else DONE
         self.state.set_status(spec.step_id, nxt, hash=h)
         return {"ok": True, "step": spec.step_id, "status": nxt, "hash": h,
-                "outputs": list(res.outputs)}
+                "outputs": list(res.outputs), "meta": res.meta}
 
     # ---- 用户拍板：过 ----
     def approve(self, sid: str) -> dict:
