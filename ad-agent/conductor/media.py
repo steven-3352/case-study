@@ -229,3 +229,26 @@ def ken_burns_to_mp4(png_path: Path, out_path: Path, seconds: float,
         return True
     # zoompan 在某些 ffmpeg 构建上挑剔 → 回退成静态定格，保证不阻断流程
     return still_to_mp4(png_path, out_path, seconds, canvas)
+
+
+def pose_reference_from_video(source: Path, out_path: Path, *,
+                             model: Optional[Path] = None,
+                             label: bool = True) -> dict:
+    """把任意人物视频转成「无外貌信息」的动作骨架视频（复用 mvstudio.media 公共库）。
+
+    只保留 MediaPipe 姿态骨架的运动/时序，丢弃长相与身份——可作为 i2v 的
+    编舞/节奏参考而不带脸。重活（cv2/mediapipe）在公共库里惰性导入，缺依赖时
+    抛结构化错误、不阻断其他步骤。
+
+    返回 {"output","frames","detected","coverage","fps"}；失败抛 RuntimeError
+    （由公共库的 PoseReferenceError 归一，调用方按 ToolResult 兜底即可）。
+    """
+    from mvstudio.media import generate_pose_reference  # 惰性导入：无 CV 依赖时不拖累其他步骤
+    result = generate_pose_reference(source, out_path, model=model, label=label)
+    return {
+        "output": str(result.output),
+        "frames": result.frames,
+        "detected": result.detected,
+        "coverage": round(result.coverage, 4),
+        "fps": result.fps,
+    }

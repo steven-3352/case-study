@@ -46,6 +46,12 @@ edge-tts>=7.0,<8.0                   # Edge TTS provider · pipeline/tts/gen_spe
 # ---- 本地歌词对齐 ----
 faster-whisper>=1.1,<2.0             # 纯文本歌词与音频的本地 word-timestamp 对齐
 
+# ---- 动作骨架参考(可选 · mvstudio.media.generate_pose_reference) ----
+# 把人物视频转成无外貌信息的姿态骨架视频(i2v 编舞/节奏参考,不带脸)。
+# 惰性导入:不用该能力时无需安装,不影响其他 pipeline。
+opencv-python>=4.8,<6.0             # import 名 cv2 · 读帧/画骨架/写 mp4
+mediapipe>=0.10,<1.0                # PoseLandmarker · 模型 assets/models/pose_landmarker_lite.task
+
 # ---- 视频 / 浏览器渲染(P001 HTML 截图 · 三平台数据抓取) ----
 playwright>=1.50,<2.0                # 无头浏览器 · 装完需跑 `playwright install chromium`
 
