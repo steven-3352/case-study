@@ -647,7 +647,10 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
                     shot_id=kf["id"], model=model, prompt=prompt,
                     duration_seconds=max(4, min(15, dur)),
                     first_frame=SeedanceFrame(content=data, sha256=media.sha256_bytes(data)),
-                    aspect_ratio=video_ratio, resolution="720p")
+                    aspect_ratio=video_ratio, resolution="720p",
+                    reference_video_url=kf.get("reference_video_url", ""),
+                    reference_audio_url=kf.get("reference_audio_url", ""),
+                    reference_image_urls=tuple(kf.get("reference_image_urls") or ()))
                 result = provider.generate(task)
                 (out_dir / out_name).write_bytes(result.video_bytes)
             by_id[kf["id"]] = {"id": kf["id"], "video": out_name, "duration": dur,

@@ -67,6 +67,9 @@ class SeedanceTask:
     reference_frames: tuple[SeedanceFrame, ...] = ()
     aspect_ratio: str = "9:16"
     resolution: str = "720p"
+    reference_video_url: str = ""
+    reference_audio_url: str = ""
+    reference_image_urls: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -164,6 +167,19 @@ class SeedancePort:
             raise SeedanceProviderError("Seedance reference-frame count exceeds budget")
         first_type = task.first_frame.checked(self.max_frame_bytes)
         reference_types = [frame.checked(self.max_frame_bytes) for frame in task.reference_frames]
+        reference_video_url = task.reference_video_url.strip() if task.reference_video_url else ""
+        reference_audio_url = task.reference_audio_url.strip() if task.reference_audio_url else ""
+        reference_image_urls = tuple(
+            url.strip() for url in task.reference_image_urls if isinstance(url, str) and url.strip()
+        )
+        if len(reference_image_urls) > 4:
+            raise SeedanceProviderError("Seedance reference-image URL count exceeds budget")
+        if reference_video_url:
+            _media_url(reference_video_url, "Seedance reference video", allow_query=True)
+        if reference_audio_url:
+            _media_url(reference_audio_url, "Seedance reference audio", allow_query=True)
+        for url in reference_image_urls:
+            _media_url(url, "Seedance reference image", allow_query=True)
         contract = {
             "shot_id": task.shot_id.strip(),
             "model": task.model,
@@ -173,6 +189,9 @@ class SeedancePort:
             "resolution": task.resolution,
             "first_frame_sha256": task.first_frame.sha256,
             "reference_frame_sha256s": [frame.sha256 for frame in task.reference_frames],
+            "reference_video_url": reference_video_url,
+            "reference_audio_url": reference_audio_url,
+            "reference_image_urls": list(reference_image_urls),
         }
         return contract, first_type, reference_types
 
@@ -193,7 +212,7 @@ class SeedancePort:
         except urllib.error.HTTPError as exc:
             raise SeedanceProviderError(f"Seedance provider HTTP {exc.code}: {exc.reason}") from exc
         except (OSError, urllib.error.URLError) as exc:
-            raise SeedanceProviderError(f"Seedance provider request failed: {exc}") from exc
+            raise SeedanceProviderError("Seedance provider request failed") from exc
         if len(raw) > self.max_response_bytes:
             raise SeedanceProviderError("Seedance provider response exceeds byte budget")
         try:
@@ -285,6 +304,34 @@ class SeedancePort:
                 {"url": self._data_url(frame, media_type)}
                 for frame, media_type in zip(task.reference_frames, reference_types)
             ]
+        content = []
+        for image_url in contract["reference_image_urls"]:
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": image_url},
+                    "role": "reference_image",
+                }
+            )
+        if contract["reference_video_url"]:
+            content.append(
+                {
+                    "type": "video_url",
+                    "video_url": {"url": contract["reference_video_url"]},
+                    "role": "reference_video",
+                }
+            )
+        if contract["reference_audio_url"]:
+            content.append(
+                {
+                    "type": "audio_url",
+                    "audio_url": {"url": contract["reference_audio_url"]},
+                    "role": "reference_audio",
+                }
+            )
+            body["metadata"]["generate_audio"] = True
+        if content:
+            body["metadata"]["content"] = content
         envelope = self._json_request(self.endpoint, method="POST", body=body)
         task_id = self._task_id(envelope)
         video_url = self._video_url(envelope)

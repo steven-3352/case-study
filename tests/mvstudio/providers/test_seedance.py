@@ -141,7 +141,7 @@ def test_provider_allows_loopback_http_and_v1_base():
         (_task(duration_seconds=3), "duration"),
         (_task(duration_seconds=16), "duration"),
         (_task(prompt="x" * 12001), "prompt"),
-        (_task(aspect_ratio="16:9"), "first slice"),
+        (_task(aspect_ratio="1:1"), "unsupported"),
         (_task(model="other"), "model differs"),
         (_task(first_frame=SeedanceFrame(PNG, "sha256:" + "0" * 64)), "hash changed"),
         (_task(first_frame=SeedanceFrame(b"not-image", _digest(b"not-image"))), "PNG or JPEG"),
@@ -184,3 +184,92 @@ def test_provider_does_not_require_or_write_files(monkeypatch):
         opener=lambda *_args, **_kwargs: Response(next(responses)),
     )
     assert port.generate(_task()).video_bytes == MP4
+
+
+def test_reference_video_appends_content_entry():
+    captured = {}
+
+    def opener(request, timeout):
+        if request.method == "POST":
+            captured.update(json.loads(request.data))
+            return Response(json.dumps({"url": "https://cdn.example/v.mp4"}).encode())
+        return Response(MP4)
+
+    port = SeedancePort(
+        "https://seedance.example", "secret", "doubao-seedance-2-0", opener=opener
+    )
+    task = _task(reference_video_url="https://example.com/dance.mp4")
+    port.generate(task)
+    assert "content" in captured["metadata"]
+    entries = captured["metadata"]["content"]
+    assert len(entries) == 1
+    assert entries[0] == {"type": "video_url", "video_url": {"url": "https://example.com/dance.mp4"}, "role": "reference_video"}
+    assert captured["image"].startswith("data:image/png;base64,")
+    assert captured["metadata"]["generate_audio"] is False
+    assert "duration" in captured["metadata"]
+
+
+def test_reference_audio_enables_generate_audio():
+    captured = {}
+
+    def opener(request, timeout):
+        if request.method == "POST":
+            captured.update(json.loads(request.data))
+            return Response(json.dumps({"url": "https://cdn.example/v.mp4"}).encode())
+        return Response(MP4)
+
+    port = SeedancePort(
+        "https://seedance.example", "secret", "doubao-seedance-2-0", opener=opener
+    )
+    port.generate(_task(reference_audio_url="https://example.com/bg.mp3"))
+    audio_entries = [e for e in captured["metadata"]["content"] if e["role"] == "reference_audio"]
+    assert len(audio_entries) == 1
+    assert captured["metadata"]["generate_audio"] is True
+
+
+def test_reference_image_urls_all_appear_in_content():
+    captured = {}
+
+    def opener(request, timeout):
+        if request.method == "POST":
+            captured.update(json.loads(request.data))
+            return Response(json.dumps({"url": "https://cdn.example/v.mp4"}).encode())
+        return Response(MP4)
+
+    port = SeedancePort(
+        "https://seedance.example", "secret", "doubao-seedance-2-0", opener=opener
+    )
+    urls = ("https://example.com/frame1.jpg", "https://example.com/frame2.jpg")
+    port.generate(_task(reference_image_urls=urls))
+    image_entries = [e for e in captured["metadata"]["content"] if e["role"] == "reference_image"]
+    assert len(image_entries) == 2
+    assert image_entries[0]["image_url"]["url"] == urls[0]
+    assert image_entries[1]["image_url"]["url"] == urls[1]
+
+
+def test_reference_url_rejects_non_https():
+    port = SeedancePort("https://seedance.example", "secret", "doubao-seedance-2-0")
+    with pytest.raises(SeedanceProviderError, match="HTTPS"):
+        port.generate(_task(reference_video_url="http://example.com/dance.mp4"))
+
+
+def test_content_order_matches_curl_spec():
+    """images first, then video, then audio — matches the tested curl."""
+    captured = {}
+
+    def opener(request, timeout):
+        if request.method == "POST":
+            captured.update(json.loads(request.data))
+            return Response(json.dumps({"url": "https://cdn.example/v.mp4"}).encode())
+        return Response(MP4)
+
+    port = SeedancePort(
+        "https://seedance.example", "secret", "doubao-seedance-2-0", opener=opener
+    )
+    port.generate(_task(
+        reference_image_urls=("https://example.com/img.jpg",),
+        reference_video_url="https://example.com/vid.mp4",
+        reference_audio_url="https://example.com/aud.mp3",
+    ))
+    roles = [e["role"] for e in captured["metadata"]["content"]]
+    assert roles == ["reference_image", "reference_video", "reference_audio"]
