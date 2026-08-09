@@ -5,7 +5,9 @@ dependency-light, local media transforms (pose extraction, …) that any agent
 may call without touching engine or provider code.
 """
 
+from .font_fallback import resolve_cjk_font
 from .helpers import (
+    compose_storyboard,
     err,
     ffmpeg_bin,
     ffprobe_bin,
@@ -22,11 +24,13 @@ from .pose_reference import (
 )
 
 __all__ = [
+    "compose_storyboard",
     "err",
     "ffmpeg_bin",
     "ffprobe_bin",
     "max_shots",
     "provider_config",
+    "resolve_cjk_font",
     "sha256_bytes",
     "sha256_file",
     "PoseReferenceError",
