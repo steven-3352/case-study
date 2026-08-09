@@ -5,6 +5,15 @@ dependency-light, local media transforms (pose extraction, …) that any agent
 may call without touching engine or provider code.
 """
 
+from .helpers import (
+    err,
+    ffmpeg_bin,
+    ffprobe_bin,
+    max_shots,
+    provider_config,
+    sha256_bytes,
+    sha256_file,
+)
 from .pose_reference import (
     PoseReferenceError,
     PoseReferenceResult,
@@ -13,6 +22,13 @@ from .pose_reference import (
 )
 
 __all__ = [
+    "err",
+    "ffmpeg_bin",
+    "ffprobe_bin",
+    "max_shots",
+    "provider_config",
+    "sha256_bytes",
+    "sha256_file",
     "PoseReferenceError",
     "PoseReferenceResult",
     "generate_pose_reference",

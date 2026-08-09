@@ -9,9 +9,7 @@
 """
 from __future__ import annotations
 
-import hashlib
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -23,18 +21,22 @@ for _p in (str(_REPO_ROOT), str(_REPO_ROOT / "src")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-# ── 加载项目根 .env（ad-agent/.env 已废弃，统一用项目根 .env）
+# ── 加载项目根 .env（统一 KEY 源，不再用 ad-agent/.env）
 try:
     from dotenv import load_dotenv
     load_dotenv(_REPO_ROOT / ".env", override=False)
 except ImportError:
     pass
 
-try:
-    from mv_platform.application.control_plane import ENV_MAP
-    _MV_PLATFORM_OK = True
-except ImportError:
-    ENV_MAP, _MV_PLATFORM_OK = {}, False
+from mvstudio.media import (
+    err,
+    ffmpeg_bin,
+    ffprobe_bin,
+    max_shots as _max_shots,
+    provider_config,
+    sha256_bytes,
+    sha256_file,
+)
 
 
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
@@ -51,52 +53,8 @@ ASPECT_MAP = {
 DEFAULT_ASPECT = "9:16"
 
 
-def err(code: str, message: str, hint: str = "") -> dict:
-    """结构化错误（控制器会把它路由到 reject，用户看得懂的中文）。"""
-    return {"code": code, "message": message, "hint": hint}
-
-
-def sha256_bytes(data: bytes) -> str:
-    return "sha256:" + hashlib.sha256(data).hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with Path(path).open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return "sha256:" + h.hexdigest()
-
-
-def ffmpeg_bin() -> str:
-    return os.environ.get("MVSTUDIO_FFMPEG_PATH") or shutil.which("ffmpeg") or "ffmpeg"
-
-
-def ffprobe_bin() -> str:
-    return os.environ.get("MVSTUDIO_FFPROBE_PATH") or shutil.which("ffprobe") or "ffprobe"
-
-
-def provider_config() -> dict:
-    """os.environ → 嵌套 {section:{key:val}}，键遵循 ENV_MAP。"""
-    cfg: dict = {}
-    for dotted, env_key in ENV_MAP.items():
-        section, key = dotted.split(".", 1)
-        val = os.environ.get(env_key, "")
-        if val:
-            cfg.setdefault(section, {})[key] = val
-    return cfg
-
-
 def max_shots() -> Optional[int]:
-    """小样验证的镜头上限：环境变量 AD_MAX_SHOTS（未设=不限）。"""
-    raw = os.environ.get("AD_MAX_SHOTS", "").strip()
-    if not raw:
-        return None
-    try:
-        n = int(raw)
-        return n if n > 0 else None
-    except ValueError:
-        return None
+    return _max_shots("AD_MAX_SHOTS")
 
 
 def normalize_aspect(raw: str) -> str:
