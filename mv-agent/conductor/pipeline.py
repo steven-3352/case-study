@@ -81,6 +81,7 @@ STEPS: list[StepSpec] = [
         purpose="先生成背景底图，再合成人物，产出每镜首帧图",
         outputs_desc={
             "keyframes_index.yaml": "首帧图索引（每镜对应哪张图 + 生成参数）",
+            "storyboard_grid.png":  "分镜拼图(镜头≥2 时产出 · N 张 keyframe 网格 + 镜号/时长 · 拍板锚点)",
         },
     ),
     StepSpec(

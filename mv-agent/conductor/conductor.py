@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from . import layout
@@ -104,7 +105,15 @@ class Conductor:
             return {"ok": False, "step": spec.step_id, "error": res.error, "meta": res.meta}
 
         h = self._hash_outputs(spec)
-        nxt = AWAITING if spec.approval else DONE
+        if (spec.approval and spec.step_id == "03_keyframes"
+                and os.environ.get("MVSTUDIO_STORYBOARD_AUTO_APPROVE") == "1"):
+            nxt = DONE
+            layout.append_log(
+                self.root, spec.step_id,
+                "MVSTUDIO_STORYBOARD_AUTO_APPROVE=1 → 跳过分镜拍板",
+            )
+        else:
+            nxt = AWAITING if spec.approval else DONE
         self.state.set_status(spec.step_id, nxt, hash=h)
         return {"ok": True, "step": spec.step_id, "status": nxt, "hash": h,
                 "outputs": list(res.outputs), "meta": res.meta}

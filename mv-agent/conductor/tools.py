@@ -444,11 +444,34 @@ def _rebuild_index(shots: list, by_id: dict, key: str) -> list:
     return [by_id[s["id"]] for s in shots if s["id"] in by_id]
 
 
+def _compose_storyboard_grid(out_dir: Path, index: list[dict]) -> Optional[str]:
+    """从 keyframes_index 生成 N 宫格拼图。<2 镜返回 None(caller 不加入 outputs)。"""
+    if len(index) < 2:
+        return None
+    from mvstudio.media import compose_storyboard, resolve_cjk_font
+    entries = [
+        {"id": e["id"],
+         "keyframe_path": Path(out_dir) / e["keyframe"],
+         "duration": e.get("duration", 0)}
+        for e in index if isinstance(e, dict) and e.get("keyframe")
+    ]
+    if len(entries) < 2:
+        return None
+    result = compose_storyboard(
+        entries,
+        Path(out_dir) / "storyboard_grid.png",
+        font_path=resolve_cjk_font(),
+    )
+    return "storyboard_grid.png" if result else None
+
+
 def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     """03_keyframes — 逐镜首帧图（gpt-image，人物图作参考，9:16）。
 
     支持单镜/子集生成:params["only"] 给镜号集合时只画那几张,并把结果**增量合并**进
     已有 keyframes_index.yaml(不覆盖其余镜)。only 为空 → 全量。
+
+    Backfill: 已有完整 index + 无 only + 缺 storyboard_grid.png → 只补拼图,不重跑 provider。
     """
     out_dir = Path(out_dir)
     only = (params or {}).get("only")
@@ -463,6 +486,19 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "shot_not_found", f"点名的镜号在分镜里不存在：{', '.join(not_found)}",
             f"有效镜号：{shots[0]['id']}~{shots[-1]['id']}(共 {len(shots)} 镜)"))
 
+    existing_index = _load_yaml(out_dir / "keyframes_index.yaml").get("keyframes", [])
+    grid_path = out_dir / "storyboard_grid.png"
+    if (not only and existing_index and len(existing_index) >= 2
+            and not grid_path.exists()):
+        grid_name = _compose_storyboard_grid(out_dir, existing_index)
+        outputs_list = ["keyframes_index.yaml"]
+        if grid_name:
+            outputs_list.append(grid_name)
+        return ToolResult(ok=True, outputs=outputs_list, meta={
+            "step": "03_keyframes", "backfilled": True,
+            "storyboard_grid": grid_name, "indexed": len(existing_index),
+        })
+
     manifest = _load_yaml(_find(inputs, "manifest.yaml") or Path("/nonexistent"))
     refs = [c["path"] for c in manifest.get("characters", []) if Path(c["path"]).is_file()]
 
@@ -475,7 +511,7 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "在项目根 .env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY"))
 
     # 增量：先读入已有索引（单镜生成时保留其余镜）。
-    by_id = {e["id"]: e for e in _load_yaml(out_dir / "keyframes_index.yaml").get("keyframes", [])
+    by_id = {e["id"]: e for e in existing_index
              if isinstance(e, dict) and e.get("id")}
     import os
     quality = os.environ.get("GPT_IMAGE_QUALITY", "high").strip() or None
@@ -501,14 +537,19 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     index = _rebuild_index(shots, by_id, "keyframe")
     _write(out_dir, "keyframes_index.yaml", yaml.safe_dump(
         {"keyframes": index}, allow_unicode=True, sort_keys=False))
+    grid_name = _compose_storyboard_grid(out_dir, index)
     missing = [s["id"] for s in shots if s["id"] not in by_id]
     meta = {"step": "03_keyframes", "generated": done, "requested": len(targets),
-            "indexed": len(index), "total": len(shots), "missing": missing}
+            "indexed": len(index), "total": len(shots), "missing": missing,
+            "storyboard_grid": grid_name}
     if first_err:
         meta["partial_error"] = first_err
     if not_found:
         meta["not_found"] = not_found
-    return ToolResult(ok=True, outputs=["keyframes_index.yaml", *made], meta=meta)
+    outputs_list = ["keyframes_index.yaml", *made]
+    if grid_name:
+        outputs_list.append(grid_name)
+    return ToolResult(ok=True, outputs=outputs_list, meta=meta)
 
 
 def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
