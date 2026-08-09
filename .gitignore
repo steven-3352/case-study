@@ -43,6 +43,10 @@ tmp/
 # publish/ 整个目录不进仓库 — 成片/素材/制作过程文档全属本地产物（2026-07-22 用户拍板）
 publish/
 
+# agent 本地运行工作区(含 .venv / 大文件产物) — 未来 mv-agent-runs 也放这里
+ad-agent-runs/
+mv-agent-runs/
+
 # 字体二进制不入库（~55MB，可由 assets/fonts/fetch_fonts.py 重新下载）
 assets/fonts/*.ttf
 assets/fonts/*.otf
