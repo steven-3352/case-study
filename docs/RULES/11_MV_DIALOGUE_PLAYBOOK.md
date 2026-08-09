@@ -28,9 +28,10 @@
 
 ### 线 G · 生成式（默认 · 维护中 · 能跑）
 
-- **引擎**：`mv-agent/conductor`（六步：`00_intake → 01_analysis → 02_storyboard → 03_keyframes → 04_shots → 05_delivery`）
+- **引擎**：`mv-agent/conductor`(六步：`00_intake → 01_analysis → 02_storyboard → 03_keyframes → 04_shots → 05_delivery`)
 - **驱动**：`run <片名>`，每步产物落 `mv-agent/projects/<片名>/<step>/`，每步 `approval=True` 逐步拍板
 - **核心逻辑**已收敛进 `src/mvstudio`（歌词读取+容错对齐见 memory `project_lyrics-shared-core-convergence`），对话端 / web 端共用同一套
+- **分镜故事板拍板**:`03_keyframes` 完成后自动拼一张 `storyboard_grid.png`(镜头≥2 时)落项目根 `03_keyframes/` 下,让用户一屏看完拼图再回复「通过/修改」——单镜片跳过拼图;自动化场景 `MVSTUDIO_STORYBOARD_AUTO_APPROVE=1` 可跳板(不建议交互对话中使用)。详见 `mv-agent/WORKFLOW.md §3` 03_keyframes 契约。
 - 本剧本下方 A–F **不适用于线 G**——线 G 用 conductor 自己的六步，不走求解器/帧渲
 
 ### 线 P · 程序化 paperdoll（本剧本 A–F 描述的就是这条）

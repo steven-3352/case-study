@@ -78,6 +78,8 @@ which ffmpeg ffprobe                               # 05_delivery / 00_intake 需
 
 **小样省钱**:`export MV_MAX_SHOTS=2` → 02 起镜头数封顶 2,贯穿 03/04/05。正式出片前 `unset`。
 
+**自动化跳分镜拍板**:`export MVSTUDIO_STORYBOARD_AUTO_APPROVE=1` → 03_keyframes 完成后不停在 awaiting,直接进 04(自动化/批处理场景用;交互场景**别设**,故事板拍板是省钱防线)。
+
 **成本分层**:00(ffprobe+whisper 本地免费)· 01/02(LLM 付费)· 03(图像付费)· 04(Seedance 付费,最慢)· 05(ffmpeg+PIL 本地免费)。
 
 ---
@@ -127,12 +129,12 @@ which ffmpeg ffprobe                               # 05_delivery / 00_intake 需
 
 ### 03_keyframes · 脚本 `gen_keyframe` — 逐镜首帧图(付费 · 图像)
 
-- **跑前念白**:"这步用 `gen_keyframe`:拿你的人物图当参考,给每个镜头画一张竖版首帧图(9:16)。逐张生成,按镜头数量花图像费。"
+- **跑前念白**:"这步用 `gen_keyframe`:拿你的人物图当参考,给每个镜头画一张竖版首帧图(9:16)。逐张生成,按镜头数量花图像费。画完 N 张我会拼一张分镜网格 `storyboard_grid.png`,你先看拼图再决定要不要花钱进 04_shots(i2v 最贵)。"
 - **输入**(自 02+00):`shots.yaml` + `manifest.yaml`(取人物图作参考)
 - **命令**:`ok <name> 02_storyboard` → `run <name>`(整批出图)· 或 `shot <name> 03_keyframes <镜号...>`(逐镜/子集出图,省钱按需)
-- **产物用途**:`keyframes_index.yaml`(首帧图索引:每镜 `id`/`keyframe`(png 名)/`duration`/`video_prompt`/`digest`)+ `SH###_keyframe.png`(每镜一张 · 9:16 · 1024x1536)
-- **Codex 校验**:`run` 停在 `03_keyframes` awaiting → 成功;从 CLI 输出/`meta` 读"生成 X/总 Y"。指向 `projects/<name>/03_keyframes/` 让用户看图。**不逐张打开图判断质量**(那是用户的事)。
-- **合理建议**:X<Y(部分失败,`meta.partial_error`)→ 明说"有 N 张没出来,要重试就 reject 报镜号";让用户"哪张不满意报镜号我重做"。
+- **产物用途**:`keyframes_index.yaml`(首帧图索引:每镜 `id`/`keyframe`(png 名)/`duration`/`video_prompt`/`digest`)+ `SH###_keyframe.png`(每镜一张 · 9:16 · 1024x1536)+ `storyboard_grid.png`(分镜拼图 · N 张 keyframe 网格 + 镜号/时长字幕 · 拍板锚点,单镜片跳过)
+- **Codex 校验**:`run` 停在 `03_keyframes` awaiting → 成功;从 CLI 输出/`meta` 读"生成 X/总 Y"。**指向 `<项目根>/03_keyframes/storyboard_grid.png` 让用户拍板**;单镜时无此文件,直接指 `SH001_keyframe.png`。**不逐张打开图判断质量**(那是用户的事)。
+- **合理建议**:X<Y(部分失败,`meta.partial_error`)→ 明说"有 N 张没出来,要重试就 reject 报镜号";让用户"哪张不满意报镜号我重做";`storyboard_grid.png` 缺失(`meta.storyboard_grid=None` · 镜头 <2)→ **不是错误**,直接指第一张 keyframe。
 - **失败码**:`no_shots`(上游无 shots)· `image_config`(服务没配→提示 `GPT_IMAGE_*`)· `keyframe_failed`(**全部**失败才算 rejected;部分失败仍 ok)。
 
 ### 04_shots · 脚本 `gen_video` — 逐镜 i2v 视频(付费 · 最慢)

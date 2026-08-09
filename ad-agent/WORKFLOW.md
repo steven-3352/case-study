@@ -66,6 +66,8 @@ which ffmpeg ffprobe                               # 03/04/05 需要
 
 **小样省钱**：`export AD_MAX_SHOTS=2` → 02 起镜头数封顶 2，贯穿 03/04/05。正式出片前 `unset`。
 
+**自动化跳分镜拍板**：`export MVSTUDIO_STORYBOARD_AUTO_APPROVE=1` → 03_keyframes 完成后不停在 awaiting，直接进 04（自动化/批处理场景用；交互场景**别设**，故事板拍板是省钱防线）。
+
 **成本分层**：00（读图，免费）· 01/02（LLM 付费）· 03（图像付费）· 04（Seedance 付费 · 但 static/ken_burns 展示镜走 ffmpeg 免费）· 05（ffmpeg 免费）。
 
 ---
@@ -104,9 +106,10 @@ which ffmpeg ffprobe                               # 03/04/05 需要
 
 - **输入**（自 02+00）：`shots.yaml` + `manifest.yaml`
 - **命令**：`ok <name> 02_storyboard` → `run <name>`（整批）· 或 `shot <name> 03_keyframes <镜号>`（逐镜省钱）
-- **做什么**：generated 镜→AI 画首帧；**display 镜→AI 生成背景 + 产品原图 PIL paste（像素不动，100% 保真）**。
-- **产物**：`keyframes_index.yaml` + `SH###_keyframe.png`（按画幅）。
-- **校验**：读"生成 X/总 Y"，指向 `03_keyframes/` 让用户看图。
+- **做什么**：generated 镜→AI 画首帧；**display 镜→AI 生成背景 + 产品原图 PIL paste（像素不动，100% 保真）**。画完后自动拼一张 `storyboard_grid.png`（镜头≥2 时），让用户一屏看完再决定要不要花钱进 04_shots（i2v 最贵）。
+- **产物**：`keyframes_index.yaml` + `SH###_keyframe.png`（按画幅）+ `storyboard_grid.png`（分镜拼图 · N 张 keyframe 网格 + 镜号/时长字幕 · 拍板锚点，单镜片跳过）。
+- **校验**：读"生成 X/总 Y"，**指向 `<项目根>/03_keyframes/storyboard_grid.png` 让用户拍板**；单镜时无此文件，直接指 `SH001_keyframe.png`。
+- **合理建议**：`storyboard_grid.png` 缺失（`meta.storyboard_grid=None` · 镜头 <2）→ **不是错误**，直接指第一张 keyframe。
 - **失败码**：`no_shots` · `image_config` · `keyframe_failed`（全失败才算）。
 
 ### 04_shots · `gen_video` — 每镜视频（生成镜付费 · 展示镜免费）
