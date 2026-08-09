@@ -1,13 +1,18 @@
-"""CLI 驱动（ad-agent 版 · 广告/视频创作）。
+"""CLI 驱动（ad2-agent · 参考视频商品原创翻拍）。
 
 用法：
-  python -m conductor.cli init   <片名> <项目根>   项目根 = 用户物料所在目录（必填）
-  python -m conductor.cli status <片名>
-  python -m conductor.cli next   <片名>       跑下一个可执行步骤
-  python -m conductor.cli run    <片名>       一路跑到需要拍板处
-  python -m conductor.cli shot   <片名> <step> <镜号...>   逐镜/子集生成（仅 03/04）
-  python -m conductor.cli ok     <片名> <step>
-  python -m conductor.cli reject <片名> <step> [意见]
+  ./ad2 init   <片名> <项目根>   项目根 = 用户物料所在目录（必填）
+  ./ad2 status <片名>
+  ./ad2 next   <片名>       跑下一个可执行步骤
+  ./ad2 resume <片名>       恢复中断任务并跑下一步
+  ./ad2 run    <片名>       一路跑到需要拍板处
+  ./ad2 shot   <片名> <step> <镜号...>   逐镜/子集生成（仅 03/04）
+  ./ad2 ok     <片名> <step>
+  ./ad2 reject <片名> <step> [意见]
+  ./ad2 retry  <片名> <step>
+  ./ad2 cost   <片名> [--json]
+  ./ad2 budget <片名> <hard_limit> [currency]
+  ./ad2 confirm-cost <片名> <job_id> [shot|batch]
 
 对话外壳（Claude / Codex / 本地 Web）最终就是把这些动作翻译成"下一步/过/打回"。
 
@@ -16,8 +21,8 @@
 省钱按需逐张出图/出片，不必一次烧满整批。
 
 项目根约定（对齐 mv-agent · docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1）：
-  新项目的项目根 = 用户原始物料所在目录（产品图/人物图/广告文本），骨架/产物落在那里,
-  不进工具仓库。init 必须显式给项目根，缺参数直接报错，绝不落回 ad-agent/projects/。
+  新项目的项目根 = 参考视频、目标商品图、商品特点和新视频要求所在目录，骨架/产物落在那里，
+  不进工具仓库。init 必须显式给项目根，缺参数直接报错，绝不落回 ad2-agent/projects/。
   init 时把「片名 → 项目根」记入 _registry.json，之后按片名操作即可。
 
 小样省钱：export AD_MAX_SHOTS=2 → 02 起镜头数封顶 2，贯穿 03/04/05。正式出片前 unset。
@@ -33,12 +38,13 @@ import yaml
 
 # 允许 `python conductor/cli.py` 直接跑（无需 `python -m`）
 _HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE.parent))   # ad-agent/
+sys.path.insert(0, str(_HERE.parent))   # ad2-agent/
 sys.path.insert(0, str(_HERE.parent.parent))  # 项目根，让 mv_platform 可 import
 
-from conductor.conductor import Conductor  # noqa: E402
+from conductor.conductor import Conductor, ProjectBusyError  # noqa: E402
 from conductor.contracts import AWAITING, DONE  # noqa: E402
 from conductor.pipeline import STEP_BY_ID, STEP_ORDER  # noqa: E402
+from conductor.state import State  # noqa: E402
 from conductor import render  # noqa: E402
 
 # 注册表：片名 → 项目根（物料目录）。工具指针元数据，非用户数据。
@@ -82,7 +88,7 @@ def cmd_init(name: str, *rest):
     if not rest or not str(rest[0]).strip():
         raise SystemExit(
             f"❌ 新项目必须指定项目根：init {name} <项目根>\n"
-            f"   项目根 = 你的原始物料所在目录（音乐/歌词/人物图）。\n"
+            f"   项目根 = 参考视频、商品图和制作要求所在目录。\n"
             f"   骨架和产物会建在那里，不会进工具仓库。\n"
             f"   见 docs/RULES/08_ASSETS_LIFECYCLE.md §3.0.1。"
         )
@@ -98,9 +104,34 @@ def cmd_init(name: str, *rest):
     cmd_status(name)
 
 
-def cmd_status(name: str, *_):
+def _status_payload(c: Conductor, name: str) -> dict:
+    c.reconcile()
+    steps = []
+    for sid in STEP_ORDER:
+        st = c.state.step(sid)
+        steps.append({
+            "id": sid,
+            "title": STEP_BY_ID[sid].title,
+            "status": st.get("status"),
+            "revision": st.get("revision", 0),
+            "stale_units": st.get("stale_units", []),
+            "reason": st.get("reason"),
+        })
+    return {
+        "schema_version": 1,
+        "project": name,
+        "production_tier": c.state.data.get("production_tier"),
+        "steps": steps,
+        "cost": c.state.data.get("cost", {}),
+    }
+
+
+def cmd_status(name: str, *args):
     c = _c(name)
-    c.state.load()
+    payload = _status_payload(c, name)
+    if "--json" in args:
+        print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+        return
     print(f"\n📁 {name}  (tier={c.state.data.get('production_tier')})")
     for sid in STEP_ORDER:
         st = c.state.step(sid)
@@ -110,6 +141,9 @@ def cmd_status(name: str, *_):
             "rejected":           "↩️ ",
             "running":            "⏳",
             "pending":            "  ",
+            "stale":              "♻️ ",
+            "failed_retryable":   "⚠️ ",
+            "blocked_with_recommendations": "⛔",
         }.get(st.get("status"), "  ")
         rev = f" rev{st['revision']}" if st.get("revision") else ""
         print(f"  {mark} {sid:14s} {STEP_BY_ID[sid].title}{rev}  [{st.get('status')}]")
@@ -121,7 +155,17 @@ def cmd_status(name: str, *_):
 def _run_one(c: Conductor, name: str, spec) -> dict:
     """跑一步并按统一格式渲染跑前/跑后提示。"""
     print(render.before(spec))
-    res = c.run_step(spec)
+    stale_units = c.state.step(spec.step_id).get("stale_units") or []
+    only = stale_units if spec.unit_kind == "shot" else None
+    if only:
+        print(f"  🎯 仅重跑失效镜头：{', '.join(only)}")
+    try:
+        res = c.run_step(spec, only=only)
+    except ProjectBusyError as exc:
+        res = {"ok": False, "step": spec.step_id, "error": {
+            "code": "project_busy", "message": str(exc),
+            "hint": "等待当前写会话结束后执行 resume。",
+        }}
     if res.get("skipped"):
         print(render.skipped(spec))
     elif res.get("ok"):
@@ -142,6 +186,11 @@ def cmd_next(name: str, *_):
         print(f"   ⏸️  等你拍板：ok {name} {spec.step_id}  /  reject {name} {spec.step_id} '意见'")
 
 
+def cmd_resume(name: str, *_):
+    """显式恢复入口；语义等同重算状态后执行 next。"""
+    cmd_next(name)
+
+
 def cmd_run(name: str, *_):
     """一路跑到第一个需要拍板处 / 失败处停下。"""
     c = _c(name)
@@ -152,7 +201,7 @@ def cmd_run(name: str, *_):
             break
         res = _run_one(c, name, spec)
         if not res.get("ok") and not res.get("skipped"):
-            # 工具失败：已置 rejected，若不停会被 next_step 反复重选 → 死循环
+            # 工具失败：已置 failed_retryable，若不停会被 next_step 反复重选 → 死循环
             print(f"   ⛔ 步骤 {spec.step_id} 失败，已停下。修好上面提示的问题后重跑：run {name}")
             break
         if res.get("status") == AWAITING:
@@ -162,13 +211,66 @@ def cmd_run(name: str, *_):
 
 
 def cmd_ok(name: str, step: str, *_):
-    print(f"✅ {_c(name).approve(step)}")
+    try:
+        result = _c(name).approve(step)
+    except (ValueError, ProjectBusyError) as exc:
+        raise SystemExit(f"❌ 无法批准：{exc}") from exc
+    print(f"✅ {result}")
     cmd_status(name)
 
 
 def cmd_reject(name: str, step: str, *fb: str):
-    print(f"↩️  {_c(name).reject(step, ' '.join(fb))}")
+    feedback = " ".join(fb)
+    units = sorted(set(re.findall(r"\bSH\d{1,4}\b", feedback.upper()))) or None
+    try:
+        result = _c(name).reject(step, feedback, units=units)
+    except (ValueError, ProjectBusyError) as exc:
+        raise SystemExit(f"❌ 无法打回：{exc}") from exc
+    print(f"↩️  {result}")
     cmd_status(name)
+
+
+def cmd_retry(name: str, step: str, *_):
+    try:
+        result = _c(name).retry(step)
+    except (ValueError, ProjectBusyError) as exc:
+        raise SystemExit(f"❌ 无法重试：{exc}") from exc
+    print(f"✅ {result}")
+
+
+def cmd_cost(name: str, *args):
+    from conductor.jobs import JobStore
+    summary = JobStore(_root_of(name)).cost_summary()
+    if "--json" in args:
+        print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
+        return
+    print(
+        f"💰 {summary['currency']} 已花 {summary['spent']} · 排队预估 {summary['estimated']} "
+        f"· 上限 {summary['hard_limit']} · 余额 {summary['remaining']} · 暂停={summary['paused']}"
+    )
+
+
+def cmd_budget(name: str, hard_limit: str = "", currency: str = "USD", *_):
+    try:
+        limit = float(hard_limit)
+    except ValueError as exc:
+        raise SystemExit("❌ hard_limit 必须是非负数字") from exc
+    c = _c(name)
+    c.state.load().configure_budget(hard_limit=limit, currency=currency)
+    cmd_cost(name)
+
+
+def cmd_confirm_cost(name: str, job_id: str = "", scope: str = "shot", *_):
+    from conductor.jobs import JobStore
+    if not job_id:
+        raise SystemExit("❌ 请指定 job_id")
+    try:
+        decision = JobStore(_root_of(name)).authorize_submission(
+            job_id, confirm=True, confirmation_scope=scope,
+        )
+    except (KeyError, ValueError) as exc:
+        raise SystemExit(f"❌ 无法确认费用：{exc}") from exc
+    print(json.dumps(decision, ensure_ascii=False, default=str, sort_keys=True))
 
 
 # —— 逐镜生成（shot）：03/04 才支持子集生成 ——
@@ -289,10 +391,15 @@ _CMDS = {
     "init":   cmd_init,
     "status": cmd_status,
     "next":   cmd_next,
+    "resume": cmd_resume,
     "run":    cmd_run,
     "shot":   cmd_shot,
     "ok":     cmd_ok,
     "reject": cmd_reject,
+    "retry":  cmd_retry,
+    "cost":   cmd_cost,
+    "budget": cmd_budget,
+    "confirm-cost": cmd_confirm_cost,
 }
 
 
@@ -300,8 +407,20 @@ def main(argv: list[str]):
     if len(argv) < 3 or argv[1] not in _CMDS:
         print(__doc__)
         return
-    cmd, name = argv[1], argv[2]
-    _CMDS[cmd](name, *argv[3:])
+    cmd = argv[1]
+    if cmd == "status" and argv[2] == "--json":
+        if len(argv) < 4:
+            raise SystemExit("status --json 需要片名")
+        name, args = argv[3], ["--json", *argv[4:]]
+    else:
+        name, args = argv[2], argv[3:]
+    _CMDS[cmd](name, *args)
+
+    # CLI 是对话外壳的一部分；命令也进入同一追加式事件流。
+    try:
+        State(_root_of(name)).append_event("cli_command", command=cmd, args=list(args))
+    except (OSError, SystemExit):
+        pass
 
 
 if __name__ == "__main__":

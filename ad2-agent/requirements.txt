@@ -1,0 +1,21 @@
+# ad2-agent · Python 依赖
+# 安装：pip install -r requirements.txt
+
+# 核心
+pyyaml>=6.0
+python-dotenv>=1.0
+Pillow>=10.0          # 展示帧保真合成（产品原图 paste 到 AI 背景）
+
+# 图像生成 provider（复用 src/mvstudio）
+openai>=1.0
+requests>=2.28
+
+# 动作骨架参考（可选）— 把人物视频转成无外貌信息的姿态骨架视频
+# 复用公共库 mvstudio.media.generate_pose_reference。仅在用到该能力时装。
+opencv-python>=4.8    # import 名 cv2 · 读帧/画骨架/写 mp4
+mediapipe>=0.10       # PoseLandmarker · 姿态检测（模型 assets/models/pose_landmarker_lite.task）
+
+# 注意：本包依赖项目公共库 mv_platform / mvstudio（项目根 src/）
+# 运行前在 ad2-agent/ 下执行，并设置 PYTHONPATH=../src:.
+# 视频生成（04 的 i2v 镜）走 Seedance provider，无额外 pip 依赖。
+# ffmpeg / ffprobe 需系统安装（03/04/05 用）。

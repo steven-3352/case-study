@@ -1,11 +1,12 @@
-"""共享媒体/配置助手（ad-agent 版）— tools.py 六步工具都用它。
+"""共享媒体/配置助手（ad2-agent 版）。
 
 职责单一：环境与 provider 配置、图片尺寸/校验、画幅映射、sha256 摘要、
-产品原图贴到 AI 背景的保真合成（PIL）、静态/Ken Burns 转 mp4（ffmpeg）、结构化错误。
+产品原图确定性合成到 AI 背景（PIL）、静态/Ken Burns 转 mp4（ffmpeg）、结构化错误。
 不做业务判断、不碰状态机。
 
 所有 provider 类来自 src/mvstudio/*（只读复用，不改引擎）。
-保真铁律：产品原图像素一律不重绘——合成时按比例缩放后原样 paste，产品区 = 原始字节。
+保真铁律：产品素材不送生成模型重绘；合成只做可复现的缩放和 alpha paste，
+用 source_digest / composite_digest 记录来源与结果，不能宣称编码后字节不变。
 """
 from __future__ import annotations
 
@@ -15,13 +16,13 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# ── 让 mv_platform / mvstudio 可 import（项目根 = ad-agent 的上两级）
+# ── 让 mv_platform / mvstudio 可 import（仓库根 = ad2-agent 的上两级）
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 for _p in (str(_REPO_ROOT), str(_REPO_ROOT / "src")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-# ── 加载项目根 .env（统一 KEY 源，不再用 ad-agent/.env）
+# ── 加载仓库根 .env（唯一凭证源，不读取 ad2-agent/.env）
 try:
     from dotenv import load_dotenv
     load_dotenv(_REPO_ROOT / ".env", override=False)
@@ -51,6 +52,7 @@ ASPECT_MAP = {
     "1:1":  {"image_size": "1024x1024", "canvas": (1080, 1080), "video_ratio": "9:16"},
 }
 DEFAULT_ASPECT = "9:16"
+POSE_REFERENCE_MIN_COVERAGE = 0.65
 
 
 def max_shots() -> Optional[int]:
@@ -104,10 +106,10 @@ def video_duration_seconds(path: Path) -> float:
 
 def compose_product_on_background(bg_bytes: bytes, product_path: Path,
                                   canvas: tuple[int, int], margin_ratio: float = 0.12) -> bytes:
-    """保真合成：AI 背景铺满画布，产品原图按比例缩放后**原样 paste**（像素不重绘）。
+    """受控合成：AI 背景铺满画布，产品素材只做确定性缩放和 alpha paste。
 
-    产品区 = 原始像素，构造上 100% 保真。产品居中，四周留 margin_ratio 边距。
-    返回 PNG 字节。
+    原始文件只读、不进入生成模型；缩放与 PNG 编码会改变字节，因此调用方应分别记录
+    source_digest 和 composite_digest，而不是宣称产品区等于原文件字节。
     """
     import io
     from PIL import Image
@@ -198,11 +200,17 @@ def pose_reference_from_video(source: Path, out_path: Path, *,
     编舞/节奏参考而不带脸。重活（cv2/mediapipe）在公共库里惰性导入，缺依赖时
     抛结构化错误、不阻断其他步骤。
 
-    返回 {"output","frames","detected","coverage","fps"}；失败抛 RuntimeError
-    （由公共库的 PoseReferenceError 归一，调用方按 ToolResult 兜底即可）。
+    返回 {"output","frames","detected","coverage","fps"}；失败保留公共库的
+    PoseReferenceError 类型，调用方据此转成 ToolResult，不靠解析普通异常猜原因。
     """
     from mvstudio.media import generate_pose_reference  # 惰性导入：无 CV 依赖时不拖累其他步骤
-    result = generate_pose_reference(source, out_path, model=model, label=label)
+    result = generate_pose_reference(
+        source,
+        out_path,
+        model=model,
+        min_coverage=POSE_REFERENCE_MIN_COVERAGE,
+        label=label,
+    )
     return {
         "output": str(result.output),
         "frames": result.frames,

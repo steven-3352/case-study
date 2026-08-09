@@ -1,4 +1,6 @@
-"""流水线定义：六步声明式契约（ad-agent · 广告/视频创作）。
+"""ad2-agent 当前六步执行骨架。
+
+这是 PRD N00-N17 的阶段性映射，不等于完整产品节点已经实现。
 
 调整/增删步骤只改这里，不动控制器。step_id 沿用 mv-agent 命名（00_intake…05_delivery），
 让 cli.py 的逐镜 shot 逻辑（仅 03_keyframes/04_shots）无缝复用。
@@ -20,7 +22,7 @@ STEPS: list[StepSpec] = [
         input_from=[],
         prompts=[],
         tool=tools.intake_validate,
-        outputs=["manifest.yaml", "validation_report.md", "brief.md"],
+        outputs=["manifest.yaml", "validation_report.md", "brief.md", "preflight-report.yaml"],
         approval=True,
         unit_kind="step",
         tool_name="intake_validate",
@@ -29,6 +31,7 @@ STEPS: list[StepSpec] = [
             "manifest.yaml":        "物料清单（图片路径+尺寸+摘要 / 广告文本 / 画幅 / 用途）",
             "validation_report.md": "校验报告（哪些通过、哪些要补）",
             "brief.md":             "广告文本原文（人可读）",
+            "preflight-report.yaml": "三级物料预检（blocking / fixable / advisory）",
         },
     ),
     StepSpec(
@@ -77,13 +80,13 @@ STEPS: list[StepSpec] = [
         purpose="generated 镜→AI 画首帧；display 镜→产品原图贴到 AI 生成的背景上（像素不动）",
         outputs_desc={
             "keyframes_index.yaml": "首帧图索引（每镜对应哪张图 + 类型/动作 + 生成参数）",
-            "storyboard_grid.png":  "分镜拼图（镜头不少于两镜时产出，作为拍板锚点）",
+            "storyboard_grid.png":  "分镜拼图(镜头≥2 时产出 · N 张 keyframe 网格 + 镜号/时长 · 拍板锚点)",
         },
     ),
     StepSpec(
         step_id="04_shots",
         title="每镜视频（生成镜 i2v · 展示镜静态/推拉）",
-        input_from=["03_keyframes"],
+        input_from=["03_keyframes", "00_intake"],
         prompts=["video.motion.md"],
         tool=tools.gen_video,
         outputs=["shots_index.yaml"],
