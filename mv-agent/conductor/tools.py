@@ -215,7 +215,7 @@ def llm_analyze(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         shutil.rmtree(staging, ignore_errors=True)
         return ToolResult(ok=False, error=media.err(
             "llm_config", f"文本分析服务未配置：{exc}",
-            "在 mv-agent/.env 填 LLM_BASE_URL / LLM_API_KEY"))
+            "在项目根 .env 填 LLM_BASE_URL / LLM_API_KEY"))
 
     try:
         from mvstudio.director.drafting import draft_maps
@@ -472,7 +472,7 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     except Exception as exc:
         return ToolResult(ok=False, error=media.err(
             "image_config", f"画面生成服务未配置：{exc}",
-            "在 mv-agent/.env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY"))
+            "在项目根 .env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY"))
 
     # 增量：先读入已有索引（单镜生成时保留其余镜）。
     by_id = {e["id"]: e for e in _load_yaml(out_dir / "keyframes_index.yaml").get("keyframes", [])
@@ -539,7 +539,7 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     except Exception as exc:
         return ToolResult(ok=False, error=media.err(
             "video_config", f"视频生成服务未配置：{exc}",
-            "在 mv-agent/.env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"))
+            "在项目根 .env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"))
     model = os.environ.get("SEEDANCE_MODEL", "").strip() or "doubao-seedance-2-0"
 
     # 增量：先读入已有索引（单镜生成时保留其余镜）。

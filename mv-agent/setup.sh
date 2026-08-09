@@ -34,13 +34,13 @@ pip install -r requirements.txt
 echo "🎙️  准备本地语音对齐模型 (faster-whisper medium)..."
 python download_whisper.py
 
-# 配置 .env
-if [ ! -f ".env" ]; then
-    echo "📝 复制 .env.example → .env"
-    cp .env.example .env
-    echo "⚠️  请编辑 .env 文件，填入你的 API Key"
+# 配置 .env（统一用项目根 .env，mv-agent/.env 已废弃）
+if [ ! -f "../.env" ]; then
+    echo "📝 复制 .env.example → ../.env（项目根）"
+    cp .env.example ../.env
+    echo "⚠️  请编辑项目根 .env 文件，填入你的 API Key"
 else
-    echo "✅ .env 已存在"
+    echo "✅ 项目根 .env 已存在"
 fi
 
 # 创建 projects 目录
@@ -50,7 +50,7 @@ echo ""
 echo "🎉 安装完成！"
 echo ""
 echo "下一步："
-echo "  1. 编辑 .env 文件，填入 API Key"
+echo "  1. 编辑项目根 .env 文件，填入 API Key"
 echo "  2. 激活虚拟环境：source venv/bin/activate"
 echo "  3. 开始对话：用 Codex 打开本目录"
 echo ""

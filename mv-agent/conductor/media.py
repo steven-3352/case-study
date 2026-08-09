@@ -23,10 +23,10 @@ for _p in (str(_REPO_ROOT), str(_REPO_ROOT / "src")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-# ── 加载 mv-agent/.env
+# ── 加载项目根 .env（mv-agent/.env 已废弃，统一用项目根 .env）
 try:
     from dotenv import load_dotenv
-    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
+    load_dotenv(_REPO_ROOT / ".env", override=False)
 except ImportError:
     pass
 

@@ -251,7 +251,7 @@ def llm_analyze(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "llm_config" if "config" in str(exc).lower() or "incomplete" in str(exc).lower()
             else "analysis_failed",
             f"需求分析失败：{exc}",
-            "检查 ad-agent/.env 的 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL，或额度"))
+            "检查项目根 .env 的 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL，或额度"))
 
     points = result.get("selling_points") or []
     if isinstance(points, str):
@@ -514,7 +514,7 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     except Exception as exc:  # noqa: BLE001
         return ToolResult(ok=False, error=media.err(
             "image_config", f"画面生成服务未配置：{exc}",
-            "在 ad-agent/.env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY / GPT_IMAGE_MODEL"))
+            "在项目根 .env 填 GPT_IMAGE_BASE_URL / GPT_IMAGE_API_KEY / GPT_IMAGE_MODEL"))
 
     quality = os.environ.get("GPT_IMAGE_QUALITY", "high").strip() or None
     bg_instruction = _read_prompt(prompt_file)  # image.background.md（背景生成基调）
@@ -614,7 +614,7 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         except Exception as exc:  # noqa: BLE001
             return ToolResult(ok=False, error=media.err(
                 "video_config", f"视频生成服务未配置：{exc}",
-                "在 ad-agent/.env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"
+                "在项目根 .env 填 SEEDANCE_BASE_URL / SEEDANCE_API_KEY / SEEDANCE_MODEL"
                 "（或把生成镜改成 display+static/ken_burns 走本地免费路径）"))
 
     by_id = {e["id"]: e for e in _load_yaml(out_dir / "shots_index.yaml").get("shots", [])
