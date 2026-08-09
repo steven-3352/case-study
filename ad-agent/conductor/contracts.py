@@ -9,11 +9,15 @@ from typing import Callable, List, Optional
 
 
 # 步骤状态机：pending → running → awaiting_approval → done / rejected
+# 进程中断后的 running 会恢复为 failed_retryable；输入/产物变化会变为 stale。
 PENDING  = "pending"
 RUNNING  = "running"
 AWAITING = "awaiting_approval"
 DONE     = "done"
 REJECTED = "rejected"
+STALE = "stale"
+FAILED_RETRYABLE = "failed_retryable"
+BLOCKED = "blocked_with_recommendations"
 
 
 @dataclass

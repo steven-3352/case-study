@@ -10,8 +10,8 @@
 付费步：01_analysis（LLM）、02_storyboard（LLM）、03_keyframes（图像）、04_shots（Seedance,仅生成镜/i2v展示镜）
 小样验证：环境变量 AD_MAX_SHOTS=2 限制镜头数（省钱）。
 
-保真铁律：display 镜的产品像素一律不重绘 —— gen_keyframe 用 PIL 把产品原图 paste 到
-AI 背景上（media.compose_product_on_background），产品区 = 原始字节。
+保真铁律：display 镜的产品素材不进入生成模型 —— gen_keyframe 用 PIL 做确定性缩放与
+alpha paste，并记录 source_digest/composite_digest；不宣称编码后字节等于原文件。
 """
 from __future__ import annotations
 
@@ -83,6 +83,98 @@ def _rebuild_index(all_items: list, by_id: dict, key: str) -> list:
     return out
 
 
+def _compose_storyboard_grid(out_dir: Path, index: list[dict]) -> Optional[str]:
+    """从 keyframes_index 生成 N 宫格拼图。<2 镜返回 None(caller 不加入 outputs)。"""
+    if len(index) < 2:
+        return None
+    from mvstudio.media import compose_storyboard, resolve_cjk_font
+    entries = [
+        {"id": e["id"],
+         "keyframe_path": Path(out_dir) / e["keyframe"],
+         "duration": e.get("duration", 0)}
+        for e in index if isinstance(e, dict) and e.get("keyframe")
+    ]
+    if len(entries) < 2:
+        return None
+    result = compose_storyboard(
+        entries,
+        Path(out_dir) / "storyboard_grid.png",
+        font_path=resolve_cjk_font(),
+    )
+    return "storyboard_grid.png" if result else None
+
+
+def prepare_pose_reference(source: Path, out_path: Path, *,
+                           model: Optional[Path] = None,
+                           label: bool = True) -> ToolResult:
+    """把人物参考片转成无脸骨架，并把覆盖率门失败归一成 ToolResult。
+
+    公网托管不属于本地媒体层；成功结果的 ``meta.output`` 是后续上传到受控
+    HTTPS 目录的集成点，托管后把 URL 写入镜头的 ``reference_video_url``。
+    """
+    from mvstudio.media import PoseReferenceError
+
+    source, out_path = Path(source), Path(out_path)
+    try:
+        pose = media.pose_reference_from_video(
+            source, out_path, model=model, label=label)
+        coverage = float(pose.get("coverage", 0.0))
+        if coverage < media.POSE_REFERENCE_MIN_COVERAGE:
+            raise PoseReferenceError(
+                f"Pose detection coverage too low: {coverage:.1%} "
+                f"(< {media.POSE_REFERENCE_MIN_COVERAGE:.0%})"
+            )
+    except Exception as exc:  # CV 依赖和门禁错误均由公共库归一为 PoseReferenceError
+        if isinstance(exc, PoseReferenceError):
+            low_coverage = "coverage too low" in str(exc).lower()
+            if low_coverage and source.resolve() != out_path.resolve():
+                try:
+                    out_path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+            code = "pose_reference_low_coverage" if low_coverage else "pose_reference_failed"
+            message = ("参考视频的清晰全身主体覆盖率不足，未生成可用骨架参考。"
+                       if low_coverage else f"参考视频去身份化失败：{exc}")
+            return ToolResult(
+                ok=False,
+                error=media.err(
+                    code,
+                    message,
+                    "换一段主体清晰且全身入镜的参考片；或改镜头设计；或放弃复制该运镜。",
+                ),
+                meta={
+                    "step": "pose_reference",
+                    "min_coverage": media.POSE_REFERENCE_MIN_COVERAGE,
+                    "suggestions": [
+                        "replace_reference_clip",
+                        "redesign_shot",
+                        "drop_reference_motion",
+                    ],
+                },
+            )
+        return ToolResult(
+            ok=False,
+            error=media.err(
+                "pose_reference_failed",
+                f"参考视频去身份化失败：{exc}",
+                "检查源视频、姿态模型和 CV 依赖后重试。",
+            ),
+            meta={"step": "pose_reference",
+                  "min_coverage": media.POSE_REFERENCE_MIN_COVERAGE},
+        )
+
+    return ToolResult(
+        ok=True,
+        outputs=[pose["output"]],
+        meta={
+            "step": "pose_reference",
+            **pose,
+            "min_coverage": media.POSE_REFERENCE_MIN_COVERAGE,
+            "hosting": "external_https_required",
+        },
+    )
+
+
 def _llm_model() -> str:
     return os.environ.get("LLM_MODEL", "").strip() or "gpt-4-turbo"
 
@@ -121,6 +213,8 @@ _REQUEST_TEMPLATE = """\
 # 物料清单 — 填好后重跑：run <片名>
 # 路径可用绝对路径；含空格请加引号。
 aspect_ratio: "9:16"            # 成片画幅：9:16(竖) / 16:9(横) / 1:1(方)
+reference_video:                 # 留空时自动扫描项目根 reference/
+  path: ""
 brief: ""                       # 广告/视频文本文件路径（.txt/.md）：写明用途+核心诉求
                                 #   留空则用下面 brief_text 内联文本
 brief_text: ""                  # 或直接内联一段文本（brief 留空时用这个）
@@ -128,83 +222,270 @@ images:                         # 图片素材（至少 1 张：产品图/人物
   - path: ""
     name: ""                    # 素材名（留空则用文件名）
     role: ""                    # 可选：product(产品) / person(人物) / logo / scene
+    view: ""                    # 商品视角：front / back / side
+    sku: ""                     # 可选；多图填写时必须一致
+rights:
+  source: ""                    # 来源/权利依据，如 user_owned / licensed
+  declared_by: ""               # 声明人
+  usage: ""                     # 允许用途
 """
 
 
-def _collect_brief(req: dict, root_input: Path) -> tuple[str, str]:
-    """取广告文本：优先 brief 文件，其次 brief_text 内联。返回 (text, source)。"""
-    brief_path = str(req.get("brief", "")).strip()
-    if brief_path:
-        p = Path(brief_path).expanduser()
-        if p.is_file() and p.suffix.lower() in media.TEXT_EXT:
-            return p.read_text(encoding="utf-8").strip(), str(p)
-    inline = str(req.get("brief_text", "")).strip()
-    if inline:
-        return inline, "(inline brief_text)"
-    return "", ""
+_VIDEO_EXT = {".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv"}
+
+
+def _resolve_material_path(raw, root: Path) -> Path:
+    path = Path(str(raw or "").strip()).expanduser()
+    return path if path.is_absolute() else root / path
+
+
+def _scan_files(folder: Path, extensions: set[str]) -> list[Path]:
+    if not folder.is_dir():
+        return []
+    return sorted(p for p in folder.rglob("*")
+                  if p.is_file() and p.suffix.lower() in extensions)
+
+
+def _video_resolution(path: Path) -> tuple[int, int]:
+    """用 ffprobe 的 JSON 输出读取首条视频流尺寸；失败返回 (0, 0)。"""
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            [media.ffprobe_bin(), "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height", "-of", "json", str(path)],
+            capture_output=True, timeout=60, check=False,
+        )
+        payload = json.loads(result.stdout.decode("utf-8", "replace") or "{}")
+        stream = (payload.get("streams") or [{}])[0]
+        return int(stream.get("width") or 0), int(stream.get("height") or 0)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return 0, 0
+
+
+def _material_recommendations(blocking: list[dict]) -> dict:
+    from .recommendations import build_recommendation
+
+    return build_recommendation(
+        node="N01_material_preflight",
+        reason_code="MATERIAL_PREFLIGHT_BLOCKED",
+        plain_reason="；".join(x["issue"] for x in blocking),
+        evidence=["00_intake/preflight-report.yaml"],
+        options=[
+            {
+                "id": "O1",
+                "action": "补齐或更换缺失、不可读、权利不清的原始物料后重跑预检",
+                "expected_visual_quality": "high",
+                "product_fidelity": "high",
+                "cost_delta": "low",
+                "time_delta": "medium",
+                "invalidates": ["N00", "N01"],
+            },
+            {
+                "id": "O2",
+                "action": "缩小镜头方案，移除无权或冲突素材；若关键要求无法保留则终止本次制作",
+                "expected_visual_quality": "medium",
+                "product_fidelity": "medium",
+                "cost_delta": "low",
+                "time_delta": "low",
+                "invalidates": ["N01", "N02", "N06"],
+            },
+        ],
+        recommended_option="O1",
+        recommendation_reason="先修复输入能保留商品准确性与后续创作空间。",
+        resume_from="N01_material_preflight",
+    )
 
 
 def intake_validate(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """00_intake — 收图片 + 广告文本 + 画幅，校验，读图片尺寸。无音频。"""
+    """00_intake — 登记参考片/商品图/文本，哈希并做三级物料预检。"""
     out_dir = Path(out_dir)
+    root = out_dir.parent
     req_path = out_dir / "request.yaml"
     req = _load_yaml(req_path)
-    has_img = any(str((c or {}).get("path", "")).strip() for c in (req.get("images") or []))
-    if not req_path.is_file() or not has_img:
+    if not req_path.is_file():
         _write(out_dir, "request.yaml", _REQUEST_TEMPLATE)
-        return ToolResult(ok=False, error=media.err(
-            "need_materials",
-            "请先填物料清单。已在 00_intake/request.yaml 生成模板。",
-            "填好 images（至少 1 张）+ brief/brief_text + aspect_ratio 后重跑：run <片名>"))
-
     aspect = media.normalize_aspect(str(req.get("aspect_ratio", "")).strip())
+    blocking: list[dict] = []
+    fixable: list[dict] = []
+    advisory: list[dict] = []
+
+    raw_images = [c for c in (req.get("images") or [])
+                  if isinstance(c, dict) and str(c.get("path", "")).strip()]
+    explicit_paths = {str(_resolve_material_path(c.get("path"), root))
+                      for c in raw_images if str(c.get("path", "")).strip()}
+    for path in _scan_files(root / "product", media.IMAGE_EXT):
+        if str(path) not in explicit_paths:
+            raw_images.append({"path": str(path), "name": path.stem, "role": "product"})
 
     images = []
-    for c in (req.get("images") or []):
-        ip = Path(str((c or {}).get("path", "")).strip()).expanduser()
+    for n, c in enumerate(raw_images, 1):
+        ip = _resolve_material_path(c.get("path"), root)
         if not ip.is_file() or ip.suffix.lower() not in media.IMAGE_EXT:
-            return ToolResult(ok=False, error=media.err(
-                "bad_image", f"图片找不到或格式不支持：{ip}",
-                f"支持 {', '.join(sorted(media.IMAGE_EXT))}"))
+            blocking.append({
+                "id": f"MAT-IMG-{n:03d}",
+                "issue": f"商品图片找不到或格式不支持：{ip}",
+                "impact": "无法确认商品外观与 SKU 一致性",
+            })
+            continue
         try:
             w, h = media.image_size(ip)
-        except RuntimeError as exc:
-            return ToolResult(ok=False, error=media.err("bad_image", str(exc), "确认图片未损坏"))
+            digest = media.sha256_file(ip)
+        except (OSError, RuntimeError) as exc:
+            blocking.append({
+                "id": f"MAT-IMG-{n:03d}", "issue": f"商品图片不可读：{ip}",
+                "impact": str(exc),
+            })
+            continue
         images.append({"path": str(ip), "name": str((c or {}).get("name") or ip.stem),
                        "role": str((c or {}).get("role") or "").strip(),
-                       "width": w, "height": h, "digest": media.sha256_file(ip)})
-    if not images:
-        return ToolResult(ok=False, error=media.err(
-            "no_image", "至少需要 1 张图片。", "在 request.yaml 的 images 下补 path"))
+                       "view": str((c or {}).get("view") or "").strip().lower(),
+                       "sku": str((c or {}).get("sku") or "").strip(),
+                       "width": w, "height": h,
+                       "digest": digest, "sha256": digest})
+    product_images = [im for im in images if im.get("role", "").lower() in ("", "product")]
+    if not product_images:
+        blocking.append({"id": "MAT-002", "issue": "缺少可读商品图片",
+                         "impact": "无法建立商品保真展示路径"})
 
-    brief_text, brief_src = _collect_brief(req, out_dir)
+    reference_raw = req.get("reference_video") or ""
+    if isinstance(reference_raw, dict):
+        reference_raw = reference_raw.get("path", "")
+    reference_candidates = []
+    if str(reference_raw).strip():
+        reference_candidates.append(_resolve_material_path(reference_raw, root))
+    for path in _scan_files(root / "reference", _VIDEO_EXT):
+        if path not in reference_candidates:
+            reference_candidates.append(path)
+    reference = None
+    if reference_candidates:
+        rp = reference_candidates[0]
+        try:
+            duration = media.video_duration_seconds(rp)
+            width, height = _video_resolution(rp)
+            digest = media.sha256_file(rp)
+            if not rp.is_file() or duration <= 0 or width <= 0 or height <= 0:
+                raise OSError("无法读取有效时长或视频分辨率")
+            reference = {"path": str(rp), "duration_seconds": round(duration, 3),
+                         "width": width, "height": height,
+                         "digest": digest, "sha256": digest}
+        except OSError as exc:
+            blocking.append({"id": "MAT-001", "issue": f"参考视频不可读：{rp}",
+                             "impact": str(exc)})
+        if len(reference_candidates) > 1:
+            advisory.append({"id": "MAT-009", "issue": "发现多个参考视频，仅登记第一段",
+                             "impact": "其余参考片不会进入本次分析"})
+    else:
+        blocking.append({"id": "MAT-001", "issue": "缺少参考视频",
+                         "impact": "无法分析原片节奏、结构与运镜"})
+
+    brief_files = []
+    raw_brief = str(req.get("brief", "")).strip()
+    if raw_brief:
+        brief_files.append(_resolve_material_path(raw_brief, root))
+    for path in _scan_files(root / "brief", media.TEXT_EXT):
+        if path not in brief_files:
+            brief_files.append(path)
+    brief_parts, brief_meta = [], []
+    for n, path in enumerate(brief_files, 1):
+        try:
+            body = path.read_text(encoding="utf-8").strip()
+            if not body:
+                raise OSError("文本为空")
+            digest = media.sha256_file(path)
+            brief_parts.append(f"## {path.name}\n\n{body}")
+            brief_meta.append({"path": str(path), "chars": len(body),
+                               "digest": digest, "sha256": digest})
+        except (OSError, UnicodeError) as exc:
+            blocking.append({"id": f"MAT-BRIEF-{n:03d}",
+                             "issue": f"文本文件不可读：{path}", "impact": str(exc)})
+    inline = str(req.get("brief_text", "")).strip()
+    if inline:
+        brief_parts.append(f"## inline brief_text\n\n{inline}")
+        inline_digest = media.sha256_bytes(inline.encode("utf-8"))
+        brief_meta.append({"path": "(inline brief_text)", "chars": len(inline),
+                           "digest": inline_digest, "sha256": inline_digest})
+    brief_text = "\n\n".join(brief_parts)
     if not brief_text:
-        return ToolResult(ok=False, error=media.err(
-            "no_brief", "缺广告/视频文本。", "填 request.yaml 的 brief（文件路径）或 brief_text（内联）"))
+        blocking.append({"id": "MAT-003", "issue": "缺少商品文本或新视频要求",
+                         "impact": "无法确定卖点、受众与成片目标"})
 
-    _write(out_dir, "brief.md", f"# 广告/视频文本\n\n来源：{brief_src}\n\n---\n\n{brief_text}\n")
+    rights_raw = req.get("rights") if isinstance(req.get("rights"), dict) else {}
+    rights = {key: str(rights_raw.get(key) or "").strip()
+              for key in ("source", "declared_by", "usage")}
+    missing_rights = [key for key, value in rights.items() if not value]
+    if missing_rights:
+        blocking.append({"id": "MAT-006", "issue": "缺少完整权利声明",
+                         "impact": "未声明 " + ", ".join(missing_rights) + "，不得进入制作"})
+
+    skus = {im["sku"] for im in images if im.get("sku")}
+    if len(skus) > 1:
+        blocking.append({"id": "MAT-007", "issue": "商品图片存在 SKU 冲突",
+                         "impact": "检测到多个 SKU：" + ", ".join(sorted(skus))})
+
+    view_text = [(im.get("view", "") + " " + im.get("name", "")).lower()
+                 .replace("-", " ").replace("_", " ")
+                 for im in product_images]
+    has_back = any(any(k in v for k in ("back", "rear", "背面", "后视"))
+                   for v in view_text)
+    has_side = any(any(k in v for k in ("side", "profile", "侧面", "侧视"))
+                   for v in view_text)
+    if product_images and not has_back:
+        fixable.append({"id": "MAT-004", "issue": "缺少商品背面图",
+                        "impact": "无法可信展示超过正面 60 度旋转"})
+    if product_images and not has_side:
+        fixable.append({"id": "MAT-005", "issue": "缺少商品侧面图",
+                        "impact": "侧向运镜只能限制为近正面角度"})
+
+    _write(out_dir, "brief.md", f"# 广告/视频文本\n\n{brief_text}\n")
 
     manifest = {
-        "version": 1, "status": "intake_validated",
+        "version": 2, "status": "intake_blocked" if blocking else "intake_validated",
         "aspect_ratio": aspect,
-        "brief": {"source": brief_src, "chars": len(brief_text)},
+        "reference_video": reference,
+        "brief": {"source": brief_meta[0]["path"] if brief_meta else "",
+                  "chars": len(brief_text), "files": brief_meta},
         "images": images,
+        "rights": rights,
     }
     _write(out_dir, "manifest.yaml", yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False))
+
+    result = "blocked" if blocking else ("conditional_pass" if fixable else "pass")
+    preflight = {
+        "result": result,
+        "blocking_issues": blocking,
+        "fixable_issues": fixable,
+        "advisory_issues": advisory,
+        "recommended_option": ("补齐阻塞物料与权利声明" if blocking else
+                               ("补充背面与侧面商品图" if fixable else "继续进入需求分析")),
+        "resume_from": "N01_material_preflight",
+    }
+    _write(out_dir, "preflight-report.yaml",
+           yaml.safe_dump(preflight, allow_unicode=True, sort_keys=False))
 
     canvas = media.aspect_spec(aspect)["canvas"]
     _write(out_dir, "validation_report.md",
            "# 物料校验报告\n\n"
-           f"- 画幅：{aspect}（成片画布 {canvas[0]}x{canvas[1]}）✅\n"
-           f"- 图片：{len(images)} 张 ✅\n"
+           f"- 预检结果：{result}\n"
+           f"- 画幅：{aspect}（成片画布 {canvas[0]}x{canvas[1]}）\n"
+           f"- 参考视频：{'已登记' if reference else '未登记'}\n"
+           f"- 图片：{len(images)} 张\n"
            + "".join(f"  - `{im['name']}`（{im['width']}x{im['height']}"
                      + (f" · {im['role']}" if im['role'] else "") + "）\n" for im in images)
-           + f"- 文本：{len(brief_text)} 字（来源：{brief_src}）✅\n")
+           + f"- 文本：{len(brief_text)} 字\n"
+           + f"- blocking/fixable/advisory：{len(blocking)}/{len(fixable)}/{len(advisory)}\n")
 
-    return ToolResult(ok=True,
-                      outputs=["manifest.yaml", "validation_report.md", "brief.md"],
-                      meta={"step": "00_intake", "images": len(images),
-                            "aspect": aspect, "brief_chars": len(brief_text)})
+    outputs = ["manifest.yaml", "validation_report.md", "brief.md", "preflight-report.yaml"]
+    meta = {"step": "00_intake", "images": len(images), "aspect": aspect,
+            "brief_chars": len(brief_text), "preflight_result": result}
+    if blocking:
+        meta["recommendations"] = _material_recommendations(blocking)
+        return ToolResult(ok=False, outputs=outputs, error=media.err(
+            "material_preflight_blocked",
+            f"物料预检有 {len(blocking)} 个阻塞问题，已写入 preflight-report.yaml。",
+            "按 recommendations 的推荐项补齐物料后，从 N01_material_preflight 重跑。",
+        ), meta=meta)
+    return ToolResult(ok=True, outputs=outputs, meta=meta)
 
 
 _REQ_SCHEMA = {
@@ -294,7 +575,7 @@ _SB_SCHEMA = {
     "shots": [{
         "id": "text",                    # SH001 递增
         "type": "text",                  # generated | display
-        "motion": "text",                # generated→i2v；display→static|ken_burns|i2v
+        "motion": "text",                # static | ken_burns | i2v（唯一视频路由权威）
         "duration": "number",            # 单镜秒数（4~15）
         "role": "text",                  # hook|feature|scene|cta|logo
         "product_ref": "text",           # display/i2v 用哪张图（图片 name；generated 可空）
@@ -314,6 +595,9 @@ _SB_SCHEMA = {
             "start": "number",
             "end": "number",
         }],
+        "reference_video_url": "text",
+        "reference_audio_url": "text",
+        "reference_image_urls": ["text"],
     }],
 }
 
@@ -371,16 +655,17 @@ def _normalize_shots(raw_shots: list, image_names: set) -> list:
         stype = str(s.get("type", "generated")).strip().lower()
         stype = "display" if stype == "display" else "generated"
         motion = str(s.get("motion", "")).strip().lower()
-        if stype == "display":
-            motion = motion if motion in _MOTIONS else "ken_burns"
-        else:
-            motion = "i2v"
+        if motion not in _MOTIONS:
+            motion = "ken_burns" if stype == "display" else "i2v"
         ref = str(s.get("product_ref", "")).strip()
         if ref and ref not in image_names:
             ref = ""  # 引用了不存在的素材名 → 清空，gen 时兜底取第一张
         delivery_mode = str(s.get("delivery_mode", "standard")).strip().lower()
         delivery_mode = "single_take" if delivery_mode == "single_take" else "standard"
         duration = _clamp_dur(s.get("duration", 5))
+        raw_reference_images = s.get("reference_image_urls")
+        if not isinstance(raw_reference_images, (list, tuple)):
+            raw_reference_images = []
         product_overlays = _normalize_timeline(
             s.get("product_overlays"), duration, product=True)
         product_overlays = [x for x in product_overlays if x["product_ref"] in image_names]
@@ -398,6 +683,12 @@ def _normalize_shots(raw_shots: list, image_names: set) -> list:
             "delivery_mode": delivery_mode,
             "product_overlays": product_overlays,
             "text_overlays": text_overlays,
+            "reference_video_url": str(s.get("reference_video_url", "")).strip(),
+            "reference_audio_url": str(s.get("reference_audio_url", "")).strip(),
+            "reference_image_urls": [
+                str(url).strip() for url in raw_reference_images
+                if str(url).strip()
+            ],
         })
     return shots
 
@@ -424,7 +715,8 @@ def llm_storyboard(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         "你是广告导演。按需求写一条视频故事线，并拆成逐镜分镜。"
         "每镜标 type：generated(AI 生成氛围/场景镜) 或 display(产品展示帧)。"
         "display 镜必须给 product_ref（图片 name），motion 用 static 或 ken_burns。"
-        "generated 镜 motion 固定 i2v。产品展示帧负责精确展示，生成镜负责动感/情绪。"
+        "motion 是视频路由的唯一权威；generated 默认 i2v，但明确需要定帧时可用 static。"
+        "产品展示帧负责精确展示，生成镜负责动感/情绪。"
         "关键卖点和 CTA 优先用 display 镜保真展示，overlay_text 放卖点/CTA 文案。"
         "镜头总时长≈建议时长，单镜 4~15 秒。只返回一个 JSON 对象，字段照 output_schema。")
 
@@ -503,6 +795,19 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             "shot_not_found", f"点名的镜号在分镜里不存在：{', '.join(not_found)}",
             f"有效镜号：{shots[0]['id']}~{shots[-1]['id']}(共 {len(shots)} 镜)"))
 
+    existing_index = _load_yaml(out_dir / "keyframes_index.yaml").get("keyframes", [])
+    grid_path = out_dir / "storyboard_grid.png"
+    if (not only and existing_index and len(existing_index) >= 2
+            and not grid_path.exists()):
+        grid_name = _compose_storyboard_grid(out_dir, existing_index)
+        outputs_list = ["keyframes_index.yaml"]
+        if grid_name:
+            outputs_list.append(grid_name)
+        return ToolResult(ok=True, outputs=outputs_list, meta={
+            "step": "03_keyframes", "backfilled": True,
+            "storyboard_grid": grid_name, "indexed": len(existing_index),
+        })
+
     manifest = _load_yaml(_find(inputs, "manifest.yaml") or Path("/nonexistent"))
     images = manifest.get("images", [])
     aspect = manifest.get("aspect_ratio", media.DEFAULT_ASPECT)
@@ -528,7 +833,7 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         name = f"{s['id']}_keyframe.png"
         try:
             if s["type"] == "display":
-                # 保真：AI 只画背景，产品原图 PIL paste 上去（像素不重绘）
+                # 受控合成：AI 只画背景；产品素材不进生成模型，只做确定性缩放与 paste。
                 product = _product_path_for(s, images)
                 if not product or not product.is_file():
                     first_err = first_err or f"{s['id']}: 找不到产品图"
@@ -536,6 +841,7 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
                 bg_prompt = (bg_instruction + "\n" if bg_instruction else "") + \
                     f"广告背景场景（不含任何产品/主体，纯背景）：{s.get('image_prompt') or s.get('scene')}"
                 bg_bytes = provider.generate(bg_prompt, size=img_size, quality=quality)
+                source_digest = media.sha256_file(product)
                 data = media.compose_product_on_background(bg_bytes, product, canvas)
             else:
                 # 生成镜：AI 画首帧（可选产品参考，允许漂移）
@@ -546,14 +852,22 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
                 raw = provider.generate(prompt, references=refs, size=img_size, quality=quality)
                 data = media.fit_image_to_canvas(raw, canvas)
             (out_dir / name).write_bytes(data)
-            by_id[s["id"]] = {"id": s["id"], "keyframe": name, "type": s["type"],
-                              "motion": s["motion"], "duration": s["duration"],
-                              "video_prompt": s.get("video_prompt", ""),
-                              "overlay_text": s.get("overlay_text", ""),
-                              "delivery_mode": s.get("delivery_mode", "standard"),
-                              "product_overlays": s.get("product_overlays", []),
-                              "text_overlays": s.get("text_overlays", []),
-                              "digest": media.sha256_bytes(data)}
+            composite_digest = media.sha256_bytes(data)
+            entry = {"id": s["id"], "keyframe": name, "type": s["type"],
+                     "motion": s["motion"], "duration": s["duration"],
+                     "video_prompt": s.get("video_prompt", ""),
+                     "overlay_text": s.get("overlay_text", ""),
+                     "delivery_mode": s.get("delivery_mode", "standard"),
+                     "product_overlays": s.get("product_overlays", []),
+                     "text_overlays": s.get("text_overlays", []),
+                     "reference_video_url": s.get("reference_video_url", ""),
+                     "reference_audio_url": s.get("reference_audio_url", ""),
+                     "reference_image_urls": s.get("reference_image_urls", []),
+                     "digest": composite_digest}
+            if s["type"] == "display":
+                entry["source_digest"] = source_digest
+                entry["composite_digest"] = composite_digest
+            by_id[s["id"]] = entry
             made.append(name)
             done += 1
         except Exception as exc:  # noqa: BLE001
@@ -566,18 +880,23 @@ def gen_keyframe(inputs, out_dir, params, prompt_file=None) -> ToolResult:
     index = _rebuild_index(shots, by_id, "keyframe")
     _write(out_dir, "keyframes_index.yaml", yaml.safe_dump(
         {"keyframes": index}, allow_unicode=True, sort_keys=False))
+    grid_name = _compose_storyboard_grid(out_dir, index)
     missing = [s["id"] for s in shots if s["id"] not in by_id]
     meta = {"step": "03_keyframes", "generated": done, "requested": len(targets),
-            "indexed": len(index), "total": len(shots), "missing": missing}
+            "indexed": len(index), "total": len(shots), "missing": missing,
+            "storyboard_grid": grid_name}
     if first_err:
         meta["partial_error"] = first_err
     if not_found:
         meta["not_found"] = not_found
-    return ToolResult(ok=True, outputs=["keyframes_index.yaml", *made], meta=meta)
+    outputs_list = ["keyframes_index.yaml", *made]
+    if grid_name:
+        outputs_list.append(grid_name)
+    return ToolResult(ok=True, outputs=outputs_list, meta=meta)
 
 
 def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
-    """04_shots — generated/i2v 镜→Seedance；static/ken_burns 展示镜→ffmpeg 本地（免费）。
+    """04_shots — motion=i2v 走 Seedance；static/ken_burns 走本地 ffmpeg。
 
     支持单镜/子集：params["only"] 给镜号集合时只跑那几段，增量合并进 shots_index.yaml。
     Seedance 只按需初始化——纯本地镜（static/ken_burns）不碰付费服务。
@@ -603,8 +922,7 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
             f"有效镜号：{keyframes[0]['id']}~{keyframes[-1]['id']}(共 {len(keyframes)} 镜)"))
 
     video_instruction = _read_prompt(prompt_file)  # video.motion.md（运动基调）
-    needs_seedance = any((kf.get("motion") == "i2v" or kf.get("type") == "generated")
-                         for kf in targets)
+    needs_seedance = any(kf.get("motion", "i2v") == "i2v" for kf in targets)
     provider = model = None
     if needs_seedance:
         try:
@@ -619,11 +937,91 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
 
     by_id = {e["id"]: e for e in _load_yaml(out_dir / "shots_index.yaml").get("shots", [])
              if isinstance(e, dict) and e.get("id")}
+    job_store = None
+    jobs_by_shot: dict[str, dict] = {}
+    if needs_seedance and (out_dir.parent / "state.json").is_file():
+        from .jobs import JobStore
+        from .recommendations import build_recommendation
+
+        job_store = JobStore(out_dir.parent)
+        estimate_raw = os.environ.get("SEEDANCE_ESTIMATED_COST", "").strip()
+        try:
+            estimated_cost = float(estimate_raw) if estimate_raw else None
+        except ValueError:
+            return ToolResult(ok=False, error=media.err(
+                "bad_cost_estimate", "SEEDANCE_ESTIMATED_COST 不是有效数字。",
+                "修正或删除该环境变量后，从 04_shots 重试。"))
+
+        for kf in targets:
+            if kf.get("motion", "i2v") != "i2v":
+                continue
+            edit_duration = _clamp_dur(kf.get("edit_duration", kf.get("duration", 5)))
+            generation_duration = _clamp_dur(kf.get("generation_duration", edit_duration))
+            request_contract = {
+                "model": model,
+                "prompt": ((video_instruction + " ") if video_instruction else "")
+                + (kf.get("video_prompt") or "cinematic subtle motion"),
+                "duration": generation_duration,
+                "aspect_ratio": video_ratio,
+                "first_frame_digest": kf.get("digest", ""),
+                "reference_video_url": kf.get("reference_video_url", ""),
+                "reference_audio_url": kf.get("reference_audio_url", ""),
+                "reference_image_urls": kf.get("reference_image_urls", []),
+            }
+            job = job_store.prepare(
+                node="N11", shot_id=kf["id"], provider_id=str(model),
+                request=request_contract, estimated_cost=estimated_cost,
+            )
+            decision = job_store.authorize_submission(job["job_id"])
+            if not decision.get("ok"):
+                reason = (decision.get("error") or {}).get(
+                    "message", "付费任务提交前被预算门禁暂停。")
+                package = build_recommendation(
+                    node=f"N11_{kf['id']}",
+                    reason_code=str((decision.get("error") or {}).get(
+                        "code", "BUDGET_BLOCKED")).upper(),
+                    plain_reason=reason,
+                    evidence=[f".adfilm/jobs/{job['job_id']}.yaml"],
+                    options=[
+                        {
+                            "id": "O1", "action": "确认未知费用或提高 hard_limit 后继续提交",
+                            "expected_visual_quality": "high", "product_fidelity": "high",
+                            "cost_delta": "unknown", "time_delta": "low",
+                            "invalidates": [f"N11_{kf['id']}", "N13", "N14"],
+                        },
+                        {
+                            "id": "O2", "action": "保留已有镜头，把剩余镜改为本地 static 或 ken_burns",
+                            "expected_visual_quality": "medium", "product_fidelity": "high",
+                            "cost_delta": "none", "time_delta": "medium",
+                            "invalidates": [f"N11_{kf['id']}", "N13", "N14"],
+                        },
+                        {
+                            "id": "O3", "action": "停止后续生成并保留现有产物和任务记录",
+                            "expected_visual_quality": "incomplete", "product_fidelity": "unchanged",
+                            "cost_delta": "none", "time_delta": "none",
+                            "invalidates": ["N13", "N14"],
+                        },
+                    ],
+                    recommended_option="O1",
+                    recommendation_reason="优先保留已确认画面路线和商品保真策略。",
+                    resume_from=f"N11_{kf['id']}",
+                )
+                return ToolResult(
+                    ok=False,
+                    error=decision.get("error") or media.err(
+                        "budget_blocked", reason, "处理建议后重试 04_shots。"),
+                    meta={"step": "04_shots", "job": job,
+                          "recommendations": package,
+                          "exit_code": decision.get("exit_code", 2)},
+                )
+            jobs_by_shot[kf["id"]] = decision["job"]
     made, done, first_err = [], 0, None
     for kf in targets:
         kf_path = kf_dir / kf["keyframe"]
         out_name = f"{kf['id']}.mp4"
-        dur = int(kf.get("duration", 5))
+        edit_duration = _clamp_dur(kf.get("edit_duration", kf.get("duration", 5)))
+        generation_duration = _clamp_dur(
+            kf.get("generation_duration", edit_duration))
         if not kf_path.is_file():
             first_err = first_err or f"{kf['id']}: 首帧图缺失"
             continue
@@ -631,13 +1029,14 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
         try:
             if motion == "static":
                 src = "static"
-                if not media.still_to_mp4(kf_path, out_dir / out_name, dur, canvas):
+                if not media.still_to_mp4(kf_path, out_dir / out_name, edit_duration, canvas):
                     raise RuntimeError("静态定格 ffmpeg 失败")
             elif motion == "ken_burns":
                 src = "ken_burns"
-                if not media.ken_burns_to_mp4(kf_path, out_dir / out_name, dur, canvas):
+                if not media.ken_burns_to_mp4(
+                        kf_path, out_dir / out_name, edit_duration, canvas):
                     raise RuntimeError("Ken Burns ffmpeg 失败")
-            else:  # i2v（生成镜 或 display+i2v）
+            elif motion == "i2v":
                 src = "seedance"
                 from mvstudio.providers.seedance import SeedanceTask, SeedanceFrame
                 data = kf_path.read_bytes()
@@ -645,23 +1044,50 @@ def gen_video(inputs, out_dir, params, prompt_file=None) -> ToolResult:
                     (kf.get("video_prompt") or "cinematic subtle motion")
                 task = SeedanceTask(
                     shot_id=kf["id"], model=model, prompt=prompt,
-                    duration_seconds=max(4, min(15, dur)),
+                    duration_seconds=generation_duration,
                     first_frame=SeedanceFrame(content=data, sha256=media.sha256_bytes(data)),
                     aspect_ratio=video_ratio, resolution="720p",
                     reference_video_url=kf.get("reference_video_url", ""),
                     reference_audio_url=kf.get("reference_audio_url", ""),
                     reference_image_urls=tuple(kf.get("reference_image_urls") or ()))
-                result = provider.generate(task)
-                (out_dir / out_name).write_bytes(result.video_bytes)
-            by_id[kf["id"]] = {"id": kf["id"], "video": out_name, "duration": dur,
-                               "type": kf.get("type"), "source": src,
-                               "overlay_text": kf.get("overlay_text", ""),
-                               "delivery_mode": kf.get("delivery_mode", "standard"),
-                               "product_overlays": kf.get("product_overlays", []),
-                               "text_overlays": kf.get("text_overlays", [])}
+                job = jobs_by_shot.get(kf["id"])
+                if job_store is not None and job is not None:
+                    if not job_store.authorize_submission(job["job_id"]).get("submit"):
+                        if (out_dir / out_name).is_file():
+                            result = None
+                        else:
+                            raise RuntimeError(
+                                "任务已提交或完成，但本地视频缺失；保留 job 后等待远程恢复能力")
+                    else:
+                        job_store.mark_running(job["job_id"])
+                        result = provider.generate(task)
+                else:
+                    result = provider.generate(task)
+                if result is not None:
+                    (out_dir / out_name).write_bytes(result.video_bytes)
+                    if job_store is not None and job is not None:
+                        job_store.complete(
+                            job["job_id"], actual_cost=getattr(result, "actual_cost", None))
+            else:
+                raise RuntimeError(f"不支持的 motion：{motion}")
+            entry = {"id": kf["id"], "video": out_name,
+                     "duration": edit_duration, "edit_duration": edit_duration,
+                     "type": kf.get("type"), "source": src,
+                     "overlay_text": kf.get("overlay_text", ""),
+                     "delivery_mode": kf.get("delivery_mode", "standard"),
+                     "product_overlays": kf.get("product_overlays", []),
+                     "text_overlays": kf.get("text_overlays", [])}
+            if motion == "i2v":
+                entry["generation_duration"] = generation_duration
+            by_id[kf["id"]] = entry
             made.append(out_name)
             done += 1
         except Exception as exc:  # noqa: BLE001
+            if motion == "i2v" and job_store is not None:
+                job = jobs_by_shot.get(kf["id"])
+                if job is not None:
+                    job_store.fail(job["job_id"], error={
+                        "code": "video_generation_failed", "message": str(exc)})
             first_err = first_err or f"{kf['id']}: {exc}"
 
     if done == 0 and not by_id:
