@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>内容工作台 · 登录</title>
+  <link rel="stylesheet" href="assets/tokens.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .auth-card {
+      background-color: var(--surface);
+      border-radius: 16px;
+      box-shadow:
+        inset 0 0 0 1px var(--line),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+      padding: 48px 32px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .brand-mark {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--muted) 100%);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .auth-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      background-color: var(--paper);
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-tab:hover {
+      color: var(--ink);
+    }
+
+    .auth-tab.active {
+      background-color: var(--surface);
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .auth-tab:focus {
+      outline: 2px solid var(--ui);
+      outline-offset: 2px;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background-color: var(--paper);
+      color: var(--ink);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--ui);
+      box-shadow: inset 0 0 0 1px var(--ui);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: var(--faint);
+    }
+
+    .auth-error {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background-color: rgba(220, 38, 38, 0.08);
+      color: #dc2626;
+      font-size: 13px;
+      display: none;
+    }
+
+    .auth-error.show {
+      display: block;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--ui);
+      color: var(--surface);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:focus {
+      outline: 2px solid var(--ui);
+      outline-offset: 2px;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background-color: transparent;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--paper);
+      border-color: var(--line-strong);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary:focus {
+      outline: 2px solid var(--ui);
+      outline-offset: 2px;
+    }
+
+    .divider {
+      position: relative;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      right: 0;
+      height: 1px;
+      background-color: var(--line);
+    }
+
+    .divider-text {
+      position: relative;
+      display: inline-block;
+      background-color: var(--surface);
+      padding: 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .demo-hint {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background-color: var(--paper);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .demo-hint code {
+      font-family: 'Courier New', monospace;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .already-logged-in {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background-color: var(--paper);
+      border: 1px solid var(--line);
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .already-logged-in a {
+      color: var(--ui);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .already-logged-in a:hover {
+      opacity: 0.8;
+    }
+
+    .already-logged-in a:focus {
+      outline: 2px solid var(--ui);
+      outline-offset: 2px;
+    }
+
+    .password-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header id="site-nav"></header>
+
+  <div class="auth-container">
+    <div id="already-logged-in" class="already-logged-in" style="display: none;">
+      已登录为 <strong id="current-user"></strong> · <a href="workspace.html">进入工作台</a> 或 <a href="#" id="switch-account">切换账号</a>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-mark"></div>
+        <h1 class="auth-title">内容工作台</h1>
+        <p class="auth-subtitle">Content Studio</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">登录</button>
+        <button class="auth-tab" data-tab="register">注册</button>
+      </div>
+
+      <div id="login-form" class="auth-form active">
+        <div class="auth-error" role="alert" id="login-error"></div>
+        <div class="form-group">
+          <label for="login-username">用户名</label>
+          <input type="text" id="login-username" placeholder="输入用户名" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">密码</label>
+          <input type="password" id="login-password" placeholder="输入密码" required>
+          <div class="password-hint">至少 6 个字符</div>
+        </div>
+        <button class="btn-primary" id="login-submit">登录</button>
+      </div>
+
+      <div id="register-form" class="auth-form">
+        <div class="auth-error" role="alert" id="register-error"></div>
+        <div class="form-group">
+          <label for="register-username">用户名</label>
+          <input type="text" id="register-username" placeholder="创建用户名" required>
+        </div>
+        <div class="form-group">
+          <label for="register-password">密码</label>
+          <input type="password" id="register-password" placeholder="创建密码" required>
+          <div class="password-hint">至少 6 个字符</div>
+        </div>
+        <button class="btn-primary" id="register-submit">注册</button>
+      </div>
+
+      <div class="divider">
+        <span class="divider-text">或</span>
+      </div>
+
+      <button class="btn-secondary" id="demo-btn">用演示账号直接进入</button>
+      <div class="demo-hint">演示账号：<code>demo</code> / <code>demo123</code></div>
+    </div>
+  </div>
+
+  <script src="assets/recipes.js"></script>
+  <script src="assets/mock-engine.js"></script>
+
+  <script>
+    // Check if already logged in
+    function checkCurrentSession() {
+      const current = window.Studio?.auth?.current?.();
+      if (current) {
+        document.getElementById('already-logged-in').style.display = 'block';
+        document.getElementById('current-user').textContent = current.username || '用户';
+        document.getElementById('switch-account').addEventListener('click', (e) => {
+          e.preventDefault();
+          document.getElementById('already-logged-in').style.display = 'none';
+        });
+      }
+    }
+
+    // Tab switching
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+
+        // Update active tab
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Update active form
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+        document.getElementById(`${tabName}-form`).classList.add('active');
+
+        // Clear errors and inputs
+        document.getElementById(`${tabName}-error`).classList.remove('show');
+        document.getElementById(`${tabName}-username`).value = '';
+        document.getElementById(`${tabName}-password`).value = '';
+        document.getElementById(`${tabName}-username`).focus();
+      });
+    });
+
+    // Login handler
+    document.getElementById('login-submit').addEventListener('click', async () => {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+
+      if (!username) {
+        errorEl.textContent = '请输入用户名';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        errorEl.textContent = '密码不符合要求（最少 6 个字符）';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      const result = await window.Studio.auth.login(username, password);
+
+      if (result.ok) {
+        toast(`欢迎回来，${username}！`);
+        setTimeout(() => {
+          location.href = 'workspace.html';
+        }, 500);
+      } else {
+        errorEl.textContent = result.error || '登录失败，请重试';
+        errorEl.classList.add('show');
+      }
+    });
+
+    // Register handler
+    document.getElementById('register-submit').addEventListener('click', async () => {
+      const username = document.getElementById('register-username').value.trim();
+      const password = document.getElementById('register-password').value;
+      const errorEl = document.getElementById('register-error');
+
+      if (!username) {
+        errorEl.textContent = '请输入用户名';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        errorEl.textContent = '密码不符合要求（最少 6 个字符）';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      const result = await window.Studio.auth.register(username, password);
+
+      if (result.ok) {
+        toast(`注册成功！欢迎，${username}！`);
+        setTimeout(() => {
+          location.href = 'workspace.html';
+        }, 500);
+      } else {
+        errorEl.textContent = result.error || '注册失败，请重试';
+        errorEl.classList.add('show');
+      }
+    });
+
+    // Demo account handler
+    document.getElementById('demo-btn').addEventListener('click', async () => {
+      const result = await window.Studio.auth.quickDemo();
+
+      if (result.ok) {
+        toast('已使用演示账号登录');
+        setTimeout(() => {
+          location.href = 'workspace.html';
+        }, 500);
+      } else {
+        toast('演示登录失败');
+      }
+    });
+
+    // Allow Enter key submission
+    document.getElementById('login-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('login-submit').click();
+      }
+    });
+
+    document.getElementById('register-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('register-submit').click();
+      }
+    });
+
+    // Initialize
+    checkCurrentSession();
+  </script>
+
+  <script src="assets/nav.js" data-here=""></script>
+</body>
+</html>

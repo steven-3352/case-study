@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>操作台 · 一引擎 · 多配方(D17 哑视图 · D21 配方即流程)</title>
+<style>
+  /* ================================================================
+     操作台 Operations Console · Direction B "Build 奢华极简"
+     忠实设计:一套壳,换配方 → 长出不同 6 步流(D21 现场演示)
+     前端只渲染 node_state + 上报意图,不持业务状态(D17)
+     ================================================================ */
+  @font-face{font-family:"InterVariable";src:url("fonts/InterVariable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;}
+  @font-face{font-family:"Redaction 35";src:url("fonts/Redaction35-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+
+  :root{
+    --bg:#faf8f4;--paper:#f3efe8;--surface:#fffdf9;--nav-bg:rgba(250,248,244,0.82);
+    --on-ink:#faf8f4;--ink:#1a1714;--muted:#6b6259;--faint:#9c938a;
+    --line:rgba(26,23,20,0.09);--line-strong:rgba(26,23,20,0.16);
+    --gold:#b08d57;--gold-soft:#c9a66b;
+    --ok:#5c7a52;--wait:#b08d57;--stale:#9c938a;--reject:#a5643f;
+    --radius:15px;
+    --ui:"InterVariable","Inter","PingFang SC","Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    --serif:"Redaction 35","Songti SC",Georgia,"Times New Roman",serif;
+    --maxw:1180px;
+  }
+  html[data-theme="dark"]{
+    --bg:#161310;--paper:#221d18;--surface:#1d1916;--nav-bg:rgba(22,19,16,0.84);
+    --on-ink:#161310;--ink:rgba(255,251,245,0.92);--muted:rgba(255,251,245,0.56);--faint:rgba(255,251,245,0.40);
+    --line:rgba(255,251,245,0.11);--line-strong:rgba(255,251,245,0.20);
+    --gold:#d4b483;--gold-soft:#c9a66b;--ok:#7fa06f;--wait:#d4b483;--stale:rgba(255,251,245,0.40);--reject:#c58358;
+  }
+  html{transition:background .25s ease;}
+  *{box-sizing:border-box;}html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.7;
+    font-optical-sizing:auto;font-feature-settings:"cv05" 1,"cv08" 1,"ss03" 1;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 40px;}
+
+  /* ---- nav ---- */
+  header.nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
+    -webkit-backdrop-filter:saturate(1.1) blur(10px);backdrop-filter:saturate(1.1) blur(10px);box-shadow:0 1px 0 var(--line);}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:500;font-size:16px;letter-spacing:-0.01em;}
+  .brand .mark{width:14px;height:14px;background:var(--ink);border-radius:4px;display:inline-block;}
+  nav.menu{display:flex;align-items:center;gap:28px;}
+  nav.menu a{color:var(--muted);font-size:14.5px;font-weight:400;transition:color .18s ease;}
+  nav.menu a:hover,nav.menu a.here{color:var(--ink);}
+  nav.menu a.here{border-bottom:1px solid var(--gold);padding-bottom:2px;}
+  .theme-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font-size:13px;
+    border:1px solid var(--line);border-radius:22px;padding:6px 13px;transition:all .18s ease;background:transparent;font-family:inherit;}
+  .theme-toggle:hover{color:var(--ink);border-color:var(--line-strong);}
+  .theme-toggle .glyph{font-size:12.5px;color:var(--gold);}
+
+  /* ---- console head ---- */
+  .chead{padding:70px 0 26px;}
+  .chead .eyebrow{font-size:11.5px;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:26px;font-weight:500;}
+  .chead h1{font-size:clamp(34px,5.4vw,58px);line-height:1.04;letter-spacing:-0.035em;font-weight:250;margin:0 0 22px;max-width:20ch;}
+  .chead h1 em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-0.02em;}
+  .chead p.lede{font-size:18px;color:var(--muted);max-width:60ch;margin:0;line-height:1.7;}
+  .principles{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;}
+  .principles .p{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:6px 14px;background:var(--surface);}
+  .principles .p b{color:var(--gold);font-weight:600;font-family:var(--ui);}
+
+  .rule{height:1px;background:var(--line);margin:0;}
+
+  /* ---- recipe switcher(换配方 = 换产线) ---- */
+  .switch-bar{padding:40px 0 8px;display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .switch{display:inline-flex;background:var(--paper);border-radius:26px;padding:5px;box-shadow:inset 0 0 0 1px var(--line);gap:2px;}
+  .switch button{font-family:inherit;font-size:14.5px;font-weight:400;color:var(--muted);background:transparent;border:0;cursor:pointer;
+    padding:9px 20px;border-radius:22px;transition:all .18s ease;letter-spacing:-0.01em;}
+  .switch button:hover{color:var(--ink);}
+  .switch button.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 0 var(--line),0 6px 16px -8px rgba(26,23,20,0.2);}
+  .switch-note{font-size:13px;color:var(--faint);}
+  .switch-note b{color:var(--muted);font-weight:500;}
+
+  /* ---- recipe meta line ---- */
+  .recipe-meta{display:flex;align-items:baseline;gap:16px;margin:30px 0 6px;flex-wrap:wrap;}
+  .recipe-meta .rn{font-family:var(--serif);font-style:italic;font-size:clamp(26px,3.4vw,36px);color:var(--ink);letter-spacing:-0.01em;}
+  .recipe-meta .rt{font-size:14.5px;color:var(--muted);}
+  .recipe-meta .rcode{font-size:12px;color:var(--faint);letter-spacing:0.04em;margin-left:auto;font-family:var(--ui);}
+
+  /* ---- console body: 左步骤轨 · 右步骤详情 ---- */
+  .console{display:grid;grid-template-columns:300px 1fr;gap:44px;padding:36px 0 30px;align-items:start;}
+
+  /* 左:竖排步骤轨 = node_state 序列(配方派生) */
+  .rail{display:flex;flex-direction:column;position:sticky;top:92px;}
+  .rail-title{font-size:10.5px;text-transform:uppercase;letter-spacing:0.2em;color:var(--faint);font-weight:500;margin-bottom:8px;}
+  .node{display:flex;gap:14px;align-items:flex-start;padding:13px 14px;border-radius:12px;cursor:pointer;
+    transition:background .16s ease;position:relative;text-align:left;background:transparent;border:0;font-family:inherit;width:100%;}
+  .node:hover{background:var(--paper);}
+  .node.sel{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);}
+  /* 连线 */
+  .node .stem{position:absolute;left:calc(14px + 13px);top:38px;bottom:-13px;width:1px;background:var(--line);}
+  .node:last-child .stem{display:none;}
+  .node .idx{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:600;background:var(--surface);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);z-index:1;}
+  .node.done .idx{background:var(--ok);color:#fff;box-shadow:none;}
+  .node.awaiting .idx{background:var(--wait);color:var(--on-ink);box-shadow:none;}
+  .node.running .idx{background:var(--gold);color:var(--on-ink);box-shadow:none;}
+  .node.rejected .idx{background:var(--reject);color:#fff;box-shadow:none;}
+  .node .nbody{display:flex;flex-direction:column;gap:1px;padding-top:2px;min-width:0;}
+  .node .ntitle{font-size:14px;color:var(--muted);font-weight:400;letter-spacing:-0.01em;}
+  .node.done .ntitle,.node.awaiting .ntitle,.node.running .ntitle{color:var(--ink);}
+  .node.awaiting .ntitle{font-weight:500;}
+  .node .nstate{font-size:11.5px;color:var(--faint);letter-spacing:0.02em;}
+  .node.awaiting .nstate{color:var(--wait);}
+  .node.rejected .nstate{color:var(--reject);}
+  .node.done .nstate{color:var(--ok);}
+  .node .gatemark{margin-left:6px;font-size:10px;color:var(--gold);vertical-align:middle;}
+
+  /* 右:选中步骤详情 */
+  .detail{background:var(--surface);border-radius:var(--radius);box-shadow:inset 0 0 0 1px var(--line),0 24px 60px -30px rgba(26,23,20,0.24);
+    overflow:hidden;min-height:520px;display:flex;flex-direction:column;}
+  html[data-theme="dark"] .detail{box-shadow:inset 0 0 0 1px var(--line),0 30px 70px -30px rgba(0,0,0,0.6);}
+  .detail .dhead{padding:26px 30px 22px;box-shadow:0 1px 0 var(--line);display:flex;align-items:flex-start;gap:18px;}
+  .detail .dnum{font-family:var(--serif);font-style:italic;font-size:44px;line-height:0.85;color:var(--ink);flex:none;padding-top:2px;}
+  .detail .dhb{flex:1;min-width:0;}
+  .detail .dh-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:5px;}
+  .detail h2{font-size:22px;font-weight:400;letter-spacing:-0.02em;margin:0;}
+  .detail .dtool{font-size:12px;color:var(--faint);letter-spacing:0.03em;font-family:var(--ui);border:1px solid var(--line);border-radius:6px;padding:3px 9px;}
+  .detail .dsub{font-size:14px;color:var(--muted);margin:0;line-height:1.6;}
+
+  .statepill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;border-radius:20px;padding:5px 13px;letter-spacing:0.01em;}
+  .statepill .g{font-size:12px;}
+  .statepill.done{background:rgba(92,122,82,0.12);color:var(--ok);}
+  .statepill.awaiting{background:rgba(176,141,87,0.14);color:var(--wait);}
+  .statepill.pending{background:var(--paper);color:var(--faint);}
+  .statepill.running{background:rgba(176,141,87,0.14);color:var(--gold);}
+  .statepill.rejected{background:rgba(165,100,63,0.13);color:var(--reject);}
+
+  .dbody{padding:26px 30px;display:flex;flex-direction:column;gap:26px;flex:1;}
+  .io{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  .io .col .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:0.18em;color:var(--faint);font-weight:500;margin-bottom:10px;}
+  .io .chip{font-size:13px;color:var(--muted);background:var(--paper);border-radius:9px;padding:8px 12px;margin-bottom:7px;box-shadow:inset 0 0 0 1px var(--line);display:flex;gap:8px;align-items:baseline;}
+  .io .chip .k{color:var(--gold);font-size:11px;flex:none;font-weight:500;}
+
+  /* 产物预览占位 */
+  .artifact{border-radius:12px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);min-height:190px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px;position:relative;}
+  .artifact .abadge{position:absolute;top:12px;left:14px;font-size:10.5px;letter-spacing:0.1em;color:var(--faint);text-transform:uppercase;}
+  .artifact .ph-badge{font-size:12.5px;color:var(--faint);letter-spacing:0.04em;border:1px dashed var(--line-strong);padding:8px 16px;border-radius:22px;background:var(--surface);}
+  .artifact.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px;align-items:stretch;justify-items:stretch;min-height:170px;}
+  .artifact.grid .cell{background:var(--surface);border-radius:8px;box-shadow:inset 0 0 0 1px var(--line);aspect-ratio:9/16;display:flex;align-items:flex-end;padding:7px;font-size:10px;color:var(--faint);}
+  .artifact .cap{font-size:12px;color:var(--faint);text-align:center;max-width:44ch;}
+
+  /* 拍板 / 意图上报 */
+  .approval{border-radius:12px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);padding:20px 22px;}
+  .approval .atitle{font-size:13px;color:var(--ink);font-weight:500;margin-bottom:4px;}
+  .approval .ah{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+  .approval .btns{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{font-family:inherit;font-size:14px;font-weight:400;border-radius:22px;padding:10px 22px;cursor:pointer;transition:all .16s ease;border:1px solid transparent;}
+  .btn-ok{background:var(--ink);color:var(--on-ink);}
+  .btn-ok:hover{opacity:0.85;}
+  .btn-reject{background:transparent;color:var(--muted);border-color:var(--line-strong);}
+  .btn-reject:hover{color:var(--reject);border-color:var(--reject);}
+  .btn-shot{background:transparent;color:var(--gold);border-color:var(--line-strong);}
+  .btn-shot:hover{border-color:var(--gold);}
+  .approval .done-msg,.approval .pending-msg{font-size:13.5px;color:var(--muted);line-height:1.6;}
+  .approval .pending-msg{color:var(--faint);}
+
+  /* 待补 / 预留 诚实缺口 */
+  .gap{border-radius:12px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong);padding:16px 20px;display:flex;gap:12px;align-items:flex-start;}
+  .gap .gicon{width:8px;height:8px;border-radius:2px;border:1px dashed var(--reject);flex:none;margin-top:7px;}
+  .gap .gtxt{font-size:13px;color:var(--muted);line-height:1.6;}
+  .gap .gtxt b{color:var(--reject);font-weight:600;}
+
+  /* 旁挂工具(游离于流水线之外 · 非 step)卡 */
+  .sidecar{border-radius:12px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong);padding:18px 20px;}
+  .sidecar .sctitle{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;letter-spacing:0.02em;}
+  .sidecar .sctitle .badge{font-size:10px;color:var(--reject);border:1px dashed var(--reject);border-radius:5px;padding:2px 7px;letter-spacing:0.04em;font-weight:500;}
+  .sidecar .scbody{font-size:13px;color:var(--muted);line-height:1.65;}
+  .sidecar .scbody b{color:var(--reject);font-weight:600;}
+
+  /* 建议包(永不死局)卡 */
+  .rec{border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--gold-soft);padding:18px 20px;}
+  .rec .rtitle{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .rec .rh{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+  .rec .opts{display:flex;flex-direction:column;gap:8px;}
+  .rec .opt{display:grid;grid-template-columns:1fr auto;gap:10px;padding:11px 14px;border-radius:9px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;}
+  .rec .opt.pick{box-shadow:inset 0 0 0 1px var(--gold);}
+  .rec .opt .oh{color:var(--ink);}
+  .rec .opt .om{color:var(--faint);font-size:11.5px;margin-top:2px;}
+  .rec .opt .otag{font-size:10.5px;color:var(--gold);align-self:center;letter-spacing:0.04em;}
+
+  /* ---- 引擎账本(D8)· 意图 → 引擎,状态回渲染 ---- */
+  .ledger{padding:12px 0 80px;}
+  .ledger .lh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;}
+  .ledger .lh h3{font-size:11px;text-transform:uppercase;letter-spacing:0.2em;color:var(--gold);font-weight:500;margin:0;}
+  .ledger .lh .n{font-size:12.5px;color:var(--faint);}
+  .events{background:var(--surface);border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);padding:8px 0;max-height:210px;overflow:auto;}
+  .ev{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:8px 20px;font-size:12.5px;border-bottom:1px solid var(--line);}
+  .ev:last-child{border-bottom:0;}
+  .ev .t{color:var(--faint);font-variant-numeric:tabular-nums;font-size:11.5px;padding-top:1px;}
+  .ev .m{color:var(--muted);}
+  .ev .m b{color:var(--ink);font-weight:500;}
+  .ev .m .src{color:var(--gold);font-size:11px;letter-spacing:0.03em;}
+  .ev.intent .m .src{color:var(--reject);}
+
+  .footnote{padding:0 0 90px;font-size:12.5px;color:var(--faint);line-height:1.7;max-width:80ch;}
+  .footnote b{color:var(--muted);font-weight:500;}
+
+  @media (max-width:920px){
+    .console{grid-template-columns:1fr;gap:26px;}
+    .rail{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px;}
+    .rail-title{display:none;}
+    .node{flex-direction:column;align-items:center;min-width:96px;text-align:center;gap:7px;padding:12px 8px;}
+    .node .stem{display:none;}
+    .node .ntitle{font-size:12px;}
+    .io{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){.wrap{padding:0 22px;}.nav-inner{padding:0 22px;}nav.menu{gap:16px;}.chead h1{font-size:30px;}.detail .dhead{flex-direction:column;gap:10px;}}
+</style>
+</head>
+<body>
+
+<!-- nav(与首页同产品) -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html"><span class="mark"></span>内容工作台</a>
+    <nav class="menu">
+      <a href="#" class="here">操作台</a>
+      <a href="index.html">首页</a>
+      <a href="#">作品浏览</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深浅色"><span class="glyph">◐</span><span class="label">深色</span></button>
+      <a href="#" class="btn-login" style="color:var(--ink);border:1px solid var(--line-strong);border-radius:22px;padding:8px 18px;font-size:14px;">登录</a>
+    </nav>
+  </div>
+</header>
+
+<!-- console head -->
+<section class="chead">
+  <div class="wrap">
+    <div class="eyebrow">一引擎 · 多配方</div>
+    <h1>同一台操作台,<em>换一份配方</em>,长出另一条产线。</h1>
+    <p class="lede">下面这台操作台自己什么业务都不懂。它只做两件事:把引擎报来的每一步状态画出来,再把你的「通过 / 打回」意图报回引擎。换产线,只是换了引擎手里那份配方——步骤有几步、什么顺序、每步产什么,全由配方说了算。</p>
+    <div class="principles">
+      <span class="p"><b>D17</b> 前端只渲染状态、只上报意图,不持业务状态</span>
+      <span class="p"><b>D21</b> 配方步骤顺序 = 用户操作的每一步</span>
+      <span class="p"><b>D9</b> 打回某步 → 下游自动作废重排</span>
+    </div>
+  </div>
+</section>
+
+<div class="rule"><div class="wrap"></div></div>
+
+<!-- recipe switcher -->
+<div class="wrap">
+  <div class="switch-bar">
+    <div class="switch" id="switch">
+      <button data-r="ad" class="on">带货视频</button>
+      <button data-r="mv">MV</button>
+      <button data-r="ad2">动作迁移</button>
+    </div>
+    <span class="switch-note">切换上面 → 同一台操作台重画出<b>不同的步骤流</b>(这就是 D21:换配方 → 操作流自动变,前端零改)</span>
+  </div>
+
+  <div class="recipe-meta">
+    <span class="rn" id="rName">带货视频</span>
+    <span class="rt" id="rTag"></span>
+    <span class="rcode" id="rCode"></span>
+  </div>
+</div>
+
+<!-- console body -->
+<div class="wrap">
+  <div class="console">
+    <div class="rail" id="rail" aria-label="步骤轨"></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+
+<!-- engine ledger -->
+<div class="wrap">
+  <section class="ledger">
+    <div class="lh">
+      <h3>引擎事件账本</h3>
+      <span class="n">状态与事件由引擎持有并写入(D8)· 操作台只读渲染、只写意图</span>
+    </div>
+    <div class="events" id="events"></div>
+  </section>
+
+  <p class="footnote">
+    <b>关于这台操作台的诚实说明:</b>三条产线跑的是同一副 6 步骨架(<code>00 物料 → 01 分析 → 02 分镜 → 03 关键帧/首帧 → 04 视频 → 05 成片</code>),差异全在配方数据里,不在引擎。6 步<b>每步都是拍板停靠点</b>(代码里 <code>approval=True</code>),不是 PRD 说的"恰好 5 门"——所以这里如实画 6 个停点。<b>标灰的地方是 PRD 想要、代码还没兑现的</b>:①动作迁移的<b>去身份化是旁挂半人工工具</b>(有函数没 CLI、没公网托管,骨架 URL 靠人工回填),不是流水线自动一环,所以画成旁挂面板;②动作迁移 01/02 的 LLM <b>并不读参考视频内容</b>,分镜实为纯原创,PRD 的模式判定(replacement / integration)尚未落地;③<b>成本门只有动作迁移那条是真的</b>(<code>confirm-cost</code> + <code>authorize_submission</code> + <code>state.json</code> SSOT),带货 / MV 的记账仍是空壳(建了账本没写入,恒显示 0);④带货成片暂无音轨,动作迁移的模板固化(N14–17)待补。演示交互为前端本地模拟,真实系统里这些状态由引擎持有。
+  </p>
+</div>
+
+<script>
+/* ============================================================
+   配方数据(D5:配方是数据,不是代码)
+   壳完全通用;下面三份 JSON 决定操作台长成什么样。
+   状态取自各 conductor 真实状态机:pending/running/awaiting_approval/done/rejected
+   ============================================================ */
+const ICON = {done:"✓", awaiting:"⏸", running:"⋯", pending:"", rejected:"↩"};
+const STATE_ZH = {done:"已通过", awaiting:"待拍板", running:"生成中", pending:"未开始", rejected:"已打回"};
+
+const RECIPES = {
+  ad: {
+    name:"带货视频", code:"recipe://video/ad", tag:"商品 → 脚本 → 分镜 → 成片",
+    steps:[
+      {n:"00", id:"00_intake", title:"物料录入", tool:"intake_validate", state:"done",
+        sub:"商品图、卖点 brief、成片比例进来,做基础校验。",
+        in:[["料","商品图 × N"],["料","卖点 brief"],["比例","9:16 / 16:9"]],
+        out:[["产","manifest.yaml"],["产","校验报告"]], art:{type:"badge",label:"物料清单占位"}},
+      {n:"01", id:"01_analysis", title:"需求分析", tool:"llm_analyze", state:"done",
+        sub:"LLM 读懂卖点与目标人群,定成片方向与脚本骨架。",
+        in:[["自","00 manifest"]], out:[["产","brief 分析"],["产","脚本骨架"]], art:{type:"badge",label:"需求分析占位"}},
+      {n:"02", id:"02_storyboard", title:"分镜", tool:"llm_storyboard", state:"awaiting",
+        sub:"逐镜脚本。每镜标"展示帧(贴原商品图保真)"还是"生成帧(AI 出画)"。",
+        in:[["自","01 分析"]], out:[["产","shots.yaml"],["产","分镜文档"]],
+        art:{type:"badge",label:"分镜表占位 · display / generated 双身份"}},
+      {n:"03", id:"03_keyframes", title:"首帧", tool:"gen_keyframe", state:"pending", gate:true,
+        sub:"每镜首帧图:展示帧直接贴原商品图兜底保真,生成帧走 AI。",
+        in:[["自","02 shots"],["自","00 商品图"]], out:[["产","首帧图 × 镜数"]],
+        art:{type:"grid",cells:["SH001","SH002","SH003"]}},
+      {n:"04", id:"04_shots", title:"视频", tool:"gen_video", state:"pending", gate:true, costly:true,
+        sub:"生成帧走 Seedance i2v 动起来;静态/ken-burns 用本地 ffmpeg 免费兜底。",
+        in:[["自","03 首帧"]], out:[["产","每镜 mp4"]], art:{type:"grid",cells:["SH001.mp4","SH002.mp4","SH003.mp4"]}},
+      {n:"05", id:"05_delivery", title:"成片", tool:"compose", state:"pending",
+        sub:"拼接成片 + 烧字幕(30fps / h264)。",
+        in:[["自","04 各镜 mp4"]], out:[["产","final.mp4"],["产","subtitle"]],
+        art:{type:"badge",label:"成片预览占位"},
+        gap:"成片暂<b>无音轨</b> —— 配乐 / 配音在引擎里还没接通(待补)。"},
+    ]
+  },
+
+  mv: {
+    name:"MV 视频", code:"recipe://video/mv", tag:"歌曲 → 卡点 → 关键帧 → 拼接成片",
+    steps:[
+      {n:"00", id:"00_intake", title:"物料录入", tool:"intake_validate", state:"done",
+        sub:"音频 + 歌词 + 人物图 + 创作意图进来;ffprobe 探时长,whisper/lrc 出逐行时间轴。",
+        in:[["料","音频 mp3"],["料","歌词 lrc"],["料","人物图"],["意","创作意图"]],
+        out:[["产","manifest.yaml"],["产","lyrics_timed.json"]], art:{type:"badge",label:"物料 + 时间轴占位"}},
+      {n:"01", id:"01_analysis", title:"导演规划", tool:"llm_analyze", state:"done",
+        sub:"节拍、段落地图、人物功能、故事框架、片头尾艺术字规划。",
+        in:[["自","00 manifest + 时间轴"]],
+        out:[["产","music_map.yaml"],["产","character_map"],["产","story.md"]], art:{type:"badge",label:"段落地图占位"}},
+      {n:"02", id:"02_storyboard", title:"分镜", tool:"llm_storyboard", state:"done",
+        sub:"逐镜分镜 + 背景规划。镜数按音乐段落能量切分,铺满整曲。",
+        in:[["自","01 music_map + character_map"]],
+        out:[["产","shots.yaml"],["产","scene_groups"]], art:{type:"badge",label:"分镜表占位 · 按段落铺满全曲"}},
+      {n:"03", id:"03_keyframes", title:"关键帧", tool:"gen_keyframe", state:"awaiting", gate:true,
+        sub:"每镜首帧 9:16;≥2 镜时拼出 storyboard_grid.png 作一屏拍板锚点。",
+        in:[["自","02 shots"],["自","00 人物图"]],
+        out:[["产","SH###_keyframe.png"],["产","storyboard_grid.png"]],
+        art:{type:"grid",cells:["SH001","SH002","SH003","SH004","SH005","拼图锚点"]},
+        note:"唯一支持 MVSTUDIO_STORYBOARD_AUTO_APPROVE 跳板的一步(非交互时省一次停靠)。"},
+      {n:"04", id:"04_shots", title:"视频", tool:"gen_video", state:"pending", gate:true, costly:true,
+        sub:"每镜 Seedance i2v · 9:16 / 720p。可 shot 逐镜(SH003 / 3-6 / missing)只补差的镜,不重烧全片。",
+        in:[["自","03 关键帧"]], out:[["产","每镜 SH###.mp4"]],
+        art:{type:"grid",cells:["SH001.mp4","SH002.mp4","SH003.mp4"]}},
+      {n:"05", id:"05_delivery", title:"合成成片", tool:"compose", state:"pending",
+        sub:"按时间轴拼接 + 烧字幕(ass)+ 片头尾艺术字。final.mp4 9:16 / 720p。",
+        in:[["自","04 各镜 mp4"],["自","00 音频"],["自","01 title_card"]],
+        out:[["产","final.mp4"],["产","subtitle.ass"]], art:{type:"badge",label:"MV 成片预览占位 · 带音轨"}},
+    ]
+  },
+
+  ad2: {
+    name:"动作迁移", code:"recipe://video/reference-remake", tag:"参考视频 → 去身份化 → 套你的人 → 拍同款",
+    steps:[
+      {n:"00", id:"00_intake", title:"物料 + 预检", tool:"intake_validate", state:"done",
+        sub:"参考视频 + 商品图 + 卖点 + 权利声明进来。三级预检:阻塞 / 可修 / 提示。",
+        in:[["料","参考视频"],["料","商品图"],["料","卖点"],["权","权利声明"]],
+        out:[["产","manifest.yaml"],["产","三级预检报告"]],
+        art:{type:"badge",label:"预检报告占位 · blocking / fixable / advisory"}},
+      {n:"01", id:"01_analysis", title:"需求分析", tool:"llm_analyze", state:"done",
+        sub:"LLM 读卖点 brief + 商品图,定成片方向与脚本骨架。",
+        in:[["自","00 brief + 商品图"]],
+        out:[["产","brief 分析"],["产","脚本骨架"]],
+        art:{type:"badge",label:"需求分析占位"},
+        gap:"分镜实为<b>纯原创</b> —— PRD 说这步要"读懂参考视频、判定翻拍模式(replacement / integration)",但代码里 LLM payload 只喂 brief + 图,<b>参考视频内容根本没进 LLM</b>;模式判定(G1 门)尚未兑现。"},
+      {n:"02", id:"02_storyboard", title:"分镜", tool:"llm_storyboard", state:"done",
+        sub:"逐镜脚本。每镜标"展示帧(贴原商品图保真)"还是"生成帧(AI 出画)"。",
+        in:[["自","01 分析"]], out:[["产","shots.yaml"]],
+        art:{type:"badge",label:"分镜表占位 · display / generated 双身份"},
+        gap:"分镜与参考视频的<b>节奏 / 运镜无关联</b> —— 与 ad/mv 同一套原创逻辑,"逐镜对齐原片路线"目前是 PRD 目标,不是代码现状。"},
+      {n:"03", id:"03_keyframes", title:"双身份关键帧", tool:"gen_keyframe", state:"awaiting", gate:true,
+        sub:"展示身份:source / composite 双指纹保真兜底;生成身份:AI 直出。",
+        in:[["自","02 shots + 路线"]], out:[["产","关键帧 × 镜数(双身份)"]],
+        art:{type:"grid",cells:["display·双指纹","generated·AI","display","generated","…","…"]}},
+      {n:"04", id:"04_shots", title:"视频生成", tool:"gen_video", state:"pending", gate:true, costly:true, realcost:true,
+        sub:"生成帧走 Seedance i2v 套你的人重生成。骨架路线的镜消费旁挂工具产出的骨架 mp4 URL(见下方旁挂工具)。付费前 confirm-cost 成本确认门。",
+        in:[["自","03 关键帧"],["旁","骨架 mp4 URL(人工回填)"]], out:[["产","每镜 mp4"]],
+        art:{type:"grid",cells:["SH001.mp4","SH002.mp4","SH003.mp4"]},
+        sidecar:{
+          title:"去身份化(prepare_pose_reference)",
+          badge:"旁挂工具 · 非流水线步骤",
+          body:'MediaPipe 从参考视频提<b>动作骨架(无脸)</b>、卡覆盖率 ≥ 0.65 门。但它是<b>游离的半人工工具</b>,不是 04 的自动一环:代码里有函数和测试,却<b>没有 CLI 入口、没有公网托管发布器</b>(WORKFLOW.md 自认)。真实操作是——本地跑出骨架 mp4 → 人工上传拿到 URL → 手填回 shots.yaml,04 才消费得到。所以这里画成旁挂,不画进流水线。'
+        }},
+      {n:"05", id:"05_delivery", title:"合成 + 验收", tool:"compose", state:"pending",
+        sub:"VO / BGM / 字幕合成 + 成片验收。",
+        in:[["自","04 各镜 mp4"]], out:[["产","final.mp4"],["产","验收报告"]],
+        art:{type:"badge",label:"成片 + 验收占位"},
+        gap:"<b>模板固化(N14–17)待补</b> —— 把这次翻拍沉淀成可复用模板的能力尚未落地。"},
+    ]
+  }
+};
+
+/* 建议包(永不死局 · D11)· 挂在 ad2 的成本确认门上做演示 */
+const REC_PACK = {
+  title:"这一步要花钱了 —— 给你几个走法,不卡死",
+  hint:"付费生成前,引擎把选项摊开(效果 / 保真 / 成本 / 时间 / 影响范围),标出推荐项,你也能从断点继续。",
+  opts:[
+    {h:"全片 Seedance i2v 重生成", m:"效果最好 · 成本最高 · 约 8 分钟", tag:"", pick:false},
+    {h:"仅关键镜付费,其余走骨架直传", m:"保真够用 · 成本减半 · 约 4 分钟", tag:"推荐", pick:true},
+    {h:"先出 2 镜样片确认再决定", m:"零风险试水 · 从断点继续", tag:"", pick:false},
+  ]
+};
+
+/* ---------- 渲染 ---------- */
+let current = "ad";
+let events = [];
+let evClock = 0;
+
+const railEl = document.getElementById("rail");
+const detailEl = document.getElementById("detail");
+const eventsEl = document.getElementById("events");
+
+function firstAwaitingOrLast(steps){
+  const a = steps.findIndex(s=>s.state==="awaiting" || s.state==="running");
+  return a>=0 ? a : steps.length-1;
+}
+let selIndex = firstAwaitingOrLast(RECIPES[current].steps);
+
+function pushEvent(msg, kind){
+  evClock += 1;
+  const t = (900 + evClock*7).toString().padStart(4,"0");
+  events.unshift({t:"14:"+t.slice(0,2)+":"+t.slice(2), m:msg, kind:kind||""});
+  renderEvents();
+}
+function renderEvents(){
+  if(events.length===0){
+    eventsEl.innerHTML = '<div class="ev"><span class="t">—</span><span class="m" style="color:var(--faint)">切换配方 / 拍板,事件会记到这里(引擎写,操作台读)。</span></div>';
+    return;
+  }
+  eventsEl.innerHTML = events.map(e=>`<div class="ev ${e.kind}"><span class="t">${e.t}</span><span class="m">${e.m}</span></div>`).join("");
+}
+
+function renderRail(){
+  const r = RECIPES[current];
+  railEl.innerHTML = '<div class="rail-title">操作步骤 · 共 '+r.steps.length+' 步</div>' +
+    r.steps.map((s,i)=>`
+      <button class="node ${s.state} ${i===selIndex?'sel':''}" data-i="${i}">
+        <span class="stem"></span>
+        <span class="idx">${ICON[s.state]||s.n}</span>
+        <span class="nbody">
+          <span class="ntitle">${s.title}${s.gate?'<span class="gatemark">◆ 拍板</span>':''}</span>
+          <span class="nstate">${s.n} · ${STATE_ZH[s.state]}</span>
+        </span>
+      </button>`).join("");
+  railEl.querySelectorAll(".node").forEach(n=>{
+    n.addEventListener("click",()=>{ selIndex = +n.dataset.i; renderRail(); renderDetail(); });
+  });
+}
+
+function ioCol(lab, arr){
+  return `<div class="col"><div class="lab">${lab}</div>${arr.map(x=>`<div class="chip"><span class="k">${x[0]}</span><span>${x[1]}</span></div>`).join("")}</div>`;
+}
+function artifactHTML(s){
+  const a = s.art;
+  if(a.type==="grid"){
+    return `<div class="artifact grid"><span class="abadge">产物 · ${s.out[0][1]}</span>${a.cells.map(c=>`<div class="cell">${c}</div>`).join("")}</div>`;
+  }
+  return `<div class="artifact"><span class="abadge">产物预览</span><span class="ph-badge">${a.label}</span><span class="cap">真实产物到位后替换 · 布局不变</span></div>`;
+}
+function approvalHTML(s, i){
+  if(s.state==="awaiting"){
+    const showRec = (current==="ad2" && s.id==="04_shots"); // 成本门演示建议包
+    let extra = "";
+    if(showRec){
+      extra = `<div class="rec"><div class="rtitle">◆ 建议包 · 永不死局</div><div class="rh">${REC_PACK.hint}</div><div class="opts">${
+        REC_PACK.opts.map(o=>`<div class="opt ${o.pick?'pick':''}"><div><div class="oh">${o.h}</div><div class="om">${o.m}</div></div>${o.tag?`<span class="otag">${o.tag}</span>`:''}</div>`).join("")
+      }</div></div>`;
+    }
+    return `${extra}<div class="approval"><div class="atitle">${s.gate?'拍板停靠点 · ':''}等你确认这一步</div>
+      <div class="ah">看下这步的产物。满意就通过进下一步;不满意打回,${s.n} 之后的步骤会被引擎自动作废重排(D9)。</div>
+      <div class="btns">
+        <button class="btn btn-ok" data-act="ok" data-i="${i}">通过 → 下一步</button>
+        <button class="btn btn-reject" data-act="reject" data-i="${i}">打回重做</button>
+        ${(s.id==="03_keyframes"||s.id==="04_shots")?`<button class="btn btn-shot" data-act="shot" data-i="${i}">逐镜补做(shot)</button>`:''}
+      </div></div>`;
+  }
+  if(s.state==="done"){
+    return `<div class="approval"><div class="done-msg">✓ 这步已通过,产物已锁定,可随时回看或打回重做。</div></div>`;
+  }
+  if(s.state==="rejected"){
+    return `<div class="approval"><div class="pending-msg">↩ 这步被打回,等待重跑;重跑后会再次停在拍板点等你确认。</div></div>`;
+  }
+  return `<div class="approval"><div class="pending-msg">上游还没走到这里。前面的步骤通过后,引擎才会跑这一步。</div></div>`;
+}
+
+function renderDetail(){
+  const r = RECIPES[current];
+  const s = r.steps[selIndex];
+  const gapHTML = s.gap ? `<div class="gap"><span class="gicon"></span><span class="gtxt">${s.gap}</span></div>` : "";
+  const noteHTML = s.note ? `<div class="gap" style="box-shadow:inset 0 0 0 1px var(--line)"><span class="gicon" style="border-color:var(--gold)"></span><span class="gtxt">${s.note}</span></div>` : "";
+  let costHTML = "";
+  if(s.realcost){
+    costHTML = `<div class="gap" style="box-shadow:inset 0 0 0 1px var(--gold-soft)"><span class="gicon" style="border-color:var(--gold)"></span><span class="gtxt">付费步骤。<b style="color:var(--gold)">这条产线的成本门是真的</b> —— 代码里 <code>confirm-cost</code> 命令 + <code>JobStore.authorize_submission</code> 把关,<code>state.json</code> 是成本 SSOT,不确认不提交。(注:只有动作迁移这条打通了;带货 / MV 的记账仍是空壳。)</span></div>`;
+  } else if(s.costly){
+    costHTML = `<div class="gap" style="box-shadow:inset 0 0 0 1px var(--line)"><span class="gicon" style="border-color:var(--gold)"></span><span class="gtxt">付费步骤。<b style="color:var(--gold)">成本记账 / 触顶为预留</b> —— 这条产线引擎已建账本但尚未写入,当前成本恒显示 0。(动作迁移那条已有真实成本门。)</span></div>`;
+  }
+  const sidecarHTML = s.sidecar ? `<div class="sidecar"><div class="sctitle">${s.sidecar.title}<span class="badge">${s.sidecar.badge}</span></div><div class="scbody">${s.sidecar.body}</div></div>` : "";
+  detailEl.innerHTML = `
+    <div class="dhead">
+      <div class="dnum">${s.n}</div>
+      <div class="dhb">
+        <div class="dh-top">
+          <h2>${s.title}</h2>
+          <span class="dtool">${s.tool}</span>
+          <span class="statepill ${s.state}"><span class="g">${ICON[s.state]||"·"}</span>${STATE_ZH[s.state]}</span>
+        </div>
+        <p class="dsub">${s.sub}</p>
+      </div>
+    </div>
+    <div class="dbody">
+      <div class="io">${ioCol("消费(上游输入)", s.in)}${ioCol("产物(输出)", s.out)}</div>
+      ${artifactHTML(s)}
+      ${noteHTML}${costHTML}${gapHTML}${sidecarHTML}
+      ${approvalHTML(s, selIndex)}
+    </div>`;
+  detailEl.querySelectorAll("[data-act]").forEach(b=>{
+    b.addEventListener("click",()=>handleAct(b.dataset.act, +b.dataset.i));
+  });
+}
+
+function handleAct(act, i){
+  const r = RECIPES[current];
+  const steps = r.steps;
+  const s = steps[i];
+  if(act==="ok"){
+    s.state="done";
+    pushEvent(`意图上报:<span class="src">操作台 → 引擎</span> 通过 <b>${s.n} ${s.title}</b>`, "intent");
+    // 推进下一 pending → awaiting(引擎跑完停靠)
+    const next = steps[i+1];
+    if(next && next.state==="pending"){
+      next.state="awaiting";
+      pushEvent(`引擎:<b>${next.n} ${next.title}</b> 跑完,停在拍板点(awaiting_approval)`, "");
+      selIndex = i+1;
+    } else {
+      pushEvent(`引擎:配方已到末步,产线走完`, "");
+    }
+  } else if(act==="reject"){
+    s.state="awaiting"; // 打回后需重跑,仍停在本步
+    pushEvent(`意图上报:<span class="src">操作台 → 引擎</span> 打回 <b>${s.n} ${s.title}</b>`, "intent");
+    // D9 级联:下游所有非 pending → pending
+    let reset=0;
+    for(let k=i+1;k<steps.length;k++){ if(steps[k].state!=="pending"){ steps[k].state="pending"; reset++; } }
+    pushEvent(`引擎:级联作废(D9)—— ${s.n} 之后 <b>${reset}</b> 步重置为未开始,重排等重跑`, "");
+    selIndex = i;
+  } else if(act==="shot"){
+    pushEvent(`意图上报:<span class="src">操作台 → 引擎</span> 逐镜补做 <b>${s.n} ${s.title}</b>(shot 模式 · 不推进状态机,只补差镜)`, "intent");
+  }
+  renderRail(); renderDetail();
+}
+
+function switchRecipe(key){
+  if(key===current) return;
+  current = key;
+  const r = RECIPES[current];
+  document.getElementById("rName").textContent = r.name;
+  document.getElementById("rTag").textContent = "· " + r.tag;
+  document.getElementById("rCode").textContent = r.code;
+  selIndex = firstAwaitingOrLast(r.steps);
+  pushEvent(`换配方:<b>${r.name}</b> —— 操作台按 <code>${r.code}</code> 重画出 ${r.steps.length} 步流程(前端零改)`, "");
+  renderRail(); renderDetail();
+}
+
+document.getElementById("switch").addEventListener("click",e=>{
+  const b = e.target.closest("button[data-r]"); if(!b) return;
+  document.querySelectorAll("#switch button").forEach(x=>x.classList.toggle("on", x===b));
+  switchRecipe(b.dataset.r);
+});
+
+/* init */
+(function(){
+  const r = RECIPES[current];
+  document.getElementById("rTag").textContent = "· " + r.tag;
+  document.getElementById("rCode").textContent = r.code;
+  renderRail(); renderDetail();
+  pushEvent(`载入配方:<b>${r.name}</b> · ${r.steps.length} 步 · 状态取自引擎当前 node_state`, "");
+})();
+
+/* theme */
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeToggle');
+  var label=btn.querySelector('.label'), glyph=btn.querySelector('.glyph');
+  function apply(t){root.setAttribute('data-theme',t);label.textContent=t==='dark'?'浅色':'深色';glyph.textContent=t==='dark'?'☀':'◐';try{localStorage.setItem('preview-theme',t);}catch(e){}}
+  var saved; try{saved=localStorage.getItem('preview-theme');}catch(e){}
+  apply(saved==='dark'?'dark':'light');
+  btn.addEventListener('click',function(){apply(root.getAttribute('data-theme')==='dark'?'light':'dark');});
+})();
+</script>
+
+</body>
+</html>

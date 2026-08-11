@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>首页视觉 · 三方向对比</title>
+<style>
+  @font-face{font-family:"InterVariable";src:url("fonts/InterVariable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;}
+  @font-face{font-family:"Redaction 35";src:url("fonts/Redaction35-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+  :root{
+    --bg:#f7f6f4;--surface:#ffffff;--ink:rgba(0,0,0,0.88);--muted:rgba(0,0,0,0.60);
+    --faint:rgba(0,0,0,0.40);--line:rgba(0,0,0,0.10);--line-strong:rgba(0,0,0,0.16);
+    --ui:"InterVariable","PingFang SC","Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    --serif:"Redaction 35","Songti SC",Georgia,serif;--maxw:1200px;
+  }
+  *{box-sizing:border-box;}html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.55;
+    font-optical-sizing:auto;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  header{padding:72px 0 30px;}
+  .eyebrow{font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:22px;}
+  h1{font-size:46px;line-height:1.05;letter-spacing:-0.03em;font-weight:660;margin:0 0 18px;}
+  h1 em{font-family:var(--serif);font-style:italic;font-weight:400;}
+  header p{font-size:18px;color:var(--muted);max-width:56ch;margin:0;}
+  .gate{margin-top:22px;font-size:13.5px;color:var(--faint);display:inline-flex;align-items:center;gap:9px;
+    border:1px solid var(--line);border-radius:20px;padding:7px 15px;background:var(--surface);}
+  .gate b{color:var(--muted);font-weight:600;}
+  .rule{height:1px;background:var(--line);margin:0;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;padding:48px 0 30px;}
+  .card{background:var(--surface);border-radius:14px;box-shadow:0 1px 0 var(--line),0 12px 34px rgba(0,0,0,0.07);
+    overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,box-shadow .18s ease;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 1px 0 var(--line),0 20px 48px rgba(0,0,0,0.12);}
+  .thumb{position:relative;aspect-ratio:16/11;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px var(--line);}
+  /* live thumbnail: full page rendered at 1200px then scaled down */
+  .thumb iframe{position:absolute;top:0;left:0;width:1200px;height:825px;border:0;
+    transform:scale(0.333);transform-origin:top left;pointer-events:none;background:#fff;}
+  .thumb .veil{position:absolute;inset:0;z-index:2;}
+  .badge{position:absolute;top:12px;left:12px;z-index:3;font-size:12px;font-weight:600;letter-spacing:0.04em;
+    background:rgba(0,0,0,0.85);color:#fff;border-radius:6px;padding:5px 11px;}
+  .meta{padding:22px 22px 24px;display:flex;flex-direction:column;gap:0;flex:1;}
+  .meta .name{font-size:20px;font-weight:640;letter-spacing:-0.02em;margin:0 0 4px;}
+  .meta .zh{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--muted);margin:0 0 12px;}
+  .meta .desc{font-size:14.5px;color:var(--muted);line-height:1.6;margin:0 0 18px;flex:1;}
+  .meta .tokens{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+  .sw{width:20px;height:20px;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);}
+  .open{display:inline-flex;align-items:center;gap:7px;font-size:14.5px;font-weight:600;color:var(--ink);
+    align-self:flex-start;border:1px solid var(--line-strong);border-radius:7px;padding:9px 16px;transition:all .15s;}
+  .open:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .open .arrow{transition:transform .15s;}.open:hover .arrow{transform:translateX(3px);}
+  .note{padding:6px 0 70px;font-size:13.5px;color:var(--faint);}
+  @media (max-width:920px){.grid{grid-template-columns:1fr;}.thumb iframe{transform:scale(0.72);width:1200px;}
+    h1{font-size:34px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">内容工作台 · 首页风格</div>
+    <h1>三个<em> 方向</em>,挑一个往下深化。</h1>
+    <p>同样的内容与结构,三套不同的视觉语言。先并排看,选定一个方向后我再单独打磨那一版。</p>
+    <div class="gate"><b>设计门</b>· 任何新视觉先出三个差异化方向再深化(huashu-design 三方向硬门)</div>
+  </div>
+</header>
+<div class="rule"><div class="wrap"></div></div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- A -->
+    <a class="card" href="a-editorial.html">
+      <div class="thumb"><span class="badge">A</span><iframe src="a-editorial.html" title="方向 A 预览" scrolling="no" loading="lazy"></iframe><span class="veil"></span></div>
+      <div class="meta">
+        <div class="name">编辑白 · Editorial</div>
+        <div class="zh">interfere 同款克制</div>
+        <div class="desc">近黑正文、发丝分割线、纸感底噪、衬线斜体点睛。冷静、克制、专业媒体感。含深浅两套。</div>
+        <div class="tokens"><span class="sw" style="background:#f6f5f3"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#1a7f37"></span></div>
+        <span class="open">打开完整页 <span class="arrow">→</span></span>
+      </div>
+    </a>
+
+    <!-- B -->
+    <a class="card" href="b-build.html">
+      <div class="thumb"><span class="badge">B</span><iframe src="b-build.html" title="方向 B 预览" scrolling="no" loading="lazy"></iframe><span class="veil"></span></div>
+      <div class="meta">
+        <div class="name">奢华留白 · Build</div>
+        <div class="zh">大留白 · 极细字 · 暖金</div>
+        <div class="desc">70% 以上留白,超细大标题,暖金一丝点缀。内容漂浮在空间里,安静、高级、贵。含深浅两套。</div>
+        <div class="tokens"><span class="sw" style="background:#faf8f4"></span><span class="sw" style="background:#1a1714"></span><span class="sw" style="background:#b08d57"></span></div>
+        <span class="open">打开完整页 <span class="arrow">→</span></span>
+      </div>
+    </a>
+
+    <!-- C -->
+    <a class="card" href="c-takram.html">
+      <div class="thumb"><span class="badge">C</span><iframe src="c-takram.html" title="方向 C 预览" scrolling="no" loading="lazy"></iframe><span class="veil"></span></div>
+      <div class="meta">
+        <div class="name">东方暖 · Takram</div>
+        <div class="zh">自然色 · 圆角 · 温润</div>
+        <div class="desc">米沙纸底、鼠尾草绿、大圆角、柔和阴影。温暖、亲和、有手作感,东方的松弛。含深浅两套。</div>
+        <div class="tokens"><span class="sw" style="background:#f4efe6"></span><span class="sw" style="background:#2b2925"></span><span class="sw" style="background:#6f8f6a"></span></div>
+        <span class="open">打开完整页 <span class="arrow">→</span></span>
+      </div>
+    </a>
+
+  </div>
+  <p class="note">缩略图为实时渲染的完整页面等比缩小 · 点卡片进完整页 · 截图素材仍为占位,布局定稿后逐个替换。</p>
+</div>
+
+</body>
+</html>

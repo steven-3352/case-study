@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作台 · 内容工作台</title>
+  <link rel="stylesheet" href="assets/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #site-nav { border-bottom: 1px solid var(--border); }
+
+    .container {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      width: 100%;
+    }
+
+    .header-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .header-section h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .project-card {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .project-card:hover {
+      border-color: var(--ink);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .project-card-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .project-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .project-card-delete {
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .project-card:hover .project-card-delete {
+      opacity: 1;
+    }
+
+    .project-card-delete button {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .project-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.875rem;
+    }
+
+    .project-tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--ink-secondary);
+    }
+
+    .project-date {
+      color: var(--ink-tertiary);
+      font-size: 0.8rem;
+    }
+
+    .project-progress {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--ink-secondary);
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 3px;
+      background: var(--bg);
+      border-radius: 2px;
+      overflow: hidden;
+      min-width: 80px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--ink);
+      transition: width 0.2s;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--ink-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    .empty-state p {
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* Dialog / Modal */
+    dialog {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+      background: var(--surface);
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--ink-secondary);
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Recipe selection */
+    .recipe-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .recipe-tile {
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+
+    .recipe-tile:hover {
+      border-color: var(--ink);
+      background: var(--surface);
+    }
+
+    .recipe-tile.selected {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--surface);
+    }
+
+    .recipe-tile-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .recipe-tile-tag {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .recipe-tile-blurb {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      line-height: 1.3;
+    }
+
+    /* Form section */
+    .form-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: block;
+      color: var(--ink-secondary);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="file"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group input[type="file"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--ink-tertiary);
+      margin-top: 0.3rem;
+    }
+
+    /* Recipe steps preview */
+    .recipe-steps {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .recipe-steps-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--ink-secondary);
+    }
+
+    .steps-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .steps-list li {
+      font-size: 0.8rem;
+      padding: 0.5rem 0;
+      color: var(--ink-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps-list li:last-child {
+      border-bottom: none;
+    }
+
+    .step-number {
+      font-weight: 600;
+      color: var(--ink);
+      min-width: 2rem;
+      display: inline-block;
+    }
+
+    /* Hidden states */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      dialog {
+        width: 95%;
+      }
+
+      .recipe-tiles {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="site-nav"></header>
+
+  <div class="container">
+    <div class="header-section">
+      <h1>项目</h1>
+      <button class="btn btn-primary" id="new-project-btn">新建项目</button>
+    </div>
+
+    <div id="projects-container">
+      <!-- Projects will be rendered here -->
+    </div>
+  </div>
+
+  <!-- New Project Dialog -->
+  <dialog id="new-project-dialog">
+    <div class="modal-header">
+      <h2>新建项目</h2>
+      <button class="modal-close" id="modal-close">&times;</button>
+    </div>
+
+    <form id="new-project-form">
+      <div class="modal-content">
+        <!-- Step 1: Recipe selection -->
+        <div class="form-section" id="step-recipe">
+          <label class="form-section-label">选择产线</label>
+          <div class="recipe-tiles" id="recipe-tiles"></div>
+        </div>
+
+        <!-- Step 2 & beyond: Title and inputs (hidden until recipe selected) -->
+        <div id="recipe-details" class="hidden">
+          <div class="form-group">
+            <label for="project-title">项目名称</label>
+            <input type="text" id="project-title" name="title" required />
+          </div>
+
+          <div id="recipe-inputs"></div>
+
+          <div class="recipe-steps" id="recipe-preview">
+            <div class="recipe-steps-title">这条产线的操作步骤(由配方决定)</div>
+            <ul class="steps-list" id="steps-list"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button type="submit" class="btn btn-primary" id="modal-submit">创建</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="assets/recipes.js"></script>
+  <script src="assets/mock-engine.js"></script>
+
+  <script>
+    // ============ Auth check ============
+    if (!Studio.auth.current()) {
+      location.href = 'login.html';
+    }
+
+    // ============ State ============
+    let selectedRecipeKey = null;
+
+    // ============ Utilities ============
+    function formatDate(date) {
+      const now = new Date();
+      const diff = now - new Date(date);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      if (days === 0) return '今天';
+      if (days === 1) return '昨天';
+      if (days < 7) return days + '天前';
+      if (days < 30) return Math.floor(days / 7) + '周前';
+      return Math.floor(days / 30) + '个月前';
+    }
+
+    // ============ Render projects ============
+    function renderProjects() {
+      const projects = Studio.projects.list();
+      const container = document.getElementById('projects-container');
+
+      if (projects.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📂</div>
+            <h2>建立第一个项目</h2>
+            <p>开始创建内容，启动工作流</p>
+            <button class="btn btn-primary" id="empty-state-btn">新建项目</button>
+          </div>
+        `;
+        document.getElementById('empty-state-btn').addEventListener('click', () => {
+          openNewProjectDialog();
+        });
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="project-grid">
+          ${projects.map(project => {
+            const progress = Studio.projects.progress(project);
+            const currentNode = Studio.projects.currentNode(project);
+            let statusText = '';
+            if (project.status === 'done') {
+              statusText = '已完成';
+            } else if (currentNode) {
+              const nodeStatus = Studio.STATE_ZH[currentNode.status] || currentNode.status;
+              statusText = `进行到 ${String(currentNode.n).padStart(2, '0')} · ${nodeStatus}`;
+            }
+
+            return `
+              <div class="project-card" onclick="location.href='console.html?project=${project.id}'">
+                <div class="project-card-header">
+                  <h3 class="project-card-title">${project.title}</h3>
+                  <div class="project-card-delete">
+                    <button class="btn btn-danger" onclick="event.stopPropagation(); deleteProject('${project.id}')">删除</button>
+                  </div>
+                </div>
+                <div class="project-meta">
+                  <span class="project-tag">${project.subProject}</span>
+                  <span class="statepill ${project.status}">${statusText}</span>
+                </div>
+                <div class="project-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%"></div>
+                  </div>
+                  <span>${progress.done} / ${progress.total} 步</span>
+                </div>
+                <div class="project-date">${formatDate(project.createdAt)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // ============ Delete project ============
+    function deleteProject(id) {
+      if (confirm('确定删除这个项目吗？此操作不可撤销。')) {
+        Studio.projects.remove(id);
+        renderProjects();
+        toast('项目已删除');
+      }
+    }
+
+    // ============ New project dialog ============
+    const dialog = document.getElementById('new-project-dialog');
+    const form = document.getElementById('new-project-form');
+
+    function openNewProjectDialog(preSelectedRecipe = null) {
+      selectedRecipeKey = null;
+      form.reset();
+      renderRecipeTiles(preSelectedRecipe);
+      hideRecipeDetails();
+      dialog.showModal();
+    }
+
+    function closeNewProjectDialog() {
+      dialog.close();
+      selectedRecipeKey = null;
+    }
+
+    // Modal button handlers
+    document.getElementById('new-project-btn').addEventListener('click', () => {
+      openNewProjectDialog();
+    });
+
+    document.getElementById('modal-close').addEventListener('click', closeNewProjectDialog);
+    document.getElementById('modal-cancel').addEventListener('click', closeNewProjectDialog);
+
+    // ============ Recipe tiles ============
+    function renderRecipeTiles(preSelected = null) {
+      const container = document.getElementById('recipe-tiles');
+      const recipes = Studio.recipes.list();
+
+      container.innerHTML = recipes.map(recipe => `
+        <div class="recipe-tile ${preSelected === recipe.key ? 'selected' : ''}" data-recipe-key="${recipe.key}">
+          <div class="recipe-tile-name">${recipe.name}</div>
+          <div class="recipe-tile-tag">${recipe.tag || ''}</div>
+          <div class="recipe-tile-blurb">${recipe.blurb || ''}</div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.recipe-tile').forEach(tile => {
+        tile.addEventListener('click', () => selectRecipe(tile.dataset.recipeKey));
+      });
+
+      if (preSelected) {
+        selectRecipe(preSelected);
+      }
+    }
+
+    function selectRecipe(key) {
+      selectedRecipeKey = key;
+
+      // Update tile selection UI
+      document.querySelectorAll('.recipe-tile').forEach(tile => {
+        tile.classList.toggle('selected', tile.dataset.recipeKey === key);
+      });
+
+      // Show recipe details
+      showRecipeDetails(key);
+    }
+
+    function showRecipeDetails(recipeKey) {
+      const recipe = Studio.recipes.get(recipeKey);
+      if (!recipe) return;
+
+      // Update title placeholder
+      document.getElementById('project-title').placeholder = recipe.name + ' 项目';
+      document.getElementById('project-title').value = recipe.name + ' 项目';
+
+      // Render inputs
+      const inputsContainer = document.getElementById('recipe-inputs');
+      inputsContainer.innerHTML = recipe.inputs.map(input => {
+        let fieldHtml = '';
+        if (input.type === 'file') {
+          fieldHtml = `<input type="file" id="input-${input.key}" data-input-key="${input.key}" disabled />`;
+        } else if (input.type === 'textarea') {
+          fieldHtml = `<textarea id="input-${input.key}" data-input-key="${input.key}"></textarea>`;
+        } else if (input.type === 'select') {
+          fieldHtml = `
+            <select id="input-${input.key}" data-input-key="${input.key}">
+              <option value="">-- 选择 --</option>
+              ${(input.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>
+          `;
+        } else {
+          fieldHtml = `<input type="text" id="input-${input.key}" data-input-key="${input.key}" />`;
+        }
+
+        return `
+          <div class="form-group">
+            <label for="input-${input.key}">${input.label}</label>
+            ${fieldHtml}
+            ${input.hint ? `<div class="form-hint">${input.hint}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Render steps
+      const stepsList = document.getElementById('steps-list');
+      stepsList.innerHTML = recipe.steps.map(step => `
+        <li>
+          <span class="step-number">${String(step.n).padStart(2, '0')}</span>
+          <span>${step.title}</span>
+        </li>
+      `).join('');
+
+      // Show recipe details section
+      document.getElementById('recipe-details').classList.remove('hidden');
+    }
+
+    function hideRecipeDetails() {
+      document.getElementById('recipe-details').classList.add('hidden');
+    }
+
+    // ============ Form submission ============
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!selectedRecipeKey) {
+        alert('请选择一个产线');
+        return;
+      }
+
+      const title = document.getElementById('project-title').value.trim();
+      if (!title) {
+        alert('请输入项目名称');
+        return;
+      }
+
+      // Gather input values
+      const data = {};
+      document.querySelectorAll('[data-input-key]').forEach(el => {
+        const key = el.dataset.inputKey;
+        data[key] = el.value;
+      });
+
+      try {
+        const project = Studio.projects.create(selectedRecipeKey, title, data);
+        if (project && project.id) {
+          toast('项目创建成功');
+          closeNewProjectDialog();
+          setTimeout(() => {
+            location.href = `console.html?project=${project.id}`;
+          }, 300);
+        }
+      } catch (err) {
+        alert('创建失败: ' + (err.message || '未知错误'));
+      }
+    });
+
+    // ============ URL param handling ============
+    const params = new URLSearchParams(location.search);
+    const recipeParam = params.get('recipe');
+
+    // ============ Initial render ============
+    function init() {
+      renderProjects();
+      if (recipeParam) {
+        openNewProjectDialog(recipeParam);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Fallback if already loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+
+  <script src="assets/nav.js" data-here="workspace"></script>
+</body>
+</html>

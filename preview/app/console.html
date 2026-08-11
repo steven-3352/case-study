@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>操作台 · 内容工作台</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* ================================================================
+     操作台 Operations Console —— D17 哑视图
+     只读渲染引擎持有的 node_state,只上报意图;不持业务状态。
+     壳 / 令牌来自 assets/tokens.css;这里只补操作台专属的结构样式。
+     ================================================================ */
+
+  /* ---- console head ---- */
+  .chead{padding:56px 0 22px;}
+  .chead .eyebrow{margin-bottom:22px;}
+  .chead h1{font-size:clamp(28px,4.2vw,44px);line-height:1.1;letter-spacing:-0.03em;font-weight:250;margin:0 0 14px;max-width:26ch;}
+  .chead h1 .serif-em{font-size:0.72em;color:var(--muted);}
+  .chead p.lede{font-size:15.5px;color:var(--muted);max-width:62ch;margin:0;line-height:1.7;}
+  .principles{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .principles .p{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:6px 14px;background:var(--surface);}
+  .principles .p b{color:var(--gold);font-weight:600;font-family:var(--ui);}
+
+  /* ---- project meta line ---- */
+  .pmeta{display:flex;align-items:baseline;gap:16px;margin:28px 0 4px;flex-wrap:wrap;}
+  .pmeta .pn{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,30px);color:var(--ink);letter-spacing:-0.01em;}
+  .pmeta .pt{font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:4px 12px;}
+  .pmeta .pcode{font-size:12px;color:var(--faint);letter-spacing:0.03em;margin-left:auto;font-family:var(--ui);}
+
+  /* ---- cost band ---- */
+  .costband{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    background:var(--paper);border-radius:12px;padding:13px 20px;margin:20px 0 6px;box-shadow:inset 0 0 0 1px var(--line);}
+  .costband .cb-total{font-size:14.5px;color:var(--ink);}
+  .costband .cb-total b{color:var(--gold);font-weight:600;}
+  .costband .cb-breakdown{display:flex;gap:18px;color:var(--faint);font-size:12.5px;flex-wrap:wrap;}
+
+  /* ---- console body: 左步骤轨 · 右步骤详情 ---- */
+  .console{display:grid;grid-template-columns:300px 1fr;gap:44px;padding:30px 0 30px;align-items:start;}
+
+  .rail{display:flex;flex-direction:column;position:sticky;top:92px;}
+  .rail-title{font-size:10.5px;text-transform:uppercase;letter-spacing:0.2em;color:var(--faint);font-weight:500;margin-bottom:8px;}
+  .node{display:flex;gap:14px;align-items:flex-start;padding:13px 14px;border-radius:12px;cursor:pointer;
+    transition:background .16s ease;position:relative;text-align:left;background:transparent;border:0;font-family:inherit;width:100%;}
+  .node:hover{background:var(--paper);}
+  .node.sel{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);}
+  .node .stem{position:absolute;left:calc(14px + 13px);top:38px;bottom:-13px;width:1px;background:var(--line);}
+  .node:last-child .stem{display:none;}
+  .node .idx{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:600;background:var(--surface);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);z-index:1;}
+  .node.done .idx{background:var(--ok);color:#fff;box-shadow:none;}
+  .node.awaiting .idx{background:var(--wait);color:var(--on-ink);box-shadow:none;}
+  .node.running .idx{background:var(--running);color:var(--on-ink);box-shadow:none;}
+  .node.rejected .idx{background:var(--reject);color:#fff;box-shadow:none;}
+  .node .nbody{display:flex;flex-direction:column;gap:1px;padding-top:2px;min-width:0;}
+  .node .ntitle{font-size:14px;color:var(--muted);font-weight:400;letter-spacing:-0.01em;}
+  .node.done .ntitle,.node.awaiting .ntitle,.node.running .ntitle{color:var(--ink);}
+  .node.awaiting .ntitle{font-weight:500;}
+  .node .nstate{font-size:11.5px;color:var(--faint);letter-spacing:0.02em;}
+  .node.awaiting .nstate{color:var(--wait);}
+  .node.rejected .nstate{color:var(--reject);}
+  .node.done .nstate{color:var(--ok);}
+  .node .gatemark{margin-left:6px;font-size:10px;color:var(--gold);vertical-align:middle;}
+
+  /* 右:选中步骤详情 */
+  .detail{background:var(--surface);border-radius:var(--radius);box-shadow:inset 0 0 0 1px var(--line),0 24px 60px -30px rgba(26,23,20,0.24);
+    overflow:hidden;min-height:520px;display:flex;flex-direction:column;}
+  html[data-theme="dark"] .detail{box-shadow:inset 0 0 0 1px var(--line),0 30px 70px -30px rgba(0,0,0,0.6);}
+  .detail .dhead{padding:26px 30px 22px;box-shadow:0 1px 0 var(--line);display:flex;align-items:flex-start;gap:18px;}
+  .detail .dnum{font-family:var(--serif);font-style:italic;font-size:44px;line-height:0.85;color:var(--ink);flex:none;padding-top:2px;}
+  .detail .dhb{flex:1;min-width:0;}
+  .detail .dh-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:5px;}
+  .detail h2{font-size:22px;font-weight:400;letter-spacing:-0.02em;margin:0;}
+  .detail .dtool{font-size:12px;color:var(--faint);letter-spacing:0.03em;font-family:var(--ui);border:1px solid var(--line);border-radius:6px;padding:3px 9px;}
+  .detail .dsub{font-size:14px;color:var(--muted);margin:0;line-height:1.6;}
+
+  .dbody{padding:26px 30px;display:flex;flex-direction:column;gap:26px;flex:1;}
+  .io{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  .io .col .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:0.18em;color:var(--faint);font-weight:500;margin-bottom:10px;}
+  .io .chip{font-size:13px;color:var(--muted);background:var(--paper);border-radius:9px;padding:8px 12px;margin-bottom:7px;box-shadow:inset 0 0 0 1px var(--line);display:flex;gap:8px;align-items:baseline;}
+  .io .chip .k{color:var(--gold);font-size:11px;flex:none;font-weight:500;}
+
+  /* 产物预览 */
+  .artifact{border-radius:12px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);min-height:190px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px;position:relative;}
+  .artifact .abadge{position:absolute;top:12px;left:14px;font-size:10.5px;letter-spacing:0.1em;color:var(--faint);text-transform:uppercase;}
+  .artifact .ph-badge{font-size:12.5px;color:var(--faint);letter-spacing:0.04em;border:1px dashed var(--line-strong);padding:8px 16px;border-radius:22px;background:var(--surface);}
+  .artifact.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px;align-items:stretch;justify-items:stretch;min-height:170px;}
+  .artifact.grid .cell{position:relative;background:var(--surface);border-radius:8px;box-shadow:inset 0 0 0 1px var(--line);aspect-ratio:9/16;overflow:hidden;display:flex;align-items:flex-end;}
+  .artifact.grid .cell img{width:100%;height:100%;object-fit:cover;display:block;}
+  .artifact.grid .cell .clabel{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:10px;color:#fff;background:linear-gradient(to top,rgba(26,23,20,0.55),transparent);}
+  .artifact.grid .cell .cvid{position:absolute;top:6px;right:6px;font-size:10px;color:#fff;background:rgba(26,23,20,0.55);border-radius:4px;padding:2px 6px;letter-spacing:0.04em;}
+  .artifact.grid .cell.selected{box-shadow:inset 0 0 0 2px var(--gold);}
+  .artifact.grid .cell .cstar{position:absolute;top:4px;left:6px;font-size:13px;color:var(--gold);text-shadow:0 1px 2px rgba(0,0,0,0.4);}
+  .artifact.single{min-height:220px;padding:16px;}
+  .artifact.single img{max-width:100%;max-height:280px;border-radius:8px;box-shadow:inset 0 0 0 1px var(--line);display:block;}
+  .artifact .cap{font-size:12px;color:var(--faint);text-align:center;max-width:44ch;}
+
+  /* 拍板 / 意图上报 */
+  .approval{border-radius:12px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);padding:20px 22px;}
+  .approval .atitle{font-size:13px;color:var(--ink);font-weight:500;margin-bottom:4px;}
+  .approval .ah{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+  .approval .btns{display:flex;gap:12px;flex-wrap:wrap;}
+  .approval .done-msg,.approval .pending-msg{font-size:13.5px;color:var(--muted);line-height:1.6;}
+  .approval .pending-msg{color:var(--faint);}
+
+  /* 成本确认门 */
+  .costgate{border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--gold-soft);padding:20px 22px;}
+  .costgate .cgtitle{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:6px;}
+  .costgate .cgest{font-size:26px;font-family:var(--serif);font-style:italic;color:var(--ink);margin:6px 0 4px;}
+  .costgate .cgh{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+
+  /* 建议包(永不死局)卡 */
+  .rec{border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--gold-soft);padding:18px 20px;margin-bottom:16px;}
+  .rec .rtitle{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .rec .rh{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+  .rec .opts{display:flex;flex-direction:column;gap:8px;}
+  .rec .opt{display:grid;grid-template-columns:1fr auto;gap:10px;padding:11px 14px;border-radius:9px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;}
+  .rec .opt.pick{box-shadow:inset 0 0 0 1px var(--gold);}
+  .rec .opt .oh{color:var(--ink);}
+  .rec .opt .om{color:var(--faint);font-size:11.5px;margin-top:2px;}
+  .rec .opt .otag{font-size:10.5px;color:var(--gold);align-self:center;letter-spacing:0.04em;}
+
+  /* 上游占位 */
+  .upstream-hint{font-size:12.5px;color:var(--faint);letter-spacing:0.02em;border:1px dashed var(--line-strong);padding:9px 16px;border-radius:22px;background:var(--surface);}
+
+  /* 成片就绪 */
+  .ready-banner{border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--gold-soft);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .ready-banner .rb-t{font-size:14px;color:var(--ink);}
+  .ready-banner .rb-t b{color:var(--gold);}
+
+  /* ---- 引擎账本(D8)---- */
+  .ledger{padding:12px 0 80px;}
+  .ledger .lh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+  .ledger .lh h3{font-size:11px;text-transform:uppercase;letter-spacing:0.2em;color:var(--gold);font-weight:500;margin:0;}
+  .ledger .lh .n{font-size:12.5px;color:var(--faint);}
+  .events{background:var(--surface);border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);padding:8px 0;max-height:260px;overflow:auto;}
+  .ev{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:8px 20px;font-size:12.5px;border-bottom:1px solid var(--line);}
+  .ev:last-child{border-bottom:0;}
+  .ev .t{color:var(--faint);font-variant-numeric:tabular-nums;font-size:11.5px;padding-top:1px;}
+  .ev .m{color:var(--muted);}
+  .ev .m b{color:var(--ink);font-weight:500;}
+  .ev .m .src{color:var(--gold);font-size:11px;letter-spacing:0.03em;}
+  .ev.intent .m .src{color:var(--reject);}
+
+  /* ---- 未找到项目 ---- */
+  .notfound{padding:120px 0;text-align:center;}
+  .notfound h2{font-size:24px;font-weight:300;margin:0 0 12px;}
+  .notfound p{color:var(--muted);font-size:14.5px;margin:0 0 22px;}
+
+  @media (max-width:920px){
+    .console{grid-template-columns:1fr;gap:26px;}
+    .rail{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px;}
+    .rail-title{display:none;}
+    .node{flex-direction:column;align-items:center;min-width:96px;text-align:center;gap:7px;padding:12px 8px;}
+    .node .stem{display:none;}
+    .node .ntitle{font-size:12px;}
+    .io{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){.wrap{padding:0 22px;}.nav-inner{padding:0 22px;}nav.menu{gap:16px;}.chead h1{font-size:26px;}.detail .dhead{flex-direction:column;gap:10px;}}
+</style>
+</head>
+<body>
+
+<header id="site-nav"></header>
+
+<div id="app"></div>
+
+<script src="assets/recipes.js"></script>
+<script src="assets/mock-engine.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   操作台 · D17 哑视图
+   只读渲染 Studio 引擎的 project.nodes(node_state),只上报意图。
+   不在这里持有任何业务状态;唯一的本地状态是"当前选中的步骤"(纯视图态)。
+   ============================================================ */
+
+const appEl = document.getElementById("app");
+const params = new URLSearchParams(location.search);
+const projectId = params.get("project");
+
+let selIndex = 0;      // 当前选中的步骤(视图态,允许)
+let unsubscribe = null;
+
+/* 建议包(永不死局)· 只在 ad2 的 04_shots 成本门上展示 */
+const REC_PACK = {
+  hint:"付费生成前,引擎把选项摊开(效果 / 保真 / 成本 / 时间 / 影响范围),标出推荐项,你也能从断点继续。",
+  opts:[
+    {h:"全片 Seedance i2v 重生成", m:"效果最好 · 成本最高 · 约 8 分钟", tag:"", pick:false},
+    {h:"仅关键镜付费,其余走骨架直传", m:"保真够用 · 成本减半 · 约 4 分钟", tag:"推荐", pick:true},
+    {h:"先出 2 镜样片确认再决定", m:"零风险试水 · 从断点继续", tag:"", pick:false},
+  ]
+};
+
+function fmtTime(ts){
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2,"0");
+  return p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+}
+function fmtMoney(n){ return "¥"+(n||0).toFixed(2); }
+
+/* ---------- 未找到项目 ---------- */
+function renderNotFound(){
+  appEl.innerHTML = `
+    <section class="chead"><div class="wrap">
+      <div class="eyebrow">操作台</div>
+      <div class="notfound">
+        <h2>没找到这个项目</h2>
+        <p>链接里的项目号不存在,或者还没有创建。去工作台挑一条产线,重新开一个项目。</p>
+        <a class="btn btn-primary" href="workspace.html">去工作台新建项目</a>
+      </div>
+    </div></section>`;
+}
+
+/* ---------- 主渲染 ---------- */
+function render(){
+  const project = Studio.projects.get(projectId);
+  if(!project){ renderNotFound(); return; }
+  const recipe = Studio.recipes.get(project.recipe);
+  const merged = mergeNodes(project, recipe);
+
+  // 保持选中步骤;若已失效则跳到 currentNode
+  if(selIndex<0 || selIndex>=merged.length){
+    const cur = Studio.projects.currentNode(project);
+    const idx = cur ? merged.findIndex(s=>s.node.node_id===cur.node_id) : -1;
+    selIndex = idx>=0 ? idx : 0;
+  }
+
+  appEl.innerHTML = shellHTML(project, recipe);
+  renderCostBand(project);
+  renderRail(merged);
+  renderDetail(project, recipe, merged);
+  renderLedger(project);
+  wireStatic(project, recipe, merged);
+}
+
+/* 合并 node_state(引擎持有)与 recipe 步骤元数据(配方持有) */
+function mergeNodes(project, recipe){
+  return project.nodes.map(node=>{
+    const step = recipe.steps.find(s=>s.id===node.node_id) || {};
+    return Object.assign({}, step, { node });
+  });
+}
+
+function shellHTML(project, recipe){
+  const doneCount = project.nodes.filter(n=>n.status==="done").length;
+  return `
+    <section class="chead">
+      <div class="wrap">
+        <div class="eyebrow">操作台 · 一引擎 · 多配方</div>
+        <h1>这台操作台自己什么业务都不懂 —— <span class="serif-em">它只画状态、报意图</span>。</h1>
+        <p class="lede">每一步的状态由引擎持有并写入;操作台只把 <code>node_state</code> 画出来,再把你的「通过 / 打回」意图报回引擎。换一份配方,这里就自动长出另一条产线。</p>
+        <div class="principles">
+          <span class="p"><b>D17</b> 前端只渲染状态、只上报意图,不持业务状态</span>
+          <span class="p"><b>D21</b> 配方步骤顺序 = 用户操作的每一步</span>
+          <span class="p"><b>D9</b> 打回某步 → 下游自动作废重排</span>
+        </div>
+      </div>
+    </section>
+    <div class="rule"><div class="wrap"></div></div>
+    <div class="wrap">
+      <div class="pmeta">
+        <span class="pn">${escapeHtml(project.title)}</span>
+        <span class="pt">${escapeHtml(project.subProject)}</span>
+        <span class="pcode">${escapeHtml(recipe.code)} · ${doneCount}/${project.nodes.length} 步</span>
+      </div>
+      <div class="costband" id="costband"></div>
+      <div class="console">
+        <div class="rail" id="rail" aria-label="步骤轨"></div>
+        <div class="detail" id="detail"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <section class="ledger">
+        <div class="lh">
+          <h3>引擎事件账本</h3>
+          <span class="n">状态由引擎持有并写入(D8)· 操作台只读渲染、只写意图</span>
+        </div>
+        <div class="events" id="events"></div>
+      </section>
+    </div>`;
+}
+
+function escapeHtml(s){ return String(s==null?"":s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
+function renderCostBand(project){
+  const el = document.getElementById("costband");
+  const t = Studio.projects.costTotal(project);
+  el.innerHTML = `
+    <div class="cb-total">累计成本 <b>${fmtMoney(t.total)}</b></div>
+    <div class="cb-breakdown">
+      <span>大模型 ${fmtMoney(t.llm)}</span>
+      <span>图片 ${fmtMoney(t.image)}</span>
+      <span>视频 ${fmtMoney(t.video)}</span>
+    </div>`;
+}
+
+function renderRail(merged){
+  const railEl = document.getElementById("rail");
+  railEl.innerHTML = '<div class="rail-title">操作步骤 · 共 '+merged.length+' 步</div>' +
+    merged.map((s,i)=>{
+      const st = s.node.status;
+      return `
+      <button class="node ${st} ${i===selIndex?'sel':''}" data-i="${i}" type="button">
+        <span class="stem"></span>
+        <span class="idx">${Studio.ICON[st]||s.n}</span>
+        <span class="nbody">
+          <span class="ntitle">${escapeHtml(s.title)}${s.gate?'<span class="gatemark">◆ 拍板</span>':''}</span>
+          <span class="nstate">${s.n} · ${Studio.STATE_ZH[st]}</span>
+        </span>
+      </button>`;
+    }).join("");
+  railEl.querySelectorAll(".node").forEach(n=>{
+    n.addEventListener("click", ()=>{ selIndex = +n.dataset.i; renderRailSelectionOnly(); renderDetailFromCurrent(); });
+  });
+}
+function renderRailSelectionOnly(){
+  document.querySelectorAll("#rail .node").forEach(n=>{
+    n.classList.toggle("sel", +n.dataset.i===selIndex);
+  });
+}
+function renderDetailFromCurrent(){
+  const project = Studio.projects.get(projectId);
+  if(!project) return;
+  const recipe = Studio.recipes.get(project.recipe);
+  const merged = mergeNodes(project, recipe);
+  renderDetail(project, recipe, merged);
+}
+
+function ioCol(lab, arr){
+  return `<div class="col"><div class="lab">${lab}</div>${(arr||[]).map(x=>`<div class="chip"><span class="k">${escapeHtml(x[0])}</span><span>${escapeHtml(x[1])}</span></div>`).join("")}</div>`;
+}
+
+/* 产物预览:真实渲染 node.artifacts,没有产物就给一个诚实占位 */
+function artifactHTML(s){
+  const node = s.node;
+  const arts = node.artifacts || [];
+  if(arts.length===0){
+    return `<div class="artifact"><span class="abadge">产物预览</span><span class="ph-badge">上游通过后,引擎才会跑这一步</span><span class="cap">这一步暂时没有产物 —— 等它进入 awaiting / done,画面会自动填上。</span></div>`;
+  }
+  if(arts.length===1){
+    const a = arts[0];
+    const vidTag = a.kind==="video" ? `<span class="cvid" style="position:static;display:inline-block;margin-bottom:8px;">▶ 视频</span>` : "";
+    return `<div class="artifact single"><span class="abadge">产物 · ${escapeHtml(a.label||"")}</span>${vidTag}<img src="${a.address}" alt="${escapeHtml(a.label||"")}"></div>`;
+  }
+  return `<div class="artifact grid">` +
+    arts.map(a=>{
+      const sel = a.status==="selected";
+      const vid = a.kind==="video" ? `<span class="cvid">▶ 视频</span>` : "";
+      const star = sel ? `<span class="cstar">★</span>` : "";
+      return `<div class="cell ${sel?'selected':''}">${star}${vid}<img src="${a.address}" alt="${escapeHtml(a.label||"")}"><span class="clabel">${escapeHtml(a.label||"")}</span></div>`;
+    }).join("") +
+    `</div>`;
+}
+
+/* 成本预估:image 用 PRICE.image × 格数;video 用 PRICE.video × 3秒 × 格数;否则给个保底估算 */
+function estimateCost(project, s){
+  const cells = (s.art && s.art.cells) ? s.art.cells.length : 3;
+  if(s.unit==="image") return +(Studio.PRICE.image*cells).toFixed(2);
+  if(s.unit==="video") return +(Studio.PRICE.video*3*cells).toFixed(2);
+  return +(Studio.PRICE.llm).toFixed(2);
+}
+
+function approvalHTML(project, s, i){
+  const node = s.node;
+  const st = node.status;
+
+  if(st==="pending"){
+    return `<div class="approval"><div class="pending-msg">上游还没走到这里。前面的步骤通过后,引擎才会跑这一步。</div></div>`;
+  }
+  if(st==="rejected"){
+    return `<div class="approval"><div class="pending-msg">↩ 已打回,等待重跑;重跑后会再次停在拍板点等你确认。</div></div>`;
+  }
+  if(st==="running"){
+    return `<div class="approval"><div class="pending-msg">⋯ 生成中,请稍候。</div></div>`;
+  }
+  if(st==="done"){
+    return `<div class="approval">
+      <div class="done-msg">✓ 已通过,产物已锁定,可回看或打回重做。</div>
+      <div class="btns" style="margin-top:14px;">
+        <button class="btn btn-reject" data-act="reject" data-i="${i}">打回重做</button>
+      </div>
+    </div>`;
+  }
+  // awaiting
+  if(node.needsCostConfirm && s.costGate){
+    const est = estimateCost(project, s);
+    const rec = `<div class="rec"><div class="rtitle">◆ 建议包 · 永不死局</div><div class="rh">${REC_PACK.hint}</div><div class="opts">${
+      REC_PACK.opts.map(o=>`<div class="opt ${o.pick?'pick':''}"><div><div class="oh">${o.h}</div><div class="om">${o.m}</div></div>${o.tag?`<span class="otag">${o.tag}</span>`:''}</div>`).join("")
+    }</div></div>`;
+    return `${rec}<div class="costgate">
+      <div class="cgtitle">成本确认门 · confirm-cost</div>
+      <div class="cgest">预估 ${fmtMoney(est)}</div>
+      <div class="cgh">这一步要付费生成,引擎在提交前卡一道确认门。确认后才会真正生成并记账。</div>
+      <div class="btns">
+        <button class="btn btn-primary" data-act="cost-confirm" data-i="${i}">确认成本并生成</button>
+        <button class="btn btn-reject" data-act="reject" data-i="${i}">打回重做</button>
+      </div>
+    </div>`;
+  }
+  const shotBtn = (s.id==="03_keyframes"||s.id==="04_shots")
+    ? `<button class="btn btn-gold" data-act="shot" data-i="${i}">逐镜补做(shot)</button>` : "";
+  return `<div class="approval">
+    <div class="atitle">${s.gate?'拍板停靠点 · ':''}等你确认这一步</div>
+    <div class="ah">看下这步的产物。满意就通过进下一步;不满意打回,${s.n} 之后的步骤会被引擎自动作废重排(D9)。</div>
+    <div class="btns">
+      <button class="btn btn-primary" data-act="ok" data-i="${i}">通过 → 下一步</button>
+      <button class="btn btn-reject" data-act="reject" data-i="${i}">打回重做</button>
+      ${shotBtn}
+    </div>
+  </div>`;
+}
+
+function readyBannerHTML(project){
+  if(project.status!=="done") return "";
+  return `<div class="ready-banner">
+    <div class="rb-t">🎬 <b>成片就绪</b> —— 配方已到末步,产线走完。</div>
+    <a class="btn btn-ghost" href="gallery.html">去作品库看看</a>
+  </div>`;
+}
+
+function renderDetail(project, recipe, merged){
+  const detailEl = document.getElementById("detail");
+  const s = merged[selIndex];
+  if(!s){ detailEl.innerHTML = ""; return; }
+  const node = s.node;
+  const isLastDone = project.status==="done" && selIndex===merged.length-1;
+  detailEl.innerHTML = `
+    <div class="dhead">
+      <div class="dnum">${s.n}</div>
+      <div class="dhb">
+        <div class="dh-top">
+          <h2>${escapeHtml(s.title)}</h2>
+          <span class="dtool">${escapeHtml(s.tool)}</span>
+          <span class="statepill ${node.status}"><span class="g">${Studio.ICON[node.status]||"·"}</span>${Studio.STATE_ZH[node.status]}</span>
+        </div>
+        <p class="dsub">${escapeHtml(s.sub||"")}</p>
+      </div>
+    </div>
+    <div class="dbody">
+      ${isLastDone ? readyBannerHTML(project) : ""}
+      <div class="io">${ioCol("消费(上游输入)", s.in)}${ioCol("产物(输出)", s.out)}</div>
+      ${artifactHTML(s)}
+      ${approvalHTML(project, s, selIndex)}
+    </div>`;
+  detailEl.querySelectorAll("[data-act]").forEach(b=>{
+    b.addEventListener("click", ()=>handleAct(b.dataset.act, +b.dataset.i));
+  });
+}
+
+function renderLedger(project){
+  const eventsEl = document.getElementById("events");
+  const evs = project.events || [];
+  if(evs.length===0){
+    eventsEl.innerHTML = '<div class="ev"><span class="t">—</span><span class="m" style="color:var(--faint)">还没有事件 —— 拍板一步,引擎就会往这里记一条。</span></div>';
+    return;
+  }
+  eventsEl.innerHTML = evs.map(e=>`<div class="ev ${e.kind==="intent"?"intent":""}"><span class="t">${fmtTime(e.ts)}</span><span class="m">${e.msg}</span></div>`).join("");
+}
+
+/* ---------- 意图上报:只调用 Studio.projects.act,不在本地改任何状态 ---------- */
+function handleAct(act, i){
+  Studio.projects.act(projectId, act, { index:i });
+  // 引擎已经 save() 触发 onChange → render() 会自动跑一遍;这里不用手动重渲染
+  if(act==="ok") toast("已通过,报给引擎");
+  else if(act==="reject") toast("已打回,报给引擎");
+  else if(act==="cost-confirm") toast("已确认成本,授权生成");
+  else if(act==="shot") toast("已上报逐镜补做意图");
+}
+
+function wireStatic(){ /* 目前 rail / detail 内部按钮已在各自渲染函数里绑定,这里预留扩展位 */ }
+
+/* ---------- 启动 ---------- */
+function boot(){
+  if(!projectId){ renderNotFound(); return; }
+  const project = Studio.projects.get(projectId);
+  if(!project){ renderNotFound(); return; }
+  const recipe = Studio.recipes.get(project.recipe);
+  const merged = mergeNodes(project, recipe);
+  const cur = Studio.projects.currentNode(project);
+  const idx = cur ? merged.findIndex(s=>s.node.node_id===cur.node_id) : -1;
+  selIndex = idx>=0 ? idx : 0;
+  render();
+  unsubscribe = Studio.onChange(render);
+}
+
+boot();
+</script>
+
+<script src="assets/nav.js" data-here="console"></script>
+</body>
+</html>
+
+

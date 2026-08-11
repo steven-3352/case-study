@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>内容工作台 · 首页预览</title>
+<style>
+  /* ================================================================
+     Direction B · "Build 奢华极简"
+     真字体自托管:InterVariable(极细字重做展示) + Redaction 35(斜体衬线做编辑大字)
+     暖白纸感 · 70%+ 留白 · 金色克制点缀 · 零 AI 味
+     ================================================================ */
+  @font-face{
+    font-family:"InterVariable";
+    src:url("fonts/InterVariable.woff2") format("woff2");
+    font-weight:100 900;font-style:normal;font-display:swap;
+  }
+  @font-face{
+    font-family:"Redaction 35";
+    src:url("fonts/Redaction35-Italic.woff2") format("woff2");
+    font-weight:400;font-style:italic;font-display:swap;
+  }
+
+  /* ---- 设计令牌:暖白纸 · 暖近黑墨 · 暖金点缀(无蓝紫/无玻璃/无光斑/无渐变) ---- */
+  :root{
+    --bg:#faf8f4;                    /* 暖近白纸 */
+    --paper:#f3efe8;                 /* 略深纸面,做 chrome / 骨架分层 */
+    --surface:#fffdf9;               /* 卡片 / 窗口主体 */
+    --nav-bg:rgba(250,248,244,0.82);
+    --on-ink:#faf8f4;                /* 反色按钮上的文字 */
+    --ink:#1a1714;                   /* 暖近黑,非纯黑 */
+    --muted:#6b6259;
+    --faint:#9c938a;
+    --line:rgba(26,23,20,0.09);
+    --line-strong:rgba(26,23,20,0.16);
+    --gold:#b08d57;                  /* 主点缀:暖金,克制使用 */
+    --gold-soft:#c9a66b;
+    --ok:#5c7a52;                    /* 功能色:柔和自然绿,仅"已完成"态 */
+    --radius:15px;
+    --ui:"InterVariable","Inter","PingFang SC","Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    --serif:"Redaction 35","Songti SC",Georgia,"Times New Roman",serif;
+    --maxw:1180px;
+  }
+  /* ---- 深色:暖炭 · 发丝线 · 金色略提亮 · 无光晕 · 无蓝紫 ---- */
+  html[data-theme="dark"]{
+    --bg:#161310;
+    --paper:#221d18;
+    --surface:#1d1916;
+    --nav-bg:rgba(22,19,16,0.84);
+    --on-ink:#161310;
+    --ink:rgba(255,251,245,0.92);
+    --muted:rgba(255,251,245,0.56);
+    --faint:rgba(255,251,245,0.40);
+    --line:rgba(255,251,245,0.11);
+    --line-strong:rgba(255,251,245,0.20);
+    --gold:#d4b483;
+    --gold-soft:#c9a66b;
+    --ok:#7fa06f;
+  }
+  html{transition:background .25s ease;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--ui);
+    font-size:16px;
+    line-height:1.7;
+    font-optical-sizing:auto;
+    font-feature-settings:"cv05" 1,"cv08" 1,"ss03" 1;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 40px;}
+
+  /* ---- 顶栏:轻盈 · 发丝线分隔 ---- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:var(--nav-bg);
+    -webkit-backdrop-filter:saturate(1.1) blur(10px);
+    backdrop-filter:saturate(1.1) blur(10px);
+    box-shadow:0 1px 0 var(--line);
+  }
+  .nav-inner{
+    max-width:var(--maxw);margin:0 auto;padding:0 40px;
+    height:68px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-weight:500;font-size:16px;letter-spacing:-0.01em;}
+  .brand .mark{width:14px;height:14px;background:var(--ink);border-radius:4px;display:inline-block;}
+  nav.menu{display:flex;align-items:center;gap:32px;}
+  nav.menu a, nav.menu .item{
+    color:var(--muted);font-size:14.5px;font-weight:400;
+    transition:color .18s ease;cursor:pointer;position:relative;
+  }
+  nav.menu a:hover, nav.menu .item:hover{color:var(--ink);}
+  .caret{display:inline-block;margin-left:5px;font-size:9px;color:var(--faint);vertical-align:middle;}
+  /* 下拉:轻软浮层 */
+  .dd{position:relative;}
+  .dd .panel{
+    position:absolute;top:calc(100% + 16px);left:50%;transform:translateX(-50%) translateY(6px);
+    background:var(--surface);border-radius:var(--radius);
+    box-shadow:inset 0 0 0 1px var(--line),0 18px 48px rgba(26,23,20,0.10);
+    padding:10px;min-width:210px;opacity:0;visibility:hidden;transition:all .2s ease;
+  }
+  .dd:hover .panel{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+  .dd .panel a{display:block;padding:11px 14px;border-radius:10px;color:var(--muted);font-size:14px;}
+  .dd .panel a:hover{background:var(--paper);color:var(--ink);}
+  .dd .panel .tag{display:block;font-size:11.5px;color:var(--faint);margin-top:2px;font-weight:400;}
+  .btn-login{
+    color:var(--ink);border:1px solid var(--line-strong);border-radius:22px;
+    padding:8px 18px;font-size:14px;font-weight:400;transition:all .18s ease;
+  }
+  .btn-login:hover{background:var(--ink);color:var(--on-ink);border-color:var(--ink);}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    color:var(--muted);font-size:13px;font-weight:400;
+    border:1px solid var(--line);border-radius:22px;padding:6px 13px;transition:all .18s ease;background:transparent;font-family:inherit;
+  }
+  .theme-toggle:hover{color:var(--ink);border-color:var(--line-strong);}
+  .theme-toggle .glyph{font-size:12.5px;color:var(--gold);}
+
+  /* ---- Hero:大量呼吸空间,极细展示字 ---- */
+  .hero{padding:150px 0 120px;}
+  .eyebrow{font-size:11.5px;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:40px;font-weight:500;}
+  .hero h1{
+    font-size:clamp(46px,8.5vw,92px);line-height:1.02;letter-spacing:-0.04em;font-weight:250;margin:0 0 40px;
+    max-width:15ch;
+  }
+  .hero h1 em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-0.02em;}
+  .hero p.lede{font-size:20px;color:var(--muted);max-width:50ch;margin:0 0 48px;line-height:1.75;font-weight:400;}
+  .hero-cta{display:flex;gap:20px;align-items:center;}
+  .btn-primary{
+    background:var(--ink);color:var(--on-ink);border-radius:26px;padding:14px 30px;font-size:15px;font-weight:400;
+    transition:opacity .18s ease;
+  }
+  .btn-primary:hover{opacity:0.84;}
+  .btn-ghost{color:var(--muted);font-size:15px;font-weight:400;padding:14px 4px;transition:color .18s;}
+  .btn-ghost:hover{color:var(--ink);}
+  .btn-ghost .arrow{transition:transform .18s;display:inline-block;color:var(--gold);}
+  .btn-ghost:hover .arrow{transform:translateX(4px);}
+
+  .rule{height:1px;background:var(--line);margin:0;}
+
+  /* ---- 分区:大留白 ---- */
+  .section{padding:clamp(100px,12vw,160px) 0;}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px;gap:24px;}
+  .sec-head h2{font-size:12px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin:0;}
+  .sec-head .note{font-size:13.5px;color:var(--faint);font-weight:400;}
+  .sec-lede{font-family:var(--serif);font-style:italic;font-size:clamp(28px,4vw,40px);line-height:1.35;color:var(--ink);max-width:24ch;margin:0;font-weight:400;letter-spacing:-0.01em;}
+
+  /* ---- 子项目编辑行:每行不同节奏,刻意打破左右对称模版感 ----
+     手法:列比逐行变化 + 垂直错位(shot 上浮/下沉)+ 首行放大做“主秀”。
+     不是 4 行同一个 grid 翻转,而是四种不同的呼吸。 */
+  .rows{display:flex;flex-direction:column;gap:clamp(96px,12vw,168px);margin-top:96px;}
+  .row{
+    display:grid;grid-template-columns:0.82fr 1.18fr;gap:clamp(40px,6vw,88px);align-items:center;
+  }
+  .row.flip{grid-template-columns:1.18fr 0.82fr;}
+  .row.flip .copy{order:2;}
+  .row.flip .shot{order:1;}
+
+  /* 逐行差异化:列比 + 垂直错位,横向基线不再对齐成一条死线 */
+  .row--lead{grid-template-columns:0.72fr 1.28fr;gap:clamp(48px,7vw,104px);}
+  .row--lead .shot{margin-top:-16px;}
+  .row--wide{grid-template-columns:1.34fr 0.66fr;}   /* flip:图更宽 */
+  .row--wide .copy{align-self:flex-end;padding-bottom:14px;}
+  .row--low{grid-template-columns:0.9fr 1.1fr;}
+  .row--low .shot{margin-top:40px;}
+  .row--tight{grid-template-columns:1.06fr 0.94fr;}  /* flip:接近对分,图更含蓄 */
+  .row--tight .copy{align-self:flex-start;padding-top:20px;}
+
+  /* 文字块:靠留白与金色细线分隔,不用盒子 */
+  .copy{
+    display:flex;flex-direction:column;justify-content:center;padding:8px 0;
+  }
+  .copy .num{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:clamp(54px,7vw,80px);line-height:0.9;color:var(--ink);margin:0 0 24px;letter-spacing:-0.02em;
+    padding-top:26px;position:relative;
+  }
+  .copy .num::before{
+    content:"";position:absolute;top:0;left:0;width:56px;height:1px;background:var(--gold);
+  }
+  .copy .kicker{font-size:11.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:20px;}
+  .copy h3{font-size:clamp(26px,3.4vw,34px);letter-spacing:-0.03em;font-weight:300;line-height:1.18;margin:0 0 22px;}
+  .copy p{font-size:16.5px;color:var(--muted);margin:0 0 32px;max-width:42ch;line-height:1.75;font-weight:400;}
+  .copy .link{font-size:14.5px;font-weight:400;color:var(--ink);letter-spacing:-0.005em;border-bottom:1px solid var(--gold);padding-bottom:3px;}
+  .copy .link .arrow{display:inline-block;transition:transform .18s;color:var(--gold);}
+  .copy .link:hover .arrow{transform:translateX(4px);}
+
+  /* ---- 占位"操作截图":浏览器窗口,奢华低浮阴影 ---- */
+  .shot{
+    align-self:center;
+    background:var(--surface);border-radius:16px;
+    box-shadow:0 1px 0 var(--line),0 30px 70px -24px rgba(26,23,20,0.22);
+    overflow:hidden;
+  }
+  html[data-theme="dark"] .shot{box-shadow:0 1px 0 var(--line),0 34px 80px -26px rgba(0,0,0,0.6);}
+  .shot .chrome{
+    height:42px;background:var(--paper);box-shadow:0 1px 0 var(--line);
+    display:flex;align-items:center;padding:0 16px;gap:8px;
+  }
+  .shot .dot{width:9px;height:9px;border-radius:50%;background:var(--line-strong);}
+  .shot .chrome .url{
+    margin-left:14px;flex:1;height:22px;background:var(--surface);border-radius:7px;
+    font-size:11px;color:var(--faint);display:flex;align-items:center;padding:0 12px;box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .shot .body{display:grid;grid-template-columns:162px 1fr;min-height:270px;}
+  /* 左侧步骤轨:体现"配方顺序=操作每一步" */
+  .steps{padding:22px 16px;background:var(--paper);box-shadow:1px 0 0 var(--line);}
+  .steps .st-title{font-size:10.5px;text-transform:uppercase;letter-spacing:0.18em;color:var(--faint);font-weight:500;margin-bottom:18px;}
+  .step{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--muted);font-weight:400;}
+  .step .idx{
+    width:20px;height:20px;border-radius:50%;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:500;
+    background:var(--surface);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .step.done .idx{background:var(--ok);color:#fff;box-shadow:none;}
+  .step.done{color:var(--ink);}
+  .step.active .idx{background:var(--gold);color:var(--on-ink);box-shadow:none;}
+  .step.active{color:var(--ink);font-weight:500;}
+  /* 主画布:占位骨架 */
+  .canvas{padding:26px;display:flex;flex-direction:column;gap:16px;}
+  .ph-line{height:10px;border-radius:6px;background:var(--line);}
+  .ph-frame{flex:1;border-radius:12px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);
+    display:flex;align-items:center;justify-content:center;min-height:130px;position:relative;}
+  .ph-badge{font-size:12px;color:var(--faint);letter-spacing:0.06em;border:1px dashed var(--line-strong);
+    padding:7px 14px;border-radius:22px;background:var(--surface);}
+  .ph-row{display:flex;gap:12px;}
+  .ph-chip{height:28px;border-radius:8px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);flex:1;}
+
+  .placeholder-note{
+    margin-top:64px;font-size:12.5px;color:var(--faint);display:flex;align-items:center;gap:9px;font-weight:400;
+  }
+  .placeholder-note .swatch{width:9px;height:9px;border-radius:3px;border:1px dashed var(--line-strong);}
+
+  /* ---- 作品浏览预告 ---- */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px;}
+  .g-card{aspect-ratio:3/4;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 20px 44px -26px rgba(26,23,20,0.20);
+    display:flex;align-items:flex-end;padding:18px;transition:transform .25s ease;}
+  .g-card:hover{transform:translateY(-4px);}
+  .g-card span{font-size:12.5px;color:var(--faint);}
+
+  /* ---- pull quote:大衬线斜体 ---- */
+  .quote{padding:clamp(100px,13vw,170px) 0;}
+  .quote blockquote{
+    font-family:var(--serif);font-style:italic;font-size:clamp(30px,4.6vw,48px);line-height:1.4;color:var(--ink);
+    max-width:22ch;margin:0;font-weight:400;letter-spacing:-0.015em;
+  }
+  .quote cite{display:block;margin-top:32px;font-family:var(--ui);font-size:13px;color:var(--gold);font-style:normal;letter-spacing:0.04em;font-weight:400;}
+
+  /* ---- footer ---- */
+  footer{box-shadow:0 -1px 0 var(--line);padding:56px 0;margin-top:0;}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;}
+  .foot-inner .cols{display:flex;gap:34px;}
+  .foot-inner a{font-size:14px;color:var(--muted);font-weight:400;}
+  .foot-inner a:hover{color:var(--ink);}
+  .foot-inner .cr{font-size:13px;color:var(--faint);}
+
+  /* ---- 单断点 ---- */
+  @media (max-width:600px){
+    .wrap{padding:0 22px;}
+    .nav-inner{padding:0 22px;}
+    nav.menu{gap:18px;}
+    nav.menu .hide-sm{display:none;}
+    .hero{padding:80px 0 64px;}
+    .hero h1{font-size:clamp(38px,12vw,52px);}
+    .row, .row.flip .copy, .row.flip .shot,
+    .row--lead, .row--wide, .row--low, .row--tight{grid-template-columns:1fr;order:0;gap:32px;}
+    /* 移动端取消桌面的垂直错位与对齐微调 */
+    .row--lead .shot, .row--low .shot{margin-top:0;}
+    .row--wide .copy, .row--tight .copy{align-self:auto;padding-top:0;padding-bottom:0;}
+    .rows{gap:80px;}
+    .gallery{grid-template-columns:repeat(2,1fr);}
+    .quote blockquote{font-size:26px;}
+  }
+</style>
+</head>
+<body data-dir="B">
+
+<!-- 顶栏:登录 / 作品浏览 / 视频▾(带货·MV·动作迁移) / 图片 / 漫剧 -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#"><span class="mark"></span>内容工作台</a>
+    <nav class="menu">
+      <div class="dd item">视频<span class="caret">▾</span>
+        <div class="panel">
+          <a href="#">带货视频<span class="tag">商品 → 脚本 → 成片</span></a>
+          <a href="#">MV 视频<span class="tag">歌曲 → 卡点 → 成片</span></a>
+          <a href="#">动作迁移<span class="tag">拍同款 · 参考视频翻拍</span></a>
+        </div>
+      </div>
+      <a href="#">图片</a>
+      <a href="#">漫剧</a>
+      <a href="#" class="hide-sm">作品浏览</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深浅色"><span class="glyph">◐</span><span class="label">深色</span></button>
+      <a href="#" class="btn-login">登录</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">一个平台 · 多条产线</div>
+    <h1>从一句话，到一支成片。</h1>
+    <p class="lede">带货、MV、拍同款、图片——每条产线都是一串清清楚楚的操作步骤。在下面直接看它们怎么用。</p>
+    <div class="hero-cta">
+      <a href="#" class="btn-primary">开始创作</a>
+      <a href="#work" class="btn-ghost">浏览作品 <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<div class="rule wrap-rule"><div class="wrap"></div></div>
+
+<!-- 子项目:截图即教程 -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>怎么用</h2>
+      <span class="note">下方为界面占位示意 · 待替换真实操作截图</span>
+    </div>
+    <p class="sec-lede">每条产线打开就是一列步骤,做到哪一步一目了然。</p>
+
+    <div class="rows">
+
+      <!-- 带货 -->
+      <div class="row row--lead">
+        <div class="copy">
+          <div class="num">01</div>
+          <div class="kicker">视频 · 带货</div>
+          <h3>把商品说清楚,拍成能卖的片。</h3>
+          <p>输入商品和卖点,平台顺着脚本 → 分镜 → 生成 → 字幕一步步走,每步可回看可改。</p>
+          <a class="link" href="#">看它怎么用 <span class="arrow">→</span></a>
+        </div>
+        <div class="shot">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">工作台 / 带货</span></div>
+          <div class="body">
+            <div class="steps">
+              <div class="st-title">操作步骤</div>
+              <div class="step done"><span class="idx">✓</span>商品输入</div>
+              <div class="step done"><span class="idx">✓</span>卖点脚本</div>
+              <div class="step active"><span class="idx">3</span>分镜</div>
+              <div class="step"><span class="idx">4</span>生成</div>
+              <div class="step"><span class="idx">5</span>字幕</div>
+              <div class="step"><span class="idx">6</span>成片</div>
+            </div>
+            <div class="canvas">
+              <div class="ph-line" style="width:45%"></div>
+              <div class="ph-frame"><span class="ph-badge">操作截图占位</span></div>
+              <div class="ph-row"><span class="ph-chip"></span><span class="ph-chip"></span><span class="ph-chip"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MV -->
+      <div class="row flip row--wide">
+        <div class="copy">
+          <div class="num">02</div>
+          <div class="kicker">视频 · MV</div>
+          <h3>给一首歌,卡着节拍出画面。</h3>
+          <p>上传歌曲自动卡点,分镜与关键帧顺势生成,最后拼成一支跟着音乐走的 MV。</p>
+          <a class="link" href="#">看它怎么用 <span class="arrow">→</span></a>
+        </div>
+        <div class="shot">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">工作台 / MV</span></div>
+          <div class="body">
+            <div class="steps">
+              <div class="st-title">操作步骤</div>
+              <div class="step done"><span class="idx">✓</span>上传歌曲</div>
+              <div class="step done"><span class="idx">✓</span>卡点</div>
+              <div class="step active"><span class="idx">3</span>分镜</div>
+              <div class="step"><span class="idx">4</span>关键帧</div>
+              <div class="step"><span class="idx">5</span>生成</div>
+              <div class="step"><span class="idx">6</span>拼接成片</div>
+            </div>
+            <div class="canvas">
+              <div class="ph-line" style="width:60%"></div>
+              <div class="ph-frame"><span class="ph-badge">操作截图占位</span></div>
+              <div class="ph-row"><span class="ph-chip"></span><span class="ph-chip"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 动作迁移 / 拍同款 -->
+      <div class="row row--low">
+        <div class="copy">
+          <div class="num">03</div>
+          <div class="kicker">视频 · 动作迁移</div>
+          <h3>看中一条,拍成你自己的同款。</h3>
+          <p>丢一条参考视频,去身份化留下动作骨架,再套你的人和风格重新生成——拍同款不撞脸。</p>
+          <a class="link" href="#">看它怎么用 <span class="arrow">→</span></a>
+        </div>
+        <div class="shot">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">工作台 / 动作迁移</span></div>
+          <div class="body">
+            <div class="steps">
+              <div class="st-title">操作步骤</div>
+              <div class="step done"><span class="idx">✓</span>参考视频</div>
+              <div class="step active"><span class="idx">2</span>去身份化</div>
+              <div class="step"><span class="idx">3</span>关键帧</div>
+              <div class="step"><span class="idx">4</span>生成</div>
+              <div class="step"><span class="idx">5</span>成片</div>
+            </div>
+            <div class="canvas">
+              <div class="ph-line" style="width:38%"></div>
+              <div class="ph-frame"><span class="ph-badge">操作截图占位</span></div>
+              <div class="ph-row"><span class="ph-chip"></span><span class="ph-chip"></span><span class="ph-chip"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图片 -->
+      <div class="row flip row--tight">
+        <div class="copy">
+          <div class="num">04</div>
+          <div class="kicker">图片</div>
+          <h3>一句话,自动补成专业提示词。</h3>
+          <p>你只说想要什么,平台替你把光线、风格这些补齐(专业提示词),再生成、供你挑图。</p>
+          <a class="link" href="#">看它怎么用 <span class="arrow">→</span></a>
+        </div>
+        <div class="shot">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">工作台 / 图片</span></div>
+          <div class="body">
+            <div class="steps">
+              <div class="st-title">操作步骤</div>
+              <div class="step done"><span class="idx">✓</span>输入想法</div>
+              <div class="step active"><span class="idx">2</span>专业提示词</div>
+              <div class="step"><span class="idx">3</span>生成</div>
+              <div class="step"><span class="idx">4</span>选图</div>
+            </div>
+            <div class="canvas">
+              <div class="ph-line" style="width:52%"></div>
+              <div class="ph-frame"><span class="ph-badge">操作截图占位</span></div>
+              <div class="ph-row"><span class="ph-chip"></span><span class="ph-chip"></span><span class="ph-chip"></span><span class="ph-chip"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="placeholder-note"><span class="swatch"></span>虚线框为占位符,真实操作截图到位后逐个替换,布局不变。</div>
+  </div>
+</section>
+
+<div class="rule"><div class="wrap"></div></div>
+
+<!-- 作品浏览预告 -->
+<section class="section" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>作品浏览</h2>
+      <span class="note">占位 · 登录后看自己的与公开的作品</span>
+    </div>
+    <p class="sec-lede">别人拍成了什么,顺手就能翻。</p>
+    <div class="gallery">
+      <div class="g-card"><span>作品占位 01</span></div>
+      <div class="g-card"><span>作品占位 02</span></div>
+      <div class="g-card"><span>作品占位 03</span></div>
+      <div class="g-card"><span>作品占位 04</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="rule"><div class="wrap"></div></div>
+
+<!-- pull quote(编辑感 · 唯一衬线大字) -->
+<section class="quote">
+  <div class="wrap">
+    <blockquote>“做到哪一步,一眼就看得见。”</blockquote>
+    <cite>—— 设计原则:操作即步骤,步骤即状态</cite>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="wrap foot-inner">
+    <div class="cols">
+      <a href="#">视频</a>
+      <a href="#">图片</a>
+      <a href="#">漫剧</a>
+      <a href="#">作品浏览</a>
+      <a href="#">登录</a>
+    </div>
+    <span class="cr">内容工作台 · 首页风格预览(占位素材)</span>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root=document.documentElement, btn=document.getElementById('themeToggle');
+    var label=btn.querySelector('.label'), glyph=btn.querySelector('.glyph');
+    function apply(t){
+      root.setAttribute('data-theme',t);
+      label.textContent = t==='dark' ? '浅色' : '深色';
+      glyph.textContent = t==='dark' ? '☀' : '◐';
+      try{localStorage.setItem('preview-theme',t);}catch(e){}
+    }
+    var saved; try{saved=localStorage.getItem('preview-theme');}catch(e){}
+    apply(saved==='dark'?'dark':'light');   /* 默认浅色 */
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+
+</body>
+</html>
+
