@@ -121,6 +121,31 @@ Higgsfield 子 skill 若涉及 **cyberpunk / cool-blue / dark-canvas** 一律以
 
 ---
 
+## 网页 / 幻灯片视觉设计(1 个 · huashu-design)
+
+**使用方式**:任何"用 HTML 做视觉产出、要好看、定风格"的场景挂载。它把自己当**设计师**(不是程序员),产出高保真原型 / 幻灯片 / 信息图 / 动画 demo / 视觉方向探索。**不适用于生产级 Web App / 需后端的系统**——那走正常工种协作(`02_WORKFLOW.md`)。
+
+| 触发场景关键词 | skill | 说明 |
+|---|---|---|
+| **做原型 / mockup / UI mockup** · **做个 HTML 页面 / 落地页 / 首页 / 官网视觉** · **PPT / 幻灯片 / deck** · **信息图 / 可视化排版** · **设计风格 / 定风格 / 视觉方向** · **专家评审 / critique** · **"做个好看的 / 提升档次 / 不够高级"** | `.agents/skills/huashu-design/SKILL.md` | 100% 三方向硬门(见下)· 反 AI slop · Pentagram/Build/Takram 风格系统 · Junior-Designer 模式 · Placeholder>烂实现 |
+
+### 三方向硬门(本 skill 核心铁律 · 与项目 `03_VISUAL_CREATIVE_GATE.md` 同源)
+
+- **任何新视觉设计,先出 3 个差异化真实初稿给用户选,选定后才深化**——**指定了风格/品牌也不豁免**。
+- 与本项目 `03_VISUAL_CREATIVE_GATE.md`(20→8-12→概念图)方向一致:都是"先发散给人选,不许一上来单方向磨"。web/deck 视觉走本 skill 的"3 方向",视频分镜创意走 `03` 的"20→8-12"。
+
+### 与项目铁律的关系(反 AI slop = 禁 AI 味的加详版)
+
+- 本 skill §反 AI slop 与 `04_CONTENT_CONSTRAINTS.md §3 禁 AI 味深色` **同向且更细**:真正要禁的是"偷懒解"——均匀深蓝底 `#0D1117` + 通用青紫霓虹 glow;**有作者意图的暗色(电影级光影)不在禁区**。以 `04` 铁律为最终约束,本 skill 提供更细的 slop 清单(紫渐变 / emoji 当图标 / 圆角卡+左彩条 / SVG 手画产品图 / Inter 当 display 字体)。
+- 禁蓝紫(`04 §2`)仍是最终约束:本 skill 若某方向默认冷蓝紫,以项目铁律替代。
+
+### 局部安装说明(下一个人须知)
+
+- 本次只装 `SKILL.md` + `references/`(32 篇设计知识)。**未装** `assets/`(bgm mp3 · 28MB)与视频/pptx 导出 `scripts/`。
+- 影响:纯 web/原型/风格/评审场景完整可用;**动画导出 MP4/GIF、HTML→PPTX 导出**这些路径缺脚本,用到时再从 upstream(`github.com/alchaincyf/huashu-design`)补 `scripts/` + `assets/`。
+
+---
+
 ## 场景 → skill 组合矩阵(常见组合速查)
 
 | 场景 | 组合 |
